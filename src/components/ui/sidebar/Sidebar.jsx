@@ -15,7 +15,7 @@ const Sidebar = () => {
             </NavLink>
             <NavLink to="/settings" activeclassname="active">
                 <img src={icons.rupee} alt="settings" />
-                <span className="label" style={{paddingTop:'5px'}}>Donations</span>
+                <span className="label" style={{ paddingTop: '5px' }}>Donations</span>
             </NavLink>
             <NavLink to="/details" activeclassname="active">
                 <img src={icons.welcome} alt="welcome" />

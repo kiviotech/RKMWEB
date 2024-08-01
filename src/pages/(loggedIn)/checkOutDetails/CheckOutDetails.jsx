@@ -49,7 +49,7 @@ const CheckOutDetails = () => {
                                         </span>
                                     </td>
                                     <td>
-                                        <button className="check-in-button checkout">Check in</button>
+                                        <button className="check-in-button checkout">Check out</button>
                                     </td>
                                 </tr>
                             ))}

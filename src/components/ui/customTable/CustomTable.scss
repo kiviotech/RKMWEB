@@ -1,0 +1,44 @@
+/* src/CustomTable.css */
+
+.table-container {
+    margin: 5px;
+
+    border-radius: 8px;
+    overflow: hidden;
+    background-color: #FFFFFF;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+thead {
+    background-color: #FFFFFF;
+}
+
+th,
+td {
+    padding: 10px;
+    text-align: left;
+}
+
+.avatar .circle {
+    width: 30px;
+    height: 30px;
+    background-color: #c4c4c4;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.icon {
+    img {
+        width: 22px;
+        height: 15.03px;
+    }
+}
+
+tr {
+    border: 1px solid #e0e0e0;
+    padding-top: 30px;
+}

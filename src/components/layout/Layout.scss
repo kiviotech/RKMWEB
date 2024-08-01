@@ -1,0 +1,39 @@
+// src/components/Layout.scss
+
+.layout-container {
+    display: flex;
+    position: relative;
+    margin: 0px;
+    height: 100vh;
+}
+
+.sidebar {
+    position: absolute;
+    margin-top: 105px;
+    margin-left: 20px;
+    transition: width 0.3s ease;
+    background: #FFFFFF;
+    z-index: 1000;
+    height: 72vh;
+}
+
+.content {
+    flex: 1;
+    transition: margin-left 0.3s ease;
+    display: flex;
+    flex-direction: column;
+
+    .outlet {
+        padding: 30px 40px 50px 150px;
+        overflow: auto;
+    }
+}
+
+
+@media only screen and (min-width: 1550px) {
+    .sidebar {
+
+        height: 82vh !important;
+    }
+
+}

@@ -1,0 +1,24 @@
+.status-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+    gap: 5px;
+}
+
+.status-color {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    margin-right: 10px;
+}
+
+.status-text {
+    flex-grow: 1;
+}
+
+.status-text,
+.status-number {
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 25px;
+}

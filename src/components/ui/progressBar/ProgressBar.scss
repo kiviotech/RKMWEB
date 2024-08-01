@@ -1,0 +1,50 @@
+/* src/ProgressBar.css */
+.progress-bar {
+    
+    border-radius: 5px;
+    overflow: hidden;
+    height: 5px;
+    margin: 10px 0;
+}
+
+.progress {
+    height: 100%;
+    transition: width 0.3s ease-in-out;
+}
+
+.progress-bar-container h3 {
+    font-size: 22px;
+    font-weight: 600;
+    line-height: 27.5px;
+    color: #1A212B;
+}
+
+.progress-bar-container a {
+    text-decoration: none;
+    color: #007bff;
+    margin-top: 10px;
+    display: inline-block;
+}
+
+.progress-bar-container p {
+    font-size: 10px;
+    font-weight: 500;
+    line-height: 12.5px;
+    color: #6D6D6D;
+}
+
+.view-all-btn {
+    text-align: right;
+
+    span {
+        font-size: 12px;
+        font-weight: 500;
+        line-height: 15px;
+        color: #525E6F;
+        cursor: pointer;
+
+        img {
+            padding-left: 5px;
+        }
+    }
+}

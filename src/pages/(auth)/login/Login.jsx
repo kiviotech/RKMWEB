@@ -41,7 +41,7 @@ const Login = () => {
                     <CommonButton
                         buttonName="Sign In"
                         buttonWidth="100%"
-                        style={{ backgroundColor: '#9866E9' }}
+                        style={{ backgroundColor: '#9866E9',fontSize: '16px', broderRadius: '16px', borderWidth: 0, padding: '10px 20px'  }}
                         onClick={handleClick}
                     />
                     {/* <button type="submit" className="sign-in-btn">Sign In</button> */}

@@ -1,12 +1,14 @@
 import React from 'react';
 import './Dashboard.scss'; // Import the CSS file
-import Graph from '../../components/ui/graph/Graph';
-import StatusItem from '../../components/ui/graph/StatusItem';
-import icons from '../../constants/icons';
-import ProgressBar from '../../components/ui/progressBar/ProgressBar';
-import CommonButton from '../../components/ui/Button';
+import Graph from '../../../components/ui/graph/Graph';
+import StatusItem from '../../../components/ui/graph/StatusItem';
+import icons from '../../../constants/icons';
+import ProgressBar from '../../../components/ui/progressBar/ProgressBar';
+import CommonButton from '../../../components/ui/Button';
+import { useNavigate } from 'react-router-dom';
 
 const Dashboard = () => {
+  const navigate = useNavigate();
   const series = [10, 20, 30, 40, 50];
   const colors = ['#FB8951', '#FFD439', '#FC5275', '#A3D65C', '#A463C7'];
   // const labels = ['Approved', 'On hold', 'Rejected', 'Confirmed', 'Awaiting'];
@@ -25,6 +27,11 @@ const Dashboard = () => {
     { color: '#FC5275', text: 'Blocked rooms' },
     { color: '#A3D65C', text: 'Cleaning underway' },
   ];
+
+
+  const gotoAllocateRoomPage = () => {
+    navigate('/allocate-rooms'); // Replace with your actual route path
+  }
   return (
     <div className="dashboard-main-container">
       <div className="left-main-container">
@@ -133,12 +140,12 @@ const Dashboard = () => {
             <CommonButton
               buttonName="Applications"
               buttonWidth="auto"
-              style={{ backgroundColor: '#9866E9' }}
+              style={{ backgroundColor: '#9866E9', borderColor: 'none', fontSize: '18px', broderRadius: '16px', borderWidth: 0, padding: '8px 30px' }}
             />
-            <CommonButton
+            <CommonButton onClick={gotoAllocateRoomPage}
               buttonName=" Room availability"
               buttonWidth="auto"
-              style={{ backgroundColor: '#9866E9' }}
+              style={{ backgroundColor: '#9866E9', borderColor: '#ffffff', fontSize: '18px', broderRadius: '16px', borderWidth: 0, padding: '8px 30px' }}
             />
           </div>
         </div>

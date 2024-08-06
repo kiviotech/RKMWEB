@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import Modal from 'react-modal';
 import './CheckInDetails.scss';
 import { icons } from '../../../constants';
-
+import SearchBar from '../../../components/ui/SearchBar';
 
 const guests = [
   { name: "Mrs. John Dee", age: 35, gender: "F", relation: "Wife", id: 1 },
@@ -26,10 +26,7 @@ const CheckInDetails = () => {
       <div className="check-in-datails">
         <div className="header">
           <div className="title">Check-ins</div>
-          <div className="search">
-            <img src={icons.search} alt="" />
-            <input type="text" placeholder="Search Guest " />
-          </div>
+          <SearchBar />
         </div>
         <div className="progressBar">
           <div className="progress">

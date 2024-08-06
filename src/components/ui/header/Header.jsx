@@ -31,6 +31,21 @@ const Header = () => {
                         )}
                     </NavLink>
                 </li>
+
+                <li>
+                    <NavLink to="/allocate-rooms" className={({ isActive }) => isActive ? 'active' : ''}>
+                        Allocate rooms  {location.pathname === '/allocate-rooms' && (
+                            <button className="close-button" style={{ fontSize: '18px' }}>&times;</button>
+                        )}
+                    </NavLink>
+                </li>
+                <li>
+                    <NavLink to="/requests" className={({ isActive }) => isActive ? 'active' : ''}>
+                        Requests  {location.pathname === '/requests' && (
+                            <button className="close-button" style={{ fontSize: '18px' }}>&times;</button>
+                        )}
+                    </NavLink>
+                </li>
             </ul>
             <div className="notification-icon">
                 <img className='notification' src={icons.notification} alt="Notifications" />

@@ -1,0 +1,424 @@
+.allocate-room-container {
+    display: flex;
+    gap: 20px;
+
+    .allocate-room {
+        width: 80%;
+
+        .tabs {
+            display: flex;
+
+            .tab {
+                padding: 20px 30px;
+                border: 1px solid #ccc;
+                border-bottom: none;
+                cursor: pointer;
+                margin-right: 10px;
+                border: none;
+                border-bottom: 1px solid #B6C2D3;
+                border-radius: 14px 14px 0 0;
+                margin-bottom: -1px;
+                color: #000000;
+                font-family: Lexend;
+                font-size: 20px;
+                font-weight: 400;
+                line-height: 25px;
+                text-align: left;
+
+                &.active {
+                    background-color: #FFFFFF;
+                    border: 1px solid #B6C2D3;
+                    border-bottom: none;
+                }
+            }
+        }
+
+        .book-room-main-section {
+            border: 1px solid #B6C2D3;
+            border-radius: 0 14px 14px 14px;
+            padding: 40px 30px;
+
+            .floors {
+                display: flex;
+                margin-bottom: 20px;
+                align-items: center;
+
+                label {
+                    font-family: var(--InterFontFamily);
+                    font-size: 20px;
+                    font-weight: 600;
+                    line-height: 21.78px;
+                    margin-right: 60px;
+                }
+
+                .floor-button {
+                    padding: 10px 30px;
+                    border: 1px solid #ccc;
+                    background-color: #FFFFFF;
+                    cursor: pointer;
+                    border: 1px solid #B6C2D3;
+                    align-items: center;
+                    font-family: var(--InterFontFamily);
+                    font-size: 18px;
+                    font-weight: 600;
+                    line-height: 21.78px;
+
+
+                    &.active {
+                        background-color: var(--primary-color);
+                        color: white;
+                    }
+                }
+
+                .first {
+                    border-radius: 16px 0 0 16px;
+                }
+
+                .last {
+                    border-radius: 0 16px 16px 0;
+                }
+            }
+
+            .months-section {
+                display: flex;
+                flex-direction: row;
+
+                .year-selector {
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    border: 1px solid #BEBEBE;
+                    border-radius: 5px;
+                    height: 30px;
+
+                    .year-button {
+                        background: none;
+                        border: none;
+                        cursor: pointer;
+                    }
+
+                    .angle-right {
+                        transform: rotate(180deg);
+                        position: relative;
+                        bottom: 2.5px;
+                    }
+
+                    span {
+                        margin: 0 5px;
+                        font-family: var(--InterFontFamily);
+                        font-size: 16px;
+                        font-weight: 600;
+                        line-height: 21.78px;
+                    }
+                }
+            }
+
+            .months,
+            .days {
+                display: flex;
+                align-items: center;
+                flex-wrap: wrap;
+                gap: 25px;
+
+                font-size: 18px;
+                font-weight: 500;
+                line-height: 22.5px;
+                cursor: pointer;
+                .active {
+                    background-color: var(--primary-color);
+                    color: white;
+                    padding: 0px 10px;
+                    border-radius: 5px;
+                }
+            }
+
+            .months {
+                padding-left: 30px;
+            }
+
+            .days {
+                padding-top: 30px;
+                font-size: 15px;
+                font-weight: 600;
+                line-height: 18.75px;
+                gap: 11.5px !important;
+            }
+
+            .room-type-title {
+                font-family: var(--InterFontFamily);
+                font-size: 20px;
+                font-weight: 600;
+                line-height: 24.2px;
+                color: #000000;
+                padding-top: 10px;
+            }
+
+            .room-types {
+                display: flex;
+                flex-wrap: wrap;
+                padding-top: 10px;
+                gap: 23px;
+
+                .room-type {
+                    border: 1px solid #9867E9;
+                    padding: 10px;
+                    width: 160px;
+                    height: auto;
+
+                    position: relative;
+                    border-radius: 5px;
+
+                    .room-type-header {
+                        position: absolute;
+                        top: -10px;
+                        left: 15px;
+                        background-color: #FFFFFF;
+                        padding: 0 10px;
+                        font-size: 15px;
+                        font-weight: 500;
+                        line-height: 18.75px;
+                    }
+
+                    .rooms {
+                        display: flex;
+                        justify-content: space-around;
+                        padding: 10px 0;
+
+                        .bed-icon-container {
+                            position: relative;
+
+                            img {
+                                width: 40px;
+                                height: 60px;
+                                cursor: pointer;
+                            }
+
+                            .tooltip {
+                                position: absolute;
+                                top: 50%;
+                                left: 140%;
+                                transform: translateY(-50%);
+                                // background-color: #FFFFFF;
+                                // color: #000000;
+                                // padding: 10px;
+                                // border-radius: 5px;
+                                // font-size: 14px;
+                                // white-space: nowrap;
+                                // opacity: 0;
+                                // transition: opacity 0.3s;
+                                z-index: 1000;
+
+                                // border: 1px solid #98A2AF;
+                                // width: 200px;
+                                // height: 135px;
+                                // box-shadow: 0 0 10px#FFFFFF;
+                                img {
+                                    width: 225px;
+                                    height: 100%;
+
+                                    z-index: 1000;
+                                    top: 50px;
+                                    margin-left: -15px;
+                                }
+
+                                .tooltip-content {
+                                    display: flex;
+
+                                    position: absolute;
+                                    top: 20px;
+                                    left: 33px;
+
+                                    .avatar {
+                                        width: 40px;
+                                        height: 40px;
+                                        border-radius: 50%;
+                                        margin-right: 10px;
+                                    }
+
+                                    .tooltip-text {
+                                        display: flex;
+                                        flex-direction: column;
+                                        padding: 10px 3px;
+                                        position: relative;
+
+                                        strong {
+                                            margin-bottom: 5px;
+                                            font-size: 15px;
+                                            font-weight: 600;
+                                            line-height: 18.75px;
+                                        }
+
+                                        p {
+                                            margin-top: -0px;
+                                            font-size: 14px;
+                                        }
+
+                                        img {
+                                            width: 5px;
+                                            height: 10px;
+                                            margin-left: 5px;
+                                            position: relative;
+                                            top: 1px;
+
+                                        }
+
+                                        .view-more {
+                                            color: #525E6F;
+                                            text-decoration: none;
+                                            position: relative;
+                                            top: 20px;
+                                            left: 50px;
+                                            font-size: 10px;
+                                            font-weight: 500;
+                                        }
+                                    }
+                                }
+
+
+                                // &::after {
+                                //     content: "";
+                                //     position: absolute;
+                                //     top: 50%;
+                                //     left: -32px;
+                                //     transform: translateY(-50%);
+                                //     border-width: 16px;
+                                //     border-style:solid;
+                                //     border-color: transparent #98A2AF transparent transparent;
+                                // }
+                            }
+
+                            &:hover .tooltip {
+                                opacity: 1;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    .user-details {
+        width: 20%;
+        border: 1px solid #98A2AF;
+        border-right: 0px;
+        margin-top: -30px;
+        border-radius: 14px 0px 0px 14px;
+        flex: 1;
+        margin-right: -40px !important;
+        padding: 20px;
+
+        .user-image {
+            text-align: center;
+
+            img {
+                width: 150px;
+                height: 150px;
+            }
+        }
+
+        .age-gender {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        p {
+            font-size: 18px;
+            font-weight: 600;
+            line-height: 22.5px;
+            color: #000000;
+
+            span {
+                font-weight: 400 !important;
+                color: #4B4B4B !important;
+                padding-left: 20px;
+            }
+        }
+
+        .guest-member-details {
+            background: #F4F4F7;
+            margin-bottom: 20px;
+            padding: 20px 10px;
+
+            img {
+                width: 30px;
+                height: 30px;
+                margin-right: 5px;
+                border-radius: 100%;
+            }
+
+            .member-guest-image {
+                display: flex;
+                align-items: center;
+                font-size: 15px;
+                font-weight: 500;
+                line-height: 18.75px;
+            }
+
+            .age-gender-relation {
+                font-size: 13px;
+                font-weight: 400;
+                line-height: 16.25px;
+            }
+        }
+
+    }
+}
+
+
+@media only screen and (max-width: 1300px) {
+    .tab {
+        padding: 20px 30px;
+        font-size: 16px !important;
+    }
+
+    .floor-button {
+        font-size: 16px !important;
+    }
+
+    .months,
+    .days {
+        font-size: 15px !important;
+    }
+
+    .days {
+        font-size: 13px !important;
+    }
+
+    .room-types {
+        .room-type {
+            width: 150px !important;
+        }
+    }
+
+    .user-details {
+        p {
+            font-size: 15px !important;
+            font-weight: 600;
+            line-height: 22.5px;
+            color: #000000;
+
+            span {
+                font-weight: 500 !important;
+                color: #4B4B4B !important;
+                padding-left: 10px !important;
+            }
+        }
+    }
+}
+
+@media only screen and (max-width: 1300px) {
+
+    .allocate-room-container {
+        display: flex;
+        gap: 20px;
+
+        .allocate-room {
+            width: 75% !important;
+        }
+
+        .user-details {
+            width: 25% !important;
+        }
+    }
+
+}

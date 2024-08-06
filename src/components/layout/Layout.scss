@@ -8,7 +8,7 @@
 .sidebar {
     position: absolute;
     margin-top: 105px;
-    margin-left: 20px;
+    margin-left: 15px;
     transition: width 0.3s ease;
     background: #FFFFFF;
     z-index: 1000;
@@ -26,7 +26,7 @@
     flex-direction: column;
 
     .outlet {
-        padding: 30px 40px 50px 150px;
+        padding: 30px 40px 50px 130px;
         overflow: auto;
         transition: filter 0.3s ease;
     }

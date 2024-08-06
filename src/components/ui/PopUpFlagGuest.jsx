@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import CommonButton from './Button';
 
-const PopUpFlagGuest = ({ isOpen, onClose, handleFlag }) => {
+const PopUpFlagGuest = ({ isOpen, onClose, handleFlag, iconType }) => {
     const flagReason = [
         { id: 1, text: 'Lorem Ipsum is simply dummy 1.' },
         { id: 2, text: 'Lorem Ipsum is simply dummy 2.' },
@@ -37,7 +37,12 @@ const PopUpFlagGuest = ({ isOpen, onClose, handleFlag }) => {
         <div style={styles.modalOverlay}>
             <div style={styles.modalContent}>
                 <button style={styles.closeButton} onClick={onClose}>×</button>
-                <h2 style={styles.heading}>State your Reason to flag this Guest</h2>
+                {iconType === '/src/assets/icons/crossCircle.png' ? (
+                    <h2 style={styles.heading}>State your Reason to flag this Guest</h2>
+                ) : (
+                    <h2 style={styles.heading}>state your reason to put the guest on hold</h2>
+                )}
+
                 <div style={styles.reasonsList}>
                     {flagReason.map((reason) => (
                         <label key={reason.id} style={styles.reasonLabel}>
@@ -101,7 +106,7 @@ const styles = {
         background: 'white',
         padding: '30px',
         borderRadius: '8px',
-        width: '500px',
+        width: '520px',
         position: 'relative',
         boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
         borderRadius: 20
@@ -131,7 +136,7 @@ const styles = {
         alignItems: 'center',
         marginBottom: '10px',
         fontFamily: 'Lexend',
-        fontSize: 19,
+        fontSize: 16,
         fontWeight: 400,
         paddingLeft: 15
     },
@@ -141,7 +146,11 @@ const styles = {
         border: '1px solid #737373',
         borderRadius: 5,
         padding: 8,
-        background: '#FFFFFF'
+        background: '#FFFFFF',
+        color: '#959595',
+        fontSize: 16,
+        fontStyle: 'normal',
+        fontWeight: 400,
     },
     modalActions: {
         display: 'flex',

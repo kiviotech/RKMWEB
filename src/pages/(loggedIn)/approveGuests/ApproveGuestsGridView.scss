@@ -1,0 +1,103 @@
+.grid_view_visit-history {
+    background-color: #FFFFFF;
+    border-radius: 4px;
+    margin-top: -20px;
+
+    .grid_view_tableCont {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+
+    .grid_view_tableContHeader,
+    .grid_view_tableContBodyEachRow {
+        display: flex;
+        align-items: center;
+        padding: 10px;
+    }
+
+    .grid_view_tableContBodyEachRow {
+        background: #FAFAFB;
+        margin-bottom: 10px;
+
+    }
+
+
+    .grid_view_tableheader,
+    .grid_view_tbalebody {
+        width: 15%;
+        display: flex;
+        color: #4B4B4B;
+        font-size: 14px;
+        font-weight: 500;
+        line-height: 18.75px;
+    }
+
+    .grid_view_tableheader {
+        font-size: 18px;
+        font-weight: 600 !important;
+        line-height: 18.75px;
+        color: #000000;
+    }
+
+    .grid_view_tableheader:nth-child(1),
+    .grid_view_tbalebody:nth-child(1) {
+        width: 5%;
+    }
+
+
+    .grid_view_tableheader:nth-child(3),
+    .grid_view_tbalebody:nth-child(3) {
+        width: 14%;
+
+        img {
+            margin-right: 10px;
+        }
+    }
+
+    .grid_view_tbalebody:nth-child(4),
+    .grid_view_tableheader:nth-child(4) {
+        width: 29%;
+        width: 29%;
+
+    }
+
+    .grid_view_tbalebody:nth-child(5),
+    .grid_view_tableheader:nth-child(5) {
+        width: 20%;
+
+    }
+
+
+    .grid_view_tableheader:nth-child(6),
+    .grid_view_tbalebody:nth-child(6) {
+        width: 10%;
+        gap: 10px;
+    }
+
+    .grid_view_validate-button {
+        background: none;
+        border: none;
+        cursor: pointer;
+        height: 20px;
+        width: 20px;
+
+        img {
+            height: 20px;
+            width: 30px;
+        }
+    }
+
+    .grid_view_validate-guest-button {
+        background-color: #FFFFFF;
+        border: 1px solid #737373;
+        color: #737373;
+        padding: 10px 20px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 16px;
+        float: right;
+        margin-top: 30px;
+
+    }
+}

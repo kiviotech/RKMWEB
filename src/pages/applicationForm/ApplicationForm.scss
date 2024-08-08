@@ -1,0 +1,140 @@
+:root {
+    --commonColor: #9867E9;
+}
+
+.application-form {
+    h2 {
+        color: var(--commonColor);
+        color: #9867E9;
+        font-family: var(--NunitoSansFontFamily);
+        font-size: 30px;
+        font-style: normal;
+        font-weight: 800;
+        line-height: normal;
+    }
+
+    .form-section {
+        margin-bottom: 20px;
+        display: flex;
+        flex-direction: row;
+        gap: 30px;
+
+        .form-left-section,
+        .form-right-section {
+            width: 50%;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+            display: flex;
+            flex-direction: column;
+
+
+            label {
+                margin-bottom: 5px;
+                color: #000;
+                font-family: var(--NunitoSansFontFamily);
+                font-size: 24px;
+                font-style: normal;
+                font-weight: 600;
+                line-height: normal;
+            }
+
+            input,
+            select,
+            button {
+                padding: 8px;
+                border: 1px solid #515151;
+                border-radius: 5px;
+                background: #FFF;
+                box-shadow: 0px 3px 10px 0px rgba(0, 0, 0, 0.123);
+                color: #515151;
+                font-family: var(--NunitoSansFontFamily);
+                font-size: 18px;
+                font-style: normal;
+                font-weight: 400;
+                line-height: normal;
+            }
+
+            .aadhaar-section {
+                display: flex;
+
+                button {
+                    margin-left: 10px;
+                    background-color: #6C63FF;
+                    color: #fff;
+                    border: none;
+                    border-radius: 4px;
+                    cursor: pointer;
+                }
+            }
+
+            .upload-section {
+                p {
+                    margin-top: 10px;
+                    font-size: 12px;
+                    color: #888;
+                }
+            }
+        }
+    }
+
+    .tabs {
+        display: flex;
+
+        button {
+            flex: 1;
+            padding: 10px;
+            background-color: #f2f2f2;
+            border: 1px solid #ccc;
+            cursor: pointer;
+        }
+    }
+
+    .submit-button {
+        padding: 10px 20px;
+        background-color: #6C63FF;
+        color: #fff;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+}
+
+.error {
+    color: red;
+    font-size: 15px;
+    margin-top: 5px;
+    letter-spacing: .5;
+    font-family: var(--NunitoSansFontFamily);
+}
+
+.form-tabs {
+
+    display: flex;
+
+    .tab {
+        padding: 20px 30px;
+        border: 1px solid #ccc;
+        border-bottom: none;
+        cursor: pointer;
+        margin-right: 10px;
+        border: none;
+        border-bottom: 1px solid #B6C2D3;
+        border-radius: 14px 14px 0 0;
+        margin-bottom: -1px;
+        color: #000000;
+        font-family: Lexend;
+        font-size: 20px;
+        font-weight: 400;
+        line-height: 25px;
+        background: #DEE4ED;
+
+        &.active {
+            background-color: #FFFFFF;
+            border: 1px solid #B6C2D3;
+            border-bottom: none;
+        }
+    }
+
+}

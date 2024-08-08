@@ -9,6 +9,9 @@ import Layout from '../components/layout/Layout';
 import Dashboard from '../pages/(loggedIn)/dashboard/Dashboard';
 import AllocateRoom from '../pages/(loggedIn)/allocateRoom/AllocateRoom';
 import ApproveGuests from '../pages/(loggedIn)/approveGuests/ApproveGuests';
+import ApplicationForm from '../pages/applicationForm/ApplicationForm';
+
+
 
 
 
@@ -23,6 +26,7 @@ const AppRoutes = () => {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/allocate-rooms" element={<AllocateRoom />} />
         <Route path="/requests" element={<ApproveGuests />} />
+        <Route path="/application-form" element={<ApplicationForm />} />
       </Route>
     </Routes>
   );

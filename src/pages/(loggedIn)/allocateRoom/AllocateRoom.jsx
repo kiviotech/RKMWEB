@@ -188,35 +188,34 @@ const AllocateRoom = () => {
                 </div>
             </div>
             {selectedRoom && (
-                <div className="user-details">
-                    <div className="user-details-card">
-                        <div className="user-image">
-                            <img src={icons.userDummyImage} alt="avatar" className="user-avatar" />
-                        </div>
-                        <h2 style={{ textAlign: 'center' }}>{selectedRoom.userDetails.name}</h2>
-                        <div className="age-gender">
-                            <p>Age: <span>{selectedRoom.userDetails.age}</span></p>
-                            <p>Gender: <span>{selectedRoom.userDetails.gender}</span></p>
-                        </div>
-                        <p>Occupation: <span>{selectedRoom.userDetails.occupation}</span></p>
-                        <p>Email: <span>{selectedRoom.userDetails.email}</span></p>
-                        <p>Arrival Date: <span>{selectedRoom.userDetails.arrivalDate}</span></p>
-                        <p>Departure Date: <span>{selectedRoom.userDetails.departureDate}</span></p>
-                        <h3>Guest Members:</h3>
-                        {selectedRoom.userDetails.guestMembers.map((member, index) => (
-                            <div style={{ display: 'flex', flexDirection: 'column' }} key={index}>
-                                <div className="guest-member-details" style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                                    <div className="member-guest-image">
-                                        <img src={icons.dummyUser} alt="" />
-                                        <strong>{member.name}</strong>
-                                    </div>
-                                    <div className="age-gender-relation">
-                                        {member.age} {member.gender}, {member.relation}
-                                    </div>
+                <div className="user-details-allocateRoom">
+                    <div className="user-image">
+                        <img src={icons.userDummyImage} alt="avatar" className="user-avatar" />
+                    </div>
+                    <h2 style={{ textAlign: 'center' }}>{selectedRoom.userDetails.name}</h2>
+                    <div className="age-gender">
+                        <p>Age: <span>{selectedRoom.userDetails.age}</span></p>
+                        <p>Gender: <span>{selectedRoom.userDetails.gender}</span></p>
+                    </div>
+                    <p>Occupation: <span>{selectedRoom.userDetails.occupation}</span></p>
+                    <p>Email: <span>{selectedRoom.userDetails.email}</span></p>
+                    <p>Arrival Date: <span>{selectedRoom.userDetails.arrivalDate}</span></p>
+                    <p>Departure Date: <span>{selectedRoom.userDetails.departureDate}</span></p>
+                    <h3>Guest Members:</h3>
+                    {selectedRoom.userDetails.guestMembers.map((member, index) => (
+                        <div style={{ display: 'flex', flexDirection: 'column' }} key={index}>
+                            <div className="guest-member-details" style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <div className="member-guest-image">
+                                    <img src={icons.dummyUser} alt="" />
+                                    <strong>{member.name}</strong>
+                                </div>
+                                <div className="age-gender-relation">
+                                    {member.age} {member.gender}, {member.relation}
                                 </div>
                             </div>
-                        ))}
-                    </div>
+                        </div>
+                    ))}
+
                 </div>
             )}
         </div>

@@ -26,9 +26,12 @@ const AppRoutes = () => {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/allocate-rooms" element={<AllocateRoom />} />
         <Route path="/requests" element={<ApproveGuests />} />
-        <Route path="/application-form" element={<ApplicationForm />} />
       </Route>
+
+      {/* Route that should render independently */}
+      <Route path="/application-form" element={<ApplicationForm />} />
     </Routes>
+
   );
 };
 

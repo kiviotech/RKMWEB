@@ -3,7 +3,7 @@ import React from 'react';
 const CommonButton = ({ buttonName, style, buttonWidth, onClick }) => {
     const defaultStyle = {
         width: buttonWidth || 'auto',
-       
+
         borderRadius: `${style.broderRadius}`,
         border: `${style.borderWidth}px solid ${style.color}`,
         backgroundColor: '#9866E9',
@@ -11,7 +11,7 @@ const CommonButton = ({ buttonName, style, buttonWidth, onClick }) => {
         cursor: 'pointer',
         fontWeight: '500',
         fontFamily: 'Lexend',
-        fontSize:`${style.fontSize}`,
+        fontSize: `${style.fontSize}`,
         ...style,
     };
 

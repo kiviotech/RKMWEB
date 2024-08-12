@@ -8,6 +8,19 @@ import GuestDetailsPopup from '../../../components/ui/GuestDetailsPopup/GuestDet
 import ApproveGuestsGridView from './ApproveGuestsGridView';
 import CommonHeaderTitle from '../../../components/ui/CommonHeaderTitle';
 
+
+// Define your icons here
+const togglers = {
+    dashboard: {
+        default: icons.toggglerDashboard,
+        active: icons.toggglerDashboardWite
+    },
+    gridView: {
+        default: icons.togglerGridView,
+        active: icons.togglerGridViewWhite
+    }
+};
+
 const ApproveGuests = () => {
     const [requests, setRequests] = useState([
         {
@@ -111,8 +124,27 @@ const ApproveGuests = () => {
     const [iconType, setIconType] = useState(null); // Stores the type of the icon clicked, used to determine the specific action to be taken.
     const [selectedGuest, setSelectedGuest] = useState(null);// Stores the details of the selected guest for display or further actions.
     const [isGuestDetailsPopupOpen, setIsGuestDetailsPopupOpen] = useState(false);// Manages the visibility of the guest details popup.
-    const [isGuestsGridViewVisible, setIsGuestsGridViewVisible] = useState(false);// Toggles the visibility of the user details in grid view.
 
+    // function and state to handle toggler buttons
+    const [isGuestsGridViewVisible, setIsGuestsGridViewVisible] = useState(false);// Toggles the visibility of the user details in grid view.
+    const [activeToggler, setActiveToggler] = useState('dashboard');
+
+    const handleTogglerClick = (view) => {
+        setActiveToggler(view);
+        setIsGuestsGridViewVisible(view === 'gridView');
+    };
+
+    // Common styles for togglers
+    const commonStyle = {
+        cursor: 'pointer',
+        borderRadius: '5px'
+    };
+
+    // Determine styles for active and default states
+    const getStyle = (view) => ({
+        ...commonStyle,
+        background: activeToggler === view ? 'var(--primary-color)' : 'transparent',
+    });
     const handleIconClick = (e, reqId, icon_Id, iconType) => {
         e.stopPropagation(); // Prevent card click event
         if (icon_Id === 3) { // Check if the last icon is clicked
@@ -124,7 +156,6 @@ const ApproveGuests = () => {
             setIconType(iconType);
             setIsGuestDetailsPopupOpen(false);
         }
-        setIsGuestsGridViewVisible(true)
     };
 
     const handleCardClick = (guestDetails) => {
@@ -177,7 +208,27 @@ const ApproveGuests = () => {
         <div className='Requests-main-container'>
             <div className="top-section">
                 <CommonHeaderTitle title="Requests" />
-                <SearchBar />
+                <div className="toggler" style={{ display: 'flex', gap: '30px' }}>
+                    <div className="toggleGridView">
+                        {/* Dashboard Toggler */}
+                        <img
+                            src={activeToggler === 'dashboard' ? togglers.dashboard.active : togglers.dashboard.default}
+                            alt="Dashboard"
+                            onClick={() => handleTogglerClick('dashboard')}
+                            style={getStyle('dashboard')}
+                        />
+
+                        {/* Grid View Toggler */}
+                        <img
+                            src={activeToggler === 'gridView' ? togglers.gridView.active : togglers.gridView.default}
+                            alt="Grid View"
+                            onClick={() => handleTogglerClick('gridView')}
+                            style={getStyle('gridView')}
+                        />
+                    </div>
+                    <SearchBar />
+                </div>
+
             </div>
             {!isGuestsGridViewVisible && (
                 <div className="requests-cards-section">

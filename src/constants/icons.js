@@ -28,6 +28,10 @@ import marked from '../assets/icons/marked.png';
 import crossCircle from '../assets/icons/crossCircle.png';
 import filledRedCircle from '../assets/icons/filledRedCircle.png';
 import bedSelected from '../assets/icons/bed-selected.png';
+import toggglerDashboard from '../assets/icons/toggglerDashboard.png';
+import togglerGridView from '../assets/icons/togglerGridView.png';
+import toggglerDashboardWite from '../assets/icons/toggglerDashboardWite.png';
+import togglerGridViewWhite from '../assets/icons/togglerGridViewWhite.png';
 export default {
     googleIcon,
     facebookIcon,
@@ -47,6 +51,8 @@ export default {
     marked,
     crossCircle,
     filledRedCircle,
-    bedSelected
+    bedSelected,
+    toggglerDashboard, toggglerDashboardWite,
+    togglerGridView, togglerGridViewWhite
 
 }

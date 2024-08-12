@@ -1,6 +1,7 @@
 import React from 'react'
 import './CheckoutDetails.scss'
-import { icons } from '../../../constants';
+import SearchBar from '../../../components/ui/SearchBar';
+import CommonHeaderTitle from '../../../components/ui/CommonHeaderTitle';
 
 const checkInGuest = [
     { name: "Mrs. John Dee", referenceNo: '20240103-002', Roomno: "Gh-03", Donation: "Paid", id: 1 },
@@ -14,11 +15,8 @@ const CheckOutDetails = () => {
         <div className="check-in-main-container">
             <div className="check-in-datails check-out-details">
                 <div className="header">
-                    <div className="title">Check-outs</div>
-                    <div className="search">
-                        <img src={icons.search} alt="Search" />
-                        <input type="text" placeholder="Search Guest " />
-                    </div>
+                    <CommonHeaderTitle title="Check-outs" />
+                    <SearchBar />
                 </div>
                 <div className="progressBar">
                     <div className="progress checkoutProgress">

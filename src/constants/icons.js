@@ -27,6 +27,7 @@ import markedYellow from '../assets/icons/markedYellow.png';
 import marked from '../assets/icons/marked.png';
 import crossCircle from '../assets/icons/crossCircle.png';
 import filledRedCircle from '../assets/icons/filledRedCircle.png';
+import bedSelected from '../assets/icons/bed-selected.png';
 export default {
     googleIcon,
     facebookIcon,
@@ -45,6 +46,7 @@ export default {
     checkCircle,
     marked,
     crossCircle,
-    filledRedCircle
+    filledRedCircle,
+    bedSelected
 
 }

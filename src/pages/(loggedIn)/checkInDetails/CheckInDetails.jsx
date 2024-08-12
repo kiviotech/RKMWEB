@@ -3,6 +3,7 @@ import Modal from 'react-modal';
 import './CheckInDetails.scss';
 import { icons } from '../../../constants';
 import SearchBar from '../../../components/ui/SearchBar';
+import CommonHeaderTitle from '../../../components/ui/CommonHeaderTitle';
 
 const guests = [
   { name: "Mrs. John Dee", age: 35, gender: "F", relation: "Wife", id: 1 },
@@ -25,7 +26,7 @@ const CheckInDetails = () => {
     <div className="check-in-main-container">
       <div className="check-in-datails">
         <div className="header">
-          <div className="title">Check-ins</div>
+          <CommonHeaderTitle title="Check-ins" />
           <SearchBar />
         </div>
         <div className="progressBar">

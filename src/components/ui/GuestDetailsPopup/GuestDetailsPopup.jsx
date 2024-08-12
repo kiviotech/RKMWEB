@@ -2,6 +2,7 @@ import React from 'react';
 import './GuestDetailsPopup.scss';
 import icons from '../../../constants/icons';
 import CommonButton from '../Button';
+import CommonHeaderTitle from '../CommonHeaderTitle';
 
 const GuestDetailsPopup = ({ isOpen, onClose, guestDetails }) => {
     if (!isOpen) return null;
@@ -40,7 +41,7 @@ const GuestDetailsPopup = ({ isOpen, onClose, guestDetails }) => {
                         <p><span>Mobile no. :</span> {guestDetails.userDetails.mobile}</p>
 
                         <h3>Deeksha :</h3>
-                        <div style={{marginTop:30}}>
+                        <div style={{ marginTop: 30 }}>
                             <p><span style={{ color: '#9867E9' }}>Arrival Date :</span> {guestDetails.userDetails.arrivalDate}</p>
                             <p><span style={{ color: '#9867E9' }}>Departure Date :</span> {guestDetails.userDetails.departureDate}</p>
                         </div>
@@ -58,7 +59,8 @@ const GuestDetailsPopup = ({ isOpen, onClose, guestDetails }) => {
                     </div>
                     <div className="user-details-card">
                         <div className="visit-history">
-                            <h2>Last visited</h2>
+
+                            <CommonHeaderTitle title="Last visited" />
                             <div className="guests-section">
                                 <div className="tableCont">
                                     <div className="tableContHeader">

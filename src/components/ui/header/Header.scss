@@ -18,7 +18,7 @@
 
         li {
             margin: 0 5px;
-            
+
             a {
                 text-decoration: none;
                 color: #000000;
@@ -28,20 +28,27 @@
                 font-weight: 500;
                 line-height: 22.5px;
                 text-align: left;
-               
+
                 &.active {
                     border-bottom: 5px solid #9867E9;
                     padding: 22px 0px;
                 }
             }
-            &:first-child{
+
+            &:first-child {
                 width: 60px !important;
             }
-            &:nth-child(2),&:nth-child(4){
+
+            &:nth-child(2) {
                 width: 170px !important;
             }
-            &:nth-child(3){
+
+            &:nth-child(3) {
                 width: 200px !important;
+            }
+
+            &:nth-child(4) {
+                width: 120px !important;
             }
         }
     }

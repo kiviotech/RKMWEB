@@ -29,8 +29,8 @@ const Dashboard = () => {
   ];
 
 
-  const gotoAllocateRoomPage = () => {
-    navigate('/allocate-rooms'); // Replace with your actual route path
+  const navigateToPage = (pageRoute) => {
+    navigate(pageRoute); // Replace with your actual route path
   }
   return (
     <div className="dashboard-main-container">
@@ -68,7 +68,7 @@ const Dashboard = () => {
           </div>
 
         </div>
-        <div className="Request cards">
+        <div className="Request cards" onClick={() => navigateToPage('/approve-guests')}>
           <h4 className='title'>Requests</h4>
           <div className="request-status">
             <strong>64 pending requests</strong>
@@ -77,7 +77,7 @@ const Dashboard = () => {
             <span>View all <img src={icons.angleRight} alt="angle" loading='lazy' /></span>
           </div>
         </div>
-        <div className="allocate-rooms cards">
+        <div className="allocate-rooms cards" onClick={() => navigateToPage('/allocate-rooms')}>
           <h4 className='title'>Allocate Rooms</h4>
           <div className="request-status">
             <strong>64 pending requests</strong>
@@ -89,10 +89,10 @@ const Dashboard = () => {
       </div>
       <div className="right-main-container">
         <div className="check-in-check-out-main-section">
-          <div className="check-in cards">
+          <div className="check-in cards" onClick={() => navigateToPage('/check-in')}>
             <ProgressBar title="Check-ins" completed={53} total={120} color={'#A3D65C'} backgroundColor={'#E4F5E3'} />
           </div>
-          <div className="check-out cards">
+          <div className="check-out cards" onClick={() => navigateToPage('/check-out')}>
             <ProgressBar title="Check-outs" completed={67} total={100} color={'#FC5275'} backgroundColor={'#F9C7C7'} />
           </div>
         </div>
@@ -137,12 +137,12 @@ const Dashboard = () => {
           </div>
 
           <div className="buttons">
-            <CommonButton
+            <CommonButton onClick={() => navigateToPage('/approve-guests')}
               buttonName="Applications"
               buttonWidth="auto"
               style={{ backgroundColor: '#9866E9', borderColor: 'none', fontSize: '18px', broderRadius: '16px', borderWidth: 0, padding: '8px 30px' }}
             />
-            <CommonButton onClick={gotoAllocateRoomPage}
+            <CommonButton onClick={() => navigateToPage('/room-availability')}
               buttonName=" Room availability"
               buttonWidth="auto"
               style={{ backgroundColor: '#9866E9', borderColor: '#ffffff', fontSize: '18px', broderRadius: '16px', borderWidth: 0, padding: '8px 30px' }}

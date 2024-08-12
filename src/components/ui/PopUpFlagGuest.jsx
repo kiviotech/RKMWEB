@@ -105,7 +105,6 @@ const styles = {
     modalContent: {
         background: 'white',
         padding: '30px',
-        borderRadius: '8px',
         width: '520px',
         position: 'relative',
         boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',

@@ -6,6 +6,7 @@ import CommonButton from '../../../components/ui/Button';
 import PopUpFlagGuest from '../../../components/ui/PopUpFlagGuest'; // Adjust the import path as needed
 import GuestDetailsPopup from '../../../components/ui/GuestDetailsPopup/GuestDetailsPopup';
 import ApproveGuestsGridView from './ApproveGuestsGridView';
+import CommonHeaderTitle from '../../../components/ui/CommonHeaderTitle';
 
 const ApproveGuests = () => {
     const [requests, setRequests] = useState([
@@ -175,7 +176,7 @@ const ApproveGuests = () => {
     return (
         <div className='Requests-main-container'>
             <div className="top-section">
-                <h3 className='title'>Requests</h3>
+                <CommonHeaderTitle title="Requests" />
                 <SearchBar />
             </div>
             {!isGuestsGridViewVisible && (

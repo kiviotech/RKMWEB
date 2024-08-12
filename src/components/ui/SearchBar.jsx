@@ -8,7 +8,7 @@ const SearchBar = () => {
         },
         input: {
             background: '#DEE4ED',
-            width: '180px',
+            width: '280px',
             height: '34px',
             borderRadius: '7px',
             border: 'none',
@@ -30,9 +30,9 @@ const SearchBar = () => {
     return (
         <div style={styles.search}>
             <img src={icons.search} alt="Search" style={styles.img} />
-            <input 
-                type="text" 
-                placeholder="Search Guest" 
+            <input
+                type="text"
+                placeholder="Search Guest"
                 style={styles.input}
             />
         </div>

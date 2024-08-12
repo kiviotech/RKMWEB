@@ -7,9 +7,11 @@ import CheckInDetails from '../pages/(loggedIn)/checkInDetails/CheckInDetails';
 import CheckOutDetails from '../pages/(loggedIn)/checkOutDetails/CheckOutDetails';
 import Layout from '../components/layout/Layout';
 import Dashboard from '../pages/(loggedIn)/dashboard/Dashboard';
-import AllocateRoom from '../pages/(loggedIn)/allocateRoom/AllocateRoom';
 import ApproveGuests from '../pages/(loggedIn)/approveGuests/ApproveGuests';
 import ApplicationForm from '../pages/applicationForm/ApplicationForm';
+import AllocateRoom from '../pages/(loggedIn)/allocateRoom/AllocateRoom';
+import CheckRoomAvailability from '../pages/(loggedIn)/roomAvailabaity/CheckRoomAvailability';
+import BookRoom from '../pages/(loggedIn)/BookRoom/BookRoom';
 
 
 
@@ -25,7 +27,9 @@ const AppRoutes = () => {
         <Route path="/check-out" element={<CheckOutDetails />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/allocate-rooms" element={<AllocateRoom />} />
-        <Route path="/requests" element={<ApproveGuests />} />
+        <Route path="/approve-guests" element={<ApproveGuests />} />
+        <Route path="/room-availability" element={<CheckRoomAvailability />} />
+        <Route path="/book-room" element={<BookRoom />} />
       </Route>
 
       {/* Route that should render independently */}

@@ -26,7 +26,8 @@ $background-color: #FFFFFF;
     color: #888;
 }
 
-.login, .signup {
+.login,
+.signup {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -49,7 +50,7 @@ $background-color: #FFFFFF;
         font-family: $font-family;
         font-weight: 400;
         color: $font-color;
-        
+
         &::placeholder {
             color: $font-color;
         }
@@ -64,7 +65,8 @@ $background-color: #FFFFFF;
     }
 }
 
-.login-box, .signup-box {
+.login-box,
+.signup-box {
     background-color: white;
     padding: 40px 60px;
     border-radius: 24px;
@@ -116,4 +118,10 @@ $background-color: #FFFFFF;
         margin-right: 10px;
         height: 20px;
     }
+}
+
+.error-text {
+    color: red;
+    font-size: 12px;
+    margin-top: 5px;
 }

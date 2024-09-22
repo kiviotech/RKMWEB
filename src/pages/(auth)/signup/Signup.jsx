@@ -1,11 +1,24 @@
-import React, { useState } from 'react';
-import './Signup.scss';
-import CommonButton from '../../../components/ui/Button';
-import { icons } from '../../../constants';
+import React, { useState } from "react";
+import "./Signup.scss";
+import CommonButton from "../../../components/ui/Button";
+import { icons } from "../../../constants";
+import { signUpUser } from "../../../../services/auth"; // Adjust path if necessary
+import { useNavigate } from "react-router-dom";
 
 const Signup = () => {
+  const navigate = useNavigate();
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [error, setError] = useState("");
+
+  const [usernameError, setUsernameError] = useState("");
+  const [emailError, setEmailError] = useState("");
+  const [passwordError, setPasswordError] = useState("");
+  const [confirmPasswordError, setConfirmPasswordError] = useState("");
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
@@ -15,21 +28,110 @@ const Signup = () => {
     setShowConfirmPassword(!showConfirmPassword);
   };
 
-  const handleClick = () => {
-    console.log('Button clicked!');
+  const validateUsername = () => {
+    if (username.trim() === "") {
+      setUsernameError("Username is required.");
+      return false;
+    }
+    setUsernameError("");
+    return true;
+  };
+
+  const validateEmail = () => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setEmailError("Invalid email format.");
+      return false;
+    }
+    setEmailError("");
+    return true;
+  };
+
+  const validatePassword = () => {
+    if (password.length < 8) {
+      setPasswordError("Password must be at least 8 characters.");
+      return false;
+    }
+    setPasswordError("");
+    return true;
+  };
+
+  const validateConfirmPassword = () => {
+    if (password !== confirmPassword) {
+      setConfirmPasswordError("Passwords do not match.");
+      return false;
+    }
+    setConfirmPasswordError("");
+    return true;
+  };
+
+  const handleSignup = async (e) => {
+    e.preventDefault();
+
+    const isValidUsername = validateUsername();
+    const isValidEmail = validateEmail();
+    const isValidPassword = validatePassword();
+    const isValidConfirmPassword = validateConfirmPassword();
+
+    if (!isValidUsername || !isValidEmail || !isValidPassword || !isValidConfirmPassword) {
+      return;
+    }
+
+    try {
+      const response = await signUpUser({ username, email, password });
+      console.log("Sign-up successful", response);
+
+      // Redirect to login page after successful sign-up
+      navigate("/");
+    } catch (err) {
+      console.error("Error during sign-up:", err);
+      setError("Sign-up failed. Please try again.");
+    }
   };
 
   return (
-    <div className="login">
-      <div className="login-box">
+    <div className="signup">
+      <div className="signup-box">
         <div className="logo">LOGO</div>
-        <form>
+        <form onSubmit={handleSignup}>
           <div className="input-group">
             <label htmlFor="username">Username</label>
-            <input type="text" id="username" name="username" placeholder="User Name" />
+            <input
+              type="text"
+              id="username"
+              name="username"
+              placeholder="User Name"
+              value={username}
+              onChange={(e) => {
+                setUsername(e.target.value);
+                if (usernameError) validateUsername();
+              }}
+              onBlur={validateUsername}
+              required
+            />
+            {usernameError && <p className="error-message">{usernameError}</p>}
           </div>
+
           <div className="input-group">
-            <div className='filed-tip'>
+            <label htmlFor="email">Email</label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              placeholder="Email"
+              value={email}
+              onChange={(e) => {
+                setEmail(e.target.value);
+                if (emailError) validateEmail();
+              }}
+              onBlur={validateEmail}
+              required
+            />
+            {emailError && <p className="error-message">{emailError}</p>}
+          </div>
+
+          <div className="input-group">
+            <div className="filed-tip">
               <label htmlFor="password">Password</label>
               <img src={icons.fieldTip} alt="fieldTip" />
             </div>
@@ -39,15 +141,27 @@ const Signup = () => {
                 id="password"
                 name="password"
                 placeholder="Password"
+                value={password}
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                  if (passwordError) validatePassword();
+                }}
+                onBlur={validatePassword}
+                required
               />
-              <button type="button" className="show-password-btn" onClick={togglePasswordVisibility}>
+              <button
+                type="button"
+                className="show-password-btn"
+                onClick={togglePasswordVisibility}
+              >
                 <img src={icons.eyeIcon} alt="password-toggler" />
               </button>
             </div>
+            {passwordError && <p className="error-message">{passwordError}</p>}
           </div>
 
           <div className="input-group">
-            <div className='filed-tip'>
+            <div className="filed-tip">
               <label htmlFor="ConfirmPassword">Confirm Password</label>
               <img src={icons.fieldTip} alt="fieldTip" />
             </div>
@@ -57,26 +171,55 @@ const Signup = () => {
                 id="ConfirmPassword"
                 name="ConfirmPassword"
                 placeholder="Confirm Password"
+                value={confirmPassword}
+                onChange={(e) => {
+                  setConfirmPassword(e.target.value);
+                  if (confirmPasswordError) validateConfirmPassword();
+                }}
+                onBlur={validateConfirmPassword}
+                required
               />
-              <button type="button" className="show-password-btn" onClick={toggleConfirmPasswordVisibility}>
+              <button
+                type="button"
+                className="show-password-btn"
+                onClick={toggleConfirmPasswordVisibility}
+              >
                 <img src={icons.eyeIcon} alt="password-toggler" />
               </button>
             </div>
+            {confirmPasswordError && <p className="error-message">{confirmPasswordError}</p>}
           </div>
-          {/* <p className="assistive-text">Assistive text</p> */}
+
+          {error && <p className="error-message">{error}</p>}
+
           <CommonButton
             buttonName="Sign Up"
             buttonWidth="100%"
-            style={{ backgroundColor: '#9866E9',fontSize: '18px', broderRadius: '16px', borderWidth: 0, padding: '8px 30px'  }}
-            onClick={handleClick}
+            style={{
+              backgroundColor: "#9866E9",
+              fontSize: "18px",
+              borderRadius: "16px",
+              borderWidth: 0,
+              padding: "8px 30px",
+            }}
+            onClick={handleSignup}
           />
-          {/* <button type="submit" className="sign-in-btn">Sign In</button> */}
         </form>
-        <div className="or">OR <p>Sign Up with</p></div>
+
+        <div className="or">
+          OR <p>Sign Up with</p>
+        </div>
+
         <div className="social-login">
-          <button className="social-btn google"><img src={icons.googleIcon} alt="google" /></button>
-          <button className="social-btn facebook"><img src={icons.facebookIcon} alt="facebook" /></button>
-          <button className="social-btn apple"><img src={icons.appleIcon} alt="apple" /></button>
+          <button className="social-btn google">
+            <img src={icons.googleIcon} alt="google" />
+          </button>
+          <button className="social-btn facebook">
+            <img src={icons.facebookIcon} alt="facebook" />
+          </button>
+          <button className="social-btn apple">
+            <img src={icons.appleIcon} alt="apple" />
+          </button>
         </div>
       </div>
     </div>

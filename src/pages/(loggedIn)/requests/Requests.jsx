@@ -113,7 +113,7 @@ const Requests = () => {
                 <div
                     className="tab-content"
                     style={{
-                        borderTopLeftRadius: activeTab === "approved" ? "0px" : "15px",
+                        borderTopLeftRadius: activeTab === "all" ? "0px" : "15px",
                         borderTopRightRadius: "15px",
                         borderBottomLeftRadius: "15px",
                         borderBottomRightRadius: "15px",

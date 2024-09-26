@@ -44,7 +44,7 @@ const ApproveGuests = () => {
                     id: 3,
                     normal: icons.checkCircle,
                     filled: icons.checkCircleMarked,
-                    isActive: true,
+                    isActive: false,
                 },
             ],
         },
@@ -84,7 +84,7 @@ const ApproveGuests = () => {
                     id: 3,
                     normal: icons.checkCircle,
                     filled: icons.checkCircleMarked,
-                    isActive: true,
+                    isActive: false,
                 },
             ],
         },
@@ -121,7 +121,7 @@ const ApproveGuests = () => {
                     id: 3,
                     normal: icons.checkCircle,
                     filled: icons.checkCircleMarked,
-                    isActive: true,
+                    isActive: false,
                 },
             ],
         },
@@ -160,7 +160,7 @@ const ApproveGuests = () => {
                     id: 3,
                     normal: icons.checkCircle,
                     filled: icons.checkCircleMarked,
-                    isActive: true,
+                    isActive: false,
                 },
             ],
         },
@@ -229,12 +229,12 @@ const ApproveGuests = () => {
 
     const getCardBorderColor = (icons) => {
         const activeIcon = icons.find((icon) => icon.isActive);
-        if (activeIcon) {
-            if (activeIcon.id === 1) return "#FC5275"; // color of the "Reject" button
-            if (activeIcon.id === 2) return "#FFD700"; // color of the "Flag" button (or a similar color)
-            if (activeIcon.id === 3) return "#A3D65C"; // color of the "Approve" button
-        }
-        return "#A3D65C"; // default border color
+        // if (activeIcon) {
+        //     if (activeIcon.id === 1) return "#FC5275"; // color of the "Reject" button
+        //     if (activeIcon.id === 2) return "#FFD700"; // color of the "Flag" button (or a similar color)
+        //     if (activeIcon.id === 3) return "#A3D65C"; // color of the "Approve" button
+        // }
+        return "#D9D9D9"; // default border color
     };
 
 
@@ -276,7 +276,7 @@ const ApproveGuests = () => {
                             <div className="reasons">
                                 <div>
                                     <p style={{ color: getCardBorderColor(request.icons) }}>
-                                        {request.reason}
+                                        No History
                                     </p>
                                     <p>Number of guest members: {request.noOfGuest}</p>
                                     <p>Assigned Bed(s): {request.assignBed}</p>
@@ -285,35 +285,33 @@ const ApproveGuests = () => {
 
 
                                 <div className="buttons">
-                                    {request.assignBed === '' ? (
-                                        <CommonButton onClick={gotoAllocateRoomPage}
-                                            buttonName="Allocate"
-                                            buttonWidth="auto"
-                                            style={{
-                                                backgroundColor: "#ECF8DB",
-                                                color: "#A3D65C",
-                                                borderColor: "#A3D65C",
-                                                fontSize: "18px",
-                                                borderRadius: "7px",
-                                                borderWidth: 1,
-                                                padding: "8px 20px",
-                                            }}
-                                        />
-                                    ) : (
-                                        <CommonButton onClick={gotoAllocateRoomPage}
-                                            buttonName="Change allocation"
-                                            buttonWidth="auto"
-                                            style={{
-                                                backgroundColor: "#FFBDCB",
-                                                color: "#FC5275",
-                                                borderColor: "#FC5275",
-                                                fontSize: "18px",
-                                                borderRadius: "7px",
-                                                borderWidth: 1,
-                                                padding: "8px 20px",
-                                            }}
-                                        />
-                                    )}
+                                    <CommonButton
+                                        buttonName="Approve"
+                                        buttonWidth="auto"
+                                        style={{
+                                            backgroundColor: "#ECF8DB",
+                                            color: "#A3D65C",
+                                            borderColor: "#A3D65C",
+                                            fontSize: "18px",
+                                            borderRadius: "7px",
+                                            borderWidth: 1,
+                                            padding: "8px 20px",
+                                        }}
+                                    />
+
+                                    <CommonButton
+                                        buttonName="Reject"
+                                        buttonWidth="auto"
+                                        style={{
+                                            backgroundColor: "#FFBDCB",
+                                            color: "#FC5275",
+                                            borderColor: "#FC5275",
+                                            fontSize: "18px",
+                                            borderRadius: "7px",
+                                            borderWidth: 1,
+                                            padding: "8px 20px",
+                                        }}
+                                    />
                                 </div>
                             </div>
 

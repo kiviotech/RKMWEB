@@ -31,20 +31,35 @@ const Header = () => {
                         )}
                     </NavLink>
                 </li>
+                
                 <li>
-                    <NavLink to="/approve-guests" className={({ isActive }) => isActive ? 'active' : ''}>
-                        Requests  {location.pathname === '/approve-guests' && (
+                    <NavLink to="/Requests" className={({ isActive }) => isActive ? 'active' : ''}>
+                        Requests  {location.pathname === '/Requests' && (
                             <button className="close-button" style={{ fontSize: '18px' }}>&times;</button>
                         )}
                     </NavLink>
                 </li>
-                <li>
-                    <NavLink to="/allocate-rooms" className={({ isActive }) => isActive ? 'active' : ''}>
-                        Allocate rooms  {location.pathname === '/allocate-rooms' && (
-                            <button className="close-button" style={{ fontSize: '18px' }}>&times;</button>
-                        )}
-                    </NavLink>
-                </li>
+
+                {location.pathname === '/book-room' && (
+                    <li>
+                        <NavLink
+                            to="/book-room"
+                            className={({ isActive }) =>
+                                isActive ||
+                                    location.pathname === '/approve-guests' ||
+                                    location.pathname === '/book-room'
+                                    ? 'active'
+                                    : ''
+                            }
+                        >
+                            Allocate rooms
+                            {(location.pathname === '/approve-guests' || location.pathname === '/book-room') && (
+                                <button className="close-button" style={{ fontSize: '18px' }}>&times;</button>
+                            )}
+                        </NavLink>
+                    </li>
+                )}
+
 
             </ul>
             <div className="notification-icon">

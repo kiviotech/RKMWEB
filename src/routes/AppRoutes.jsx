@@ -12,6 +12,7 @@ import ApplicationForm from '../pages/applicationForm/ApplicationForm';
 import AllocateRoom from '../pages/(loggedIn)/allocateRoom/AllocateRoom';
 import CheckRoomAvailability from '../pages/(loggedIn)/roomAvailabaity/CheckRoomAvailability';
 import BookRoom from '../pages/(loggedIn)/BookRoom/BookRoom';
+import Requests from '../pages/(loggedIn)/requests/Requests';
 
 
 
@@ -27,9 +28,11 @@ const AppRoutes = () => {
         <Route path="/check-out" element={<CheckOutDetails />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/allocate-rooms" element={<AllocateRoom />} />
-        <Route path="/approve-guests" element={<ApproveGuests />} />
+        {/* <Route path="/approve-guests" element={<ApproveGuests />} /> */}
         <Route path="/room-availability" element={<CheckRoomAvailability />} />
         <Route path="/book-room" element={<BookRoom />} />
+        <Route path="/Requests" element={<Requests />} />
+        
       </Route>
 
       {/* Route that should render independently */}

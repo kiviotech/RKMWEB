@@ -1,57 +1,24 @@
 .Requests-main-container {
-    .top-section {
-        display: flex;
-        justify-content: space-between;
-
-        h3 {
-            font-family: var(--InterFontFamily);
-            font-size: 30px;
-            font-weight: 500;
-            margin-top: 0px !important;
-        }
-
-        .toggleGridView {
-            background: #DEE4ED;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 70px;
-            height: 35px;
-            flex-shrink: 0;
-            border-radius: 5px;
-
-            img {
-                padding: 9px 11px;
-                border-radius: 5px;
-            }
-
-            &:first-child {
-                padding-left: 5px;
-            }
-
-            &:nth-child(1) {
-                padding-right: 5px;
-            }
-        }
-    }
-
     .requests-cards-section {
         display: flex;
         flex-wrap: wrap;
-        gap: 16px; // Add spacing between cards
-        justify-content: space-between;
-
+        
+        gap: 10px; // Add spacing between cards
+   
         .requests-card {
-            flex: 1 1 calc(50% - 16px); // Two cards per row, adjust spacing
             box-sizing: border-box;
-            width: calc(50% - 16px); // Ensure two cards per row
+            min-height: 280px;
             height: auto;
             border-radius: 24px;
             border: 2px solid #D9D9D9;
-            padding: 20px;
+            padding: 20px 15px;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
+            min-width: 510px;
+            max-width: 510px;
+            flex: 1 auto;
+            
             cursor: pointer !important;
 
             .actions-button {
@@ -65,15 +32,15 @@
             .request-details {
                 display: flex;
                 gap: 30px;
-                padding-left: 30px;
-                margin-top: 20px;
+                padding-left: 10px;
+                
 
                 .request-user-imag {
                     text-align: center;
 
                     img {
-                        width: 105px;
-                        height: 105px;
+                        width: 80px;
+                        height: 80px;
 
                     }
 
@@ -82,20 +49,22 @@
                         font-weight: 600;
                         position: relative;
                         top: -10px;
+                        font-family: Lexend;
                     }
                 }
 
                 .reasons {
+                    display: flex;
+                    justify-content: space-between;
+                    flex-direction: column;
                     p {
                         font-family: Lexend;
                         font-size: 15px;
                         font-weight: 600;
                         line-height: 18.75px;
-                        color: #98A2AF;
+                        color: #000000;
 
-                        &:last-child {
-                            color: #000000 !important;
-                        }
+                     
                     }
                 }
 
@@ -105,6 +74,7 @@
                 display: flex;
                 gap: 10px;
                 justify-content: end;
+                margin-top: 30px;
             }
         }
     }

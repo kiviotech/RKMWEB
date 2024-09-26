@@ -297,12 +297,20 @@ const ApplicationForm = () => {
                         </div>
                         <div className="form-group">
                             <label>Deeksha</label>
-                            <input
+                            {/* <input
                                 type="text"
                                 name="deeksha" placeholder="Deeksha"
                                 value={formData.deeksha}
                                 onChange={handleInputChange}
-                            />
+                            /> */}
+                            <select>
+                                <option value="">Select Deeksha</option>
+                                <option value="">Sri Sarada Devi – Life and Teachings</option>
+                                <option value="">Sri Sarada Devi – Life and Teachings</option>
+                                <option value="">Swami Vivekananda – His Life and Legacy</option>
+                                <option value="">The Gospel of Sri Ramakrishna</option>
+                                <option value="">None</option>
+                            </select>
                             {errors.deeksha && <span className="error">{errors.deeksha}</span>}
                         </div>
                         <div className="form-group" style={{ position: 'relative' }}>
@@ -313,7 +321,7 @@ const ApplicationForm = () => {
                                 value={formData.aadhaar}
                                 onChange={handleInputChange} placeholder=".... .... ...."
                             />
-                            <span style={{ color: 'var(--commonColor)', position: 'absolute', top: 47, right: 20 }}>Verify Aadhar</span>
+                            {/* <span style={{ color: 'var(--commonColor)', position: 'absolute', top: 47, right: 20 }}>Verify Aadhar</span> */}
                             {errors.aadhaar && <span className="error">{errors.aadhaar}</span>}
                         </div>
                         <div className="form-group">
@@ -332,7 +340,7 @@ const ApplicationForm = () => {
                 {/* guest details form */}
                 <div className="guest-details">
                     <h2>Guest Details</h2>
-                    <div className="form-tabs">
+                    <div className="form-tabs custom-form-tab">
                         {guestTabs.map(tab => (
                             <div
                                 key={tab}
@@ -359,6 +367,28 @@ const ApplicationForm = () => {
                                         />
                                         {errors[`guestName${index}`] && <span className="error">{errors[`guestName${index}`]}</span>}
                                     </div>
+                                    <div style={{ display: 'flex', gap: '10px' }}>
+                                        <div className="form-group" style={{ width: '50%' }}>
+                                            <label>Age</label>
+                                            <input
+                                                type="number"
+                                                name="age"
+                                                value={formData.age}
+                                                onChange={handleInputChange} placeholder="34"
+                                            />
+                                            {errors.age && <span className="error">{errors.age}</span>}
+                                        </div>
+                                        <div className="form-group" style={{ width: '50%' }}>
+                                            <label>Gender</label>
+                                            <input
+                                                type="text"
+                                                name="gender"
+                                                value={formData.gender}
+                                                onChange={handleInputChange} placeholder="M"
+                                            />
+                                            {errors.gender && <span className="error">{errors.gender}</span>}
+                                        </div>
+                                    </div>
                                     <div className="form-group" style={{ position: 'relative' }}>
                                         <label>Aadhaar Number</label>
                                         <input
@@ -368,7 +398,7 @@ const ApplicationForm = () => {
                                             onChange={(e) => handleGuestInputChange(e, index)}
                                             placeholder=".... .... ...."
                                         />
-                                        <span style={{ color: 'var(--commonColor)', position: 'absolute', top: 47, right: 20 }}>Verify Aadhar</span>
+                                        {/* <span style={{ color: 'var(--commonColor)', position: 'absolute', top: 47, right: 20 }}>Verify Aadhar</span> */}
                                         {errors[`guestAadhaar${index}`] && <span className="error">{errors[`guestAadhaar${index}`]}</span>}
                                     </div>
                                 </div>
@@ -385,7 +415,19 @@ const ApplicationForm = () => {
                                         />
                                         {errors[`guestNumber${index}`] && <span className="error">{errors[`guestNumber${index}`]}</span>}
                                     </div>
-
+                                    <div className="form-group">
+                                        <label>Deeksha</label>
+                                       
+                                        <select>
+                                            <option value="">Select Deeksha</option>
+                                            <option value="">Sri Sarada Devi – Life and Teachings</option>
+                                            <option value="">Sri Sarada Devi – Life and Teachings</option>
+                                            <option value="">Swami Vivekananda – His Life and Legacy</option>
+                                            <option value="">The Gospel of Sri Ramakrishna</option>
+                                            <option value="">None</option>
+                                        </select>
+                                        {errors.deeksha && <span className="error">{errors.deeksha}</span>}
+                                    </div>
                                     <div className="form-group">
                                         <label>Address</label>
                                         <input

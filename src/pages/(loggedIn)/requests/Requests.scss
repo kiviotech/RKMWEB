@@ -1,0 +1,72 @@
+.top-section {
+    display: flex;
+    justify-content: space-between;
+
+    h3 {
+        font-family: var(--InterFontFamily);
+        font-size: 30px;
+        font-weight: 500;
+        margin-top: 0px !important;
+    }
+
+    .toggleGridView {
+        background: #DEE4ED;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 70px;
+        height: 35px;
+        flex-shrink: 0;
+        border-radius: 5px;
+
+        img {
+            padding: 9px 11px;
+            border-radius: 5px;
+        }
+
+        &:first-child {
+            padding-left: 5px;
+        }
+
+        &:nth-child(1) {
+            padding-right: 5px;
+        }
+    }
+}
+
+
+.tabs-container {
+    padding: 1rem;
+}
+
+.tabs-list {
+    display: flex;
+    list-style-type: none;
+    padding: 0;
+}
+
+.tab-item {
+    margin-right: 1rem;
+    cursor: pointer;
+    padding: 15px 30px;
+   
+    // border-bottom: 2px solid transparent;
+}
+
+.tab-item.active {
+    background-color: #FFF;
+    border: 2px solid #B6C2D3;
+    border-radius: 15px 15px 0px 0px;
+    border-bottom: none;
+    margin-bottom: -2px;
+    color: #000;
+    font-family: Lexend;
+    font-size: 20px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
+}
+
+.tab-content {
+    margin-top: -16px;
+}

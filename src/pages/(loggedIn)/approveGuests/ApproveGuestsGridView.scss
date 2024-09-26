@@ -7,6 +7,7 @@
         width: 100%;
         border-collapse: collapse;
         margin-top: 20px;
+        margin-left: -20px;
     }
 
     .grid_view_tableContHeader,
@@ -19,14 +20,14 @@
     .grid_view_tableContBodyEachRow {
         background: #FAFAFB;
         margin-bottom: 10px;
-
+        width: 100%;
+        padding-right: 25px;
     }
-
 
     .grid_view_tableheader,
     .grid_view_tbalebody {
-        width: 15%;
-        display: flex;
+        flex: 1;
+        /* Make columns auto adjust */
         color: #4B4B4B;
         font-size: 14px;
         font-weight: 500;
@@ -40,41 +41,73 @@
         color: #000000;
     }
 
+    /* First column (adjust min-width as needed) */
     .grid_view_tableheader:nth-child(1),
     .grid_view_tbalebody:nth-child(1) {
-        width: 5%;
-    }
-
-
-    .grid_view_tableheader:nth-child(3),
-    .grid_view_tbalebody:nth-child(3) {
-        width: 14%;
+        flex: 1;
+        max-width: 70px;
+        /* Ensures it won't be too small */
+        min-width: 70px;
 
         img {
-            margin-right: 10px;
+            border-radius: 100%;
         }
     }
 
-    .grid_view_tbalebody:nth-child(4),
-    .grid_view_tableheader:nth-child(4) {
-        width: 29%;
-        width: 29%;
-
+    /* Second column */
+    .grid_view_tableheader:nth-child(2),
+    .grid_view_tbalebody:nth-child(2) {
+        flex: 2;
+        /* Takes more space */
+        min-width: 180px;
+        /* Optional minimum width */
+        max-width: 220px;
     }
 
-    .grid_view_tbalebody:nth-child(5),
-    .grid_view_tableheader:nth-child(5) {
-        width: 20%;
-
+    /* Third column */
+    .grid_view_tableheader:nth-child(3),
+    .grid_view_tbalebody:nth-child(3) {
+        flex: 2;
+        max-width: 120px;
+        min-width: 100px;
+        gap: 10px;
+        display: flex;
+        text-align: center;
+        img{
+            border-radius: 100%;
+        }
     }
 
+    /* Fourth column */
+    .grid_view_tableheader:nth-child(4),
+    .grid_view_tbalebody:nth-child(4) {
+        flex: 3;
+        /* More space for longer text */
+        max-width: 240px;
+        min-width: 190px;
+        text-align: center;
+    }
 
+    /* Fifth column */
+    .grid_view_tableheader:nth-child(5),
+    .grid_view_tbalebody:nth-child(5) {
+        flex: 1;
+        min-width: 160px;
+        text-align: center;
+    }
+
+    /* Sixth column (with buttons) */
     .grid_view_tableheader:nth-child(6),
     .grid_view_tbalebody:nth-child(6) {
-        width: 10%;
+        flex: 1;
         gap: 10px;
+        display: flex;
+        text-align: center;
+        min-width: 180px;
     }
 
+    
+    /* Button styling */
     .grid_view_validate-button {
         background: none;
         border: none;
@@ -85,9 +118,11 @@
         img {
             height: 20px;
             width: 30px;
+            
         }
     }
 
+    /* Guest button styling */
     .grid_view_validate-guest-button {
         background-color: #FFFFFF;
         border: 1px solid #737373;
@@ -98,6 +133,5 @@
         font-size: 16px;
         float: right;
         margin-top: 30px;
-
     }
 }

@@ -32,6 +32,10 @@ import toggglerDashboard from '../assets/icons/toggglerDashboard.png';
 import togglerGridView from '../assets/icons/togglerGridView.png';
 import toggglerDashboardWite from '../assets/icons/toggglerDashboardWite.png';
 import togglerGridViewWhite from '../assets/icons/togglerGridViewWhite.png';
+import warning from '../assets/icons/warning.png';
+
+import Paperclip from '../assets/icons/Paperclip.png';
+import Trash from '../assets/icons/Trash.png';
 export default {
     googleIcon,
     facebookIcon,
@@ -53,6 +57,7 @@ export default {
     filledRedCircle,
     bedSelected,
     toggglerDashboard, toggglerDashboardWite,
-    togglerGridView, togglerGridViewWhite
+    togglerGridView, togglerGridViewWhite,warning,
+    Paperclip,Trash
 
 }

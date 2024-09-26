@@ -1,0 +1,147 @@
+/* Ensure the popup is displayed as an overlay on top of the grid */
+.popup_overlay {
+    position: fixed;
+    /* Make the overlay fixed so it spans the entire viewport */
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    /* Semi-transparent background */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    /* Ensure it's above the grid and other content */
+}
+
+.popup_content {
+    background-color: white;
+    padding: 30px 40px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    max-width: 500px;
+    width: 100%;
+    text-align: center;
+    z-index: 1001;
+    /* Ensure it's above the overlay */
+}
+
+.popup_actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 20px;
+    flex-direction: row;
+    gap: 10px;
+    padding-top: 20px;
+}
+
+
+/* GridView.scss */
+
+.email_popup h3 {
+    margin-bottom: 15px;
+    font-size: 18px;
+    font-weight: 700;
+    color: #000;
+    font-family: Lexend;
+}
+
+.email_form {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 20px;
+}
+
+.email_form label {
+    margin-bottom: 5px;
+    position: relative;
+    bottom: 5px;
+    color: #000;
+    font-family: Lexend;
+    font-size: 18px;
+    font-style: normal;
+    font-weight: 300;
+    line-height: normal;
+}
+
+.email_form input[type="email"],
+.email_form input[type="text"],
+.email_form textarea {
+    width: 100%;
+    padding: 15px 12px;
+    margin-bottom: 15px;
+    font-size: 14px;
+    border-radius: 5px;
+    border: 1px solid #98A2AF;
+    color: #000;
+    font-family: Lexend;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 300;
+    line-height: normal;
+
+}
+
+/* Make the border transparent on focus */
+.email_form input:focus,
+.email_form textarea:focus {
+    border: 1px solid transparent;
+    outline: none;
+    /* Remove default outline for a cleaner look */
+}
+
+.email_form textarea {
+    height: 120px;
+    resize: none;
+}
+
+.popup_actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.email-popupbutton {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.popup_actions button {
+    padding: 8px 16px;
+    font-size: 14px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.popup_actions button:hover {
+    opacity: 0.9;
+}
+
+/* Specific styling for Cancel button */
+.popup_actions .cancel_button {
+    background-color: #ccc;
+    color: #4B4B4B;
+    border-radius: 7px;
+    border: 1px solid #4B4B4B;
+}
+
+.popup_actions .send_button {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.popup_actions .send_button:hover {
+    background-color: #45a049;
+}
+
+.divider {
+    border-bottom: 1.5px solid #98A2AF;
+}
+
+.email_popup {
+    max-width: 600px !important;
+}

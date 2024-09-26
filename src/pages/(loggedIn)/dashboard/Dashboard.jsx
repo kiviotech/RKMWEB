@@ -68,7 +68,7 @@ const Dashboard = () => {
           </div>
 
         </div>
-        <div className="Request cards" onClick={() => navigateToPage('/approve-guests')}>
+        <div className="Request cards" onClick={() => navigateToPage('/Requests')}>
           <h4 className='title'>Requests</h4>
           <div className="request-status">
             <strong>64 pending requests</strong>

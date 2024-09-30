@@ -9,7 +9,7 @@ const Sidebar = () => {
 
     return (
         <div className={`sidebar ${isDashboard ? 'dashboard' : ''}`}>
-            <NavLink to="/" activeclassname="active">
+            <NavLink to="/dashboard" activeclassname="active">
                 <img src={icons.house} alt="home" />
                 <span className="label">Guest House</span>
             </NavLink>

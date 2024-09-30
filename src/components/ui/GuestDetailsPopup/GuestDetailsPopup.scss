@@ -40,21 +40,25 @@
     cursor: pointer;
     color: #000;
     font-weight: 600;
-    padding-top: 10px;
     padding-right: 20px;
+}
+
+.card-hearder {
+    display: flex;
+    justify-content: space-between;
+    padding: 0px 30px;
 }
 
 .user-image {
     text-align: center;
 
     img {
-        width: 120px;
+        width: 100px;
     }
 }
 
 
 .user-details-card {
-
     padding: 10px 40px;
 
     span {
@@ -149,6 +153,24 @@
     .guests-section {
         background-color: #FFFFFF;
         border-radius: 4px;
+    }
+
+    .ShowHistory {
+        text-align: right;
+        padding-top: 15px;
+        color: var(--primary-color);
+        font-family: var(--LexendFontFamily);
+        font-weight: 600;
+        font-size: 16px;
+        cursor: pointer;
+        span {
+            display: inline-block; /* Needed for transform to work */
+            transform: rotate(90deg); /* Rotates the '>' symbol */
+            color: var(--primary-color); /* Apply color if desired */
+            margin-left: 5px;
+        }
+        
+
     }
 
     .guests {

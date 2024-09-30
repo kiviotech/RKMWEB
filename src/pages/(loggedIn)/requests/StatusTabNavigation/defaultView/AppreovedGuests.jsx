@@ -1,12 +1,12 @@
 import React, { useState } from "react";
-import "./ApproveGuests.scss";
-import icons from "../../../constants/icons";
-import CommonButton from "../../../components/ui/Button";
-import PopUpFlagGuest from "../../../components/ui/PopUpFlagGuest"; // Adjust the import path as needed
-import GuestDetailsPopup from "../../../components/ui/GuestDetailsPopup/GuestDetailsPopup";
 import { useNavigate } from 'react-router-dom';
+import { icons } from "../../../../../constants";
+import CommonButton from "../../../../../components/ui/Button";
+import PopUpFlagGuest from "../../../../../components/ui/PopUpFlagGuest";
+import GuestDetailsPopup from "../../../../../components/ui/GuestDetailsPopup/GuestDetailsPopup";
 
-const ApproveGuests = () => {
+
+const AppreovedGuests = () => {
     const navigate = useNavigate(); // for routing
     const [requests, setRequests] = useState([
         {
@@ -23,10 +23,12 @@ const ApproveGuests = () => {
                 departureDate: "2023-08-14",
                 occupation: "Engineer",
             },
+            reason: "No History",
             assignBed: 'Bed 305, 306',
-            noOfGuest: "1",
+            noOfGuest: 2,
             isMarked: false,
             approved: false,
+            
             icons: [
                 {
                     id: 1,
@@ -44,7 +46,7 @@ const ApproveGuests = () => {
                     id: 3,
                     normal: icons.checkCircle,
                     filled: icons.checkCircleMarked,
-                    isActive: false,
+                    isActive: true,
                 },
             ],
         },
@@ -65,7 +67,7 @@ const ApproveGuests = () => {
 
             assignBed: 'Bed 305, 306',
             reason: "No History",
-            noOfGuest: "1",
+            noOfGuest: 2,
             isMarked: false,
             icons: [
                 {
@@ -84,7 +86,7 @@ const ApproveGuests = () => {
                     id: 3,
                     normal: icons.checkCircle,
                     filled: icons.checkCircleMarked,
-                    isActive: false,
+                    isActive: true,
                 },
             ],
         },
@@ -104,6 +106,8 @@ const ApproveGuests = () => {
             },
             assignBed: 'Bed 309, 301',
             isMarked: false,
+            noOfGuest:2,
+            reason: "No History",
             icons: [
                 {
                     id: 1,
@@ -121,7 +125,7 @@ const ApproveGuests = () => {
                     id: 3,
                     normal: icons.checkCircle,
                     filled: icons.checkCircleMarked,
-                    isActive: false,
+                    isActive: true,
                 },
             ],
         },
@@ -141,7 +145,7 @@ const ApproveGuests = () => {
             },
             assignBed: 'Bed 305, 306',
             reason: "No History",
-            noOfGuest: "1",
+            noOfGuest: 2,
             isMarked: false,
             icons: [
                 {
@@ -160,7 +164,7 @@ const ApproveGuests = () => {
                     id: 3,
                     normal: icons.checkCircle,
                     filled: icons.checkCircleMarked,
-                    isActive: false,
+                    isActive: true,
                 },
             ],
         },
@@ -176,20 +180,20 @@ const ApproveGuests = () => {
 
     // function and state to handle toggler buttons
 
-    const handleIconClick = (e, reqId, icon_Id, iconType) => {
-        e.stopPropagation(); // Prevent card click event
-        if (icon_Id === 3) {
-            // Check if the last icon is clicked
-            handleFlag("Has History", reqId, icon_Id);
-        }
-        else {
-            setRequestId(reqId);
-            setIconId(icon_Id);
-            setIsModalOpen(true);
-            setIconType(iconType);
-            setIsGuestDetailsPopupOpen(false);
-        }
-    };
+    // const handleIconClick = (e, reqId, icon_Id, iconType) => {
+    //     e.stopPropagation(); // Prevent card click event
+    //     if (icon_Id === 3) {
+    //         // Check if the last icon is clicked
+    //         handleFlag("Has History", reqId, icon_Id);
+    //     }
+    //     // else {
+    //     //     setRequestId(reqId);
+    //     //     setIconId(icon_Id);
+    //     //     setIsModalOpen(true);
+    //     //     setIconType(iconType);
+    //     //     setIsGuestDetailsPopupOpen(false);
+    //     // }
+    // };
 
     const handleCardClick = (guestDetails) => {
         if (!isModalOpen) {
@@ -204,37 +208,37 @@ const ApproveGuests = () => {
         setIsModalOpen(false);
     };
 
-    const handleFlag = (selectedReason, reqId = requestId, icon_Id = iconId) => {
-        console.log(`Flagging guest for reason: ${selectedReason}`);
-        setRequests((prevRequests) =>
-            prevRequests.map((request) =>
-                request.id === reqId
-                    ? {
-                        ...request,
-                        reason: selectedReason, // Update the reason
-                        icons: request.icons.map((icon) =>
-                            icon.id === icon_Id
-                                ? { ...icon, isActive: !icon.isActive }
-                                : { ...icon, isActive: false }
-                        ),
-                    }
-                    : request
-            )
-        );
+    // const handleFlag = (selectedReason, reqId = requestId, icon_Id = iconId) => {
+    //     console.log(`Flagging guest for reason: ${selectedReason}`);
+    //     setRequests((prevRequests) =>
+    //         prevRequests.map((request) =>
+    //             request.id === reqId
+    //                 ? {
+    //                     ...request,
+    //                     reason: selectedReason, // Update the reason
+    //                     icons: request.icons.map((icon) =>
+    //                         icon.id === icon_Id
+    //                             ? { ...icon, isActive: !icon.isActive }
+    //                             : { ...icon, isActive: false }
+    //                     ),
+    //                 }
+    //                 : request
+    //         )
+    //     );
 
-        if (icon_Id !== 3) {
-            closeModal();
-        }
-    };
+    //     if (icon_Id !== 3) {
+    //         closeModal();
+    //     }
+    // };
 
     const getCardBorderColor = (icons) => {
-        const activeIcon = icons.find((icon) => icon.isActive);
-        if (activeIcon) {
-            if (activeIcon.id === 1) return "#FC5275"; // color of the "Reject" button
-            if (activeIcon.id === 2) return "#FFD700"; // color of the "Flag" button (or a similar color)
-            if (activeIcon.id === 3) return "#A3D65C"; // color of the "Approve" button
-        }
-        return "#D9D9D9"; // default border color
+        //const activeIcon = icons.find((icon) => icon.isActive);
+        // if (activeIcon) {
+        //     if (activeIcon.id === 1) return "#FC5275"; // color of the "Reject" button
+        //     if (activeIcon.id === 2) return "#FFD700"; // color of the "Flag" button (or a similar color)
+        //     if (activeIcon.id === 3) return "#A3D65C"; // color of the "Approve" button
+        // }
+        return "#A3D65C"; // default border color
     };
 
 
@@ -243,6 +247,7 @@ const ApproveGuests = () => {
     }
     return (
         <div className="Requests-main-container">
+
             <div className="requests-cards-section">
                 {requests.map((request) => (
                     <div
@@ -257,9 +262,9 @@ const ApproveGuests = () => {
                                     key={icon.id}
                                     src={icon.isActive ? icon.filled : icon.normal}
                                     alt="icon"
-                                    onClick={(e) =>
-                                        handleIconClick(e, request.id, icon.id, icon.normal)
-                                    }
+                                    // onClick={(e) =>
+                                    //     handleIconClick(e, request.id, icon.id, icon.normal)
+                                    // }
                                     style={{
                                         display: "inline-block",
                                         marginRight: "5px",
@@ -279,32 +284,20 @@ const ApproveGuests = () => {
                                         {request.reason}
                                     </p>
                                     <p>Number of guest members: {request.noOfGuest}</p>
-                                    {request.reason === "Has History" && (
-                                        <p>Assigned Bed(s): {request.assignBed}</p>
-                                    )}
+
+                                    <p>Assigned Bed(s): {request.assignBed}</p>
+
 
                                 </div>
 
 
 
                                 <div className="buttons">
-                                    <CommonButton onClick={gotoAllocateRoomPage}
-                                        buttonName="Approve"
-                                        buttonWidth="auto"
-                                        style={{
-                                            backgroundColor: "#ECF8DB",
-                                            color: "#A3D65C",
-                                            borderColor: "#A3D65C",
-                                            fontSize: "18px",
-                                            borderRadius: "7px",
-                                            borderWidth: 1,
-                                            padding: "8px 20px",
-                                        }}
-                                    />
 
                                     <CommonButton
-                                        buttonName="Reject"
+                                        buttonName="Change allocation"
                                         buttonWidth="auto"
+                                        onClick={gotoAllocateRoomPage}
                                         style={{
                                             backgroundColor: "#FFBDCB",
                                             color: "#FC5275",
@@ -315,19 +308,23 @@ const ApproveGuests = () => {
                                             padding: "8px 20px",
                                         }}
                                     />
+
                                 </div>
+
+
+
                             </div>
                         </div>
                     </div>
                 ))}
             </div>
 
-            <PopUpFlagGuest
+            {/* <PopUpFlagGuest
                 isOpen={isModalOpen}
                 onClose={closeModal}
                 handleFlag={handleFlag}
                 iconType={iconType}
-            />
+            /> */}
             {selectedGuest && (
                 <GuestDetailsPopup
                     isOpen={isGuestDetailsPopupOpen}
@@ -339,4 +336,4 @@ const ApproveGuests = () => {
     );
 };
 
-export default ApproveGuests;
+export default AppreovedGuests;

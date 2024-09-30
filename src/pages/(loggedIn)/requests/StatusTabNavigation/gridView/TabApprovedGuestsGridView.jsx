@@ -1,16 +1,15 @@
 import React from 'react';
-import './ApproveGuestsGridView.scss';
-import icons from '../../../constants/icons';
-import CommonButton from '../../../components/ui/Button';
+import { icons } from '../../../../../constants';
+import CommonButton from '../../../../../components/ui/Button';
 
 const guests = [
-    { name: 'Mrs. John Dee', reason: 'lorem ispum dollar set met std fdsfs sdfsd fsd', status: 'approved', bed: 'Bed 305, 304', noOfGuestsMember: '1' },
-    { name: 'Mrs. John Dee', reason: '', status: 'approved', bed: 'Bed 305, 304', noOfGuestsMember: '2' },
-    { name: 'Mrs. John Dee', reason: '', status: 'approved', bed: '', noOfGuestsMember: '7' },
-    { name: 'Mrs. John Dee', reason: '', status: 'approved', bed: 'Bed 305, 304', noOfGuestsMember: '90' },
+    { name: 'Mrs. John Dee', status: 'approved', bed: 'Bed 305, 304', noOfGuestsMember: '1' },
+    { name: 'Mrs. John Dee', status: 'approved', bed: 'Bed 305, 304', noOfGuestsMember: '2' },
+    { name: 'Mrs. John Dee', status: 'approved', bed: '', noOfGuestsMember: '7' },
+    { name: 'Mrs. John Dee', status: 'approved', bed: 'Bed 305, 304', noOfGuestsMember: '90' },
 ];
 
-const ApproveGuestsGridView = () => {
+const TabApprovedGuestsGridView = () => {
     const onApprove = (guest) => {
         console.log('Approved guest:', guest);
     };
@@ -64,8 +63,10 @@ const ApproveGuestsGridView = () => {
                     <div className="grid_view_tableheader"></div>
                     <div className="grid_view_tableheader">Name</div>
                     <div className="grid_view_tableheader">Status</div>
-                    <div className="grid_view_tableheader">Reason</div>
-                    <div className="grid_view_tableheader">No. of guest members</div>
+
+                    <div className="grid_view_tableheader" style={{ minWidth: "200px" }}>No. of guest members</div>
+                    <div className="grid_view_tableheader">Bed(s)</div>
+
                     <div className="grid_view_tableheader"></div>
                 </div>
                 <div className="grid_view_tableContBody">
@@ -79,24 +80,26 @@ const ApproveGuestsGridView = () => {
                                 {getStatusIcon(guest.status)}
                             </div>
 
-                            <div className="grid_view_tbalebody">{guest.reason}</div>
-                            <div className="grid_view_tbalebody">{guest.noOfGuestsMember}</div>
+                            <div className="grid_view_tbalebody" style={{ textAlign: 'center' }}>{guest.noOfGuestsMember}</div>
+                            <div className="grid_view_tbalebody">{guest.bed}</div>
 
                             <div className="grid_view_tbalebody">
 
+
                                 <CommonButton
-                                    buttonName="Allocate"
-                                    buttonWidth="auto"
+                                    buttonName="Change allocation"
+                                    buttonWidth="220px"
                                     style={{
-                                        backgroundColor: "#ECF8DB",
-                                        color: "#A3D65C",
-                                        borderColor: "#A3D65C",
+                                        backgroundColor: "#FFBDCB",
+                                        color: "#FC5275",
+                                        borderColor: "#FC5275",
                                         fontSize: "18px",
                                         borderRadius: "7px",
                                         borderWidth: 1,
-                                        padding: "5px 10px",
+                                        padding: "5px 0px",
                                     }}
                                 />
+
                             </div>
                         </div>
                     ))}
@@ -107,4 +110,4 @@ const ApproveGuestsGridView = () => {
     );
 };
 
-export default ApproveGuestsGridView;
+export default TabApprovedGuestsGridView;

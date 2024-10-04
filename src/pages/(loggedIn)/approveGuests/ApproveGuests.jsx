@@ -1,171 +1,171 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "./ApproveGuests.scss";
 import icons from "../../../constants/icons";
 import CommonButton from "../../../components/ui/Button";
 import PopUpFlagGuest from "../../../components/ui/PopUpFlagGuest"; // Adjust the import path as needed
 import GuestDetailsPopup from "../../../components/ui/GuestDetailsPopup/GuestDetailsPopup";
-import { useNavigate } from 'react-router-dom';
-
+import { useNavigate } from "react-router-dom";
+import { getBookingRequests } from "../../../../services/src/api/repositories/bookingRequestRepository";
 const ApproveGuests = () => {
     const navigate = useNavigate(); // for routing
-    const [requests, setRequests] = useState([
-        {
-            id: 1,
-            userImage: "",
-            userDetails: {
-                name: "Mr. John Deep",
-                age: 27,
-                gender: "M",
-                email: "johnDeep@gmail.com",
-                addharNo: "1234567890",
-                mobile: "3545345443",
-                arrivalDate: "2023-08-07",
-                departureDate: "2023-08-14",
-                occupation: "Engineer",
-            },
-            assignBed: 'Bed 305, 306',
-            noOfGuest: "1",
-            isMarked: false,
-            approved: false,
-            icons: [
-                {
-                    id: 1,
-                    normal: icons.crossCircle,
-                    filled: icons.filledRedCircle,
-                    isActive: false,
-                },
-                {
-                    id: 2,
-                    normal: icons.marked,
-                    filled: icons.markedYellow,
-                    isActive: false,
-                },
-                {
-                    id: 3,
-                    normal: icons.checkCircle,
-                    filled: icons.checkCircleMarked,
-                    isActive: false,
-                },
-            ],
-        },
-        {
-            id: 2,
-            userImage: "",
-            userDetails: {
-                name: "Mr. John Deep",
-                age: 27,
-                gender: "M",
-                email: "johnDeep@gmail.com",
-                addharNo: "1234567890",
-                mobile: "3545345443",
-                arrivalDate: "2023-08-07",
-                departureDate: "2023-08-14",
-                occupation: "Engineer",
-            },
+    //   const [requests, setRequests] = useState([
+    //     {
+    //       id: 1,
+    //       userImage: "",
+    //       userDetails: {
+    //         name: "Mr. John Deepakkkk",
+    //         age: 27,
+    //         gender: "M",
+    //         email: "johnDeep@gmail.com",
+    //         addharNo: "1234567890",
+    //         mobile: "3545345443",
+    //         arrivalDate: "2023-08-07",
+    //         departureDate: "2023-08-14",
+    //         occupation: "Engineer",
+    //       },
+    //       assignBed: "Bed 305, 306",
+    //       noOfGuest: "1",
+    //       isMarked: false,
+    //       approved: false,
+    //       icons: [
+    //         {
+    //           id: 1,
+    //           normal: icons.crossCircle,
+    //           filled: icons.filledRedCircle,
+    //           isActive: false,
+    //         },
+    //         {
+    //           id: 2,
+    //           normal: icons.marked,
+    //           filled: icons.markedYellow,
+    //           isActive: false,
+    //         },
+    //         {
+    //           id: 3,
+    //           normal: icons.checkCircle,
+    //           filled: icons.checkCircleMarked,
+    //           isActive: false,
+    //         },
+    //       ],
+    //     },
+    //     {
+    //       id: 2,
+    //       userImage: "",
+    //       userDetails: {
+    //         name: "Mr. John Deep",
+    //         age: 27,
+    //         gender: "M",
+    //         email: "johnDeep@gmail.com",
+    //         addharNo: "1234567890",
+    //         mobile: "3545345443",
+    //         arrivalDate: "2023-08-07",
+    //         departureDate: "2023-08-14",
+    //         occupation: "Engineer",
+    //       },
 
-            assignBed: 'Bed 305, 306',
-            reason: "No History",
-            noOfGuest: "1",
-            isMarked: false,
-            icons: [
-                {
-                    id: 1,
-                    normal: icons.crossCircle,
-                    filled: icons.filledRedCircle,
-                    isActive: false,
-                },
-                {
-                    id: 2,
-                    normal: icons.marked,
-                    filled: icons.markedYellow,
-                    isActive: false,
-                },
-                {
-                    id: 3,
-                    normal: icons.checkCircle,
-                    filled: icons.checkCircleMarked,
-                    isActive: false,
-                },
-            ],
-        },
-        {
-            id: 3,
-            userImage: "",
-            userDetails: {
-                name: "Mr. John Deep",
-                age: 27,
-                gender: "M",
-                email: "johnDeep@gmail.com",
-                addharNo: "1234567890",
-                mobile: "3545345443",
-                arrivalDate: "2023-08-07",
-                departureDate: "2023-08-14",
-                occupation: "Engineer",
-            },
-            assignBed: 'Bed 309, 301',
-            isMarked: false,
-            icons: [
-                {
-                    id: 1,
-                    normal: icons.crossCircle,
-                    filled: icons.filledRedCircle,
-                    isActive: false,
-                },
-                {
-                    id: 2,
-                    normal: icons.marked,
-                    filled: icons.markedYellow,
-                    isActive: false,
-                },
-                {
-                    id: 3,
-                    normal: icons.checkCircle,
-                    filled: icons.checkCircleMarked,
-                    isActive: false,
-                },
-            ],
-        },
-        {
-            id: 4,
-            userImage: "",
-            userDetails: {
-                name: "Mr. John Deep",
-                age: 27,
-                gender: "M",
-                email: "johnDeep@gmail.com",
-                addharNo: "1234567890",
-                mobile: "3545345443",
-                arrivalDate: "2023-08-07",
-                departureDate: "2023-08-14",
-                occupation: "Engineer",
-            },
-            assignBed: 'Bed 305, 306',
-            reason: "No History",
-            noOfGuest: "1",
-            isMarked: false,
-            icons: [
-                {
-                    id: 1,
-                    normal: icons.crossCircle,
-                    filled: icons.filledRedCircle,
-                    isActive: false,
-                },
-                {
-                    id: 2,
-                    normal: icons.marked,
-                    filled: icons.markedYellow,
-                    isActive: false,
-                },
-                {
-                    id: 3,
-                    normal: icons.checkCircle,
-                    filled: icons.checkCircleMarked,
-                    isActive: false,
-                },
-            ],
-        },
-        // Other requests...
-    ]);
+    //       assignBed: "Bed 305, 306",
+    //       reason: "No History",
+    //       noOfGuest: "1",
+    //       isMarked: false,
+    //       icons: [
+    //         {
+    //           id: 1,
+    //           normal: icons.crossCircle,
+    //           filled: icons.filledRedCircle,
+    //           isActive: false,
+    //         },
+    //         {
+    //           id: 2,
+    //           normal: icons.marked,
+    //           filled: icons.markedYellow,
+    //           isActive: false,
+    //         },
+    //         {
+    //           id: 3,
+    //           normal: icons.checkCircle,
+    //           filled: icons.checkCircleMarked,
+    //           isActive: false,
+    //         },
+    //       ],
+    //     },
+    //     {
+    //       id: 3,
+    //       userImage: "",
+    //       userDetails: {
+    //         name: "Mr. John Deep",
+    //         age: 27,
+    //         gender: "M",
+    //         email: "johnDeep@gmail.com",
+    //         addharNo: "1234567890",
+    //         mobile: "3545345443",
+    //         arrivalDate: "2023-08-07",
+    //         departureDate: "2023-08-14",
+    //         occupation: "Engineer",
+    //       },
+    //       assignBed: "Bed 309, 301",
+    //       isMarked: false,
+    //       icons: [
+    //         {
+    //           id: 1,
+    //           normal: icons.crossCircle,
+    //           filled: icons.filledRedCircle,
+    //           isActive: false,
+    //         },
+    //         {
+    //           id: 2,
+    //           normal: icons.marked,
+    //           filled: icons.markedYellow,
+    //           isActive: false,
+    //         },
+    //         {
+    //           id: 3,
+    //           normal: icons.checkCircle,
+    //           filled: icons.checkCircleMarked,
+    //           isActive: false,
+    //         },
+    //       ],
+    //     },
+    //     {
+    //       id: 4,
+    //       userImage: "",
+    //       userDetails: {
+    //         name: "Mr. John Deep",
+    //         age: 27,
+    //         gender: "M",
+    //         email: "johnDeep@gmail.com",
+    //         addharNo: "1234567890",
+    //         mobile: "3545345443",
+    //         arrivalDate: "2023-08-07",
+    //         departureDate: "2023-08-14",
+    //         occupation: "Engineer",
+    //       },
+    //       assignBed: "Bed 305, 306",
+    //       reason: "No History",
+    //       noOfGuest: "1",
+    //       isMarked: false,
+    //       icons: [
+    //         {
+    //           id: 1,
+    //           normal: icons.crossCircle,
+    //           filled: icons.filledRedCircle,
+    //           isActive: false,
+    //         },
+    //         {
+    //           id: 2,
+    //           normal: icons.marked,
+    //           filled: icons.markedYellow,
+    //           isActive: false,
+    //         },
+    //         {
+    //           id: 3,
+    //           normal: icons.checkCircle,
+    //           filled: icons.checkCircleMarked,
+    //           isActive: false,
+    //         },
+    //       ],
+    //     },
+    //     // Other requests...
+    //   ]);
 
     const [isModalOpen, setIsModalOpen] = useState(false); // Manages the visibility of the modal for flagging a guest.
     const [requestId, setRequestId] = useState(null); // Stores the ID of the current request being processed.
@@ -173,6 +173,83 @@ const ApproveGuests = () => {
     const [iconType, setIconType] = useState(null); // Stores the type of the icon clicked, used to determine the specific action to be taken.
     const [selectedGuest, setSelectedGuest] = useState(null); // Stores the details of the selected guest for display or further actions.
     const [isGuestDetailsPopupOpen, setIsGuestDetailsPopupOpen] = useState(false); // Manages the visibility of the guest details popup.
+    const [requests, setRequests] = useState([]);
+
+
+    useEffect(() => {
+        const fetchBookingRequests = async () => {
+            try {
+
+                const data = await getBookingRequests();
+                console.log(data);
+                const bookingData = data?.data?.data;
+                if (bookingData) {
+                    const bookingRequests = bookingData.map(
+                        (item) => ({
+                            id: item.id,
+                            userImage: item.attributes.userImage || "",
+                            userDetails: {
+                                name: item.attributes.name,
+                                age: item.attributes.age,
+                                gender: item.attributes.gender,
+                                email: item.attributes.email,
+                                addharNo:
+                                    "XXXX-XXXX-XXXX",
+                                mobile: item.attributes.phone_number,
+                                arrivalDate:
+                                    item.attributes.arrival_date,
+                                departureDate:
+                                    item.attributes.departure_date,
+                                occupation:
+                                    item.attributes.occupation,
+                                deeksha: item.attributes.deeksha,
+                            },
+                            assignBed: item.attributes.assignBed || "N/A",
+                            noOfGuest: item.attributes.number_of_guest_members || "0",
+                            isMarked: item.attributes.isMarked || false,
+                            approved: item.attributes.approved || false,
+                            icons: [
+                                {
+                                    id: 1,
+                                    normal: icons.crossCircle,
+                                    filled: icons.filledRedCircle,
+                                    isActive: false,
+                                },
+                                {
+                                    id: 2,
+                                    normal: icons.marked,
+                                    filled: icons.markedYellow,
+                                    isActive: false,
+                                },
+                                {
+                                    id: 3,
+                                    normal: icons.checkCircle,
+                                    filled: icons.checkCircleMarked,
+                                    isActive: false,
+                                },
+                            ],
+                            reason: item.attributes.reason || "No History",
+                            guests: item.attributes.guests.data.map((guest) => ({
+                                id: guest.id,
+                                name: guest.attributes.name,
+                                age: guest.attributes.age,
+                                gender: guest.attributes.gender,
+                                relation: guest.attributes.relationship,
+                            })),
+                        })
+                    );
+
+                    setRequests(bookingRequests);
+                }
+                // console.log(bookingData + "bOOOOOOOOOOO");
+
+            } catch (error) {
+                console.error("Error fetching booking requests:", error);
+            }
+        };
+
+        fetchBookingRequests();
+    }, []);
 
     // function and state to handle toggler buttons
 
@@ -181,8 +258,7 @@ const ApproveGuests = () => {
         if (icon_Id === 3) {
             // Check if the last icon is clicked
             handleFlag("Has History", reqId, icon_Id);
-        }
-        else {
+        } else {
             setRequestId(reqId);
             setIconId(icon_Id);
             setIsModalOpen(true);
@@ -237,10 +313,9 @@ const ApproveGuests = () => {
         return "#D9D9D9"; // default border color
     };
 
-
     const gotoAllocateRoomPage = () => {
-        navigate("/book-room")
-    }
+        navigate("/book-room");
+    };
     return (
         <div className="Requests-main-container">
             <div className="requests-cards-section">
@@ -282,13 +357,11 @@ const ApproveGuests = () => {
                                     {request.reason === "Has History" && (
                                         <p>Assigned Bed(s): {request.assignBed}</p>
                                     )}
-
                                 </div>
 
-
-
                                 <div className="buttons">
-                                    <CommonButton onClick={gotoAllocateRoomPage}
+                                    <CommonButton
+                                        onClick={gotoAllocateRoomPage}
                                         buttonName="Approve"
                                         buttonWidth="auto"
                                         style={{
@@ -333,6 +406,7 @@ const ApproveGuests = () => {
                     isOpen={isGuestDetailsPopupOpen}
                     onClose={closeModal}
                     guestDetails={selectedGuest}
+                    guests={selectedGuest?.guests || []} // Pass guests data here
                 />
             )}
         </div>

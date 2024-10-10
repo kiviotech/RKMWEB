@@ -13,6 +13,8 @@ import AllocateRoom from '../pages/(loggedIn)/allocateRoom/AllocateRoom';
 import CheckRoomAvailability from '../pages/(loggedIn)/roomAvailabaity/CheckRoomAvailability';
 import BookRoom from '../pages/(loggedIn)/BookRoom/BookRoom';
 import Requests from '../pages/(loggedIn)/requests/Requests';
+import Donation from '../pages/(loggedIn)/donation/Donation';
+import DonationDetail from '../pages/(loggedIn)/donation/DonationDetail';
 
 
 
@@ -32,6 +34,8 @@ const AppRoutes = () => {
         <Route path="/room-availability" element={<CheckRoomAvailability />} />
         <Route path="/book-room" element={<BookRoom />} />
         <Route path="/Requests" element={<Requests />} />
+        <Route path="/donation" element={<Donation />} />
+        <Route path="/donationdetail" element={<DonationDetail />} />
         
       </Route>
 

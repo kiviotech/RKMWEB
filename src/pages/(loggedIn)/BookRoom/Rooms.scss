@@ -1,0 +1,204 @@
+// .calendar-container {
+//     .tabs {
+//         display: flex;
+//         margin-bottom: 1rem;
+
+//         .tab {
+//             padding: 0.5rem 1rem;
+//             border: none;
+//             background-color: #f0f0f0;
+//             cursor: pointer;
+
+//             &.active {
+//                 background-color: #c0c0c0;
+//                 font-weight: bold;
+//             }
+//         }
+//     }
+
+//     .floor-filters {
+//         display: flex;
+//         margin-bottom: 1rem;
+
+//         .filter {
+//             padding: 0.5rem 1rem;
+//             border: none;
+//             background-color: #f0f0f0;
+//             cursor: pointer;
+
+//             &.active {
+//                 background-color: #c0c0c0;
+//                 font-weight: bold;
+//             }
+//         }
+//     }
+
+//     .month-selector {
+//         display: flex;
+//         justify-content: space-around;
+//         margin-bottom: 1rem;
+
+//         .month {
+//             padding: 0.5rem;
+//             border: none;
+//             background-color: #f0f0f0;
+//             cursor: pointer;
+
+//             &.active {
+//                 background-color: #c0c0c0;
+//                 font-weight: bold;
+//             }
+//         }
+//     }
+
+//     .grid {
+//         display: flex;
+//         flex-direction: column;
+//         margin-top: 15px;
+
+//         .grid-header {
+//             display: flex;
+//             justify-content: space-around;
+//             margin-left: 100px;
+//             padding: 0.3rem;
+
+
+//             .room-header {
+//                 width: 100px;
+//                 text-align: center;
+//                 font-weight: bold;
+//             }
+//         }
+
+//         .grid-body {
+//             margin-top: 10px;
+//             .date-row {
+//                 display: grid;
+//                 grid-template-columns: auto auto auto auto auto auto auto auto;
+//                 align-items: center;
+              
+
+//                 .date-label {
+//                     width: 80px;
+//                     text-align: right;
+//                     padding-right: 10px;
+//                     font-weight: bold;
+//                 }
+
+//                 .room-slot {
+//                     display: flex;
+//                     justify-content: space-between;
+//                     width: 130px;
+//                     padding: 0.5rem;
+//                     margin-left: 0px;
+//                     border: 1.5px solid #9867E9;
+//                     border-radius: 10px;
+//                     align-items: center;
+//                     justify-content: center;
+//                     gap: 5px;
+
+//                     img {
+//                         width: 35px;
+//                         height: 47px;
+//                         cursor: pointer;
+                        
+//                     }
+//                 }
+//             }
+//         }
+//     }
+// }
+
+// .room-container {
+//     border: 1px solid gray;
+//     padding: 10px;
+// }
+
+.calendar-container {
+    .grid {
+        display: flex;
+        flex-direction: column;
+        margin-top: 15px;
+
+        .grid-header {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.3rem;
+            margin-left: 135px;
+
+            .room-header {
+                flex: 1;
+                text-align: center;
+                font-weight: bold;
+            }
+        }
+
+        .grid-body {
+            margin-top: 10px;
+
+            .date-row {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); // Responsive columns
+                align-items: center;
+
+                .date-label {
+                    width: 80px;
+                    text-align: right;
+                    padding-right: 10px;
+                    font-weight: bold;
+                }
+            }
+        }
+    }
+
+    .room-container {
+        display: flex;
+        justify-content: center; // Center the beds in each room
+        padding: 10px;
+
+        .room-slot {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 130px;
+            padding: 0.5rem;
+            border: 1.5px solid #9867E9;
+            border-radius: 10px;
+            cursor: pointer;
+            margin-left: 10px; // Spacing between room slots
+
+            img {
+                width: 35px;
+                height: 47px;
+                transition: opacity 0.3s;
+
+                &.hidden {
+                    opacity: 0; // Hide image by setting opacity
+                }
+            }
+        }
+    }
+
+    @media (max-width: 768px) {
+        .grid-header {
+            flex-direction: column;
+            align-items: center;
+
+            .room-header {
+                margin-bottom: 0.5rem; // Spacing between room headers
+            }
+        }
+    }
+
+    @media (max-width: 480px) {
+        .grid-body {
+            .date-row {
+                flex-direction: column;
+
+                .date-label {
+                    padding: 0.5rem; // Spacing for smaller screens
+                }
+            }
+        }
+    }
+}

@@ -13,8 +13,8 @@ const Sidebar = () => {
                 <img src={icons.house} alt="home" />
                 <span className="label">Guest House</span>
             </NavLink>
-            <NavLink to="/settings" activeclassname="active">
-                <img src={icons.rupee} alt="settings" />
+            <NavLink to="/donation" activeclassname="active">
+                <img src={icons.rupee} alt="donation" />
                 <span className="label" style={{ paddingTop: '5px' }}>Donations</span>
             </NavLink>
             <NavLink to="/details" activeclassname="active">

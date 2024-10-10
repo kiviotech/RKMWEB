@@ -8,7 +8,7 @@ export const getBookingRequestById = (id) =>
   apiClient.get(bookingRequestEndpoints.getBookingRequestById(id));
 
 export const createBookingRequest = (data) =>
-  apiClient.post(bookingRequestEndpoints.createBookingRequest, data);
+  apiClient.post(bookingRequestEndpoints.createBookingRequest, { data });
 
 export const updateBookingRequest = (id, data) =>
   apiClient.put(bookingRequestEndpoints.updateBookingRequest(id), data);
@@ -21,6 +21,8 @@ export const getBookingRequestsByUserAndStatus = (userId, status) =>
   apiClient.get(
     bookingRequestEndpoints.getBookingRequestsByUserAndStatus(userId, status)
   );
-
+// Function to get booking requests by user ID
 export const getBookingRequestsByUser = (userId) =>
-  apiClient.get(bookingRequestEndpoints.getBookingRequestsByUser(userId));
+  apiClient.get(
+    `${bookingRequestEndpoints.getBookingRequests}?userId=${userId}`
+  );

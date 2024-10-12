@@ -1,8 +1,8 @@
 import apiClient from "../../../apiClient";
 import bookingRequestEndpoints from "../endpoints/bookingRequestEndpoints";
 
-export const getBookingRequests = () =>
-  apiClient.get(bookingRequestEndpoints.getBookingRequests);
+export const getBookingRequests = (status) =>
+  apiClient.get(bookingRequestEndpoints.getBookingRequests(status));
 
 export const getBookingRequestById = (id) =>
   apiClient.get(bookingRequestEndpoints.getBookingRequestById(id));

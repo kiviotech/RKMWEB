@@ -145,3 +145,11 @@
 .email_popup {
     max-width: 600px !important;
 }
+.grid_view_tableContBodyEachRow{
+    max-width: 52vw;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    max-height: 80px;
+
+}

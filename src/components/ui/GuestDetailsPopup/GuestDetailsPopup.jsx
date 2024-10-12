@@ -138,6 +138,19 @@ const GuestDetailsPopup = ({ isOpen, onClose, guestDetails, guests }) => {
                                         style={{ backgroundColor: '#ECF8DB', color: '#A3D65C', borderColor: '#A3D65C', fontSize: '18px', borderRadius: '7px', borderWidth: 1, padding: '5px 20px' }}
                                     />
                                     <CommonButton
+                                        buttonName="Put on Hold"
+                                        buttonWidth="auto"
+                                        style={{
+                                            backgroundColor: "#FFF4B2",
+                                            color: "#F2900D",
+                                            borderColor: "#F2900D",
+                                            fontSize: "18px",
+                                            borderRadius: "7px",
+                                            borderWidth: 1,
+                                            padding: "8px 20px",
+                                        }}
+                                    />
+                                    <CommonButton
                                         buttonName="Reject"
                                         buttonWidth="auto"
                                         style={{ backgroundColor: '#FFBDCB', color: '#FC5275', borderColor: '#FC5275', fontSize: '18px', borderRadius: '7px', borderWidth: 1, padding: '5px 20px' }}

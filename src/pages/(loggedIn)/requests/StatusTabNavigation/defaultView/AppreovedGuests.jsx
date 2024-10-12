@@ -178,23 +178,6 @@ const AppreovedGuests = () => {
     const [selectedGuest, setSelectedGuest] = useState(null); // Stores the details of the selected guest for display or further actions.
     const [isGuestDetailsPopupOpen, setIsGuestDetailsPopupOpen] = useState(false); // Manages the visibility of the guest details popup.
 
-    // function and state to handle toggler buttons
-
-    // const handleIconClick = (e, reqId, icon_Id, iconType) => {
-    //     e.stopPropagation(); // Prevent card click event
-    //     if (icon_Id === 3) {
-    //         // Check if the last icon is clicked
-    //         handleFlag("Has History", reqId, icon_Id);
-    //     }
-    //     // else {
-    //     //     setRequestId(reqId);
-    //     //     setIconId(icon_Id);
-    //     //     setIsModalOpen(true);
-    //     //     setIconType(iconType);
-    //     //     setIsGuestDetailsPopupOpen(false);
-    //     // }
-    // };
-
     const handleCardClick = (guestDetails) => {
         if (!isModalOpen) {
             setSelectedGuest(guestDetails);

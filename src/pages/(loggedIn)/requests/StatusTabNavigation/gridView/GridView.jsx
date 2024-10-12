@@ -1,19 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { icons } from '../../../../../constants';
 import CommonButton from '../../../../../components/ui/Button';
-import './GridView.scss'
-const guests = [
-    { name: 'Mrs. John Dee', status: 'flaged', reason: 'Reason for them getting flagged', noOfGuestsMember: '1' },
-    { name: 'Mrs. John Dee', status: 'flaged', reason: 'Reason for them getting flagged', noOfGuestsMember: '2' },
-    { name: 'Mrs. John Dee', status: 'flaged', reason: 'Reason for them getting flagged', noOfGuestsMember: '7' },
-    { name: 'Mrs. John Dee', status: 'flaged', reason: 'Reason for them getting flagged', noOfGuestsMember: '90' },
-];
+import './GridView.scss';
+import axios from 'axios'; // Add axios for API calls
 
 const GridView = ({ tabLabels }) => {
     const [isPopupVisible, setIsPopupVisible] = useState(false);
     const [selectedGuest, setSelectedGuest] = useState(null);
-
-
+    const [guests, setGuests] = useState([]); // State for storing fetched guest data
     const [isEmailPopupVisible, setIsEmailPopupVisible] = useState(false);
     const [emailContent, setEmailContent] = useState({
         from: 'emailaddress@gmail.com',
@@ -21,6 +15,21 @@ const GridView = ({ tabLabels }) => {
         subject: 'Rejection of your request etc',
         body: 'Dear -, \n\nLorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum'
     });
+
+    // Fetch guests from API when the component mounts
+    useEffect(() => {
+        const fetchGuests = async () => {
+            try {
+                const response = await axios.get('/api/guests'); // Replace with your API endpoint
+                setGuests(response.data); // Assume response.data contains the list of guests
+            } catch (error) {
+                console.error('Error fetching guests:', error);
+            }
+        };
+
+        fetchGuests();
+    }, []);
+
     const onReject = (guest) => {
         setSelectedGuest(guest);
         setIsPopupVisible(true);
@@ -43,7 +52,6 @@ const GridView = ({ tabLabels }) => {
         // Add logic to handle email editing
         handlePopupClose();
     };
-
 
     const handleEmailChange = (e) => {
         const { name, value } = e.target;
@@ -95,9 +103,7 @@ const GridView = ({ tabLabels }) => {
         }
     };
 
-
     const [isTyping, setIsTyping] = useState({
-
         to: false,
         subject: false,
         body: false
@@ -108,6 +114,7 @@ const GridView = ({ tabLabels }) => {
         handleEmailChange(e); // Call your existing email change handler
         setIsTyping({ ...isTyping, [name]: value.length > 0 });
     };
+
     return (
         <div className="grid_view_visit-history">
             <div className="grid_view_tableCont">
@@ -138,18 +145,18 @@ const GridView = ({ tabLabels }) => {
                                 '#F7BC4C'; // Default color for other cases
 
                         return (
-                            <div className="grid_view_tableContBodyEachRow" key={index}> {/* Ensure 'key' prop is unique */}
-                                <div className="grid_view_tbalebody">
+                            <div className="grid_view_tableContBodyEachRow" key={index}>
+                                <div className="grid_view_tbalebody" style={{ width: '30%' }}>
                                     <img src={icons.dummyUser} alt="user-image" />
                                 </div>
                                 <div className="grid_view_tbalebody">{modifiedGuest.name}</div>
-                                <div className="grid_view_tbalebody">
+                                <div className="grid_view_tbalebody" style={{ textAlign: 'center' }}>
                                     {getStatusIcon(modifiedGuest.status)}
                                 </div>
-                                <div className="grid_view_tbalebody" style={{ color: reasonColor }}>
+                                <div className="grid_view_tbalebody" style={{ color: reasonColor, textAlign: 'center' }}>
                                     {modifiedGuest.reason}
                                 </div>
-                                <div className="grid_view_tbalebody">{modifiedGuest.noOfGuestsMember}</div>
+                                <div className="grid_view_tbalebody" style={{ width: 'auto' }}>{modifiedGuest.noOfGuestsMember}</div>
 
                                 <div className="grid_view_tbalebody">
                                     <CommonButton
@@ -159,24 +166,39 @@ const GridView = ({ tabLabels }) => {
                                             backgroundColor: "#ECF8DB",
                                             color: "#A3D65C",
                                             borderColor: "#A3D65C",
-                                            fontSize: "18px",
+                                            fontSize: "14px",
                                             borderRadius: "7px",
                                             borderWidth: 1,
-                                            padding: "5px 10px",
+                                            padding: 10
+                                        }}
+                                    />
+
+                                    <CommonButton
+                                        buttonName="Put on Hold"
+                                        buttonWidth="auto"
+                                        style={{
+                                            height: 60,
+                                            backgroundColor: "#FFF4B2",
+                                            color: "#F2900D",
+                                            borderColor: "#F2900D",
+                                            fontSize: "13px",
+                                            borderRadius: "7px",
+                                            borderWidth: 1,
+                                            padding: 10
                                         }}
                                     />
 
                                     <CommonButton
                                         buttonName="Reject"
-                                        buttonWidth="220px"
+                                        buttonWidth="auto"
                                         style={{
                                             backgroundColor: "#FFBDCB",
                                             color: "#FC5275",
                                             borderColor: "#FC5275",
-                                            fontSize: "18px",
+                                            fontSize: "14px",
                                             borderRadius: "7px",
                                             borderWidth: 1,
-                                            padding: "5px 0px",
+                                            padding: 10
                                         }}
                                         onClick={() => onReject(guest)}
                                     />
@@ -230,7 +252,6 @@ const GridView = ({ tabLabels }) => {
                 </div>
             )}
 
-
             {isEmailPopupVisible && (
                 <div className="popup_overlay">
                     <div className="popup_content email_popup">
@@ -241,13 +262,12 @@ const GridView = ({ tabLabels }) => {
                                     type="email"
                                     name="from"
                                     value={emailContent.from}
-
                                     onChange={handleInputChange}
                                 />
                             </div>
                             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                                 <label>To:</label>
-                                <input style={{ border: 'none' }}
+                                <input
                                     type="email"
                                     name="to"
                                     value={emailContent.to}
@@ -260,7 +280,7 @@ const GridView = ({ tabLabels }) => {
 
                             <div style={{ display: 'flex', alignItems: 'center', gap: 10, paddingTop: "20px" }}>
                                 <label>Subject:</label>
-                                <input style={{ border: 'none' }}
+                                <input
                                     type="text"
                                     name="subject"
                                     value={emailContent.subject}
@@ -269,7 +289,7 @@ const GridView = ({ tabLabels }) => {
                                 />
                             </div>
 
-                            <textarea style={{ border: 'none' }}
+                            <textarea
                                 name="body"
                                 value={emailContent.body}
                                 className={isTyping.body ? 'typing' : ''}
@@ -280,11 +300,11 @@ const GridView = ({ tabLabels }) => {
                         </div>
 
                         <div className="popup_actions email-popupbutton">
-                            <div style={{gap:15,display:'flex',height:"30px",cursor:'pointer'}}>
+                            <div style={{ gap: 15, display: 'flex', height: "30px", cursor: 'pointer' }}>
                                 <img src={icons.Trash} alt="Trash" />
                                 <img src={icons.Paperclip} alt="Paperclip" />
                             </div>
-                            <div style={{gap:15,display:'flex',height:"40px"}}> 
+                            <div style={{ gap: 15, display: 'flex', height: "40px" }}>
                                 <CommonButton buttonName="Cancel" onClick={() => setIsEmailPopupVisible(false)} style={{
                                     backgroundColor: "#FFF",
                                     color: "#4B4B4B",
@@ -293,9 +313,7 @@ const GridView = ({ tabLabels }) => {
                                     borderRadius: "7px",
                                     borderWidth: 1,
                                     padding: "8px 20px",
-
                                 }} />
-                                
                                 <CommonButton buttonName="Send" style={{
                                     borderColor: "#9867E9",
                                 }} onClick={sendEmail} />
@@ -305,7 +323,6 @@ const GridView = ({ tabLabels }) => {
                     </div>
                 </div>
             )}
-
         </div>
     );
 };

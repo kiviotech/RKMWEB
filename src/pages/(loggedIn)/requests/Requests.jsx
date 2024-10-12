@@ -65,7 +65,7 @@ const Requests = () => {
     // Function to render tab content based on active tab
     const renderTabContent = () => {
         if (activeTab === "pending") {
-            return isGuestsGridViewVisible ? <ApproveGuestsGridView /> : <ApproveGuests />;
+            return isGuestsGridViewVisible ? <ApproveGuestsGridView selectedDate={startDate} /> : <ApproveGuests selectedDate={startDate} />;
         } else if (activeTab === "approved") {
             return isGuestsGridViewVisible ? <ApprovedGuestsGridView /> : <AppreovedGuests />;
         } else {

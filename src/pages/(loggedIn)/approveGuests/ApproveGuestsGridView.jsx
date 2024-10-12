@@ -1,16 +1,50 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import './ApproveGuestsGridView.scss';
 import icons from '../../../constants/icons';
 import CommonButton from '../../../components/ui/Button';
+import { getBookingRequests } from '../../../../services/src/api/repositories/bookingRequestRepository';
 
-const guests = [
-    { name: 'Mrs. John Dee', reason: 'lorem ispum dollar set met std fdsfs sdfsd fsd', status: 'approved', bed: 'Bed 305, 304', noOfGuestsMember: '1' },
-    { name: 'Mrs. John Dee', reason: '', status: 'approved', bed: 'Bed 305, 304', noOfGuestsMember: '2' },
-    { name: 'Mrs. John Dee', reason: '', status: 'approved', bed: '', noOfGuestsMember: '7' },
-    { name: 'Mrs. John Dee', reason: '', status: 'approved', bed: 'Bed 305, 304', noOfGuestsMember: '90' },
-];
+const ApproveGuestsGridView = ({ selectedDate }) => {
+    const [guests, setGuests] = useState([]);
+    const [filteredGuests, setFilteredGuests] = useState([]);
 
-const ApproveGuestsGridView = () => {
+    useEffect(() => {
+        const fetchGuests = async () => {
+            try {
+                const data = await getBookingRequests('awaiting'); // Fetch only 'awaiting' requests
+                const bookingData = data?.data?.data;
+
+                if (bookingData) {
+                    const guestsList = bookingData.map(item => ({
+                        id: item.id,
+                        name: item.attributes.name,
+                        reason: item.attributes.reason || 'No reason provided',
+                        status: item.attributes.approved ? 'approved' : 'awaiting',
+                        bed: item.attributes.assignBed || 'N/A',
+                        noOfGuestsMember: item.attributes.number_of_guest_members || '0',
+                        date: new Date(item.attributes.createdAt),
+                    }));
+
+                    setGuests(guestsList);
+                    setFilteredGuests(guestsList); // Initialize filtered guests
+                }
+            } catch (error) {
+                console.error('Error fetching guests:', error);
+            }
+        };
+
+        fetchGuests();
+    }, []);
+
+    useEffect(() => {
+        if (selectedDate) {
+            const filtered = guests.filter(guest => new Date(guest.date).toDateString() === selectedDate.toDateString());
+            setFilteredGuests(filtered);
+        } else {
+            setFilteredGuests(guests); // Show all if no date selected
+        }
+    }, [selectedDate, guests]);
+
     const onApprove = (guest) => {
         console.log('Approved guest:', guest);
     };
@@ -56,7 +90,6 @@ const ApproveGuestsGridView = () => {
         }
     };
 
-
     return (
         <div className="grid_view_visit-history">
             <div className="grid_view_tableCont">
@@ -69,7 +102,7 @@ const ApproveGuestsGridView = () => {
                     <div className="grid_view_tableheader"></div>
                 </div>
                 <div className="grid_view_tableContBody">
-                    {guests.map((guest, index) => (
+                    {filteredGuests.map((guest, index) => (
                         <div className="grid_view_tableContBodyEachRow" key={index}>
                             <div className="grid_view_tbalebody">
                                 <img src={icons.dummyUser} alt="user-image" />
@@ -78,12 +111,9 @@ const ApproveGuestsGridView = () => {
                             <div className="grid_view_tbalebody">
                                 {getStatusIcon(guest.status)}
                             </div>
-
                             <div className="grid_view_tbalebody">{guest.reason}</div>
                             <div className="grid_view_tbalebody">{guest.noOfGuestsMember}</div>
-
                             <div className="grid_view_tbalebody">
-
                                 <CommonButton
                                     buttonName="Allocate"
                                     buttonWidth="auto"
@@ -96,11 +126,11 @@ const ApproveGuestsGridView = () => {
                                         borderWidth: 1,
                                         padding: "5px 10px",
                                     }}
+                                    onClick={() => onApprove(guest)}
                                 />
                             </div>
                         </div>
                     ))}
-
                 </div>
             </div>
         </div>

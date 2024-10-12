@@ -1,0 +1,230 @@
+.donations-history-page {
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    font-family: 'Arial', sans-serif;
+  
+    .top-section {
+      display: flex;
+      justify-content: space-between;
+  
+      .total-donations {
+        background-color: white;
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        width: 48%;
+        display: flex;  // Set display to flex to arrange children in a row
+        align-items: center;  // Center align items vertically
+        height: 180px;
+        h2 {
+            font-size: 1rem;  // Change font size to small
+            margin-bottom: 10px;
+             // Set the font color to green
+          }
+          h3 {
+            font-size: 2.5rem;
+            margin-bottom: 5px;
+            color: #A3D65C;
+          }
+        .total-info {
+          flex: 1;  // Allow this section to grow and take available space
+  
+          h2 {
+            font-size: 1rem;  // Change font size to small
+            margin-bottom: 10px;
+            color: #27ae60;  // Set the font color to green
+          }
+  
+          
+  
+          p {
+            color: gray;
+          }
+        }
+  
+        .donation-chart {
+          margin-left: 20px;  // Add space between total info and chart
+          height: 150px;  // Set height explicitly for the chart to ensure proper sizing
+          flex-shrink: 0;  // Prevent the chart from shrinking
+          width: 300px;
+        }
+      }
+  
+      // .guest-donation-status {
+      //   background-color: white;
+      //   border-radius: 10px;
+      //   padding: 20px;
+      //   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      //   width: 48%;
+  
+        // h2 {
+        //   font-size: 1.5rem;
+        //   margin-bottom: 10px;
+        // }
+  
+        // h3 {
+        //   font-size: 2.5rem;
+        //   margin-bottom: 5px;
+        //   color: #27ae60;
+        // }
+  
+        // p {
+        //   color: gray;
+        // }
+  
+        // .status-info {
+        //   display: flex;
+        //   justify-content: space-between;
+        //   align-items: center;
+  
+          // .status-circle {
+          //   width: 100px;
+          // }
+  
+          // .status-text {
+          //   p {
+          //     margin: 5px 0;
+          //   }
+          // }
+        // }
+  
+        // .reminder-btn {
+        //   margin-top: 10px;
+        //   padding: 10px 15px;
+        //   background-color: #e74c3c;
+        //   color: white;
+        //   border: none;
+        //   border-radius: 5px;
+        //   cursor: pointer;
+        // }
+      // }
+    }
+  
+    // .donation-history-section {
+    //   margin-top: 20px;
+  
+    //   h3 {
+    //     font-size: 1.5rem;
+    //     margin-bottom: 20px;
+    //   }
+  
+      // .search-filter {
+      //   display: flex;
+      //   justify-content: space-between;
+      //   margin-bottom: 20px;
+  
+        // input {
+        //   width: 60%;
+        //   padding: 10px;
+        //   border: 1px solid #ddd;
+        //   border-radius: 5px;
+        // }
+  
+        // .sort-btn,
+        // .filter-btn {
+        //   padding: 10px 20px;
+        //   background-color: #3498db;
+        //   color: white;
+        //   border: none;
+        //   border-radius: 5px;
+        //   cursor: pointer;
+        // }
+      // }
+  
+      // .donation-history-table {
+      //   background-color: white;
+      //   border-radius: 10px;
+      //   padding: 20px;
+      //   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  
+        // .table-header {
+        //   display: flex;
+        //   justify-content: space-between;
+        //   font-weight: bold;
+        //   margin-bottom: 10px;
+        // }
+  
+        // .table-body {
+        //   .table-row {
+        //     display: flex;
+        //     justify-content: space-between;
+        //     padding: 10px 0;
+        //     border-bottom: 1px solid #eee;
+  
+        //     .donation-amount {
+        //       color: #27ae60;
+        //     }
+        //   }
+        // }
+      // }
+    // }
+    // .search-sort-filter {
+    //     display: flex;
+    //     align-items: center;
+    //     justify-content: space-between;
+      
+        // .search-bar {
+        //   display: flex;
+        //   align-items: center;
+        //   background-color: #e0e7f1; /* Light background */
+        //   padding: 10px 15px;
+        //   border-radius: 10px;
+      
+          // .search-icon {
+          //   margin-right: 8px;
+          //   font-size: 16px;
+          //   color: #666; /* Icon color */
+          // }
+      
+          // input {
+          //   border: none;
+          //   background: none;
+          //   outline: none;
+          //   font-size: 16px;
+          //   color: #333;
+          // }
+        // }
+      
+        // .actions {
+        //   display: flex;
+        //   gap: 15px;
+      
+          // button {
+          //   display: flex;
+          //   align-items: center;
+          //   border: 1px solid #6200ea; /* Purple border */
+          //   border-radius: 10px;
+          //   padding: 10px 20px;
+          //   background-color: white;
+          //   font-size: 16px;
+          //   color: #6200ea;
+          //   cursor: pointer;
+          //   transition: all 0.3s ease;
+      
+            // &:hover {
+            //   background-color: #f5f0ff;
+            // }
+      
+            // .sort-icon, .filter-icon {
+            //   margin-right: 8px;
+            //   font-size: 16px;
+            // }
+          // }
+      
+          // .sort-btn {
+          //   .sort-icon {
+          //     /* Use appropriate icon for Sort */
+          //     transform: rotate(90deg); /* Rotated horizontal lines for Sort */
+          //   }
+          // }
+      
+          // .filter-btn {
+          //   .filter-icon {
+          //     /* Use appropriate icon for Filter */
+          //   }
+          // }
+        // }
+      // }
+  }
+  

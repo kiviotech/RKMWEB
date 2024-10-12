@@ -1,29 +1,29 @@
 :root {
-    --bg-color: #FC5275;
-    --txt-color: white;
+  --bg-color: #fc5275;
+  --txt-color: white;
 }
 
 .checkout {
-    background-color: var(--checkoutTableButtonColor) !important;
-    color: var(--bg-color) !important;
+  background-color: var(--checkoutTableButtonColor) !important;
+  color: var(--bg-color) !important;
 }
 
 .check-out-details {
-    width: 85% !important;
+  width: 35% !important;
 }
 
 .checkoutProgress {
-    background-color: #FFBDCB !important;;
+  background-color: #ffbdcb !important;
 }
 
 .checkoutProgress-fill {
-    background-color: var(--bg-color) !important;
+  background-color: var(--bg-color) !important;
 }
 
 .donation-paid {
-    color: #A3D65C;
+  color: #a3d65c;
 }
 
 .donation-not-paid {
-    color: var(--bg-color);
+  color: var(--bg-color);
 }

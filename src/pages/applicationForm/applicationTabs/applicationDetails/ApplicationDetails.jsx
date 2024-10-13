@@ -7,19 +7,16 @@ const ApplicationDetails = ({ goToNextStep, tabName }) => {
   const { formData, errors, setFormData, setAddressData, setErrors } =
     useApplicationStore();
 
-  // Handle form input changes for basic fields
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(name, value);
   };
 
-  // Handle form input changes for address fields
   const handleAddressInputChange = (e) => {
     const { name, value } = e.target;
     setAddressData(name, value);
   };
 
-  // Handle form submission and validate
   const handleSubmit = (e) => {
     e.preventDefault();
 
@@ -33,12 +30,104 @@ const ApplicationDetails = ({ goToNextStep, tabName }) => {
       setErrors("name", "");
     }
 
+    if (!formData.age) {
+      setErrors("age", "Age is required");
+      hasErrors = true;
+    } else if (
+      !Number.isInteger(Number(formData.age)) ||
+      formData.age <= 0 ||
+      formData.age > 120
+    ) {
+      setErrors("age", "Age must be a valid number between 1 and 120");
+      hasErrors = true;
+    } else {
+      setErrors("age", "");
+    }
+
+    if (!formData.gender) {
+      setErrors("gender", "Gender is required");
+      hasErrors = true;
+    } else if (!["M", "F", "O"].includes(formData.gender)) {
+      setErrors("gender", "Gender must be 'M', 'F', or 'O'");
+      hasErrors = true;
+    } else {
+      setErrors("gender", "");
+    }
     // Validate email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
     if (!formData.email) {
       setErrors("email", "Email is required");
       hasErrors = true;
+    } else if (!emailRegex.test(formData.email)) {
+      setErrors("email", "Please enter a valid email address");
+      hasErrors = true;
     } else {
       setErrors("email", "");
+    }
+    if (!formData.occupation) {
+      setErrors("occupation", "Occupation is required");
+      hasErrors = true;
+    } else {
+      setErrors("occupation", "");
+    }
+
+    if (!formData.deeksha) {
+      setErrors("deeksha", "Deeksha is required");
+      hasErrors = true;
+    } else {
+      setErrors("deeksha", "");
+    }
+
+    if (!formData.aadhaar) {
+      setErrors("aadhaar", "Aadhaar is required");
+      hasErrors = true;
+    } else if (!/^\d{12}$/.test(formData.aadhaar)) {
+      setErrors("aadhaar", "Aadhaar number must be 12 digits long");
+      hasErrors = true;
+    } else {
+      setErrors("aadhaar", "");
+    }
+
+    if (!formData.phoneNumber) {
+      setErrors("phoneNumber", "Phone number is required");
+      hasErrors = true;
+    } else if (!/^\d{10}$/.test(formData.phoneNumber)) {
+      setErrors("phoneNumber", "Phone number must be 10 digits long");
+      hasErrors = true;
+    } else {
+      setErrors("phoneNumber", "");
+    }
+
+    if (!formData.address.state) {
+      setErrors("state", "State is required");
+      hasErrors = true;
+    } else {
+      setErrors("state", "");
+    }
+
+    if (!formData.address.district) {
+      setErrors("district", "District is required");
+      hasErrors = true;
+    } else {
+      setErrors("district", "");
+    }
+
+    if (!formData.address.pinCode) {
+      setErrors("pinCode", "Pin Code is required");
+      hasErrors = true;
+    } else if (!/^\d{6}$/.test(formData.address.pinCode)) {
+      setErrors("pinCode", "Pin Code must be 6 digits long");
+      hasErrors = true;
+    } else {
+      setErrors("pinCode", "");
+    }
+
+    if (!formData.address.streetName) {
+      setErrors("streetName", "StreetName is required");
+      hasErrors = true;
+    } else {
+      setErrors("streetName", "");
     }
 
     // Proceed if there are no validation errors
@@ -89,7 +178,7 @@ const ApplicationDetails = ({ goToNextStep, tabName }) => {
                     name="gender"
                     value={formData.gender}
                     onChange={handleInputChange}
-                    placeholder="M/F/O"
+                    placeholder="M"
                   />
                   {errors.gender && (
                     <span className="error">{errors.gender}</span>
@@ -105,7 +194,7 @@ const ApplicationDetails = ({ goToNextStep, tabName }) => {
                   name="email"
                   value={formData.email}
                   onChange={handleInputChange}
-                  placeholder="example@example.com"
+                  placeholder="Email id"
                 />
                 {errors.email && <span className="error">{errors.email}</span>}
               </div>
@@ -182,7 +271,7 @@ const ApplicationDetails = ({ goToNextStep, tabName }) => {
                   name="aadhaar"
                   value={formData.aadhaar}
                   onChange={handleInputChange}
-                  placeholder=".... .... ...."
+                  placeholder="•••• •••• ••••"
                 />
                 {errors.aadhaar && (
                   <span className="error">{errors.aadhaar}</span>

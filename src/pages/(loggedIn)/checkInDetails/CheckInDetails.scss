@@ -71,9 +71,11 @@
   }
 
   .scanned-qr-main-section {
-    padding: 42px 20px 0px 20px;
+    padding: 0px 20px 0px 20px;
     width: 65%;
-
+    .scanned-qr-sub-section {
+      margin-top: 42px;
+    }
     .details-section,
     .guests-section {
       h5 {
@@ -154,7 +156,7 @@
             }
           }
 
-          .donation-status {
+          .donation-statuss {
             color: red;
           }
         }
@@ -234,7 +236,6 @@
         cursor: pointer;
         font-size: 16px;
         float: right;
-        margin-top: 30px;
       }
     }
   }

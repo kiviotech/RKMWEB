@@ -1,17 +1,66 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Modal from "react-modal";
 import "./CheckInDetails.scss";
 import { icons } from "../../../constants";
 import SearchBar from "../../../components/ui/SearchBar";
 import CommonHeaderTitle from "../../../components/ui/CommonHeaderTitle";
 import GuestDetails from "../GuestDetails";
+import { fetchBookingRequests } from "../../../../services/src/services/bookingRequestService";
 
 const CheckInDetails = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [approvedAllocations, setApprovedAllocations] = useState([]);
+  const [filteredAllocations, setFilteredAllocations] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isQRcodeScanned, setIsQRcodeScanned] = useState(false);
 
   const closeModal = () => {
     setIsModalOpen(false);
     setIsQRcodeScanned(true);
+  };
+
+  useEffect(() => {
+    const fetchAllocations = async () => {
+      try {
+        const response = await fetchBookingRequests();
+        const allAllocations = response.data;
+
+        const approvedAllocations = allAllocations.filter(
+          (allocation) => allocation.attributes.status === "approved"
+        );
+
+        setApprovedAllocations(approvedAllocations);
+        setFilteredAllocations(approvedAllocations);
+
+        if (approvedAllocations.length > 0) {
+          setSelectedUser(approvedAllocations[0]);
+        }
+      } catch (error) {
+        console.error("Error fetching room allocations: ", error);
+      }
+    };
+
+    fetchAllocations();
+  }, []);
+
+  const handleSelectUser = (user) => {
+    setSelectedUser(user);
+  };
+
+  const handleSearch = (query) => {
+    setSearchQuery(query);
+    if (query.trim() === "") {
+      setFilteredAllocations(approvedAllocations);
+    } else {
+      const filtered = approvedAllocations.filter((allocation) =>
+        allocation.attributes.name.toLowerCase().includes(query.toLowerCase())
+      );
+      setFilteredAllocations(filtered);
+      if (filtered.length > 0) {
+        setSelectedUser(filtered[0]);
+      }
+    }
   };
 
   return (
@@ -19,7 +68,7 @@ const CheckInDetails = () => {
       <div className="check-in-datails">
         <div className="header">
           <CommonHeaderTitle title="Check-ins" />
-          <SearchBar />
+          <SearchBar searchQuery={searchQuery} onSearch={handleSearch} />
         </div>
         <div className="progressBar">
           <div className="progress">
@@ -33,40 +82,39 @@ const CheckInDetails = () => {
               <tr>
                 <th>Name</th>
                 <th>Reference no.</th>
-                {/* <th>Room no.</th> */}
                 <th></th>
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td>Mr. John Dee</td>
-                <td>20240103-002</td>
-                {/* <td>Gh-03</td> */}
-                <td>
-                  <button className="check-in-button">Check in</button>
-                </td>
-              </tr>
-              <tr>
-                <td>Mr. John Dee</td>
-                <td>20240103-002</td>
-                {/* <td>Gh-08</td> */}
-                <td>
-                  <button className="check-in-button">Check in</button>
-                </td>
-              </tr>
-              <tr>
-                <td>Mr. John Dee</td>
-                <td>20240103-002</td>
-                {/* <td>Gh-12</td> */}
-                <td>
-                  <button className="check-in-button">Check in</button>
-                </td>
-              </tr>
+              {filteredAllocations.length > 0 ? (
+                filteredAllocations.map((allocation) => (
+                  <tr
+                    style={{ cursor: "pointer" }}
+                    key={allocation.id}
+                    onClick={() => handleSelectUser(allocation)}
+                    className={
+                      selectedUser?.id === allocation.id ? "selected-row" : ""
+                    }
+                  >
+                    <td>Mr. {allocation.attributes.name}</td>
+                    <td>{allocation.id}</td>
+                    <td>
+                      <button className="check-in-button">Check in</button>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="3">No approved room allocations found.</td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>
       </div>
-      <GuestDetails />
+      {selectedUser && (
+        <GuestDetails selectedUser={selectedUser} showQRSection={true} />
+      )}
 
       <Modal
         isOpen={isModalOpen}
@@ -86,7 +134,6 @@ const CheckInDetails = () => {
               Align the QR Code within the frame to scan
             </p>
             <div className="qr-code-frame">
-              {/* Place your QR code scanner component or logic here */}
               <p>Scanning...</p>
             </div>
           </div>

@@ -244,7 +244,7 @@ const ApplicationForm = () => {
             <li
               key={tab.id}
               className={`tab-item ${activeFormTab === index ? "active" : ""}`}
-              onClick={() => handleFormTabClick(index)}
+              // onClick={() => handleFormTabClick(index)}
             >
               <span className="tabIndex">{index + 1}</span> {tab.tabName}
             </li>

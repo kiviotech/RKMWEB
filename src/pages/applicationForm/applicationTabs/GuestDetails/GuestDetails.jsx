@@ -3,8 +3,19 @@ import CommonButton from "../../../../components/ui/Button";
 import useApplicationStore from "../../../../../useApplicationStore";
 
 const GuestDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
-  const { formData, errors, setGuestData, updateGuestMembers } =
+  const { formData, errors, setErrors, setGuestData, updateGuestMembers } =
     useApplicationStore();
+  const validRelations = [
+    "mother",
+    "father",
+    "son",
+    "daughter",
+    "wife",
+    "aunt",
+    "friend",
+    "other",
+  ];
+
   const [activeTab, setActiveTab] = useState("Guest 1");
 
   // Create guest tabs based on the number of guests
@@ -25,9 +36,110 @@ const GuestDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
     goToPrevStep();
   };
 
-  const handleProceed = () => {
-    // console.log("Guest Details:", formData.guests);
-    goToNextStep();
+  const handleProceed = (e) => {
+    e.preventDefault();
+
+    let hasErrors = false;
+    formData.guests.forEach((guest, index) => {
+      // Validate guest name
+      if (!guest.guestName) {
+        setErrors(`guestName${index}`, "Name is required");
+        hasErrors = true;
+      } else {
+        setErrors(`guestName${index}`, "");
+      }
+
+      // Validate phone number (must be 10 digits)
+      if (!guest.guestNumber) {
+        setErrors(`guestNumber${index}`, "Phone number is required");
+        hasErrors = true;
+      } else if (!/^\d{10}$/.test(guest.guestNumber)) {
+        setErrors(`guestNumber${index}`, "Phone number must be 10 digits long");
+        hasErrors = true;
+      } else {
+        setErrors(`guestNumber${index}`, "");
+      }
+
+      // Validate Aadhaar (must be 12 digits)
+      if (!guest.guestAadhaar) {
+        setErrors(`guestAadhaar${index}`, "Aadhaar is required");
+        hasErrors = true;
+      } else if (!/^\d{12}$/.test(guest.guestAadhaar)) {
+        setErrors(
+          `guestAadhaar${index}`,
+          "Aadhaar number must be 12 digits long"
+        );
+        hasErrors = true;
+      } else {
+        setErrors(`guestAadhaar${index}`, "");
+      }
+
+      // Validate occupation
+      if (!guest.guestOccupation) {
+        setErrors(`guestOccupation${index}`, "Occupation is required");
+        hasErrors = true;
+      } else {
+        setErrors(`guestOccupation${index}`, "");
+      }
+
+      if (!guest.guestRelation) {
+        setErrors(
+          `guestRelation${index}`,
+          "Relation with applicant is required"
+        );
+        hasErrors = true;
+      } else if (!validRelations.includes(guest.guestRelation.toLowerCase())) {
+        setErrors(
+          `guestRelation${index}`,
+          "Invalid relation. Must be one of: mother, father, son, daughter, wife, aunt, friend, or other."
+        );
+        hasErrors = true;
+      } else {
+        setErrors(`guestRelation${index}`, "");
+      }
+
+      // Validate Address 1 fields
+      const address1 = guest.guestAddress1;
+      if (!address1.state) {
+        setErrors(`guestAddress1State${index}`, "State is required");
+        hasErrors = true;
+      } else {
+        setErrors(`guestAddress1State${index}`, "");
+      }
+
+      if (!address1.district) {
+        setErrors(`guestAddress1District${index}`, "District is required");
+        hasErrors = true;
+      } else {
+        setErrors(`guestAddress1District${index}`, "");
+      }
+
+      if (!address1.streetName) {
+        setErrors(`guestAddress1StreetName${index}`, "Street Name is required");
+        hasErrors = true;
+      } else {
+        setErrors(`guestAddress1StreetName${index}`, "");
+      }
+
+      if (!address1.pinCode) {
+        setErrors(`guestAddress1PinCode${index}`, "Pin Code is required");
+        hasErrors = true;
+      } else if (!/^\d{6}$/.test(address1.pinCode)) {
+        setErrors(
+          `guestAddress1PinCode${index}`,
+          "Pin Code must be 6 digits long"
+        );
+        hasErrors = true;
+      } else {
+        setErrors(`guestAddress1PinCode${index}`, "");
+      }
+    });
+
+    if (!hasErrors) {
+      goToNextStep();
+    } else {
+      console.log("Validation errors occurred");
+    }
   };
 
   return (

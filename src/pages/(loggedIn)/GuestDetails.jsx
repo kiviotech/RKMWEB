@@ -1,83 +1,74 @@
 import React, { useState } from "react";
 import { icons } from "../../constants";
 
-const GuestDetails = () => {
+const GuestDetails = ({ selectedUser, showQRSection }) => {
+  const { attributes } = selectedUser;
+  const guests = attributes.guests?.data || [];
   const [isQRcodeScanned, setIsQRcodeScanned] = useState(false);
-  const guests = [
-    {
-      name: "Mrs. John Dee",
-      age: 35,
-      gender: "F",
-      relation: "Wife",
-      roomNo: "Gh-03",
-      bedNo: "202-A",
-      id: 1,
-    },
-    {
-      name: "Ms. John Dee",
-      age: 5,
-      gender: "F",
-      relation: "Child",
-      roomNo: "Gh-08",
-      bedNo: "202-B",
-      id: 2,
-    },
-  ];
 
   const openModal = () => {
     setIsModalOpen(true);
   };
   return (
     <>
-      {" "}
       <div className="scanned-qr-main-section">
-        {isQRcodeScanned ? (
-          <div className="qr-code-alert scanned">
-            <img
-              src={icons.qR}
-              alt="icon"
-              style={{ position: "relative", top: "5px" }}
-            />
-            <span style={{ position: "relative", top: "-5px" }}>
-              QR Code is successfully scanned
-            </span>
-          </div>
-        ) : (
-          <div className="qr-code-section">
-            <div className="qr-code-alert">
-              <img
-                src={icons.qR}
-                alt="icon"
-                style={{ position: "relative", top: "5px" }}
-              />
-              <span style={{ position: "relative", top: "-5px" }}>
-                QR Code is not scanned
-              </span>
-            </div>
+        {showQRSection && (
+          <>
+            <div className="scanned-qr-sub-section">
+              {isQRcodeScanned ? (
+                <div className="qr-code-alert scanned">
+                  <img
+                    src={icons.qR}
+                    alt="icon"
+                    style={{ position: "relative", top: "5px" }}
+                  />
+                  <span style={{ position: "relative", top: "-5px" }}>
+                    QR Code is successfully scanned
+                  </span>
+                </div>
+              ) : (
+                <div className="qr-code-section">
+                  <div className="qr-code-alert">
+                    <img
+                      src={icons.qR}
+                      alt="icon"
+                      style={{ position: "relative", top: "5px" }}
+                    />
+                    <span style={{ position: "relative", top: "-5px" }}>
+                      QR Code is not scanned
+                    </span>
+                  </div>
 
-            <button className="scan-qr-button" onClick={openModal}>
-              Scan QR Code
-            </button>
-          </div>
+                  <button className="scan-qr-button" onClick={openModal}>
+                    Scan QR Code
+                  </button>
+                </div>
+              )}
+            </div>
+          </>
         )}
         <div className="details-section">
           <h5>Details</h5>
           <div className="details">
             <div className="detail">
+              <span style={{ fontWeight: 600 }}>Name :</span>
+              <span>{attributes.name}</span>
+            </div>
+            <div className="detail">
               <span style={{ fontWeight: 600 }}>Mobile no. :</span>
-              <span>+91 0000000000</span>
+              <span>{attributes.phone_number}</span>
             </div>
             <div className="detail">
               <span>Deeksha :</span>
-              <span></span>
+              <span>{attributes.deeksha}</span>
             </div>
             <div className="detail">
               <span>Donation :</span>
-              <span className="donation-status">To be paid</span>
+              <span className="donation-statuss">To be paid</span>
             </div>
             <div className="detail">
               <span>Departure Date:</span>
-              <span>00/00/0000</span>
+              <span>{attributes.departure_date}</span>
             </div>
           </div>
         </div>
@@ -95,24 +86,30 @@ const GuestDetails = () => {
               <div className="tableheader">ID</div>
             </div>
             <div className="tableContBody">
-              {guests.map((guest) => (
-                <div className="tableContBodyEachRow" key={guest.id}>
-                  <div className="tbalebody">
-                    <img src={icons.dummyUser} alt="user-image" />
+              {guests.length > 0 ? (
+                guests.map((guest) => (
+                  <div className="tableContBodyEachRow" key={guest.id}>
+                    <div className="tbalebody">
+                      <img src={icons.dummyUser} alt="user-image" />
+                    </div>
+                    <div className="tbalebody">{guest.attributes.name}</div>
+                    <div className="tbalebody">{guest.attributes.age}</div>
+                    <div className="tbalebody">{guest.attributes.gender}</div>
+                    <div className="tbalebody">
+                      {guest.attributes.relationship}
+                    </div>
+                    <div className="tbalebody">{guest.attributes.roomNo}</div>
+                    <div className="tbalebody">{guest.attributes.bedNo}</div>
+                    <div className="tbalebody">
+                      <button className="validate-button">
+                        <img src={icons.eyeHalf} alt="eye-icon" />
+                      </button>
+                    </div>
                   </div>
-                  <div className="tbalebody">{guest.name}</div>
-                  <div className="tbalebody">{guest.age}</div>
-                  <div className="tbalebody">{guest.gender}</div>
-                  <div className="tbalebody">{guest.relation}</div>
-                  <div className="tbalebody">{guest.roomNo}</div>
-                  <div className="tbalebody">{guest.bedNo}</div>
-                  <div className="tbalebody">
-                    <button className="validate-button">
-                      <img src={icons.eyeHalf} alt="eye-icon" />
-                    </button>
-                  </div>
-                </div>
-              ))}
+                ))
+              ) : (
+                <div>No guests available for this user.</div>
+              )}
             </div>
           </div>
           <button className="validate-guest-button">Validate Guest</button>

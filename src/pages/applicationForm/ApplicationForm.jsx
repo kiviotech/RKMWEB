@@ -57,17 +57,17 @@ const ApplicationForm = () => {
 
   // Function to calculate progress
   const calculateProgress = () => {
-    const totalFields = 11 + formData.guestMembers * 4; // Adjust the number according to the fields
+    const totalFields = 11 + formData.guestMembers * 4; // Base fields + guest fields
     let filledFields = 0;
 
-    // Count the filled main form fields
+    // Count filled main form fields
     Object.keys(formData).forEach((key) => {
       if (key !== "guests" && formData[key] !== "") {
         filledFields++;
       }
     });
 
-    // Count the filled guest form fields
+    // Count filled guest form fields
     formData.guests.forEach((guest) => {
       Object.keys(guest).forEach((key) => {
         if (guest[key] !== "") {
@@ -80,6 +80,7 @@ const ApplicationForm = () => {
     const progressPercentage = (filledFields / totalFields) * 100;
     setProgress(progressPercentage);
   };
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prevState) => ({
@@ -97,10 +98,7 @@ const ApplicationForm = () => {
   const handleGuestInputChange = (e, index) => {
     const { name, value } = e.target;
     const updatedGuests = [...formData.guests];
-    updatedGuests[index] = {
-      ...updatedGuests[index],
-      [name]: value,
-    };
+    updatedGuests[index] = { ...updatedGuests[index], [name]: value };
     setFormData((prevState) => ({
       ...prevState,
       guests: updatedGuests,
@@ -108,7 +106,7 @@ const ApplicationForm = () => {
   };
 
   useEffect(() => {
-    calculateProgress(); // Update the progress when formData changes
+    calculateProgress(); // Update progress when formData changes
   }, [formData]);
 
   useEffect(() => {
@@ -244,7 +242,7 @@ const ApplicationForm = () => {
             <li
               key={tab.id}
               className={`tab-item ${activeFormTab === index ? "active" : ""}`}
-              // onClick={() => handleFormTabClick(index)}
+              onClick={() => handleFormTabClick(index)}
             >
               <span className="tabIndex">{index + 1}</span> {tab.tabName}
             </li>

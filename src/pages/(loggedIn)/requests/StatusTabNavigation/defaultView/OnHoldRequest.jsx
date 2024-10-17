@@ -1,17 +1,16 @@
 import React, { useEffect, useState } from "react";
-import "./ApproveGuests.scss";
-import icons from "../../../constants/icons";
-import CommonButton from "../../../components/ui/Button";
-import PopUpFlagGuest from "../../../components/ui/PopUpFlagGuest";
-import GuestDetailsPopup from "../../../components/ui/GuestDetailsPopup/GuestDetailsPopup";
+import icons from "../../../../../constants/icons";
+import CommonButton from "../../../../../components/ui/Button";
+import PopUpFlagGuest from "../../../../../components/ui/PopUpFlagGuest";
+import GuestDetailsPopup from "../../../../../components/ui/GuestDetailsPopup/GuestDetailsPopup";
 import { useNavigate } from "react-router-dom";
 import {
   getBookingRequests,
   updateBookingRequest,
-} from "../../../../services/src/api/repositories/bookingRequestRepository";
-import { getToken } from "../../../../services/src/utils/storage";
+} from "../../../../../../services/src/api/repositories/bookingRequestRepository";
+import { getToken } from "../../../../../../services/src/utils/storage"; // Ensure this utility fetches your token
 
-const ApproveGuests = () => {
+const OnHoldRequest = ({ selectedDate }) => {
   const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [requestId, setRequestId] = useState(null);
@@ -20,68 +19,70 @@ const ApproveGuests = () => {
   const [selectedGuest, setSelectedGuest] = useState(null);
   const [isGuestDetailsPopupOpen, setIsGuestDetailsPopupOpen] = useState(false);
   const [requests, setRequests] = useState([]);
+  const [filteredRequests, setFilteredRequests] = useState([]);
 
-  // Fetch the booking requests
+  // Fetch the booking requests with "on_hold" status
   useEffect(() => {
     const fetchBookingRequests = async () => {
       try {
         const data = await getBookingRequests();
         const bookingData = data?.data?.data;
+
         if (bookingData) {
-          const filteredBookingData = bookingData.filter(
-            (item) => item.attributes.status === "awaiting"
-          );
+          const onHoldRequests = bookingData
+            .filter((item) => item.attributes.status === "on_hold")
+            .map((item) => ({
+              id: item.id,
+              userImage: item.attributes.userImage || "",
+              createdAt: new Date(item.attributes.createdAt),
+              userDetails: {
+                name: item.attributes.name,
+                age: item.attributes.age,
+                gender: item.attributes.gender,
+                email: item.attributes.email,
+                addharNo: item.attributes.aadhaar_number,
+                mobile: item.attributes.phone_number,
+                arrivalDate: item.attributes.arrival_date,
+                departureDate: item.attributes.departure_date,
+                occupation: item.attributes.occupation,
+                deeksha: item.attributes.deeksha,
+              },
+              assignBed: item.attributes.assignBed || "N/A",
+              noOfGuest: item.attributes.number_of_guest_members || "0",
+              isMarked: item.attributes.isMarked || false,
+              approved: item.attributes.approved || false,
+              icons: [
+                {
+                  id: 1,
+                  normal: icons.crossCircle,
+                  filled: icons.filledRedCircle,
+                  isActive: false,
+                },
+                {
+                  id: 2,
+                  normal: icons.marked,
+                  filled: icons.markedYellow,
+                  isActive: true, // Since status is "on_hold"
+                },
+                {
+                  id: 3,
+                  normal: icons.checkCircle,
+                  filled: icons.checkCircleMarked,
+                  isActive: false,
+                },
+              ],
+              reason: item.attributes.reason || "No History",
+              guests: item.attributes.guests.data.map((guest) => ({
+                id: guest.id,
+                name: guest.attributes.name,
+                age: guest.attributes.age,
+                gender: guest.attributes.gender,
+                relation: guest.attributes.relationship,
+              })),
+            }));
 
-          const bookingRequests = filteredBookingData.map((item) => ({
-            id: item.id,
-            userImage: item.attributes.userImage || "",
-            userDetails: {
-              name: item.attributes.name,
-              age: item.attributes.age,
-              gender: item.attributes.gender,
-              email: item.attributes.email,
-              addharNo: item.attributes.aadhaar_number,
-              mobile: item.attributes.phone_number,
-              arrivalDate: item.attributes.arrival_date,
-              departureDate: item.attributes.departure_date,
-              occupation: item.attributes.occupation,
-              deeksha: item.attributes.deeksha,
-            },
-            assignBed: item.attributes.assignBed || "N/A",
-            noOfGuest: item.attributes.number_of_guest_members || "0",
-            isMarked: item.attributes.isMarked || false,
-            approved: item.attributes.approved || false,
-            icons: [
-              {
-                id: 1,
-                normal: icons.crossCircle,
-                filled: icons.filledRedCircle,
-                isActive: false,
-              },
-              {
-                id: 2,
-                normal: icons.marked,
-                filled: icons.markedYellow,
-                isActive: false,
-              },
-              {
-                id: 3,
-                normal: icons.checkCircle,
-                filled: icons.checkCircleMarked,
-                isActive: false,
-              },
-            ],
-            reason: item.attributes.reason || "No History",
-            guests: item.attributes.guests.data.map((guest) => ({
-              id: guest.id,
-              name: guest.attributes.name,
-              age: guest.attributes.age,
-              gender: guest.attributes.gender,
-              relation: guest.attributes.relationship,
-            })),
-          }));
-
-          setRequests(bookingRequests); // Setting the filtered data to state
+          setRequests(onHoldRequests);
+          setFilteredRequests(onHoldRequests); // Initialize filtered requests
         }
       } catch (error) {
         console.error("Error fetching booking requests:", error);
@@ -91,7 +92,23 @@ const ApproveGuests = () => {
     fetchBookingRequests();
   }, []);
 
-  // Function to update booking request status
+  // Filter requests by selected date
+  useEffect(() => {
+    if (selectedDate) {
+      const filtered = requests
+        .filter((request) => {
+          const requestDate = new Date(request.createdAt).toDateString();
+          return requestDate === selectedDate.toDateString(); // Compare only the date
+        })
+        .sort((a, b) => a.createdAt - b.createdAt); // Sort by date
+
+      setFilteredRequests(filtered);
+    } else {
+      setFilteredRequests(requests); // Show all if no date selected
+    }
+  }, [selectedDate, requests]);
+
+  // Handle guest approval or rejection
   const handleStatusChange = async (e, requestId, newStatus) => {
     e.stopPropagation();
 
@@ -141,7 +158,6 @@ const ApproveGuests = () => {
         `Failed to update the booking request to ${newStatus}`,
         error
       );
-      console.log("Error response data:", error.response?.data?.error);
     }
   };
 
@@ -183,7 +199,7 @@ const ApproveGuests = () => {
   return (
     <div className="Requests-main-container">
       <div className="requests-cards-section">
-        {requests.map((request) => (
+        {filteredRequests.map((request) => (
           <div
             key={request.id}
             className="requests-card"
@@ -208,8 +224,8 @@ const ApproveGuests = () => {
               ))}
             </div>
             <div className="request-details">
-              <div className="request-user-image">
-                <img src={icons.userDummyImage} alt="user" />
+              <div className="request-user-imag">
+                <img src={icons.userDummyImage} alt="user-image" />
                 <p>{request.userDetails.name}</p>
               </div>
               <div className="reasons">
@@ -218,63 +234,42 @@ const ApproveGuests = () => {
                     {request.reason}
                   </p>
                   <p>Number of guest members: {request.noOfGuest}</p>
+                  <p>Arrival Date: {request.userDetails.arrivalDate}</p>
+                  <p>Departure Date: {request.userDetails.departureDate}</p>
                   {request.reason === "Has History" && (
                     <p>Assigned Bed(s): {request.assignBed}</p>
                   )}
                 </div>
-
-                <div className="buttons">
-                  <CommonButton
-                    onClick={(e) =>
-                      handleStatusChange(e, request.id, "approved")
-                    }
-                    buttonName="Approve"
-                    buttonWidth="auto"
-                    style={{
-                      backgroundColor: "#ECF8DB",
-                      color: "#A3D65C",
-                      borderColor: "#A3D65C",
-                      fontSize: "18px",
-                      borderRadius: "7px",
-                      borderWidth: 1,
-                      padding: "8px 20px",
-                    }}
-                  />
-
-                  <CommonButton
-                    onClick={(e) =>
-                      handleStatusChange(e, request.id, "on_hold")
-                    }
-                    buttonName="Put on Hold"
-                    buttonWidth="auto"
-                    style={{
-                      backgroundColor: "#FFF4B2",
-                      color: "#F2900D",
-                      borderColor: "#F2900D",
-                      fontSize: "14px",
-                      borderRadius: "7px",
-                      borderWidth: 1,
-                    }}
-                  />
-
-                  <CommonButton
-                    onClick={(e) =>
-                      handleStatusChange(e, request.id, "rejected")
-                    }
-                    buttonName="Reject"
-                    buttonWidth="auto"
-                    style={{
-                      backgroundColor: "#FFBDCB",
-                      color: "#FC5275",
-                      borderColor: "#FC5275",
-                      fontSize: "18px",
-                      borderRadius: "7px",
-                      borderWidth: 1,
-                      padding: "8px 20px",
-                    }}
-                  />
-                </div>
               </div>
+            </div>
+            <div className="buttons">
+              <CommonButton
+                onClick={(e) => handleStatusChange(e, request.id, "approved")}
+                buttonName="Approve"
+                buttonWidth="auto"
+                style={{
+                  backgroundColor: "#ECF8DB",
+                  color: "#A3D65C",
+                  borderColor: "#A3D65C",
+                  fontSize: "14px",
+                  borderRadius: "7px",
+                  borderWidth: 1,
+                }}
+              />
+
+              <CommonButton
+                onClick={(e) => handleStatusChange(e, request.id, "rejected")}
+                buttonName="Reject"
+                buttonWidth="auto"
+                style={{
+                  backgroundColor: "#FFBDCB",
+                  color: "#FC5275",
+                  borderColor: "#FC5275",
+                  fontSize: "14px",
+                  borderRadius: "7px",
+                  borderWidth: 1,
+                }}
+              />
             </div>
           </div>
         ))}
@@ -291,11 +286,11 @@ const ApproveGuests = () => {
           isOpen={isGuestDetailsPopupOpen}
           onClose={closeModal}
           guestDetails={selectedGuest}
-          guests={selectedGuest?.guests || []}
+          guests={selectedGuest?.guests || []} // Pass guests data here
         />
       )}
     </div>
   );
 };
 
-export default ApproveGuests;
+export default OnHoldRequest;

@@ -1,339 +1,180 @@
-import React, { useState } from "react";
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect, useState } from "react";
 import { icons } from "../../../../../constants";
 import CommonButton from "../../../../../components/ui/Button";
-import PopUpFlagGuest from "../../../../../components/ui/PopUpFlagGuest";
 import GuestDetailsPopup from "../../../../../components/ui/GuestDetailsPopup/GuestDetailsPopup";
+import { useNavigate } from "react-router-dom";
+import { getBookingRequests } from "../../../../../../services/src/api/repositories/bookingRequestRepository";
+import { getToken } from "../../../../../../services/src/utils/storage";
 
+const ApprovedGuests = () => {
+  const navigate = useNavigate();
+  const [selectedGuest, setSelectedGuest] = useState(null);
+  const [isGuestDetailsPopupOpen, setIsGuestDetailsPopupOpen] = useState(false);
+  const [requests, setRequests] = useState([]);
 
-const AppreovedGuests = () => {
-    const navigate = useNavigate(); // for routing
-    const [requests, setRequests] = useState([
-        {
-            id: 1,
-            userImage: "",
+  const handleButtonClick = (request) => {
+    navigate("/book-room", { state: { userData: request } });
+  };
+
+  // Fetch only approved booking requests
+  useEffect(() => {
+    const fetchApprovedBookingRequests = async () => {
+      try {
+        const data = await getBookingRequests();
+        const bookingData = data?.data?.data;
+        if (bookingData) {
+          const approvedBookingData = bookingData.filter(
+            (item) => item.attributes.status === "approved"
+          );
+
+          const bookingRequests = approvedBookingData.map((item) => ({
+            id: item.id,
+            userImage: item.attributes.userImage || "",
             userDetails: {
-                name: "Mr. John Deep",
-                age: 27,
-                gender: "M",
-                email: "johnDeep@gmail.com",
-                addharNo: "1234567890",
-                mobile: "3545345443",
-                arrivalDate: "2023-08-07",
-                departureDate: "2023-08-14",
-                occupation: "Engineer",
+              name: item.attributes.name,
+              age: item.attributes.age,
+              gender: item.attributes.gender,
+              email: item.attributes.email,
+              addharNo: item.attributes.aadhaar_number,
+              mobile: item.attributes.phone_number,
+              arrivalDate: item.attributes.arrival_date,
+              departureDate: item.attributes.departure_date,
+              occupation: item.attributes.occupation,
+              deeksha: item.attributes.deeksha,
             },
-            reason: "No History",
-            assignBed: 'Bed 305, 306',
-            noOfGuest: 2,
-            isMarked: false,
-            approved: false,
-            
+            assignBed: item.attributes.assignBed || "N/A",
+            noOfGuest: item.attributes.number_of_guest_members || "0",
+            isMarked: item.attributes.isMarked || false,
+            approved: item.attributes.approved || false,
             icons: [
-                {
-                    id: 1,
-                    normal: icons.crossCircle,
-                    filled: icons.filledRedCircle,
-                    isActive: false,
-                },
-                {
-                    id: 2,
-                    normal: icons.marked,
-                    filled: icons.markedYellow,
-                    isActive: false,
-                },
-                {
-                    id: 3,
-                    normal: icons.checkCircle,
-                    filled: icons.checkCircleMarked,
-                    isActive: true,
-                },
+              {
+                id: 1,
+                normal: icons.crossCircle,
+                filled: icons.filledRedCircle,
+                isActive: false,
+              },
+              {
+                id: 2,
+                normal: icons.marked,
+                filled: icons.markedYellow,
+                isActive: false,
+              },
+              {
+                id: 3,
+                normal: icons.checkCircle,
+                filled: icons.checkCircleMarked,
+                isActive: true,
+              },
             ],
-        },
-        {
-            id: 2,
-            userImage: "",
-            userDetails: {
-                name: "Mr. John Deep",
-                age: 27,
-                gender: "M",
-                email: "johnDeep@gmail.com",
-                addharNo: "1234567890",
-                mobile: "3545345443",
-                arrivalDate: "2023-08-07",
-                departureDate: "2023-08-14",
-                occupation: "Engineer",
-            },
+            reason: item.attributes.reason || "No History",
+            guests: item.attributes.guests.data.map((guest) => ({
+              id: guest.id,
+              name: guest.attributes.name,
+              age: guest.attributes.age,
+              gender: guest.attributes.gender,
+              relation: guest.attributes.relationship,
+            })),
+          }));
 
-            assignBed: 'Bed 305, 306',
-            reason: "No History",
-            noOfGuest: 2,
-            isMarked: false,
-            icons: [
-                {
-                    id: 1,
-                    normal: icons.crossCircle,
-                    filled: icons.filledRedCircle,
-                    isActive: false,
-                },
-                {
-                    id: 2,
-                    normal: icons.marked,
-                    filled: icons.markedYellow,
-                    isActive: false,
-                },
-                {
-                    id: 3,
-                    normal: icons.checkCircle,
-                    filled: icons.checkCircleMarked,
-                    isActive: true,
-                },
-            ],
-        },
-        {
-            id: 3,
-            userImage: "",
-            userDetails: {
-                name: "Mr. John Deep",
-                age: 27,
-                gender: "M",
-                email: "johnDeep@gmail.com",
-                addharNo: "1234567890",
-                mobile: "3545345443",
-                arrivalDate: "2023-08-07",
-                departureDate: "2023-08-14",
-                occupation: "Engineer",
-            },
-            assignBed: 'Bed 309, 301',
-            isMarked: false,
-            noOfGuest:2,
-            reason: "No History",
-            icons: [
-                {
-                    id: 1,
-                    normal: icons.crossCircle,
-                    filled: icons.filledRedCircle,
-                    isActive: false,
-                },
-                {
-                    id: 2,
-                    normal: icons.marked,
-                    filled: icons.markedYellow,
-                    isActive: false,
-                },
-                {
-                    id: 3,
-                    normal: icons.checkCircle,
-                    filled: icons.checkCircleMarked,
-                    isActive: true,
-                },
-            ],
-        },
-        {
-            id: 4,
-            userImage: "",
-            userDetails: {
-                name: "Mr. John Deep",
-                age: 27,
-                gender: "M",
-                email: "johnDeep@gmail.com",
-                addharNo: "1234567890",
-                mobile: "3545345443",
-                arrivalDate: "2023-08-07",
-                departureDate: "2023-08-14",
-                occupation: "Engineer",
-            },
-            assignBed: 'Bed 305, 306',
-            reason: "No History",
-            noOfGuest: 2,
-            isMarked: false,
-            icons: [
-                {
-                    id: 1,
-                    normal: icons.crossCircle,
-                    filled: icons.filledRedCircle,
-                    isActive: false,
-                },
-                {
-                    id: 2,
-                    normal: icons.marked,
-                    filled: icons.markedYellow,
-                    isActive: false,
-                },
-                {
-                    id: 3,
-                    normal: icons.checkCircle,
-                    filled: icons.checkCircleMarked,
-                    isActive: true,
-                },
-            ],
-        },
-        // Other requests...
-    ]);
-
-    const [isModalOpen, setIsModalOpen] = useState(false); // Manages the visibility of the modal for flagging a guest.
-    const [requestId, setRequestId] = useState(null); // Stores the ID of the current request being processed.
-    const [iconId, setIconId] = useState(null); // Stores the ID of the icon that was clicked, used to identify the action.
-    const [iconType, setIconType] = useState(null); // Stores the type of the icon clicked, used to determine the specific action to be taken.
-    const [selectedGuest, setSelectedGuest] = useState(null); // Stores the details of the selected guest for display or further actions.
-    const [isGuestDetailsPopupOpen, setIsGuestDetailsPopupOpen] = useState(false); // Manages the visibility of the guest details popup.
-
-    // function and state to handle toggler buttons
-
-    // const handleIconClick = (e, reqId, icon_Id, iconType) => {
-    //     e.stopPropagation(); // Prevent card click event
-    //     if (icon_Id === 3) {
-    //         // Check if the last icon is clicked
-    //         handleFlag("Has History", reqId, icon_Id);
-    //     }
-    //     // else {
-    //     //     setRequestId(reqId);
-    //     //     setIconId(icon_Id);
-    //     //     setIsModalOpen(true);
-    //     //     setIconType(iconType);
-    //     //     setIsGuestDetailsPopupOpen(false);
-    //     // }
-    // };
-
-    const handleCardClick = (guestDetails) => {
-        if (!isModalOpen) {
-            setSelectedGuest(guestDetails);
-            setIsGuestDetailsPopupOpen(true);
+          setRequests(bookingRequests);
         }
+      } catch (error) {
+        console.error("Error fetching approved booking requests:", error);
+      }
     };
 
-    const closeModal = () => {
-        setIsGuestDetailsPopupOpen(false);
-        setSelectedGuest(null);
-        setIsModalOpen(false);
-    };
+    fetchApprovedBookingRequests();
+  }, []);
 
-    // const handleFlag = (selectedReason, reqId = requestId, icon_Id = iconId) => {
-    //     console.log(`Flagging guest for reason: ${selectedReason}`);
-    //     setRequests((prevRequests) =>
-    //         prevRequests.map((request) =>
-    //             request.id === reqId
-    //                 ? {
-    //                     ...request,
-    //                     reason: selectedReason, // Update the reason
-    //                     icons: request.icons.map((icon) =>
-    //                         icon.id === icon_Id
-    //                             ? { ...icon, isActive: !icon.isActive }
-    //                             : { ...icon, isActive: false }
-    //                     ),
-    //                 }
-    //                 : request
-    //         )
-    //     );
+  const handleCardClick = (guestDetails) => {
+    setSelectedGuest(guestDetails);
+    setIsGuestDetailsPopupOpen(true);
+  };
 
-    //     if (icon_Id !== 3) {
-    //         closeModal();
-    //     }
-    // };
+  const closeModal = () => {
+    setIsGuestDetailsPopupOpen(false);
+    setSelectedGuest(null);
+  };
 
-    const getCardBorderColor = (icons) => {
-        //const activeIcon = icons.find((icon) => icon.isActive);
-        // if (activeIcon) {
-        //     if (activeIcon.id === 1) return "#FC5275"; // color of the "Reject" button
-        //     if (activeIcon.id === 2) return "#FFD700"; // color of the "Flag" button (or a similar color)
-        //     if (activeIcon.id === 3) return "#A3D65C"; // color of the "Approve" button
-        // }
-        return "#A3D65C"; // default border color
-    };
-
-
-    const gotoAllocateRoomPage = () => {
-        navigate("/book-room")
+  const getCardBorderColor = (icons) => {
+    const activeIcon = icons.find((icon) => icon.isActive);
+    if (activeIcon) {
+      if (activeIcon.id === 1) return "#FC5275";
+      if (activeIcon.id === 2) return "#FFD700";
+      if (activeIcon.id === 3) return "#A3D65C";
     }
-    return (
-        <div className="Requests-main-container">
+    return "#D9D9D9";
+  };
 
-            <div className="requests-cards-section">
-                {requests.map((request) => (
-                    <div
-                        key={request.id}
-                        className="requests-card"
-                        style={{ borderColor: getCardBorderColor(request.icons) }}
-                        onClick={() => handleCardClick(request)}
-                    >
-                        <div className="actions-button">
-                            {request.icons.map((icon) => (
-                                <img
-                                    key={icon.id}
-                                    src={icon.isActive ? icon.filled : icon.normal}
-                                    alt="icon"
-                                    // onClick={(e) =>
-                                    //     handleIconClick(e, request.id, icon.id, icon.normal)
-                                    // }
-                                    style={{
-                                        display: "inline-block",
-                                        marginRight: "5px",
-                                        cursor: "pointer",
-                                    }}
-                                />
-                            ))}
-                        </div>
-                        <div className="request-details">
-                            <div className="request-user-imag">
-                                <img src={icons.userDummyImage} alt="user-image" />
-                                <p>{request.userDetails.name}</p>
-                            </div>
-                            <div className="reasons">
-                                <div>
-                                    <p style={{ color: getCardBorderColor(request.icons) }}>
-                                        {request.reason}
-                                    </p>
-                                    <p>Number of guest members: {request.noOfGuest}</p>
-
-                                    <p>Assigned Bed(s): {request.assignBed}</p>
-
-
-                                </div>
-
-
-
-                                <div className="buttons">
-
-                                    <CommonButton
-                                        buttonName="Change allocation"
-                                        buttonWidth="auto"
-                                        onClick={gotoAllocateRoomPage}
-                                        style={{
-                                            backgroundColor: "#FFBDCB",
-                                            color: "#FC5275",
-                                            borderColor: "#FC5275",
-                                            fontSize: "18px",
-                                            borderRadius: "7px",
-                                            borderWidth: 1,
-                                            padding: "8px 20px",
-                                        }}
-                                    />
-
-                                </div>
-
-
-
-                            </div>
-                        </div>
-                    </div>
-                ))}
-            </div>
-
-            {/* <PopUpFlagGuest
-                isOpen={isModalOpen}
-                onClose={closeModal}
-                handleFlag={handleFlag}
-                iconType={iconType}
-            /> */}
-            {selectedGuest && (
-                <GuestDetailsPopup
-                    isOpen={isGuestDetailsPopupOpen}
-                    onClose={closeModal}
-                    guestDetails={selectedGuest}
+  return (
+    <div className="Requests-main-container">
+      <div className="requests-cards-section">
+        {requests.map((request) => (
+          <div
+            key={request.id}
+            className="requests-card"
+            style={{ borderColor: getCardBorderColor(request.icons) }}
+            onClick={() => handleCardClick(request)}
+          >
+            <div className="actions-button">
+              {request.icons.map((icon) => (
+                <img
+                  key={icon.id}
+                  src={icon.isActive ? icon.filled : icon.normal}
+                  alt="icon"
+                  style={{
+                    display: "inline-block",
+                    marginRight: "5px",
+                    cursor: "pointer",
+                  }}
                 />
-            )}
-        </div>
-    );
+              ))}
+            </div>
+            <div className="request-details">
+              <div className="request-user-image">
+                <img src={icons.userDummyImage} alt="user" />
+                <p>{request.userDetails.name}</p>
+              </div>
+              <div className="reasons">
+                <div>
+                  <p style={{ color: getCardBorderColor(request.icons) }}>
+                    {request.reason}
+                  </p>
+                  <p>Number of guest members: {request.noOfGuest}</p>
+                  {request.reason === "Has History" && (
+                    <p>Assigned Bed(s): {request.assignBed}</p>
+                  )}
+                </div>
+              </div>
+            </div>
+            <CommonButton
+              buttonName="Allocate Rooms"
+              buttonWidth="220px"
+              style={{
+                backgroundColor: "#FFBDCB",
+                color: "#FC5275",
+                borderColor: "#FC5275",
+                fontSize: "18px",
+                borderRadius: "7px",
+                borderWidth: 1,
+                padding: "5px 0px",
+              }}
+              onClick={() => handleButtonClick(request)} // Pass the request data
+            />
+          </div>
+        ))}
+      </div>
+
+      {selectedGuest && (
+        <GuestDetailsPopup
+          isOpen={isGuestDetailsPopupOpen}
+          onClose={closeModal}
+          guestDetails={selectedGuest}
+          guests={selectedGuest?.guests || []}
+        />
+      )}
+    </div>
+  );
 };
 
-export default AppreovedGuests;
+export default ApprovedGuests;

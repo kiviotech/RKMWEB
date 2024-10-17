@@ -205,15 +205,16 @@ const ApplicationDetails = ({ goToNextStep, tabName }) => {
                 <select
                   className="form-control"
                   name="guestMembers"
-                  value={formData.guestMembers}
+                  value={formData.guestMembers} // Default value is 0 from formData initialization
                   onChange={handleInputChange}
                 >
-                  {[...Array(6)].map((_, i) => (
-                    <option key={i + 1} value={i + 1}>
-                      {i + 1}
+                  {[...Array(7)].map((_, i) => (
+                    <option key={i} value={i}>
+                      {i}
                     </option>
                   ))}
                 </select>
+
                 {errors.guestMembers && (
                   <span className="error">{errors.guestMembers}</span>
                 )}

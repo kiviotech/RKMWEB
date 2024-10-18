@@ -1,30 +1,31 @@
 import React, { useEffect, useState } from 'react';
-import './ApproveGuestsGridView.scss';
-import icons from '../../../constants/icons';
-import CommonButton from '../../../components/ui/Button';
-import { getBookingRequests } from '../../../../services/src/api/repositories/bookingRequestRepository';
+import { icons } from '../../../../../constants';
+import CommonButton from '../../../../../components/ui/Button';
+import { getBookingRequestsByStatus } from '../../../../../../services/src/api/repositories/bookingRequestRepository';
+import { useNavigate } from 'react-router-dom';
+import "./GridView.scss"
 
-const ApproveGuestsGridView = ({ selectedDate }) => {
-    const [guests, setGuests] = useState([]);
+
+const TabCancelledGridView = ({ selectedDate }) => {
+    let navigate=useNavigate()
+    const [ guests, setGuests ]= useState([]);
     const [filteredGuests, setFilteredGuests] = useState([]);
 
     useEffect(() => {
         const fetchGuests = async () => {
             try {
-                const data = await getBookingRequests('awaiting'); // Fetch only 'awaiting' requests
+                const data = await getBookingRequestsByStatus('canceled'); // Fetch only 'approved' guests
                 const bookingData = data?.data?.data;
 
                 if (bookingData) {
                     const guestsList = bookingData.map(item => ({
                         id: item.id,
                         name: item.attributes.name,
-                        reason: item.attributes.reason || 'No reason provided',
+                        createdAt: new Date(item.attributes.createdAt),
                         status: item.attributes.approved ? 'approved' : 'awaiting',
                         bed: item.attributes.assignBed || 'N/A',
                         noOfGuestsMember: item.attributes.number_of_guest_members || '0',
-                        date: new Date(item.attributes.createdAt),
                     }));
-
                     setGuests(guestsList);
                     setFilteredGuests(guestsList); // Initialize filtered guests
                 }
@@ -32,18 +33,20 @@ const ApproveGuestsGridView = ({ selectedDate }) => {
                 console.error('Error fetching guests:', error);
             }
         };
+        
 
         fetchGuests();
     }, []);
 
     useEffect(() => {
         if (selectedDate) {
-            const filtered = guests.filter(guest => new Date(guest.date).toDateString() === selectedDate.toDateString());
+            const filtered = guests.filter(guest => new Date(guest.createdAt).toDateString() === selectedDate.toDateString());
             setFilteredGuests(filtered);
         } else {
             setFilteredGuests(guests); // Show all if no date selected
         }
     }, [selectedDate, guests]);
+
 
     const onApprove = (guest) => {
         console.log('Approved guest:', guest);
@@ -52,6 +55,10 @@ const ApproveGuestsGridView = ({ selectedDate }) => {
     const onReject = (guest) => {
         console.log('Rejected guest:', guest);
     };
+
+    // const gotoAllocateRoomPage=()=>{
+    //     navigate('/book-room')        
+    // }
 
     const getStatusIcon = (status) => {
         switch (status) {
@@ -90,6 +97,7 @@ const ApproveGuestsGridView = ({ selectedDate }) => {
         }
     };
 
+
     return (
         <div className="grid_view_visit-history">
             <div className="grid_view_tableCont">
@@ -97,44 +105,32 @@ const ApproveGuestsGridView = ({ selectedDate }) => {
                     <div className="grid_view_tableheader"></div>
                     <div className="grid_view_tableheader">Name</div>
                     <div className="grid_view_tableheader">Status</div>
-                    <div className="grid_view_tableheader">Reason</div>
-                    <div className="grid_view_tableheader">No. of guest members</div>
+
+                    <div className="grid_view_tableheader" style={{ minWidth: "200px" }}>No. of guest members</div>
+                    <div className="grid_view_tableheader">Bed(s)</div>
+
                     <div className="grid_view_tableheader"></div>
                 </div>
                 <div className="grid_view_tableContBody">
                     {filteredGuests.map((guest, index) => (
                         <div className="grid_view_tableContBodyEachRow" key={index}>
                             <div className="grid_view_tbalebody">
-                                <img src={icons.dummyUser} alt="user-image" />
+                                <img src={icons.person} alt="user-image" />
                             </div>
                             <div className="grid_view_tbalebody">{guest.name}</div>
                             <div className="grid_view_tbalebody">
                                 {getStatusIcon(guest.status)}
                             </div>
-                            <div className="grid_view_tbalebody">{guest.reason}</div>
-                            <div className="grid_view_tbalebody">{guest.noOfGuestsMember}</div>
-                            <div className="grid_view_tbalebody">
-                                <CommonButton
-                                    buttonName="Allocate"
-                                    buttonWidth="auto"
-                                    style={{
-                                        backgroundColor: "#ECF8DB",
-                                        color: "#A3D65C",
-                                        borderColor: "#A3D65C",
-                                        fontSize: "18px",
-                                        borderRadius: "7px",
-                                        borderWidth: 1,
-                                        padding: "5px 10px",
-                                    }}
-                                    onClick={() => onApprove(guest)}
-                                />
-                            </div>
+
+                            <div className="grid_view_tbalebody" style={{ textAlign: 'center' }}>{guest.noOfGuestsMember}</div>
+                            <div className="grid_view_tbalebody">{guest.bed}</div>
                         </div>
                     ))}
+
                 </div>
             </div>
         </div>
     );
 };
 
-export default ApproveGuestsGridView;
+export default TabCancelledGridView;

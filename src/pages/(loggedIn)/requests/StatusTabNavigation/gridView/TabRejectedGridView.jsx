@@ -5,15 +5,15 @@ import { getBookingRequestsByStatus } from '../../../../../../services/src/api/r
 import { useNavigate } from 'react-router-dom';
 
 
-const TabApprovedGuestsGridView = ({ selectedDate }) => {
-    let navigate = useNavigate()
-    const [guests, setGuests] = useState([]);
+const TabRejectedGridView = ({ selectedDate }) => {
+    let navigate=useNavigate()
+    const [ guests, setGuests ]= useState([]);
     const [filteredGuests, setFilteredGuests] = useState([]);
 
     useEffect(() => {
         const fetchGuests = async () => {
             try {
-                const data = await getBookingRequestsByStatus('approved'); // Fetch only 'approved' guests
+                const data = await getBookingRequestsByStatus('rejected'); // Fetch only 'approved' guests
                 const bookingData = data?.data?.data;
 
                 if (bookingData) {
@@ -32,7 +32,7 @@ const TabApprovedGuestsGridView = ({ selectedDate }) => {
                 console.error('Error fetching guests:', error);
             }
         };
-
+        
 
         fetchGuests();
     }, []);
@@ -55,8 +55,8 @@ const TabApprovedGuestsGridView = ({ selectedDate }) => {
         console.log('Rejected guest:', guest);
     };
 
-    const gotoAllocateRoomPage = () => {
-        navigate('/book-room')
+    const gotoAllocateRoomPage=()=>{
+        navigate('/book-room')        
     }
 
     const getStatusIcon = (status) => {
@@ -123,24 +123,6 @@ const TabApprovedGuestsGridView = ({ selectedDate }) => {
 
                             <div className="grid_view_tbalebody" style={{ textAlign: 'center' }}>{guest.noOfGuestsMember}</div>
                             <div className="grid_view_tbalebody">{guest.bed}</div>
-
-
-                            <div className="grid_view_tbalebody buttons">
-                                <CommonButton
-                                    buttonName="Allocate Rooms"
-                                    buttonWidth="220px"
-                                    onClick={gotoAllocateRoomPage}
-                                    style={{
-                                        backgroundColor: "#FFBDCB",
-                                        color: "#FC5275",
-                                        borderColor: "#FC5275",
-                                        fontSize: "14px",
-                                        borderRadius: "7px",
-                                        borderWidth: 1,
-                                    }}
-                                />
-
-                            </div>
                         </div>
                     ))}
 
@@ -150,4 +132,4 @@ const TabApprovedGuestsGridView = ({ selectedDate }) => {
     );
 };
 
-export default TabApprovedGuestsGridView;
+export default TabRejectedGridView;

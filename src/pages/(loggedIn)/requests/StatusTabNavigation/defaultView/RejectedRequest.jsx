@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from "react";
-import "./ApproveGuests.scss";
-import icons from "../../../constants/icons";
-import CommonButton from "../../../components/ui/Button";
-import PopUpFlagGuest from "../../../components/ui/PopUpFlagGuest"; // Adjust the import path as needed
-import GuestDetailsPopup from "../../../components/ui/GuestDetailsPopup/GuestDetailsPopup";
+import icons from "../../../../../constants/icons";
+import CommonButton from "../../../../../components/ui/Button";
+import PopUpFlagGuest from "../../../../../components/ui/PopUpFlagGuest"; // Adjust the import path as needed
+import GuestDetailsPopup from "../../../../../components/ui/GuestDetailsPopup/GuestDetailsPopup";
 import { useNavigate } from "react-router-dom";
-import { getBookingRequests } from "../../../../services/src/api/repositories/bookingRequestRepository";
-const ApproveGuests = ({ selectedDate }) => {
+import { getBookingRequestsByStatus } from "../../../../../../services/src/api/repositories/bookingRequestRepository";
+const RejectedRequest = ({ selectedDate }) => {
     const navigate = useNavigate(); // for routing
 
     const [isModalOpen, setIsModalOpen] = useState(false); // Manages the visibility of the modal for flagging a guest.
@@ -23,8 +22,7 @@ const ApproveGuests = ({ selectedDate }) => {
         const fetchBookingRequests = async () => {
             try {
 
-                const data = await getBookingRequests('awaiting');
-                console.log(data);
+                const data = await getBookingRequestsByStatus('rejected');
                 const bookingData = data?.data?.data;
                 if (bookingData) {
                     const bookingRequests = bookingData.map(
@@ -57,7 +55,7 @@ const ApproveGuests = ({ selectedDate }) => {
                                     id: 1,
                                     normal: icons.crossCircle,
                                     filled: icons.filledRedCircle,
-                                    isActive: false,
+                                    isActive: true,
                                 },
                                 {
                                     id: 2,
@@ -184,7 +182,7 @@ const ApproveGuests = ({ selectedDate }) => {
                         key={request.id}
                         className="requests-card"
                         style={{ borderColor: getCardBorderColor(request.icons) }}
-                        onClick={() => handleCardClick(request)}
+                        // onClick={() => handleCardClick(request)}
                     >
                         <div className="actions-button">
                             {request.icons.map((icon) => (
@@ -205,7 +203,7 @@ const ApproveGuests = ({ selectedDate }) => {
                         </div>
                         <div className="request-details">
                             <div className="request-user-imag">
-                                <img src={icons.userDummyImage} alt="user-image" />
+                                <img src={icons.person} alt="user-image" />
                                 <p>{request.userDetails.name}</p>
                             </div>
                             <div className="reasons">
@@ -219,7 +217,7 @@ const ApproveGuests = ({ selectedDate }) => {
                                     )}
                                 </div>
 
-                                <div className="buttons">
+                                {/* <div className="buttons">
                                     <CommonButton
                                         // onClick={gotoAllocateRoomPage}
                                         buttonName="Approve"
@@ -228,10 +226,10 @@ const ApproveGuests = ({ selectedDate }) => {
                                             backgroundColor: "#ECF8DB",
                                             color: "#A3D65C",
                                             borderColor: "#A3D65C",
-                                            fontSize: "18px",
+                                            fontSize: "14px",
                                             borderRadius: "7px",
                                             borderWidth: 1,
-                                            padding: "8px 20px",
+                                            // padding: "8px 20px",
                                         }}
                                     />
 
@@ -243,10 +241,10 @@ const ApproveGuests = ({ selectedDate }) => {
                                             backgroundColor: "#FFF4B2",
                                             color: "#F2900D",
                                             borderColor: "#F2900D",
-                                            fontSize: "18px",
+                                            fontSize: "14px",
                                             borderRadius: "7px",
                                             borderWidth: 1,
-                                            padding: "8px 20px",
+                                            // padding: "8px 20px",
                                         }}
                                     />
 
@@ -257,13 +255,13 @@ const ApproveGuests = ({ selectedDate }) => {
                                             backgroundColor: "#FFBDCB",
                                             color: "#FC5275",
                                             borderColor: "#FC5275",
-                                            fontSize: "18px",
+                                            fontSize: "14px",
                                             borderRadius: "7px",
                                             borderWidth: 1,
-                                            padding: "8px 20px",
+                                            // padding: "8px 20px",
                                         }}
                                     />
-                                </div>
+                                </div> */}
                             </div>
                         </div>
                     </div>
@@ -288,4 +286,4 @@ const ApproveGuests = ({ selectedDate }) => {
     );
 };
 
-export default ApproveGuests;
+export default RejectedRequest;

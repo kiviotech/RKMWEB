@@ -64,7 +64,7 @@ const Header = () => {
             </ul>
             <div className="notification-icon">
                 <img className='notification' src={icons.notification} alt="Notifications" />
-                <img className='user-image' src={icons.dummyUser} alt="dummy-user" />
+                <img className='user-image' src={icons.person} alt="dummy-user" />
             </div>
         </nav>
     );

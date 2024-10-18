@@ -2,12 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { icons } from '../../../../../constants';
 import CommonButton from '../../../../../components/ui/Button';
 import './GridView.scss';
-import axios from 'axios'; // Add axios for API calls
+import axios from 'axios';
+import { getBookingRequestsByStatus } from '../../../../../../services/src/api/repositories/bookingRequestRepository';
 
 const GridView = ({ tabLabels }) => {
     const [isPopupVisible, setIsPopupVisible] = useState(false);
     const [selectedGuest, setSelectedGuest] = useState(null);
-    const [guests, setGuests] = useState([]); // State for storing fetched guest data
+    const [guests, setGuests] = useState([]);
     const [isEmailPopupVisible, setIsEmailPopupVisible] = useState(false);
     const [emailContent, setEmailContent] = useState({
         from: 'emailaddress@gmail.com',
@@ -20,8 +21,8 @@ const GridView = ({ tabLabels }) => {
     useEffect(() => {
         const fetchGuests = async () => {
             try {
-                const response = await axios.get('/api/guests'); // Replace with your API endpoint
-                setGuests(response.data); // Assume response.data contains the list of guests
+                const response = await getBookingRequestsByStatus('awaiting');; 
+                setGuests(response.data);
             } catch (error) {
                 console.error('Error fetching guests:', error);
             }
@@ -111,7 +112,7 @@ const GridView = ({ tabLabels }) => {
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
-        handleEmailChange(e); // Call your existing email change handler
+        handleEmailChange(e);
         setIsTyping({ ...isTyping, [name]: value.length > 0 });
     };
 

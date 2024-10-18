@@ -6,6 +6,7 @@ import CommonButton from "../../../../../components/ui/Button";
 import PopUpFlagGuest from "../../../../../components/ui/PopUpFlagGuest";
 import './DefaultView.scss';
 
+
 const DefaultView = ({ tabLabels }) => {
   const [requests, setRequests] = useState([
     {
@@ -81,14 +82,14 @@ const DefaultView = ({ tabLabels }) => {
       prevRequests.map((request) =>
         request.id === reqId
           ? {
-              ...request,
-              reason: selectedReason, // Update the reason
-              icons: request.icons.map((icon) =>
-                icon.id === icon_Id
-                  ? { ...icon, isActive: !icon.isActive }
-                  : { ...icon, isActive: false }
-              ),
-            }
+            ...request,
+            reason: selectedReason, // Update the reason
+            icons: request.icons.map((icon) =>
+              icon.id === icon_Id
+                ? { ...icon, isActive: !icon.isActive }
+                : { ...icon, isActive: false }
+            ),
+          }
           : request
       )
     );
@@ -173,6 +174,20 @@ const DefaultView = ({ tabLabels }) => {
                       backgroundColor: "#ECF8DB",
                       color: "#A3D65C",
                       borderColor: "#A3D65C",
+                      fontSize: "18px",
+                      borderRadius: "7px",
+                      borderWidth: 1,
+                      padding: "8px 20px",
+                    }}
+                  />
+
+                  <CommonButton 
+                    buttonName="Put on Hold"
+                    buttonWidth="auto"
+                    style={{
+                      backgroundColor: "#FFF4B2",
+                      color: "#F2900D",
+                      borderColor: "#F2900D",
                       fontSize: "18px",
                       borderRadius: "7px",
                       borderWidth: 1,

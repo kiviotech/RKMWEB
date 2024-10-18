@@ -33,6 +33,7 @@ import togglerGridView from '../assets/icons/togglerGridView.png';
 import toggglerDashboardWite from '../assets/icons/toggglerDashboardWite.png';
 import togglerGridViewWhite from '../assets/icons/togglerGridViewWhite.png';
 import warning from '../assets/icons/warning.png';
+import person from '../assets/icons/person_icon.png'
 
 import Paperclip from '../assets/icons/Paperclip.png';
 import Trash from '../assets/icons/Trash.png';
@@ -58,6 +59,7 @@ export default {
     bedSelected,
     toggglerDashboard, toggglerDashboardWite,
     togglerGridView, togglerGridViewWhite,warning,
-    Paperclip,Trash
+    Paperclip,Trash,
+    person
 
 }

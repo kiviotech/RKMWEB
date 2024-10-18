@@ -11,7 +11,7 @@ const CommonButton = ({ buttonName, style = {}, buttonWidth = 'auto', onClick })
         fontWeight: '500',
         fontFamily: 'Lexend', // Assuming you are using this font
         fontSize: style.fontSize || '16px', // Default font size
-        padding: style.padding || '10px', // Default padding
+        // padding: style.padding || '10px', // Default padding
         ...style, // Spread any additional custom styles
     };
 

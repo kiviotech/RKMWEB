@@ -3,14 +3,23 @@ import "./Requests.scss";
 import CommonHeaderTitle from "../../../components/ui/CommonHeaderTitle";
 import SearchBar from "../../../components/ui/SearchBar";
 import icons from "../../../constants/icons";
-import ApproveGuests from "../approveGuests/ApproveGuests";
-import ApproveGuestsGridView from "../approveGuests/ApproveGuestsGridView";
 import DefaulView from "../requests/StatusTabNavigation/defaultView/DefaultView";
 import GridView from "../requests/StatusTabNavigation/gridView/GridView";
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import ApprovedGuestsGridView from './StatusTabNavigation/gridView/TabApprovedGuestsGridView'
-import AppreovedGuests from "../requests/StatusTabNavigation/defaultView/AppreovedGuests"
+import AppreovedGuests from "../requests/StatusTabNavigation/defaultView/AppreovedGuests";
+import RescheduledRequest from "./StatusTabNavigation/defaultView/RescheduledRequest";
+import TabRescheduledRequestGridView from "./StatusTabNavigation/gridView/TabRescheduledRequestGridView";
+import CancelledRequest from "./StatusTabNavigation/defaultView/CancelledRequest";
+import TabCancelledGridView from "./StatusTabNavigation/gridView/TabCancelledGridView";
+import OnHoldRequest from "./StatusTabNavigation/defaultView/OnHoldRequest";
+import TabOnHoldGridView from "./StatusTabNavigation/gridView/TabOnHoldGridView";
+import RejectedRequest from "./StatusTabNavigation/defaultView/RejectedRequest";
+import TabRejectedGridView from "./StatusTabNavigation/gridView/TabRejectedGridView";
+import PendingRequest from "./StatusTabNavigation/defaultView/PendingRequest";
+import TabPendingGridView from "./StatusTabNavigation/gridView/TabPendingGridView";
+
 
 const Requests = () => {
     const [startDate, setStartDate] = useState(new Date());
@@ -65,10 +74,19 @@ const Requests = () => {
     // Function to render tab content based on active tab
     const renderTabContent = () => {
         if (activeTab === "pending") {
-            return isGuestsGridViewVisible ? <ApproveGuestsGridView selectedDate={startDate} /> : <ApproveGuests selectedDate={startDate} />;
+            return isGuestsGridViewVisible ? <TabPendingGridView selectedDate={startDate} /> : <PendingRequest selectedDate={startDate} />;
         } else if (activeTab === "approved") {
-            return isGuestsGridViewVisible ? <ApprovedGuestsGridView /> : <AppreovedGuests />;
-        } else {
+            return isGuestsGridViewVisible ? <ApprovedGuestsGridView selectedDate={startDate} /> : <AppreovedGuests selectedDate={startDate} />;
+        } else if (activeTab === "rescheduled"){
+            return isGuestsGridViewVisible ? <TabRescheduledRequestGridView selectedDate={startDate} /> : <RescheduledRequest selectedDate={startDate}/>
+        } else if (activeTab === "cancelled"){
+            return isGuestsGridViewVisible ? <TabCancelledGridView selectedDate={startDate}/> : <CancelledRequest selectedDate={startDate} />
+        } else if (activeTab === "onHold"){
+            return isGuestsGridViewVisible ? <TabOnHoldGridView selectedDate={startDate} /> : <OnHoldRequest selectedDate={startDate} />
+        } else if (activeTab === "rejected"){
+            return isGuestsGridViewVisible ? <TabRejectedGridView selectedDate={startDate} /> : <RejectedRequest selectedDate={startDate}/>
+        }
+         else {
             return (
                 <div>
                     {!isGuestsGridViewVisible ? <DefaulView tabLabels={activeTab} /> : <GridView tabLabels={activeTab} />}
@@ -166,6 +184,7 @@ const Requests = () => {
                         borderBottomRightRadius: "15px",
                         border: "2px solid #B6C2D3",
                         padding: "3rem",
+                        minHeight: "230px",                      
                     }}
                 >
                     {renderTabContent()}
@@ -176,3 +195,217 @@ const Requests = () => {
 };
 
 export default Requests;
+
+
+// import React, { useState, useEffect, useRef } from "react";
+// import "./Requests.scss";
+// import CommonHeaderTitle from "../../../components/ui/CommonHeaderTitle";
+// import SearchBar from "../../../components/ui/SearchBar";
+// import icons from "../../../constants/icons";
+// import DefaulView from "../requests/StatusTabNavigation/defaultView/DefaultView";
+// import GridView from "../requests/StatusTabNavigation/gridView/GridView";
+// import DatePicker from 'react-datepicker';
+// import 'react-datepicker/dist/react-datepicker.css';
+// import ApprovedGuestsGridView from './StatusTabNavigation/gridView/TabApprovedGuestsGridView';
+// import AppreovedGuests from "../requests/StatusTabNavigation/defaultView/AppreovedGuests";
+// import RescheduledRequest from "./StatusTabNavigation/defaultView/RescheduledRequest";
+// import TabRescheduledRequestGridView from "./StatusTabNavigation/gridView/TabRescheduledRequestGridView";
+// import CancelledRequest from "./StatusTabNavigation/defaultView/CancelledRequest";
+// import TabCancelledGridView from "./StatusTabNavigation/gridView/TabCancelledGridView";
+// import OnHoldRequest from "./StatusTabNavigation/defaultView/OnHoldRequest";
+// import TabOnHoldGridView from "./StatusTabNavigation/gridView/TabOnHoldGridView";
+// import RejectedRequest from "./StatusTabNavigation/defaultView/RejectedRequest";
+// import TabRejectedGridView from "./StatusTabNavigation/gridView/TabRejectedGridView";
+// import PendingRequest from "./StatusTabNavigation/defaultView/PendingRequest";
+// import TabPendingGridView from "./StatusTabNavigation/gridView/TabPendingGridView";
+
+// const Requests = () => {
+//     const [startDate, setStartDate] = useState(new Date());
+//     const [isGuestsGridViewVisible, setIsGuestsGridViewVisible] = useState(false);
+//     const [activeToggler, setActiveToggler] = useState("dashboard");
+//     const [activeTab, setActiveTab] = useState("pending");
+//     const [requestCounts, setRequestCounts] = useState({
+//         pending: 0,
+//         rescheduled: 0,
+//         cancelled: 0,
+//         approved: 0,
+//         onHold: 0,
+//         rejected: 0,
+//     });
+
+//     useEffect(() => {
+//         // Fetch request counts based on the selected date
+//         const fetchRequestCountsByDate = async (selectedDate) => {
+//             const formattedDate = `${selectedDate.getFullYear()}-${selectedDate.getMonth() + 1}-${selectedDate.getDate()}`; // Format the date
+
+//             // Replace this with your actual API call and pass the formattedDate as a query param or in the body
+//             const response = {
+//                 pending: 12,           // Mock response
+//                 rescheduled: 5,
+//                 cancelled: 3,
+//                 approved: 10,
+//                 onHold: 2,
+//                 rejected: 4,
+//             };
+
+//             setRequestCounts(response);
+//         };
+
+//         // Call the fetch function whenever the date changes
+//         fetchRequestCountsByDate(startDate);
+//     }, [startDate]);  // Depend on startDate to re-fetch counts when the date changes
+
+//     const commonStyle = {
+//         cursor: "pointer",
+//         borderRadius: "5px",
+//     };
+
+//     const getStyle = (view) => ({
+//         ...commonStyle,
+//         background: activeToggler === view ? "var(--primary-color)" : "transparent",
+//     });
+
+//     const togglers = {
+//         dashboard: {
+//             default: icons.toggglerDashboard,
+//             active: icons.toggglerDashboardWite,
+//         },
+//         gridView: {
+//             default: icons.togglerGridView,
+//             active: icons.togglerGridViewWhite,
+//         },
+//     };
+
+//     const handleTogglerClick = (view) => {
+//         setActiveToggler(view);
+//         setIsGuestsGridViewVisible(view === "gridView");
+//     };
+
+//     const tabs = [
+//         { label: "Pending", id: "pending", Requests: requestCounts.pending },
+//         { label: "Rescheduled", id: "rescheduled", Requests: requestCounts.rescheduled },
+//         { label: "Cancelled", id: "cancelled", Requests: requestCounts.cancelled },
+//         { label: "Approved", id: "approved", Requests: requestCounts.approved },
+//         { label: "On hold", id: "onHold", Requests: requestCounts.onHold },
+//         { label: "Rejected", id: "rejected", Requests: requestCounts.rejected },
+//     ];
+
+//     const handleTabClick = (tabId) => {
+//         setActiveTab(tabId);
+//     };
+
+//     const renderTabContent = () => {
+//         if (activeTab === "pending") {
+//             return isGuestsGridViewVisible ? <TabPendingGridView selectedDate={startDate} /> : <PendingRequest selectedDate={startDate} />;
+//         } else if (activeTab === "approved") {
+//             return isGuestsGridViewVisible ? <ApprovedGuestsGridView selectedDate={startDate} /> : <AppreovedGuests selectedDate={startDate} />;
+//         } else if (activeTab === "rescheduled") {
+//             return isGuestsGridViewVisible ? <TabRescheduledRequestGridView selectedDate={startDate} /> : <RescheduledRequest selectedDate={startDate} />;
+//         } else if (activeTab === "cancelled") {
+//             return isGuestsGridViewVisible ? <TabCancelledGridView selectedDate={startDate} /> : <CancelledRequest selectedDate={startDate} />;
+//         } else if (activeTab === "onHold") {
+//             return isGuestsGridViewVisible ? <TabOnHoldGridView selectedDate={startDate} /> : <OnHoldRequest selectedDate={startDate} />;
+//         } else if (activeTab === "rejected") {
+//             return isGuestsGridViewVisible ? <TabRejectedGridView selectedDate={startDate} /> : <RejectedRequest selectedDate={startDate} />;
+//         } else {
+//             return (
+//                 <div>
+//                     {!isGuestsGridViewVisible ? <DefaulView tabLabels={activeTab} /> : <GridView tabLabels={activeTab} />}
+//                 </div>
+//             );
+//         }
+//     };
+
+//     const datePickerRef = useRef(null);
+
+//     const handleIconClick = () => {
+//         datePickerRef.current.setOpen(true);
+//     };
+
+//     return (
+//         <>
+//             <div className="top-section">
+//                 <CommonHeaderTitle title="Requests" />
+//                 <div className="toggler" style={{ display: "flex", gap: "30px" }}>
+//                     <div style={{ position: 'relative', display: "flex", alignItems: 'center', marginTop: '-20px' }}>
+//                         <DatePicker
+//                             selected={startDate}
+//                             onChange={(date) => setStartDate(date)}
+//                             dateFormat="dd'th' MMMM, yyyy"
+//                             customInput={
+//                                 <input
+//                                     type="text"
+//                                     value={`${startDate.getDate()}th ${startDate.toLocaleString('default', { month: 'long' })}, ${startDate.getFullYear()}`}
+//                                     readOnly
+//                                 />
+//                             }
+//                             ref={datePickerRef}
+//                         />
+//                         <svg
+//                             style={{ position: 'absolute', right: 0, cursor: 'pointer' }}
+//                             onClick={handleIconClick}
+//                             xmlns="http://www.w3.org/2000/svg"
+//                             width="30"
+//                             height="20"
+//                             viewBox="0 0 18 20"
+//                             fill="none"
+//                         >
+//                             <path
+//                                 d="M15.3 2H14.4V1C14.4 0.734784 14.3052 0.48043 14.1364 0.292893C13.9676 0.105357 13.7387 0 13.5 0C13.2613 0 13.0324 0.105357 12.8636 0.292893C12.6948 0.48043 12.6 0.734784 12.6 1V2H5.4V1C5.4 0.734784 5.30518 0.48043 5.1364 0.292893C4.96761 0.105357 4.73869 0 4.5 0C4.26131 0 4.03239 0.105357 3.8636 0.292893C3.69482 0.48043 3.6 0.734784 3.6 1V2H2.7C1.98392 2 1.29716 2.31607 0.790812 2.87868C0.284464 3.44129 0 4.20435 0 5V17C0 17.7956 0.284464 18.5587 0.790812 19.1213C1.29716 19.6839 1.98392 20 2.7 20H15.3C16.0161 20 16.7028 19.6839 17.2092 19.1213C17.7155 18.5587 18 17.7956 18 17V5C18 4.20435 17.7155 3.44129 17.2092 2.87868C16.7028 2.31607 16.0161 2 15.3 2ZM16.2 17C16.2 17.2652 16.1052 17.5196 15.9364 17.7071C15.7676 17.8946 15.5387 18 15.3 18H2.7C2.4613 18 2.23239 17.8946 2.0636 17.7071C1.89482 17.5196 1.8 17.2652 1.8 17V8H16.2V17ZM16.2 6H1.8V5C1.8 4.73478 1.89482 4.48043 2.0636 4.29289C2.23239 4.10536 2.4613 4 2.7 4H15.3C15.5387 4 15.7676 4.10536 15.9364 4.29289C16.1052 4.48043 16.2 4.73478 16.2 5V6Z"
+//                                 fill="#98A2AF"
+//                             />
+//                         </svg>
+//                     </div>
+
+//                     <div className="toggleGridView">
+//                         <img
+//                             src={activeToggler === "dashboard" ? togglers.dashboard.active : togglers.dashboard.default}
+//                             alt="Dashboard"
+//                             onClick={() => handleTogglerClick("dashboard")}
+//                             style={getStyle("dashboard")}
+//                         />
+//                         <img
+//                             src={activeToggler === "gridView" ? togglers.gridView.active : togglers.gridView.default}
+//                             alt="Grid View"
+//                             onClick={() => handleTogglerClick("gridView")}
+//                             style={getStyle("gridView")}
+//                         />
+//                     </div>
+//                     <SearchBar />
+//                 </div>
+//             </div>
+
+//             <div className="tabs-container">
+//                 <ul className="tabs-list">
+//                     {tabs.map((tab) => (
+//                         <li
+//                             key={tab.id}
+//                             className={`tab-item ${activeTab === tab.id ? "active" : ""}`}
+//                             onClick={() => handleTabClick(tab.id)}
+//                         >
+//                             {tab.label}
+//                             {activeTab === tab.id && <span> ({tab.Requests})</span>}
+//                         </li>
+//                     ))}
+//                 </ul>
+
+//                 <div
+//                     className="tab-content"
+//                     style={{
+//                         borderTopLeftRadius: activeTab === "pending" ? "0px" : "15px",
+//                         borderTopRightRadius: "15px",
+//                         borderBottomLeftRadius: "15px",
+//                         borderBottomRightRadius: "15px",
+//                         border: "2px solid #B6C2D3",
+//                         padding: "3rem",
+//                         minHeight: "230px",
+//                     }}
+//                 >
+//                     {renderTabContent()}
+//                 </div>
+//             </div>
+//         </>
+//     );
+// };
+
+// export default Requests;

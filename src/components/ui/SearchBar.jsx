@@ -8,7 +8,7 @@ const SearchBar = () => {
         },
         input: {
             background: '#DEE4ED',
-            width: '280px',
+            width: '230px',
             height: '34px',
             borderRadius: '7px',
             border: 'none',

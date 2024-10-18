@@ -7,7 +7,6 @@ import CheckInDetails from '../pages/(loggedIn)/checkInDetails/CheckInDetails';
 import CheckOutDetails from '../pages/(loggedIn)/checkOutDetails/CheckOutDetails';
 import Layout from '../components/layout/Layout';
 import Dashboard from '../pages/(loggedIn)/dashboard/Dashboard';
-import ApproveGuests from '../pages/(loggedIn)/approveGuests/ApproveGuests';
 import ApplicationForm from '../pages/applicationForm/ApplicationForm';
 import AllocateRoom from '../pages/(loggedIn)/allocateRoom/AllocateRoom';
 import CheckRoomAvailability from '../pages/(loggedIn)/roomAvailabaity/CheckRoomAvailability';

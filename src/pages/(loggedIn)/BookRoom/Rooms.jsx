@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import "./Rooms.scss";
 import { icons } from "../../../constants";
 import { fetchBeds } from "../../../../services/src/services/bedService";
+import { createNewRoomAllocation } from "../../../../services/src/services/roomAllocationService";
 
 const Rooms = ({
   rooms,
@@ -9,6 +10,7 @@ const Rooms = ({
   selectedYear,
   updateSelectedBedsCount,
   userData,
+  selectedBedsCount,
 }) => {
   const [dates, setDates] = useState([]);
   const [bedStates, setBedStates] = useState([]);
@@ -86,7 +88,7 @@ const Rooms = ({
 
   const dateRange = getDateRange(arrivalDate, departureDate);
 
-  const handleBedClick = (roomIndex, dateIndex, bedIndex, bedNumber) => {
+  const handleBedClick = async (roomIndex, dateIndex, bedIndex, bedNumber) => {
     const selectedDate = new Date(`${dates[dateIndex]}, ${selectedYear}`);
 
     if (selectedDate < currentDate.setHours(0, 0, 0, 0)) {
@@ -116,6 +118,21 @@ const Rooms = ({
     });
 
     console.log("Bed number clicked:", bedNumber);
+
+    // POST request to save room allocation
+    // try {
+    //   const allocationData = {
+    //     allocation_date: selectedDate.toISOString().split("T")[0],
+    //     booking_request: userData.bookingRequestId,
+    //     beds: [bedNumber],
+    //     guest: userData.guestId,
+    //   };
+
+    //   const response = await createNewRoomAllocation(allocationData);
+    //   console.log("Room allocation saved successfully:", response);
+    // } catch (error) {
+    //   console.error("Error creating new room allocation:", error);
+    // }
   };
 
   const getBedsForRoom = (roomNumber) => {
@@ -145,7 +162,7 @@ const Rooms = ({
               <div className="room-container">
                 {rooms.map((room, roomIndex) => (
                   <div key={roomIndex} className="room-slot">
-                    <div className="room-number">{room.roomNumber}</div>
+                    {/* <div className="room-number">{room.roomNumber}</div> */}
                     <div className="beds">
                       {getBedsForRoom(room.roomNumber).map((bed, bedIndex) => (
                         <img

@@ -11,6 +11,8 @@ const CheckOutDetails = () => {
   const [filteredAllocations, setFilteredAllocations] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [isQRcodeScanned, setIsQRcodeScanned] = useState(false);
+  const [totalRequests, setTotalRequests] = useState(0);
+  const [totalCheckouts, setTotalCheckouts] = useState(0);
 
   useEffect(() => {
     const fetchAllocations = async () => {
@@ -24,6 +26,8 @@ const CheckOutDetails = () => {
 
         setApprovedAllocations(approvedAllocations);
         setFilteredAllocations(approvedAllocations);
+        setTotalRequests(allAllocations.length); // Total booking requests
+        setTotalCheckouts(checkedOutAllocations.length); // Total checkouts
 
         if (approvedAllocations.length > 0) {
           setSelectedUser(approvedAllocations[0]);
@@ -66,10 +70,14 @@ const CheckOutDetails = () => {
           <div className="progress checkoutProgress">
             <div
               className="progress-fill checkoutProgress-fill"
-              style={{ width: "53%" }}
+              style={{
+                width: `${(totalCheckouts / totalRequests) * 100}%`,
+              }}
             ></div>
           </div>
-          <div className="progress-text">Checked-in: 53/120</div>
+          <div className="progress-text">
+            Checked-out: {totalCheckouts}/{totalRequests}
+          </div>
         </div>
         <div className="table-section">
           <table>

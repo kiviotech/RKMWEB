@@ -1,81 +1,76 @@
 .Requests-main-container {
-    .requests-cards-section {
-        display: flex;
-        flex-wrap: wrap;
-        
-        gap: 10px; // Add spacing between cards
-   
-        .requests-card {
-            box-sizing: border-box;
-            min-height: 280px;
-            height: auto;
-            border-radius: 24px;
-            border: 2px solid #D9D9D9;
-            padding: 20px 15px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            min-width: 510px;
-            max-width: 510px;
-            flex: 1 auto;
-            
-            cursor: pointer !important;
+  // border: 2px solid;
+  margin: -30px;
+  .requests-cards-section {
+    display: grid;
+    grid-template-columns: auto auto auto;
+    justify-content: flex-start;
+    gap: 15px; // Add spacing between cards
 
-            .actions-button {
-                img {
-                    margin-right: 20px;
-                    cursor: pointer !important;
-                }
+    .requests-card {
+      box-sizing: border-box;
+      border-radius: 24px;
+      border: 2px solid #d9d9d9;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      // width: 380px;
 
-            }
+      cursor: pointer !important;
 
-            .request-details {
-                display: flex;
-                gap: 30px;
-                padding-left: 10px;
-                
-
-                .request-user-imag {
-                    text-align: center;
-
-                    img {
-                        width: 80px;
-                        height: 80px;
-
-                    }
-
-                    p {
-                        font-size: 25px;
-                        font-weight: 600;
-                        position: relative;
-                        top: -10px;
-                        font-family: Lexend;
-                    }
-                }
-
-                .reasons {
-                    display: flex;
-                    justify-content: space-between;
-                    flex-direction: column;
-                    p {
-                        font-family: Lexend;
-                        font-size: 15px;
-                        font-weight: 600;
-                        line-height: 18.75px;
-                        color: #000000;
-
-                     
-                    }
-                }
-
-            }
-
-            .buttons {
-                display: flex;
-                gap: 10px;
-                justify-content: end;
-                margin-top: 30px;
-            }
+      .actions-button {
+        img {
+          cursor: pointer !important;
         }
+      }
+
+      .request-details {
+        display: flex;
+        justify-content: space-evenly;
+        height: 100px;
+        margin: 10px 0px;
+        .request-user-image {
+          text-align: center;
+
+          img {
+            width: 40px;
+            height: 40px;
+            border-radius: 30px;
+          }
+
+          p {
+            font-size: 16px;
+            font-weight: 600;
+            position: relative;
+            top: -10px;
+            font-family: Lexend;
+          }
+        }
+
+        .reasons {
+          display: flex;
+          justify-content: center;
+          margin-left: 10px;
+          flex-direction: column;
+          text-align: left;
+          p {
+            font-family: Lexend;
+            font-size: 12px;
+            font-weight: 600;
+            color: #000000;
+          }
+        }
+      }
+
+      .buttons {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        height: 25px;
+        width: 302px;
+        margin-top: 0px;
+      }
     }
+  }
 }

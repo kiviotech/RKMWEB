@@ -4,7 +4,7 @@ import GuestDetailsPopup from "../../../../../components/ui/GuestDetailsPopup/Gu
 import { icons } from "../../../../../constants";
 import CommonButton from "../../../../../components/ui/Button";
 import PopUpFlagGuest from "../../../../../components/ui/PopUpFlagGuest";
-import './DefaultView.scss';
+import "./DefaultView.scss";
 
 const DefaultView = ({ tabLabels }) => {
   const [requests, setRequests] = useState([
@@ -23,7 +23,7 @@ const DefaultView = ({ tabLabels }) => {
         occupation: "Engineer",
       },
       reason: "Reason for them getting flagged",
-      assignBed: 'Bed 305, 306',
+      assignBed: "Bed 305, 306",
       noOfGuest: "1",
       isMarked: false,
       approved: true,
@@ -117,11 +117,15 @@ const DefaultView = ({ tabLabels }) => {
   const getIconByTabLabel = (icons) => {
     if (tabLabels === "rejected") {
       return icons.map((icon) =>
-        icon.id === 1 ? { ...icon, isActive: true } : { ...icon, isActive: false }
+        icon.id === 1
+          ? { ...icon, isActive: true }
+          : { ...icon, isActive: false }
       );
     } else if (tabLabels === "On hold") {
       return icons.map((icon) =>
-        icon.id === 2 ? { ...icon, isActive: true } : { ...icon, isActive: false }
+        icon.id === 2
+          ? { ...icon, isActive: true }
+          : { ...icon, isActive: false }
       );
     }
     return icons;
@@ -155,7 +159,7 @@ const DefaultView = ({ tabLabels }) => {
               ))}
             </div>
             <div className="request-details">
-              <div className="request-user-imag">
+              <div className="request-user-image">
                 <img src={icons.userDummyImage} alt="user-image" />
                 <p>{request.userDetails.name}</p>
               </div>
@@ -164,37 +168,36 @@ const DefaultView = ({ tabLabels }) => {
                   {request.reason}
                 </p>
                 <p>Number of guest members: {request.noOfGuest}</p>
-
-                <div className="buttons">
-                  <CommonButton
-                    buttonName="Approve"
-                    buttonWidth="auto"
-                    style={{
-                      backgroundColor: "#ECF8DB",
-                      color: "#A3D65C",
-                      borderColor: "#A3D65C",
-                      fontSize: "18px",
-                      borderRadius: "7px",
-                      borderWidth: 1,
-                      padding: "8px 20px",
-                    }}
-                  />
-
-                  <CommonButton
-                    buttonName="Reject"
-                    buttonWidth="auto"
-                    style={{
-                      backgroundColor: "#FFBDCB",
-                      color: "#FC5275",
-                      borderColor: "#FC5275",
-                      fontSize: "18px",
-                      borderRadius: "7px",
-                      borderWidth: 1,
-                      padding: "8px 20px",
-                    }}
-                  />
-                </div>
               </div>
+            </div>
+            <div className="buttons">
+              <CommonButton
+                buttonName="Approve"
+                buttonWidth="28%"
+                style={{
+                  backgroundColor: "#ECF8DB",
+                  color: "#A3D65C",
+                  borderColor: "#A3D65C",
+                  fontSize: "14px",
+                  borderRadius: "7px",
+                  borderWidth: 1,
+                  // padding: "8px 20px",
+                }}
+              />
+
+              <CommonButton
+                buttonName="Reject"
+                buttonWidth="28%"
+                style={{
+                  backgroundColor: "#FFBDCB",
+                  color: "#FC5275",
+                  borderColor: "#FC5275",
+                  fontSize: "14px",
+                  borderRadius: "7px",
+                  borderWidth: 1,
+                  // padding: "8px 20px",
+                }}
+              />
             </div>
           </div>
         ))}

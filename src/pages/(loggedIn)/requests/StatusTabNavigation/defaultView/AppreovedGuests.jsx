@@ -147,20 +147,22 @@ const ApprovedGuests = () => {
                 </div>
               </div>
             </div>
-            <CommonButton
-              buttonName="Allocate Rooms"
-              buttonWidth="220px"
-              style={{
-                backgroundColor: "#FFBDCB",
-                color: "#FC5275",
-                borderColor: "#FC5275",
-                fontSize: "18px",
-                borderRadius: "7px",
-                borderWidth: 1,
-                padding: "5px 0px",
-              }}
-              onClick={() => handleButtonClick(request)} // Pass the request data
-            />
+            <div className="buttons">
+              <CommonButton
+                buttonName="Allocate Rooms"
+                buttonWidth="220px"
+                style={{
+                  backgroundColor: "#FFBDCB",
+                  color: "#FC5275",
+                  borderColor: "#FC5275",
+                  fontSize: "14px",
+                  borderRadius: "7px",
+                  borderWidth: 1,
+                  // padding: "5px 0px",
+                }}
+                onClick={() => handleButtonClick(request)} // Pass the request data
+              />
+            </div>
           </div>
         ))}
       </div>

@@ -222,59 +222,52 @@ const ApproveGuests = () => {
                     <p>Assigned Bed(s): {request.assignBed}</p>
                   )}
                 </div>
-
-                <div className="buttons">
-                  <CommonButton
-                    onClick={(e) =>
-                      handleStatusChange(e, request.id, "approved")
-                    }
-                    buttonName="Approve"
-                    buttonWidth="auto"
-                    style={{
-                      backgroundColor: "#ECF8DB",
-                      color: "#A3D65C",
-                      borderColor: "#A3D65C",
-                      fontSize: "18px",
-                      borderRadius: "7px",
-                      borderWidth: 1,
-                      padding: "8px 20px",
-                    }}
-                  />
-
-                  <CommonButton
-                    onClick={(e) =>
-                      handleStatusChange(e, request.id, "on_hold")
-                    }
-                    buttonName="Put on Hold"
-                    buttonWidth="auto"
-                    style={{
-                      backgroundColor: "#FFF4B2",
-                      color: "#F2900D",
-                      borderColor: "#F2900D",
-                      fontSize: "14px",
-                      borderRadius: "7px",
-                      borderWidth: 1,
-                    }}
-                  />
-
-                  <CommonButton
-                    onClick={(e) =>
-                      handleStatusChange(e, request.id, "rejected")
-                    }
-                    buttonName="Reject"
-                    buttonWidth="auto"
-                    style={{
-                      backgroundColor: "#FFBDCB",
-                      color: "#FC5275",
-                      borderColor: "#FC5275",
-                      fontSize: "18px",
-                      borderRadius: "7px",
-                      borderWidth: 1,
-                      padding: "8px 20px",
-                    }}
-                  />
-                </div>
               </div>
+            </div>
+            <div className="buttons">
+              <CommonButton
+                onClick={(e) => handleStatusChange(e, request.id, "approved")}
+                buttonName="Approve"
+                buttonWidth="28%"
+                style={{
+                  backgroundColor: "#ECF8DB",
+                  color: "#A3D65C",
+                  borderColor: "#A3D65C",
+                  fontSize: "14px",
+                  borderRadius: "7px",
+                  borderWidth: 1,
+                  // padding: "8px 20px",
+                }}
+              />
+
+              <CommonButton
+                onClick={(e) => handleStatusChange(e, request.id, "on_hold")}
+                buttonName="Put on Hold"
+                buttonWidth="40%"
+                style={{
+                  backgroundColor: "#FFF4B2",
+                  color: "#F2900D",
+                  borderColor: "#F2900D",
+                  fontSize: "14px",
+                  borderRadius: "7px",
+                  borderWidth: 1,
+                }}
+              />
+
+              <CommonButton
+                onClick={(e) => handleStatusChange(e, request.id, "rejected")}
+                buttonName="Reject"
+                buttonWidth="38%"
+                style={{
+                  backgroundColor: "#FFBDCB",
+                  color: "#FC5275",
+                  borderColor: "#FC5275",
+                  fontSize: "14px",
+                  borderRadius: "7px",
+                  borderWidth: 1,
+                  // padding: "8px 20px",
+                }}
+              />
             </div>
           </div>
         ))}

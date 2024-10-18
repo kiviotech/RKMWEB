@@ -191,7 +191,7 @@ const RejectedRequest = ({ selectedDate }) => {
               ))}
             </div>
             <div className="request-details">
-              <div className="request-user-imag">
+              <div className="request-user-image">
                 <img src={icons.userDummyImage} alt="user-image" />
                 <p>{request.userDetails.name}</p>
               </div>

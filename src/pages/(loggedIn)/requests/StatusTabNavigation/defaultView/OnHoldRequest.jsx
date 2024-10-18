@@ -224,7 +224,7 @@ const OnHoldRequest = ({ selectedDate }) => {
               ))}
             </div>
             <div className="request-details">
-              <div className="request-user-imag">
+              <div className="request-user-image">
                 <img src={icons.userDummyImage} alt="user-image" />
                 <p>{request.userDetails.name}</p>
               </div>
@@ -242,11 +242,12 @@ const OnHoldRequest = ({ selectedDate }) => {
                 </div>
               </div>
             </div>
+
             <div className="buttons">
               <CommonButton
                 onClick={(e) => handleStatusChange(e, request.id, "approved")}
                 buttonName="Approve"
-                buttonWidth="auto"
+                buttonWidth="28%"
                 style={{
                   backgroundColor: "#ECF8DB",
                   color: "#A3D65C",
@@ -260,7 +261,7 @@ const OnHoldRequest = ({ selectedDate }) => {
               <CommonButton
                 onClick={(e) => handleStatusChange(e, request.id, "rejected")}
                 buttonName="Reject"
-                buttonWidth="auto"
+                buttonWidth="28%"
                 style={{
                   backgroundColor: "#FFBDCB",
                   color: "#FC5275",

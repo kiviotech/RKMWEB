@@ -172,7 +172,7 @@ const TabOnHoldGridView = ({ selectedDate }) => {
                   <CommonButton
                     onClick={() => handleStatusChange(guest.id, "approved")}
                     buttonName="Approve"
-                    buttonWidth="auto"
+                    buttonWidth="30%"
                     style={{
                       backgroundColor: "#ECF8DB",
                       color: "#A3D65C",
@@ -185,7 +185,7 @@ const TabOnHoldGridView = ({ selectedDate }) => {
                   <CommonButton
                     onClick={() => handleStatusChange(guest.id, "rejected")}
                     buttonName="Reject"
-                    buttonWidth="auto"
+                    buttonWidth="40%"
                     style={{
                       backgroundColor: "#FFBDCB",
                       color: "#FC5275",

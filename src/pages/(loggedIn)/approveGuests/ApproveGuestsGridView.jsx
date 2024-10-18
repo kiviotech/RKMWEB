@@ -167,10 +167,10 @@ const ApproveGuestsGridView = () => {
               <div className="grid_view_tbalebody">
                 {guest.noOfGuestsMember}
               </div>
-              <div className="grid_view_tbalebody">
+              <div className="grid_view_tbalebody buttons">
                 <CommonButton
                   buttonName="Approve"
-                  buttonWidth="auto"
+                  buttonWidth="30%"
                   onClick={(e) => handleStatusChange(e, guest.id, "approved")}
                   style={{
                     backgroundColor: "#ECF8DB",
@@ -179,13 +179,13 @@ const ApproveGuestsGridView = () => {
                     fontSize: "14px",
                     borderRadius: "7px",
                     borderWidth: 1,
-                    padding: "5px 10px",
+                    // padding: "5px 10px",
                     marginRight: "5px",
                   }}
                 />
                 <CommonButton
                   buttonName="Put on Hold"
-                  buttonWidth="auto"
+                  buttonWidth="40%"
                   onClick={(e) => handleStatusChange(e, guest.id, "on_hold")}
                   style={{
                     backgroundColor: "#FFF4B2",
@@ -194,13 +194,13 @@ const ApproveGuestsGridView = () => {
                     fontSize: "14px",
                     borderRadius: "7px",
                     borderWidth: 1,
-                    padding: "5px 10px",
+                    // padding: "5px 10px",
                     marginRight: "5px",
                   }}
                 />
                 <CommonButton
                   buttonName="Reject"
-                  buttonWidth="auto"
+                  buttonWidth="30%"
                   onClick={(e) => handleStatusChange(e, guest.id, "rejected")}
                   style={{
                     backgroundColor: "#FFBDCB",
@@ -209,7 +209,7 @@ const ApproveGuestsGridView = () => {
                     fontSize: "14px",
                     borderRadius: "7px",
                     borderWidth: 1,
-                    padding: "5px 10px",
+                    // padding: "5px 10px",
                   }}
                 />
               </div>

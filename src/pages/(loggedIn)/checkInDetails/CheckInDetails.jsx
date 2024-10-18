@@ -14,6 +14,8 @@ const CheckInDetails = () => {
   const [filteredAllocations, setFilteredAllocations] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [isQRcodeScanned, setIsQRcodeScanned] = useState(false);
+  const [totalRequests, setTotalRequests] = useState(0); // Track total requests
+  const [checkIns, setCheckIns] = useState(0); // Track total check-ins
 
   const closeModal = () => {
     setIsModalOpen(false);
@@ -26,9 +28,12 @@ const CheckInDetails = () => {
         const response = await fetchBookingRequests();
         const allAllocations = response.data;
 
+        setTotalRequests(allAllocations.length);
+
         const approvedAllocations = allAllocations.filter(
           (allocation) => allocation.attributes.status === "approved"
         );
+        setCheckIns(approvedAllocations.length);
 
         setApprovedAllocations(approvedAllocations);
         setFilteredAllocations(approvedAllocations);
@@ -72,10 +77,16 @@ const CheckInDetails = () => {
         </div>
         <div className="progressBar">
           <div className="progress">
-            <div className="progress-fill" style={{ width: "53%" }}></div>
+            <div
+              className="progress-fill"
+              style={{ width: `${(checkIns / totalRequests) * 100}%` }} // Calculate percentage
+            ></div>
           </div>
-          <div className="progress-text">Checked-in: 53/120</div>
+          <div className="progress-text">
+            Checked-in: {checkIns}/{totalRequests}
+          </div>
         </div>
+
         <div className="table-section">
           <table>
             <thead>

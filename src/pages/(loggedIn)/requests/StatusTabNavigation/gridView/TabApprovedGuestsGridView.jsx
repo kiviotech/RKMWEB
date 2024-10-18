@@ -141,10 +141,10 @@ const TabApprovedGuestsGridView = () => {
                       backgroundColor: "#FFBDCB",
                       color: "#FC5275",
                       borderColor: "#FC5275",
-                      fontSize: "18px",
+                      fontSize: "14px",
                       borderRadius: "7px",
                       borderWidth: 1,
-                      padding: "5px 0px",
+                      // padding: "5px 0px",
                     }}
                   />
                 </div>

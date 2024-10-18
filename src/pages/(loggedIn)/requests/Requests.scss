@@ -1,125 +1,120 @@
 .top-section {
+  display: flex;
+  justify-content: space-between;
+
+  h3 {
+    font-family: var(--InterFontFamily);
+    font-size: 30px;
+    font-weight: 500;
+    margin-top: 0px !important;
+  }
+
+  .toggleGridView {
+    background: #dee4ed;
     display: flex;
-    justify-content: space-between;
+    align-items: center;
+    justify-content: center;
+    width: 70px;
+    height: 35px;
+    flex-shrink: 0;
+    border-radius: 5px;
 
-    h3 {
-        font-family: var(--InterFontFamily);
-        font-size: 30px;
-        font-weight: 500;
-        margin-top: 0px !important;
+    img {
+      padding: 9px 11px;
+      border-radius: 5px;
     }
 
-    .toggleGridView {
-        background: #DEE4ED;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 70px;
-        height: 35px;
-        flex-shrink: 0;
-        border-radius: 5px;
-
-        img {
-            padding: 9px 11px;
-            border-radius: 5px;
-        }
-
-        &:first-child {
-            padding-left: 5px;
-        }
-
-        &:nth-child(1) {
-            padding-right: 5px;
-        }
+    &:first-child {
+      padding-left: 5px;
     }
 
-    /* Custom styles for the datepicker input */
-    .react-datepicker-wrapper {
-        width: 100%;
+    &:nth-child(1) {
+      padding-right: 5px;
     }
+  }
 
-    .react-datepicker__input-container input {
-        border: 1px solid #98A2AF;
-        padding: 10px 15px;
-        font-size: 16px;
-        border-radius: 5px;
-        width: 200px;
-        box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.1);
-        font-family: var(--LexendFontFamily);
-    }
+  /* Custom styles for the datepicker input */
+  .react-datepicker-wrapper {
+    width: 100%;
+  }
 
-    /* Customize the calendar popover */
-    .react-datepicker {
-        border: 1px solid #98A2AF;
-        /* Customize calendar border */
-        border-radius: 5px;
-        box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-        padding: 0px;
-        font-family: var(--LexendFontFamily);
-    }
+  .react-datepicker__input-container input {
+    border: 1px solid #98a2af;
+    padding: 10px 15px;
+    font-size: 16px;
+    border-radius: 5px;
+    width: 200px;
+    box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.1);
+    font-family: var(--LexendFontFamily);
+  }
 
-    /* Customize the header of the calendar */
-    .react-datepicker__header {
-        background-color: #f0f0f0;
-        border-bottom: 1px solid #98A2AF;
-        padding-bottom: 10px;
-        
-    }
+  /* Customize the calendar popover */
+  .react-datepicker {
+    border: 1px solid #98a2af;
+    /* Customize calendar border */
+    border-radius: 5px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 0px;
+    font-family: var(--LexendFontFamily);
+  }
 
-    /* Customize the days */
-    .react-datepicker__day--selected {
-        background-color: gray;
-        /* Use your primary color */
-        color: white;
-    }
-    .react-datepicker__day {
-        padding: 5px;
-    }
+  /* Customize the header of the calendar */
+  .react-datepicker__header {
+    background-color: #f0f0f0;
+    border-bottom: 1px solid #98a2af;
+    padding-bottom: 10px;
+  }
 
-    .react-datepicker__day--today {
-        background-color: var(--primary-color);
-        border-radius: 50%;
-        color: #FFF;
-        border: none;
-    }
+  /* Customize the days */
+  .react-datepicker__day--selected {
+    background-color: gray;
+    /* Use your primary color */
+    color: white;
+  }
+  .react-datepicker__day {
+    padding: 5px;
+  }
 
-
+  .react-datepicker__day--today {
+    background-color: var(--primary-color);
+    border-radius: 50%;
+    color: #fff;
+    border: none;
+  }
 }
 
-
-
 .tabs-container {
-    padding: 1rem;
+  padding: 1rem;
 }
 
 .tabs-list {
-    display: flex;
-    list-style-type: none;
-    padding: 0;
+  display: flex;
+  list-style-type: none;
+  padding: 0;
 }
 
 .tab-item {
-    margin-right: 1rem;
-    cursor: pointer;
-    padding: 15px 30px;
+  margin-right: 1rem;
+  cursor: pointer;
+  padding: 15px 30px;
 
-    // border-bottom: 2px solid transparent;
+  // border-bottom: 2px solid transparent;
 }
 
 .tab-item.active {
-    background-color: #FFF;
-    border: 2px solid #B6C2D3;
-    border-radius: 15px 15px 0px 0px;
-    border-bottom: none;
-    margin-bottom: -2px;
-    color: #000;
-    font-family: Lexend;
-    font-size: 20px;
-    font-style: normal;
-    font-weight: 500;
-    line-height: normal;
+  background-color: #fff;
+  border: 2px solid #b6c2d3;
+  border-radius: 15px 15px 0px 0px;
+  border-bottom: none;
+  margin-bottom: -2px;
+  color: #000;
+  font-family: Lexend;
+  font-size: 20px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: normal;
 }
 
 .tab-content {
-    margin-top: -16px;
+  margin-top: -16px;
 }

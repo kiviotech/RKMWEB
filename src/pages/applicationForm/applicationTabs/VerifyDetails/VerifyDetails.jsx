@@ -9,6 +9,7 @@ import { createBookingRequest } from "../../../../../services/src/api/repositori
 
 const VerifyDetails = ({ tabName }) => {
   const { formData, errors } = useApplicationStore();
+  console.log(formData);
 
   const handleSubmit = async () => {
     try {

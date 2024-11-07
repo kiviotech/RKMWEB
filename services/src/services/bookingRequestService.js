@@ -1,5 +1,6 @@
 import {
   getBookingRequests,
+  getBookingRequestsByStatus,
   getBookingRequestById,
   createBookingRequest,
   updateBookingRequest,
@@ -15,6 +16,17 @@ export const fetchBookingRequests = async () => {
     throw error;
   }
 };
+
+export const fetchBookingRequestsByStatus = async (status) => {
+  // eslint-disable-next-line no-useless-catch
+  try {
+    const response = await getBookingRequestsByStatus(status);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
 
 export const fetchBookingRequestById = async (id) => {
   // eslint-disable-next-line no-useless-catch

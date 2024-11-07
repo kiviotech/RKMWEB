@@ -15,7 +15,10 @@ import BookRoom from "../pages/(loggedIn)/BookRoom/BookRoom";
 import Requests from "../pages/(loggedIn)/requests/Requests";
 import Donation from "../pages/(loggedIn)/donation/Donation";
 import DonationDetail from "../pages/(loggedIn)/donation/DonationDetail";
-
+import ReceiptDonating from "../pages/(loggedIn)/donation/ReceiptDonating";
+import ReceiptDonated from "../pages/(loggedIn)/donation/ReceiptDonated";
+import ReceiptWarning from "../pages/(loggedIn)/donation/ReceiptWarning"
+import DeekshaForm from "../pages/(loggedIn)/donation/DeekshaForm";
 const AppRoutes = () => {
   return (
     <Routes>
@@ -29,13 +32,19 @@ const AppRoutes = () => {
         {/* <Route path="/approve-guests" element={<ApproveGuests />} /> */}
         <Route path="/room-availability" element={<CheckRoomAvailability />} />
         <Route path="/book-room" element={<BookRoom />} />
+        
         <Route path="/Requests" element={<Requests />} />
         <Route path="/donation" element={<Donation />} />
         <Route path="/donationdetail" element={<DonationDetail />} />
+        <Route path="/receipt-donating" element={<ReceiptDonating />} />
+        <Route path="/receipt-donated" element={<ReceiptDonated/>} />
+        <Route path="/receipt-warning" element={<ReceiptWarning/>} />
+
       </Route>
 
       {/* Route that should render independently */}
       <Route path="/application-form" element={<ApplicationForm />} />
+      <Route path="/deeksha-form" element={<DeekshaForm/>} />
     </Routes>
   );
 };

@@ -4,10 +4,7 @@ import CommonButton from "../../../../../components/ui/Button";
 import PopUpFlagGuest from "../../../../../components/ui/PopUpFlagGuest";
 import GuestDetailsPopup from "../../../../../components/ui/GuestDetailsPopup/GuestDetailsPopup";
 import { useNavigate } from "react-router-dom";
-import {
-  getBookingRequests,
-  updateBookingRequest,
-} from "../../../../../../services/src/api/repositories/bookingRequestRepository";
+import { getBookingRequestsByStatus, updateBookingRequest } from "../../../../../../services/src/api/repositories/bookingRequestRepository"; // Ensure updateBookingRequest is imported
 import { getToken } from "../../../../../../services/src/utils/storage"; // Ensure this utility fetches your token
 
 const OnHoldRequest = ({ selectedDate }) => {
@@ -25,13 +22,11 @@ const OnHoldRequest = ({ selectedDate }) => {
   useEffect(() => {
     const fetchBookingRequests = async () => {
       try {
-        const data = await getBookingRequests();
+        const data = await getBookingRequestsByStatus('on_hold');
         const bookingData = data?.data?.data;
 
         if (bookingData) {
-          const onHoldRequests = bookingData
-            .filter((item) => item.attributes.status === "on_hold")
-            .map((item) => ({
+          const onHoldRequests = bookingData.map((item) => ({
               id: item.id,
               userImage: item.attributes.userImage || "",
               createdAt: new Date(item.attributes.createdAt),
@@ -141,8 +136,8 @@ const OnHoldRequest = ({ selectedDate }) => {
                 icons: request.icons.map((icon) => {
                   if (icon.id === 3 && newStatus === "approved") {
                     return { ...icon, isActive: true }; // Activate the check icon for approved
-                  } else if (icon.id === 2 && newStatus === "on_hold") {
-                    return { ...icon, isActive: true }; // Activate the warning icon for on_hold
+                  // } else if (icon.id === 2 && newStatus === "on_hold") {
+                  //   return { ...icon, isActive: true }; // Activate the warning icon for on_hold
                   } else if (icon.id === 1 && newStatus === "rejected") {
                     return { ...icon, isActive: true }; // Activate the cross icon for rejected
                   } else {

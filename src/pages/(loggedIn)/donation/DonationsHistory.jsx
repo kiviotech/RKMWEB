@@ -50,10 +50,13 @@
 // };
 
 // export default DonationsHistory;
+
+
 import React, { useState } from 'react';
 import './DonationsHistory.scss';
+import icons from '../../../constants/icons';
 
-const DonationsHistory = () => {
+const DonationsHistory = ({ openPopup,openPopup1  }) => {
   const donations = [
     { name: 'Mr. John Dee', reference: '20240103-002', date: '00/00/0000', amount: '₹432' },
     { name: 'Ms. Jane Smith', reference: '20240103-003', date: '01/01/2024', amount: '₹500' },
@@ -64,33 +67,42 @@ const DonationsHistory = () => {
   const [searchQuery, setSearchQuery] = useState('');
 
   // Filter donations based on the search query
-  const filteredDonations = donations.filter(donation => 
+  // const filteredDonations = donations.filter(donation =>
+  //   donation.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+  //   donation.reference.includes(searchQuery)
+  // );
+  const filteredDonations = donations.filter(donation =>
     donation.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     donation.reference.includes(searchQuery)
   );
 
+
   return (
     <div className="donations-history">
       <div className="header">
-        <h2>Donations History</h2>
+        <h2>Devotee Details</h2>
         <div className="controls">
-          <input 
-            type="text" 
-            placeholder="Search Guest or Reference" 
+          <input
+            type="text"
+            placeholder="Search Guest or Reference"
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)} // Update state on input change
           />
-          <button className="sort-btn">Sort by</button>
-          <button className="filter-btn">Filter</button>
+          <button className="sort-btn">
+            <img src={icons.sort} alt="sort" />Sort by</button>
+          <button className="filter-btn">
+            <img src={icons.filter} alt="filter" />Filter</button>
         </div>
       </div>
       <table>
         <thead>
           <tr>
+            <th style={{ width: "30px" }}></th>
             <th>Name</th>
             <th>Reference no.</th>
             <th>Date of Donation</th>
             <th>Donation</th>
+            <th>Add Donation</th>
           </tr>
         </thead>
         <tbody>
@@ -98,6 +110,8 @@ const DonationsHistory = () => {
             <tr key={index}>
               <td>
                 <div className="avatar"></div>
+              </td>
+              <td>
                 {donation.name}
               </td>
               <td>{donation.reference}</td>
@@ -105,6 +119,13 @@ const DonationsHistory = () => {
               <td>
                 {donation.amount}
                 {index % 2 === 0 && <span className="red-dot"></span>}
+              </td>
+              <td>
+                {/* <button className='add-donation'>+</button> */}
+                <div className='buttons'>
+                <button className="add-donation" onClick={openPopup}>+</button> 
+                <button className='eye-donation' onClick={openPopup1}><img src={icons.eyeIcon} alt="" /></button>
+                </div>
               </td>
             </tr>
           ))}

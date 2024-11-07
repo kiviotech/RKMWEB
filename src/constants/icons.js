@@ -36,6 +36,9 @@ import warning from '../assets/icons/warning.png';
 
 import Paperclip from '../assets/icons/Paperclip.png';
 import Trash from '../assets/icons/Trash.png';
+
+import sort from '../assets/icons/sort.png'
+import filter from '../assets/icons/filter.png'
 export default {
     googleIcon,
     facebookIcon,
@@ -58,6 +61,7 @@ export default {
     bedSelected,
     toggglerDashboard, toggglerDashboardWite,
     togglerGridView, togglerGridViewWhite,warning,
-    Paperclip,Trash
+    Paperclip,Trash,
+    sort,filter
 
 }

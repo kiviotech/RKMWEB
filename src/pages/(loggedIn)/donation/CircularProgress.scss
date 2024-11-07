@@ -30,7 +30,7 @@
 
         .circle-bg {
           fill: none;
-          stroke: #f0f0f0;
+          stroke: #F9C7C7;
           stroke-width: 3;
         }
 
@@ -47,6 +47,8 @@
     .donation-details {
       display: flex;
       flex-direction: column;
+      border: none;
+      box-shadow: none;
 
       p {
         margin: 5px 0;

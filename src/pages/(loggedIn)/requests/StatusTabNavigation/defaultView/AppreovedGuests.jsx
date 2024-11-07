@@ -4,13 +4,16 @@ import CommonButton from "../../../../../components/ui/Button";
 import GuestDetailsPopup from "../../../../../components/ui/GuestDetailsPopup/GuestDetailsPopup";
 import { useNavigate } from "react-router-dom";
 import { getBookingRequests } from "../../../../../../services/src/api/repositories/bookingRequestRepository";
-import { getToken } from "../../../../../../services/src/utils/storage";
+import { getBookingRequestsByStatus } from "../../../../../../services/src/api/repositories/bookingRequestRepository";
 
-const ApprovedGuests = () => {
+const ApprovedGuests = ({ selectedDate }) => {
   const navigate = useNavigate();
   const [selectedGuest, setSelectedGuest] = useState(null);
   const [isGuestDetailsPopupOpen, setIsGuestDetailsPopupOpen] = useState(false);
   const [requests, setRequests] = useState([]);
+  const [filteredRequests, setFilteredRequests] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   const handleButtonClick = (request) => {
     navigate("/book-room", { state: { userData: request } });
@@ -20,16 +23,14 @@ const ApprovedGuests = () => {
   useEffect(() => {
     const fetchApprovedBookingRequests = async () => {
       try {
-        const data = await getBookingRequests();
+        const data = await getBookingRequestsByStatus('approved');
         const bookingData = data?.data?.data;
-        if (bookingData) {
-          const approvedBookingData = bookingData.filter(
-            (item) => item.attributes.status === "approved"
-          );
 
-          const bookingRequests = approvedBookingData.map((item) => ({
+        if (bookingData) {
+          const bookingRequests = bookingData.map((item) => ({
             id: item.id,
             userImage: item.attributes.userImage || "",
+            createdAt: new Date(item.attributes.createdAt),
             userDetails: {
               name: item.attributes.name,
               age: item.attributes.age,
@@ -77,14 +78,35 @@ const ApprovedGuests = () => {
           }));
 
           setRequests(bookingRequests);
+          setFilteredRequests(bookingRequests);
         }
       } catch (error) {
+        setError("Error fetching approved guests");
         console.error("Error fetching approved booking requests:", error);
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchApprovedBookingRequests();
   }, []);
+
+  useEffect(() => {
+    if (selectedDate) {
+      const filtered = requests
+        .filter((request) => {
+          const requestDate = new Date(request.createdAt).toDateString();
+          console.log(request)
+          return requestDate === selectedDate.toDateString(); // Compare only the date
+        })
+        .sort((a, b) => a.createdAt - b.createdAt); // Sort by date
+
+      setFilteredRequests(filtered);
+    } else {
+      setFilteredRequests(requests); // Show all if no date selected
+    }
+  }, [selectedDate, requests]);
+
 
   const handleCardClick = (guestDetails) => {
     setSelectedGuest(guestDetails);
@@ -95,6 +117,14 @@ const ApprovedGuests = () => {
     setIsGuestDetailsPopupOpen(false);
     setSelectedGuest(null);
   };
+
+  if (loading) {
+    return <div>Loading...</div>; // You can replace this with a loader component
+  }
+
+  if (error) {
+    return <div>{error}</div>; // Display error message
+  }
 
   const getCardBorderColor = (icons) => {
     const activeIcon = icons.find((icon) => icon.isActive);
@@ -109,7 +139,7 @@ const ApprovedGuests = () => {
   return (
     <div className="Requests-main-container">
       <div className="requests-cards-section">
-        {requests.map((request) => (
+        {filteredRequests.map((request) => (
           <div
             key={request.id}
             className="requests-card"

@@ -1,21 +1,33 @@
 import React, { useState } from "react";
 import { icons } from "../../constants";
 
-const GuestDetails = ({ selectedUser, showQRSection }) => {
+const GuestDetails = ({ selectedUser, showQRSection, checkout }) => {
   const { attributes } = selectedUser;
   const guests = attributes.guests?.data || [];
-  const [isQRcodeScanned, setIsQRcodeScanned] = useState(false);
+  const beds = attributes.beds?.data || [];
+  const [checkIns, setCheckIns] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const openModal = () => {
     setIsModalOpen(true);
   };
+
+  const validateGuest = () => {
+    setCheckIns(true);
+  };
+
+  const checkOutGuests = () => {
+    alert("Guests have successfully checked out.");
+    setCheckIns(false);
+  };
+
   return (
     <>
       <div className="scanned-qr-main-section">
         {showQRSection && (
           <>
             <div className="scanned-qr-sub-section">
-              {isQRcodeScanned ? (
+              {checkIns ? (
                 <div className="qr-code-alert scanned">
                   <img
                     src={icons.qR}
@@ -52,15 +64,17 @@ const GuestDetails = ({ selectedUser, showQRSection }) => {
           <div className="details">
             <div className="detail">
               <span style={{ fontWeight: 600 }}>Name :</span>
-              <span>{attributes.name}</span>
+              <span>{attributes.booking_request.data.attributes.name}</span>
             </div>
             <div className="detail">
               <span style={{ fontWeight: 600 }}>Mobile no. :</span>
-              <span>{attributes.phone_number}</span>
+              <span>
+                {attributes.booking_request.data.attributes.phone_number}
+              </span>
             </div>
             <div className="detail">
               <span>Deeksha :</span>
-              <span>{attributes.deeksha}</span>
+              <span>{attributes.booking_request.data.attributes.deeksha}</span>
             </div>
             <div className="detail">
               <span>Donation :</span>
@@ -87,7 +101,7 @@ const GuestDetails = ({ selectedUser, showQRSection }) => {
             </div>
             <div className="tableContBody">
               {guests.length > 0 ? (
-                guests.map((guest) => (
+                guests.map((guest, guestIndex) => (
                   <div className="tableContBodyEachRow" key={guest.id}>
                     <div className="tbalebody">
                       <img src={icons.dummyUser} alt="user-image" />
@@ -96,10 +110,11 @@ const GuestDetails = ({ selectedUser, showQRSection }) => {
                     <div className="tbalebody">{guest.attributes.age}</div>
                     <div className="tbalebody">{guest.attributes.gender}</div>
                     <div className="tbalebody">
-                      {guest.attributes.relationship}
+                      {beds[guestIndex]?.attributes.room_number || "N/A"}{" "}
                     </div>
-                    <div className="tbalebody">{guest.attributes.roomNo}</div>
-                    <div className="tbalebody">{guest.attributes.bedNo}</div>
+                    <div className="tbalebody">
+                      {beds[guestIndex]?.attributes.bed_number || "N/A"}{" "}
+                    </div>
                     <div className="tbalebody">
                       <button className="validate-button">
                         <img src={icons.eyeHalf} alt="eye-icon" />
@@ -112,9 +127,24 @@ const GuestDetails = ({ selectedUser, showQRSection }) => {
               )}
             </div>
           </div>
-          <button className="validate-guest-button">Validate Guest</button>
+          {checkout ? (
+            <button className="checkout-guest-button" onClick={checkOutGuests}>
+              Check out
+            </button> // Check-out button
+          ) : (
+            <button className="validate-guest-button" onClick={validateGuest}>
+              Validate Guest
+            </button> // Validate guest button
+          )}
         </div>
       </div>
+
+      {/* QR Modal Logic (if needed) */}
+      {/* {isModalOpen && (
+        <div className="qr-modal">
+          <button onClick={() => setIsModalOpen(false)}>Close Modal</button>
+        </div>
+      )} */}
     </>
   );
 };

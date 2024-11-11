@@ -1,75 +1,84 @@
 .navbar {
+  display: flex;
+  justify-content: start;
+  align-items: center;
+  padding: 10px 20px;
+  background-color: #fff;
+  border-bottom: 2px solid #b6c2d3;
+
+  .logo {
+    font-size: 24px;
+    font-weight: 400;
+    // border: 1px solid red;
+    width: 50px;
+    height: 100%;
+    font-family: Lexend;
     display: flex;
-    justify-content: start;
-    align-items: center;
-    padding: 10px 20px;
-    background-color: #fff;
-    border-bottom: 2px solid #B6C2D3;
+    justify-content: flex-start;
+    img {
+      width: 100%;
+      object-fit: cover;
+    }
+  }
 
-    .logo {
-        font-size: 24px;
-        font-weight: 400;
+  .nav-links {
+    display: flex;
+    list-style: none;
+
+    li {
+      margin: 0 5px;
+
+      a {
+        text-decoration: none;
+        color: #000000;
+        font-size: 18px;
         font-family: Lexend;
+        font-size: 18px;
+        font-weight: 500;
+        line-height: 22.5px;
+        text-align: left;
+
+        &.active {
+          border-bottom: 5px solid #9867e9;
+          padding: 22px 0px;
+        }
+      }
+
+      &:first-child {
+        width: 60px !important;
+      }
+
+      &:nth-child(2) {
+        width: 170px !important;
+      }
+
+      &:nth-child(3) {
+        width: 200px !important;
+      }
+
+      &:nth-child(4) {
+        width: 120px !important;
+      }
+    }
+  }
+
+  .notification-icon {
+    position: absolute;
+    right: 30px;
+    top: 15px;
+
+    .notification {
+      position: relative;
+      bottom: 8px;
     }
 
-    .nav-links {
-        display: flex;
-        list-style: none;
-
-        li {
-            margin: 0 5px;
-
-            a {
-                text-decoration: none;
-                color: #000000;
-                font-size: 18px;
-                font-family: Lexend;
-                font-size: 18px;
-                font-weight: 500;
-                line-height: 22.5px;
-                text-align: left;
-
-                &.active {
-                    border-bottom: 5px solid #9867E9;
-                    padding: 22px 0px;
-                }
-            }
-
-            &:first-child {
-                width: 60px !important;
-            }
-
-            &:nth-child(2) {
-                width: 170px !important;
-            }
-
-            &:nth-child(3) {
-                width: 200px !important;
-            }
-
-            &:nth-child(4) {
-                width: 120px !important;
-            }
-        }
+    img {
+      margin-right: 20px;
     }
 
-    .notification-icon {
-        position: absolute;
-        right: 30px;
-        top: 15px;
-
-        .notification {
-            position: relative;
-            bottom: 8px;
-        }
-
-        img {
-            margin-right: 20px;
-        }
-
-        .user-image {
-            width: 44px;
-            height: 44px;
-        }
+    .user-image {
+      width: 44px;
+      height: 44px;
     }
+  }
 }

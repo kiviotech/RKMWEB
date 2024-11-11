@@ -228,6 +228,19 @@
         }
       }
 
+      .checkout-guest-button {
+        background-color: #ffbdcb;
+        outline: none;
+        border: none;
+        color: #fc5283;
+        padding: 10px 20px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 16px;
+        float: right;
+        margin-bottom: 20px;
+      }
+
       .validate-guest-button {
         background-color: #ffffff;
         border: 1px solid #737373;

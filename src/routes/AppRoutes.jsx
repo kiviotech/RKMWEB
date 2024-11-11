@@ -15,6 +15,8 @@ import BookRoom from "../pages/(loggedIn)/BookRoom/BookRoom";
 import Requests from "../pages/(loggedIn)/requests/Requests";
 import Donation from "../pages/(loggedIn)/donation/Donation";
 import DonationDetail from "../pages/(loggedIn)/donation/DonationDetail";
+import DeekshaForm from "../pages/(loggedIn)/donation/DeekshaForm";
+import Deeksha from "../pages/(loggedIn)/deeksha/Deeksha";
 
 const AppRoutes = () => {
   return (
@@ -32,10 +34,12 @@ const AppRoutes = () => {
         <Route path="/Requests" element={<Requests />} />
         <Route path="/donation" element={<Donation />} />
         <Route path="/donationdetail" element={<DonationDetail />} />
+        <Route path="/deeksha" element={<Deeksha />} />
       </Route>
 
       {/* Route that should render independently */}
       <Route path="/application-form" element={<ApplicationForm />} />
+      <Route path="/deeksha-form" element={<DeekshaForm />} />
     </Routes>
   );
 };

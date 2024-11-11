@@ -15,6 +15,13 @@ export const createBed = (data) =>
 export const updateBed = (id, data) =>
   apiClient.put(bedEndpoints.updateBed(id), data);
 
+// Update a bed by ID
+export const updateBedById = async (id, data) => {
+  return apiClient.put(bedEndpoints.updateBed(id), {
+    data, // Wrap the update data in a 'data' object
+  });
+};
+
 // Delete a bed by ID
 export const deleteBed = (id) => apiClient.delete(bedEndpoints.deleteBed(id));
 

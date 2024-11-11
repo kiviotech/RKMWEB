@@ -34,6 +34,7 @@ import toggglerDashboardWite from "../assets/icons/toggglerDashboardWite.png";
 import togglerGridViewWhite from "../assets/icons/togglerGridViewWhite.png";
 import warning from "../assets/icons/warning.png";
 
+<<<<<<< HEAD
 import Paperclip from "../assets/icons/Paperclip.png";
 import Trash from "../assets/icons/Trash.png";
 import filter from "../assets/icons/filter.png";
@@ -82,3 +83,36 @@ export default {
   plus,
   RMK_Logo,
 };
+=======
+import Paperclip from '../assets/icons/Paperclip.png';
+import Trash from '../assets/icons/Trash.png';
+
+import sort from '../assets/icons/sort.png'
+import filter from '../assets/icons/filter.png'
+export default {
+    googleIcon,
+    facebookIcon,
+    appleIcon,
+    eyeIcon,
+    fieldTip,
+    notification,
+    dummyUser, welcome, house,
+    settings, rupee, search,
+    eyeHalf, qR, angleRight,
+    angleLeft, bed,
+    bookedBed, tooltip,
+    user, userDummyImage,
+    checkCircleMarked,
+    markedYellow,
+    checkCircle,
+    marked,
+    crossCircle,
+    filledRedCircle,
+    bedSelected,
+    toggglerDashboard, toggglerDashboardWite,
+    togglerGridView, togglerGridViewWhite,warning,
+    Paperclip,Trash,
+    sort,filter
+
+}
+>>>>>>> 6041bc2a1986e0ece76f51df76f098219fb9a97a

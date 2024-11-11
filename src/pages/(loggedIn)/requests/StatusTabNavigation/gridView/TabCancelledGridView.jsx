@@ -6,7 +6,7 @@ import GuestDetailsPopup from "../../../../../components/ui/GuestDetailsPopup/Gu
 import PopUpFlagGuest from "../../../../../components/ui/PopUpFlagGuest";
 import { useNavigate } from "react-router-dom";
 
-const TabRejectedGridView = ({ selectedDate }) => {
+const TabCancelledGridView = ({ selectedDate }) => {
   const navigate = useNavigate();
   const [guests, setGuests] = useState([]);
   const [filteredGuests, setFilteredGuests] = useState([]);
@@ -21,7 +21,7 @@ const TabRejectedGridView = ({ selectedDate }) => {
   useEffect(() => {
     const fetchGuests = async () => {
       try {
-        const data = await getBookingRequestsByStatus('rejected');
+        const data = await getBookingRequestsByStatus('canceled');
         const bookingData = data?.data?.data;
 
         if (bookingData) {
@@ -188,4 +188,4 @@ const TabRejectedGridView = ({ selectedDate }) => {
   );
 };
 
-export default TabRejectedGridView;
+export default TabCancelledGridView;

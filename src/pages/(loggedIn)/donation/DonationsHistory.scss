@@ -56,13 +56,19 @@
     th {
       font-size: 14px;
       background-color: #f9f9f9;
+<<<<<<< HEAD
       text-align: center;
+=======
+>>>>>>> 6041bc2a1986e0ece76f51df76f098219fb9a97a
     }
 
     td {
       font-size: 12px;
       border-bottom: 1px solid #eaeaea;
+<<<<<<< HEAD
       text-align: center;
+=======
+>>>>>>> 6041bc2a1986e0ece76f51df76f098219fb9a97a
 
       .avatar {
         display: inline-block;
@@ -81,6 +87,7 @@
         border-radius: 50%;
         margin-left: 5px;
       }
+<<<<<<< HEAD
       .add-donation {
         text-align: center;
         color: #fff;
@@ -109,6 +116,29 @@
       }
     }
   }
+=======
+      .add-donation{
+        text-align: center;
+        color: #fff;
+        background-color: #A3D65C;
+        border: none;
+        border-radius: 2px;
+        height: 30px;
+        width: 30px;
+        margin-left: 15px;
+      }
+      .buttons{
+        display: flex;
+        gap: 10px;
+      }
+      .eye-donation{
+        background-color: #A3D65C;
+        border: none;
+      }
+    }
+  }
+  
+>>>>>>> 6041bc2a1986e0ece76f51df76f098219fb9a97a
 
   @media (max-width: 768px) {
     .header {
@@ -123,6 +153,10 @@
     }
 
     table {
+<<<<<<< HEAD
+=======
+
+>>>>>>> 6041bc2a1986e0ece76f51df76f098219fb9a97a
       th,
       td {
         font-size: 14px;
@@ -138,10 +172,18 @@
     }
 
     table {
+<<<<<<< HEAD
+=======
+
+>>>>>>> 6041bc2a1986e0ece76f51df76f098219fb9a97a
       th,
       td {
         font-size: 12px;
       }
     }
   }
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> 6041bc2a1986e0ece76f51df76f098219fb9a97a

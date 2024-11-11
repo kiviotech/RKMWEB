@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { icons } from "../../../../../constants";
 import CommonButton from "../../../../../components/ui/Button";
-import { getBookingRequests } from "../../../../../../services/src/api/repositories/bookingRequestRepository";
+import { getBookingRequestsByStatus } from '../../../../../../services/src/api/repositories/bookingRequestRepository';
 import { getToken } from "../../../../../../services/src/utils/storage";
 import { useNavigate } from "react-router-dom";
 
-const TabApprovedGuestsGridView = () => {
+const TabApprovedGuestsGridView = ({ selectedDate }) => {
   const [guests, setGuests] = useState([]);
   const navigate = useNavigate();
+  const [filteredGuests, setFilteredGuests] = useState([]);
 
   const handleButtonClick = () => {
     navigate("/book-room");
@@ -23,17 +24,14 @@ const TabApprovedGuestsGridView = () => {
           return;
         }
 
-        const data = await getBookingRequests();
+        const data = await getBookingRequestsByStatus('approved');
         const bookingData = data?.data?.data;
 
         if (bookingData) {
-          const approvedBookingData = bookingData.filter(
-            (item) => item.attributes.status === "approved"
-          );
-
-          const bookingRequests = approvedBookingData.map((item) => ({
+          const bookingRequests = bookingData.map((item) => ({
             id: item.id,
             name: item.attributes.name || "Unknown",
+            createdAt: new Date(item.attributes.createdAt),
             status: item.attributes.status || "approved",
             bed: item.attributes.assignBed || "N/A",
             noOfGuestsMember: item.attributes.number_of_guest_members || "0",
@@ -60,6 +58,7 @@ const TabApprovedGuestsGridView = () => {
           }));
 
           setGuests(bookingRequests);
+          setFilteredGuests(guestsList); // Initialize filtered guests
         }
       } catch (error) {
         console.error("Error fetching approved booking requests:", error);
@@ -68,6 +67,15 @@ const TabApprovedGuestsGridView = () => {
 
     fetchApprovedBookingRequests();
   }, []);
+
+  useEffect(() => {
+    if (selectedDate) {
+      const filtered = guests.filter(guest => new Date(guest.createdAt).toDateString() === selectedDate.toDateString());
+      setFilteredGuests(filtered);
+    } else {
+      setFilteredGuests(guests); // Show all if no date selected
+    }
+  }, [selectedDate, guests]);
 
   const getStatusIcon = (icons) => {
     return icons.map((icon) =>
@@ -108,8 +116,8 @@ const TabApprovedGuestsGridView = () => {
           </div>
         )}
         <div className="grid_view_tableContBody">
-          {guests.length > 0 ? (
-            guests.map((guest) => (
+          {filteredGuests.length > 0 ? (
+            filteredGuests.map((guest) => (
               <div
                 className="grid_view_tableContBodyEachRow"
                 key={guest.id}

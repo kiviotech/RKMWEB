@@ -4,7 +4,7 @@ import CommonButton from "../../../../../components/ui/Button";
 import PopUpFlagGuest from "../../../../../components/ui/PopUpFlagGuest";
 import GuestDetailsPopup from "../../../../../components/ui/GuestDetailsPopup/GuestDetailsPopup";
 import { useNavigate } from "react-router-dom";
-import { getBookingRequests } from "../../../../../../services/src/api/repositories/bookingRequestRepository";
+import { getBookingRequestsByStatus } from "../../../../../../services/src/api/repositories/bookingRequestRepository";
 
 const RejectedRequest = ({ selectedDate }) => {
   const navigate = useNavigate(); // For routing
@@ -21,13 +21,11 @@ const RejectedRequest = ({ selectedDate }) => {
   useEffect(() => {
     const fetchBookingRequests = async () => {
       try {
-        const data = await getBookingRequests();
+        const data = await getBookingRequestsByStatus('rejected');
         const bookingData = data?.data?.data;
 
         if (bookingData) {
-          const rejectedRequests = bookingData
-            .filter((item) => item.attributes.status === "rejected")
-            .map((item) => ({
+          const rejectedRequests = bookingData.map((item) => ({
               id: item.id,
               userImage: item.attributes.userImage || "",
               createdAt: new Date(item.attributes.createdAt),

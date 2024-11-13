@@ -11,6 +11,13 @@ import icons from "../../../constants/icons";
 import ReceiptDonating from "./ReceiptDonating";
 import ReceiptDonated from "./ReceiptDonated";
 import { Link } from "react-router-dom";
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
+
+>>>>>>> 6041bc2a1986e0ece76f51df76f098219fb9a97a
+>>>>>>> f52b676d9e5f80c5385418dcc0cb4847601430de
 
 // Register all components from Chart.js
 Chart.register(...registerables);
@@ -62,10 +69,24 @@ const Donation = () => {
 
   const circularProgressValue = 46; // 46% for the donated part
 
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
+
+>>>>>>> 6041bc2a1986e0ece76f51df76f098219fb9a97a
+>>>>>>> f52b676d9e5f80c5385418dcc0cb4847601430de
   const toggleReceiptModal = () => {
     setShowReceiptModal(!showReceiptModal);
   };
 
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
+
+>>>>>>> 6041bc2a1986e0ece76f51df76f098219fb9a97a
+>>>>>>> f52b676d9e5f80c5385418dcc0cb4847601430de
   return (
     <div className="donations-history-page">
       {/* Top Section */}
@@ -90,7 +111,15 @@ const Donation = () => {
 
       {/* Donation History Section */}
 
+<<<<<<< HEAD
       <div className="donation-details">
+=======
+<<<<<<< HEAD
+      <div className="donation-details">
+=======
+      <div className="donation-details" >
+>>>>>>> 6041bc2a1986e0ece76f51df76f098219fb9a97a
+>>>>>>> f52b676d9e5f80c5385418dcc0cb4847601430de
         <div className="search-donation">
           <div className="header">
             <h2>Search Donation</h2>
@@ -103,7 +132,15 @@ const Donation = () => {
                 <input type="text" name="name" placeholder="John Doe" />
               </div>
               <div className="form-group">
+<<<<<<< HEAD
                 <label>Phone</label>
+=======
+<<<<<<< HEAD
+                <label>Phone</label>
+=======
+                <label >Phone</label>
+>>>>>>> 6041bc2a1986e0ece76f51df76f098219fb9a97a
+>>>>>>> f52b676d9e5f80c5385418dcc0cb4847601430de
                 <div className="phone-input">
                   <select>
                     <option>+91</option>
@@ -115,12 +152,23 @@ const Donation = () => {
 
             <div className="form-row">
               <div className="form-group">
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+>>>>>>> f52b676d9e5f80c5385418dcc0cb4847601430de
                 <label>Email</label>
                 <input
                   type="email"
                   name="email"
                   placeholder="johndoe@gmail.com"
                 />
+<<<<<<< HEAD
+=======
+=======
+                <label >Email</label>
+                <input type="email" name="email" placeholder="johndoe@gmail.com" />
+>>>>>>> 6041bc2a1986e0ece76f51df76f098219fb9a97a
+>>>>>>> f52b676d9e5f80c5385418dcc0cb4847601430de
               </div>
             </div>
 
@@ -147,7 +195,15 @@ const Donation = () => {
               </div>
               <div className="form-group">
                 <label htmlFor="dikshaPlace">Diksha Place</label>
+<<<<<<< HEAD
                 <select name="dikshaPlace">
+=======
+<<<<<<< HEAD
+                <select name="dikshaPlace">
+=======
+                <select name="dikshaPlace" >
+>>>>>>> 6041bc2a1986e0ece76f51df76f098219fb9a97a
+>>>>>>> f52b676d9e5f80c5385418dcc0cb4847601430de
                   <option>John Doe</option>
                   <option>Sam Doe</option>
                   <option>Jane </option>
@@ -157,6 +213,10 @@ const Donation = () => {
             </div>
 
             <div className="form-actions">
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+>>>>>>> f52b676d9e5f80c5385418dcc0cb4847601430de
               <button type="button" className="clear-btn">
                 Clear
               </button>
@@ -165,6 +225,16 @@ const Donation = () => {
                   <img src={icons.search} alt="" />
                 </span>{" "}
                 Search
+<<<<<<< HEAD
+=======
+=======
+              <button type="button" className="clear-btn" >Clear</button>
+              <button type="submit" className="search-btn">
+                <span role="img" aria-label="search-icon">
+                  <img src={icons.search} alt="" />
+                </span> Search
+>>>>>>> 6041bc2a1986e0ece76f51df76f098219fb9a97a
+>>>>>>> f52b676d9e5f80c5385418dcc0cb4847601430de
               </button>
             </div>
           </form>
@@ -174,10 +244,21 @@ const Donation = () => {
           <DonationsHistory openPopup={openPopup} openPopup1={openPopup1} />
 
           <Link to="/donationdetail" className="view-more">
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+>>>>>>> f52b676d9e5f80c5385418dcc0cb4847601430de
             <div className="expand">
               <h3>
                 Expand <img src={icons.angleRight} alt="" />
               </h3>
+<<<<<<< HEAD
+=======
+=======
+            <div className='expand'>
+              <h3>Expand <img src={icons.angleRight} alt="" /></h3>
+>>>>>>> 6041bc2a1986e0ece76f51df76f098219fb9a97a
+>>>>>>> f52b676d9e5f80c5385418dcc0cb4847601430de
             </div>
           </Link>
         </div>

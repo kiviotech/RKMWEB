@@ -4,6 +4,10 @@ import bookingRequestEndpoints from "../endpoints/bookingRequestEndpoints";
 export const getBookingRequests = () =>
   apiClient.get(bookingRequestEndpoints.getBookingRequests);
 
+export const getBookingRequestsByStatus = (status) =>
+  apiClient.get(bookingRequestEndpoints.getBookingRequestsByStatus(status));
+
+
 export const getBookingRequestById = (id) =>
   apiClient.get(bookingRequestEndpoints.getBookingRequestById(id));
 

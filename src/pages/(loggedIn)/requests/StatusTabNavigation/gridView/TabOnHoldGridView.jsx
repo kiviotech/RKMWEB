@@ -1,10 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { icons } from "../../../../../constants";
 import CommonButton from "../../../../../components/ui/Button";
-import {
-  getBookingRequests,
-  updateBookingRequest,
-} from "../../../../../../services/src/api/repositories/bookingRequestRepository";
+import { getBookingRequestsByStatus, updateBookingRequest } from '../../../../../../services/src/api/repositories/bookingRequestRepository';
 import { useNavigate } from "react-router-dom";
 import { getToken } from "../../../../../../services/src/utils/storage";
 
@@ -22,13 +19,11 @@ const TabOnHoldGridView = ({ selectedDate }) => {
           return;
         }
 
-        const data = await getBookingRequests();
+        const data = await getBookingRequestsByStatus('on_hold');
         const bookingData = data?.data?.data;
 
         if (bookingData) {
-          const onHoldRequests = bookingData
-            .filter((item) => item.attributes.status === "on_hold")
-            .map((item) => ({
+          const onHoldRequests = bookingData.map((item) => ({
               id: item.id,
               name: item.attributes.name,
               createdAt: new Date(item.attributes.createdAt),
@@ -172,7 +167,7 @@ const TabOnHoldGridView = ({ selectedDate }) => {
                   <CommonButton
                     onClick={() => handleStatusChange(guest.id, "approved")}
                     buttonName="Approve"
-                    buttonWidth="30%"
+                    buttonWidth="45%"
                     style={{
                       backgroundColor: "#ECF8DB",
                       color: "#A3D65C",
@@ -185,7 +180,7 @@ const TabOnHoldGridView = ({ selectedDate }) => {
                   <CommonButton
                     onClick={() => handleStatusChange(guest.id, "rejected")}
                     buttonName="Reject"
-                    buttonWidth="40%"
+                    buttonWidth="45%"
                     style={{
                       backgroundColor: "#FFBDCB",
                       color: "#FC5275",

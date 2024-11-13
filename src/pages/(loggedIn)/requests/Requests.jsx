@@ -3,8 +3,6 @@ import "./Requests.scss";
 import CommonHeaderTitle from "../../../components/ui/CommonHeaderTitle";
 import SearchBar from "../../../components/ui/SearchBar";
 import icons from "../../../constants/icons";
-import ApproveGuests from "../approveGuests/ApproveGuests";
-import ApproveGuestsGridView from "../approveGuests/ApproveGuestsGridView";
 import DefaulView from "../requests/StatusTabNavigation/defaultView/DefaultView";
 import GridView from "../requests/StatusTabNavigation/gridView/GridView";
 import DatePicker from "react-datepicker";
@@ -15,6 +13,12 @@ import OnHoldRequest from "./StatusTabNavigation/defaultView/OnHoldRequest";
 import TabOnHoldGridView from "./StatusTabNavigation/gridView/TabOnHoldGridView";
 import RejectedRequest from "./StatusTabNavigation/defaultView/RejectedRequest";
 import TabRejectedGridView from "./StatusTabNavigation/gridView/TabRejectedGridView";
+import PendingRequests from "./StatusTabNavigation/defaultView/PendingRequests";
+import CancelledRequests from "./StatusTabNavigation/defaultView/CancelledRequests";
+import RescheduledRequests from "./StatusTabNavigation/defaultView/RescheduledRequests";
+import TabCancelledGridView from "./StatusTabNavigation/gridView/TabCancelledGridView";
+import TabPendingGridView from "./StatusTabNavigation/gridView/TabPendingGridView";
+import TabRescheduledGridView from "./StatusTabNavigation/gridView/TabRescheduledGridView";
 
 const Requests = () => {
   const [startDate, setStartDate] = useState(new Date());
@@ -69,27 +73,39 @@ const Requests = () => {
   const renderTabContent = () => {
     if (activeTab === "pending") {
       return isGuestsGridViewVisible ? (
-        <ApproveGuestsGridView />
+        <TabPendingGridView selectedDate={startDate} />
       ) : (
-        <ApproveGuests />
+        <PendingRequests selectedDate={startDate} />
       );
     } else if (activeTab === "approved") {
       return isGuestsGridViewVisible ? (
-        <ApprovedGuestsGridView />
+        <ApprovedGuestsGridView selectedDate={startDate} />
       ) : (
-        <AppreovedGuests />
+        <AppreovedGuests selectedDate={startDate} />
       );
     } else if (activeTab === "onHold") {
       return isGuestsGridViewVisible ? (
-        <TabOnHoldGridView />
+        <TabOnHoldGridView selectedDate={startDate} />
       ) : (
-        <OnHoldRequest />
+        <OnHoldRequest selectedDate={startDate} />
       );
     } else if (activeTab === "rejected") {
       return isGuestsGridViewVisible ? (
-        <TabRejectedGridView />
+        <TabRejectedGridView selectedDate={startDate} />
       ) : (
-        <RejectedRequest />
+        <RejectedRequest selectedDate={startDate} />
+      );
+    } else if (activeTab === "cancelled") {
+      return isGuestsGridViewVisible ? (
+        <TabCancelledGridView selectedDate={startDate} />
+      ) : (
+        <CancelledRequests selectedDate={startDate} />
+      );
+    } else if (activeTab === "rescheduled") {
+      return isGuestsGridViewVisible ? (
+        <TabRescheduledGridView selectedDate={startDate} />
+      ) : (
+        <RescheduledRequests selectedDate={startDate} />
       );
     } else {
       return (
@@ -194,7 +210,7 @@ const Requests = () => {
               onClick={() => handleTabClick(tab.id)}
             >
               {tab.label}
-              {activeTab === tab.id && <span> ({tab.Requests})</span>}
+              {/* {activeTab === tab.id && <span> ({tab.Requests})</span>} */}
             </li>
           ))}
         </ul>

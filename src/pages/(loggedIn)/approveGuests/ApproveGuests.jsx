@@ -5,13 +5,10 @@ import CommonButton from "../../../components/ui/Button";
 import PopUpFlagGuest from "../../../components/ui/PopUpFlagGuest";
 import GuestDetailsPopup from "../../../components/ui/GuestDetailsPopup/GuestDetailsPopup";
 import { useNavigate } from "react-router-dom";
-import {
-  getBookingRequests,
-  updateBookingRequest,
-} from "../../../../services/src/api/repositories/bookingRequestRepository";
+import { getBookingRequestsByStatus, updateBookingRequest } from "../../../../services/src/api/repositories/bookingRequestRepository"; // Add updateBookingRequest
 import { getToken } from "../../../../services/src/utils/storage";
 
-const ApproveGuests = () => {
+const ApproveGuests = ({ selectedDate }) => {
   const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [requestId, setRequestId] = useState(null);
@@ -20,21 +17,19 @@ const ApproveGuests = () => {
   const [selectedGuest, setSelectedGuest] = useState(null);
   const [isGuestDetailsPopupOpen, setIsGuestDetailsPopupOpen] = useState(false);
   const [requests, setRequests] = useState([]);
+  const [filteredRequests, setFilteredRequests] = useState([]); 
 
   // Fetch the booking requests
   useEffect(() => {
     const fetchBookingRequests = async () => {
       try {
-        const data = await getBookingRequests();
+        const data = await getBookingRequestsByStatus('awaiting');
         const bookingData = data?.data?.data;
         if (bookingData) {
-          const filteredBookingData = bookingData.filter(
-            (item) => item.attributes.status === "awaiting"
-          );
-
-          const bookingRequests = filteredBookingData.map((item) => ({
+          const bookingRequests = bookingData.map((item) => ({
             id: item.id,
             userImage: item.attributes.userImage || "",
+            createdAt: new Date(item.attributes.createdAt),
             userDetails: {
               name: item.attributes.name,
               age: item.attributes.age,
@@ -82,6 +77,7 @@ const ApproveGuests = () => {
           }));
 
           setRequests(bookingRequests); // Setting the filtered data to state
+          setFilteredRequests(bookingRequests);
         }
       } catch (error) {
         console.error("Error fetching booking requests:", error);
@@ -90,6 +86,20 @@ const ApproveGuests = () => {
 
     fetchBookingRequests();
   }, []);
+
+  // Filter requests based on selected date
+  useEffect(() => {
+    if (selectedDate) {
+        const filtered = requests
+            .filter((request) => new Date(request.createdAt).toDateString() === selectedDate.toDateString())
+            .sort((a, b) => a.createdAt - b.createdAt);
+
+        setFilteredRequests(filtered);
+    } else {
+        setFilteredRequests(requests);
+    }
+}, [selectedDate, requests]);
+
 
   // Function to update booking request status
   const handleStatusChange = async (e, requestId, newStatus) => {
@@ -183,7 +193,7 @@ const ApproveGuests = () => {
   return (
     <div className="Requests-main-container">
       <div className="requests-cards-section">
-        {requests.map((request) => (
+        {filteredRequests.map((request) => (
           <div
             key={request.id}
             className="requests-card"

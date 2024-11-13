@@ -3,34 +3,38 @@ import "./CheckoutDetails.scss";
 import SearchBar from "../../../components/ui/SearchBar";
 import CommonHeaderTitle from "../../../components/ui/CommonHeaderTitle";
 import GuestDetails from "../GuestDetails";
-import { fetchBookingRequests } from "../../../../services/src/services/bookingRequestService";
+import { fetchRoomAllocations } from "../../../../services/src/services/roomAllocationService";
+import dayjs from "dayjs";
 
 const CheckOutDetails = () => {
   const [selectedUser, setSelectedUser] = useState(null);
-  const [approvedAllocations, setApprovedAllocations] = useState([]);
+  const [allocations, setAllocations] = useState([]);
   const [filteredAllocations, setFilteredAllocations] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
-  const [isQRcodeScanned, setIsQRcodeScanned] = useState(false);
   const [totalRequests, setTotalRequests] = useState(0);
   const [totalCheckouts, setTotalCheckouts] = useState(0);
 
   useEffect(() => {
     const fetchAllocations = async () => {
       try {
-        const response = await fetchBookingRequests();
+        const response = await fetchRoomAllocations();
         const allAllocations = response.data;
 
-        const approvedAllocations = allAllocations.filter(
-          (allocation) => allocation.attributes.status === "approved"
-        );
+        const currentDate = dayjs();
+        const allocationsToShow = allAllocations.filter((allocation) => {
+          const departureDate = dayjs(allocation.attributes.departure_date);
+          return (
+            currentDate.isSame(departureDate, "day") ||
+            currentDate.isAfter(departureDate)
+          );
+        });
 
-        setApprovedAllocations(approvedAllocations);
-        setFilteredAllocations(approvedAllocations);
-        setTotalRequests(allAllocations.length); // Total booking requests
-        setTotalCheckouts(checkedOutAllocations.length); // Total checkouts
+        setAllocations(allocationsToShow);
+        setFilteredAllocations(allocationsToShow);
+        setTotalRequests(allocationsToShow.length);
 
-        if (approvedAllocations.length > 0) {
-          setSelectedUser(approvedAllocations[0]);
+        if (allocationsToShow.length > 0) {
+          setSelectedUser(allocationsToShow[0]);
         }
       } catch (error) {
         console.error("Error fetching room allocations: ", error);
@@ -47,10 +51,12 @@ const CheckOutDetails = () => {
   const handleSearch = (query) => {
     setSearchQuery(query);
     if (query.trim() === "") {
-      setFilteredAllocations(approvedAllocations);
+      setFilteredAllocations(allocations);
     } else {
-      const filtered = approvedAllocations.filter((allocation) =>
-        allocation.attributes.name.toLowerCase().includes(query.toLowerCase())
+      const filtered = allocations.filter((allocation) =>
+        allocation.attributes.booking_request.data.attributes.name
+          .toLowerCase()
+          .includes(query.toLowerCase())
       );
       setFilteredAllocations(filtered);
       if (filtered.length > 0) {
@@ -100,7 +106,13 @@ const CheckOutDetails = () => {
                       selectedUser?.id === allocation.id ? "selected-row" : ""
                     }
                   >
-                    <td>Mr. {allocation.attributes.name}</td>
+                    <td>
+                      Mr.{" "}
+                      {
+                        allocation.attributes.booking_request.data.attributes
+                          .name
+                      }
+                    </td>
                     <td>{allocation.id}</td>
                     <td>
                       <span
@@ -122,7 +134,7 @@ const CheckOutDetails = () => {
                 ))
               ) : (
                 <tr>
-                  <td colSpan="4">No approved room allocations found.</td>
+                  <td colSpan="4">No room allocations found.</td>
                 </tr>
               )}
             </tbody>
@@ -130,7 +142,11 @@ const CheckOutDetails = () => {
         </div>
       </div>
       {selectedUser && (
-        <GuestDetails selectedUser={selectedUser} showQRSection={false} />
+        <GuestDetails
+          selectedUser={selectedUser}
+          showQRSection={false}
+          checkout={true}
+        />
       )}
     </div>
   );

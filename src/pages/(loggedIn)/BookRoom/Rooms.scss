@@ -72,3 +72,27 @@
     }
   }
 }
+
+.bed-item {
+  position: relative;
+  display: inline-block;
+}
+
+.bed-tooltip {
+  position: absolute;
+  top: -10px;
+  left: 50px;
+  padding: 10px;
+  background-color: #fff;
+  color: #9867e9;
+  border: 2px solid #9867e9;
+  border-radius: 4px;
+  white-space: nowrap;
+  z-index: 100;
+  font-size: 12px;
+  pointer-events: none;
+}
+
+.bed-tooltip p {
+  margin: 0;
+}

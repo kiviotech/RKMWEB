@@ -19,7 +19,7 @@ const Sidebar = () => {
           Donations
         </span>
       </NavLink>
-      <NavLink to="/details" activeclassname="active">
+      <NavLink to="/deeksha" activeclassname="active">
         <img src={icons.welcome} alt="welcome" />
         <span className="label">Deeksha</span>
       </NavLink>

@@ -1,84 +1,82 @@
-@import url('https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&family=Lexend:wght@100..900&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&family=Lexend:wght@100..900&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Nunito+Sans:ital,opsz,wght@0,6..12,200..1000;1,6..12,200..1000&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&family=Lexend:wght@100..900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&family=Lexend:wght@100..900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Nunito+Sans:ital,opsz,wght@0,6..12,200..1000;1,6..12,200..1000&display=swap");
 
 body {
-    margin: 0;
-    min-width: 100vw;
-    min-height: 100vh;
-    overflow-x: hidden;
-    font-family: Lexend;
+  margin: 0;
+  min-width: 100vw;
+  min-height: 100vh;
+  overflow-x: hidden;
+  font-family: Lexend;
 }
 
 :root {
-    --primary-color: #9866E9;
-    --secondary-color: #2ecc71;
-    --font-size: 16px;
-    --checkoutTableButtonColor: #FFBDCB;
-    --backgroundColor: #F1E6F7;
-    --LexendFontFamily: Lexend;
-    --InterFontFamily: Inter;
-    --NunitoSansFontFamily: "Nunito Sans", sans-serif;
+  --primary-color: #9866e9;
+  --secondary-color: #2ecc71;
+  --font-size: 16px;
+  --checkoutTableButtonColor: #ffbdcb;
+  --backgroundColor: #f1e6f7;
+  --LexendFontFamily: Lexend;
+  --InterFontFamily: Inter;
+  --NunitoSansFontFamily: "Nunito Sans", sans-serif;
 }
 
 table {
-    width: 100%;
+  width: 100%;
 
-    th,
-    td {
-        text-align: start;
-        color: #000;
-        font-family: var(--LexendFontFamily);
-        font-size: 20px;
-        font-style: normal;
-        font-weight: 500;
-        line-height: normal;
-    }
+  th,
+  td {
+    text-align: start;
+    color: #000;
+    font-family: var(--LexendFontFamily);
+    font-size: 20px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
+  }
 
-    td {
-        padding-bottom: 10px;
-        padding-top: 10px;
-        color: #4B4B4B;
-        font-family: var(--LexendFontFamily);
-        font-size: 16px;
-        font-style: normal;
-        font-weight: 500;
-        line-height: normal;
-    }
+  td {
+    padding-bottom: 10px;
+    padding-top: 10px;
+    color: #4b4b4b;
+    font-family: var(--LexendFontFamily);
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
+  }
 }
 
 /* modal.scss */
 .qr-code-modal {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    right: auto;
-    bottom: auto;
-    margin-right: -50%;
-    transform: translate(-50%, -50%);
-    background: white;
-    padding: 20px;
-    border-radius: 20px;
-    width: 400px;
-    max-width: 90%;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  right: auto;
+  bottom: auto;
+  margin-right: -50%;
+  transform: translate(-50%, -50%);
+  background: white;
+  padding: 20px;
+  border-radius: 20px;
+  width: 400px;
+  max-width: 90%;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .qr-code-modal-overlay {
-    background: rgba(0, 0, 0, 0.75);
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    z-index: 1000;
+  background: rgba(0, 0, 0, 0.75);
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1000;
 }
 
-
-
 .close-button {
-    background: none;
-    border: none;
-    font-size: 1.5rem;
-    cursor: pointer;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
 }

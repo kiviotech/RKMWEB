@@ -6,6 +6,7 @@ import useApplicationStore from "../../../../../useApplicationStore";
 const ApplicationDetails = ({ goToNextStep, tabName }) => {
   const { formData, errors, setFormData, setAddressData, setErrors } =
     useApplicationStore();
+  console.log(formData);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;

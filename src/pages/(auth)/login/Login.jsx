@@ -3,13 +3,18 @@ import "./Login.scss";
 import { icons } from "../../../constants";
 import CommonButton from "../../../components/ui/Button";
 import { useNavigate } from "react-router-dom";
-import { loginUser } from "../../../../services/auth"; // Assuming loginUser is in authService.js
+import { loginUser } from "../../../../services/auth";
+import { useAuthStore } from "../../../../store/authStore";
 
 const Login = () => {
   const [formValues, setFormValues] = useState({ username: "", password: "" });
   const [formErrors, setFormErrors] = useState({ username: "", password: "" });
   const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+
+  const setUser = useAuthStore((state) => state.setUser);
+  const setToken = useAuthStore((state) => state.setToken);
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
@@ -30,7 +35,6 @@ const Login = () => {
     const { name, value } = e.target;
     setFormValues({ ...formValues, [name]: value });
 
-    // Hide error message when user starts typing
     if (formErrors[name]) {
       setFormErrors({ ...formErrors, [name]: "" });
     }
@@ -43,18 +47,32 @@ const Login = () => {
       setFormErrors(errors);
     } else {
       try {
-        // Make the login API call
-        await loginUser({
+        setIsLoading(true);
+        const response = await loginUser({
           identifier: formValues.username,
           password: formValues.password,
         });
-        navigate("/check-in");
+
+        setUser(response.user);
+        setToken(response.jwt);
+
+        if (response.user.user_role === "admin") {
+          navigate("/dashboard");
+        } else if (response.user.user_role === "deeksha") {
+          navigate("/deeksha");
+        } else {
+          setFormErrors({
+            ...formErrors,
+            password: "Invalid user role or permissions",
+          });
+        }
       } catch (error) {
-        // Handle API errors
         setFormErrors({
           ...formErrors,
-          password: "Invalid username or password", // Set API error message
+          password: "Invalid username or password",
         });
+      } finally {
+        setIsLoading(false);
       }
     }
   };
@@ -73,6 +91,7 @@ const Login = () => {
               value={formValues.username}
               onChange={handleChange}
               placeholder="User Name"
+              disabled={isLoading}
             />
             {formErrors.username && (
               <p className="error-text">{formErrors.username}</p>
@@ -88,11 +107,13 @@ const Login = () => {
                 value={formValues.password}
                 onChange={handleChange}
                 placeholder="Password"
+                disabled={isLoading}
               />
               <button
                 type="button"
                 className="show-password-btn"
                 onClick={togglePasswordVisibility}
+                disabled={isLoading}
               >
                 <img src={icons.eyeIcon} alt="password-toggler" />
               </button>
@@ -102,30 +123,34 @@ const Login = () => {
             )}
           </div>
           <CommonButton
-            buttonName="Sign In"
+            buttonName={isLoading ? "Signing In..." : "Sign In"}
             buttonWidth="100%"
+            disabled={isLoading}
             style={{
               backgroundColor: "#9866E9",
               fontSize: "16px",
               borderRadius: "16px",
               borderWidth: 0,
               padding: "10px 20px",
+              opacity: isLoading ? 0.7 : 1,
+              cursor: isLoading ? "not-allowed" : "pointer",
             }}
           />
         </form>
-        <div className="or">
-          OR <p>Sign In with</p>
-        </div>
-        <div className="social-login">
-          <button className="social-btn google">
-            <img src={icons.googleIcon} alt="google" />
-          </button>
-          <button className="social-btn facebook">
-            <img src={icons.facebookIcon} alt="facebook" />
-          </button>
-          <button className="social-btn apple">
-            <img src={icons.appleIcon} alt="apple" />
-          </button>
+        <div className="signup-prompt">
+          <p>
+            Don’t have an account?{" "}
+            <span
+              style={{
+                cursor: "pointer",
+                color: "#9866E9",
+                fontWeight: "bold",
+              }}
+              onClick={() => navigate("/signup")}
+            >
+              Sign Up
+            </span>
+          </p>
         </div>
       </div>
     </div>

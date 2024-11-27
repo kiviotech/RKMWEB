@@ -3,6 +3,7 @@ import { AUTH_LOGIN } from "../services/endPoints/auth/authEndPoint"; // Adjust 
 import { saveToken } from "../utils/storage";
 import { AUTH_REGISTER } from "../services/endPoints/auth/authEndPoint";
 import { AUTH_FORGOT_PASSWORD } from "../services/endPoints/auth/authEndPoint";
+import { useAuthStore } from "../store/authStore";
 
 export async function loginUser({ identifier, password }) {
   try {
@@ -14,8 +15,10 @@ export async function loginUser({ identifier, password }) {
 
     // Extract JWT and user data from the response
     const { jwt, user } = response.data;
+    console.log("auth.js", response.data);
 
-    console.log("auth.js", jwt);
+    useAuthStore.getState().setUser(user);
+    useAuthStore.getState().setToken(jwt);
     // Save the JWT to secure storage
     saveToken(jwt);
 

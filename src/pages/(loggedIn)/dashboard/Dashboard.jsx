@@ -13,24 +13,26 @@ const Dashboard = () => {
   const [totalApplications, setTotalApplications] = useState(0);
   const [currentGuestCount, setCurrentGuestCount] = useState(0);
   const [statuses, setStatuses] = useState({
-    Awaiting: 0,
-    Approved: 0,
-    OnHold: 0,
-    Rejected: 0,
-    Confirmed: 0,
+    awaiting: 0,
+    approved: 0,
+    on_hold: 0,
+    rejected: 0,
+    rescheduled: 0,
   });
-  const [checkIns, setCheckIns] = useState(0); // For storing dynamic check-in data
-  const [totalCheckIns, setTotalCheckIns] = useState(0); // Total check-ins capacity (can be dynamic too)
-  const [checkOuts, setCheckOuts] = useState(100); // For storing dynamic check-out data
-  const [totalCheckOuts, setTotalCheckOuts] = useState(100); // Total check-outs capacity (can be dynamic too)
+  const [checkIns, setCheckIns] = useState(0);
+  const [checkOuts, setCheckOuts] = useState(0);
+
   useEffect(() => {
-    // Fetching booking and application details
     const fetchApplicationData = async () => {
       try {
         const response = await fetchBookingRequests();
+        if (!response?.data) {
+          console.error("No data received from API");
+          return;
+        }
+
         const bookingData = response.data;
 
-        // Initialize counters
         const statusCount = {
           awaiting: 0,
           approved: 0,
@@ -43,27 +45,20 @@ const Dashboard = () => {
         let checkInCount = 0;
         let checkOutCount = 0;
 
-        // Iterate over booking data
-        for (const booking of bookingData) {
+        bookingData.forEach((booking) => {
           const status = booking.attributes?.status;
-
-          // Update status counts based on the booking status
-          if (status in statusCount) {
+          if (status && status in statusCount) {
             statusCount[status]++;
           }
 
-          // Update guest count
           guestCount += booking.attributes?.number_of_guest_members || 0;
 
-          // Update check-in/check-out counts based on status
           if (status === "approved") {
             checkInCount++;
-          } else if (status === "approved") {
-            checkOutCount++;
           }
-        }
+          // Removed duplicate check for approved status
+        });
 
-        // Update state based on derived data
         setStatuses(statusCount);
         setTotalApplications(bookingData.length);
         setCurrentGuestCount(guestCount);
@@ -74,7 +69,6 @@ const Dashboard = () => {
       }
     };
 
-    // Fetch all data on component mount
     fetchApplicationData();
   }, []);
 
@@ -99,7 +93,7 @@ const Dashboard = () => {
   ];
 
   const navigateToPage = (pageRoute) => {
-    navigate(pageRoute); // Replace with your actual route path
+    navigate(pageRoute);
   };
 
   return (
@@ -124,11 +118,11 @@ const Dashboard = () => {
             <div className="graph">
               {isAllZero ? (
                 <Graph
-                  series={[0]}
+                  series={[100]}
                   colors={["#0000FF"]}
                   width="180"
                   height="180"
-                /> // Graph with blue color when there are no requests
+                />
               ) : (
                 <>
                   <span>
@@ -145,12 +139,12 @@ const Dashboard = () => {
             </div>
 
             <div className="status-list">
-              {Object.keys(statuses).map((status, index) => (
+              {Object.entries(statuses).map(([status, count], index) => (
                 <StatusItem
                   key={index}
                   color={colors[index]}
                   text={status}
-                  number={statuses[status]}
+                  number={count}
                   paddingLeft={40}
                 />
               ))}
@@ -198,7 +192,7 @@ const Dashboard = () => {
             <ProgressBar
               title="Check-ins"
               completed={checkIns}
-              total={statuses.approved}
+              total={statuses.approved || 1}
               color={"#A3D65C"}
               backgroundColor={"#E4F5E3"}
             />
@@ -210,7 +204,7 @@ const Dashboard = () => {
             <ProgressBar
               title="Check-outs"
               completed={checkOuts}
-              total={statuses.approved}
+              total={statuses.approved || 1}
               color={"#FC5275"}
               backgroundColor={"#F9C7C7"}
             />

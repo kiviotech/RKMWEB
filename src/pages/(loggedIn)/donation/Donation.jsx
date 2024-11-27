@@ -1,292 +1,183 @@
-import React from "react";
-import { Line } from "react-chartjs-2";
-import { useState } from "react";
-import { CircularProgressbar, buildStyles } from "react-circular-progressbar";
-import "react-circular-progressbar/dist/styles.css";
+import React, { useState } from "react";
 import "./Donation.scss";
-import { Chart, registerables } from "chart.js";
-import DonationsHistory from "./DonationsHistory";
-import CircularProgress from "./CircularProgress";
-import icons from "../../../constants/icons";
-import ReceiptDonating from "./ReceiptDonating";
-import ReceiptDonated from "./ReceiptDonated";
-import { Link } from "react-router-dom";
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-=======
 
->>>>>>> 6041bc2a1986e0ece76f51df76f098219fb9a97a
->>>>>>> f52b676d9e5f80c5385418dcc0cb4847601430de
+const NewDonation = () => {
+  const [selectedTab, setSelectedTab] = useState("Math");
 
-// Register all components from Chart.js
-Chart.register(...registerables);
-
-const Donation = () => {
-  const [showReceiptPopup, setShowReceiptPopup] = useState(false); // State to control the popup visibility
-  const [showReceiptPopup1, setShowReceiptPopup1] = useState(false);
-
-  // Function to open the popup
-  const openPopup = () => {
-    setShowReceiptPopup(true);
-  };
-
-  // Function to close the popup
-  const closePopup = () => {
-    setShowReceiptPopup(false);
-  };
-  // Function to open the popup
-  const openPopup1 = () => {
-    setShowReceiptPopup1(true);
-  };
-
-  // Function to close the popup
-  const closePopup1 = () => {
-    setShowReceiptPopup1(false);
-  };
-  const chartData = {
-    labels: ["Jun", "Jul", "Aug", "Sept", "Oct", "Nov", "Dec"],
-    datasets: [
-      {
-        label: "Total Donation",
-        data: [10, 15, 32, 29, 20, 22, 15],
-        backgroundColor: "transparent",
-        borderColor: "#A3D65C",
-        borderWidth: 2,
-        fill: true,
-      },
-    ],
-  };
-
-  const chartOptions = {
-    maintainAspectRatio: false,
-    scales: {
-      y: {
-        beginAtZero: true,
-      },
-    },
-  };
-
-  const circularProgressValue = 46; // 46% for the donated part
-
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-=======
-
->>>>>>> 6041bc2a1986e0ece76f51df76f098219fb9a97a
->>>>>>> f52b676d9e5f80c5385418dcc0cb4847601430de
-  const toggleReceiptModal = () => {
-    setShowReceiptModal(!showReceiptModal);
-  };
-
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-=======
-
->>>>>>> 6041bc2a1986e0ece76f51df76f098219fb9a97a
->>>>>>> f52b676d9e5f80c5385418dcc0cb4847601430de
   return (
-    <div className="donations-history-page">
-      {/* Top Section */}
-      <div className="top-section">
-        {/* Total Donations */}
-        <div className="total-donations">
-          <div>
-            <h2>Total Donations</h2>
-            <h3>₹44,567</h3>
-            <p>+12.02% than last month</p>
-          </div>
-          <div className="donation-chart">
-            <Line data={chartData} options={chartOptions} height={200} />
-            {/* <p>3rd August Total Donation 32.9k</p> */}
-          </div>
-        </div>
+    <div className="donations-container">
+      <div className="donor-tags">
+        <div className="tag">John Dee <span className="close">×</span></div>
+        <div className="tag">Abhishek <span className="close">×</span></div>
+        <div className="tag">Sagar <span className="close">×</span></div>
+        <button className="add-donation-btn">+ Add Donation</button>
+      </div>
 
-        <div>
-          <CircularProgress />
+      <div className="header">
+        <h1>New Donation</h1>
+        <div className="search-section">
+          <div className="search-box">
+            <input type="text" placeholder="Search by Name or phone number" />
+            <button className="search-btn">Search</button>
+          </div>
         </div>
       </div>
 
-      {/* Donation History Section */}
+      <div className="tab-section">
+        <div className="tabs">
+          <button 
+            className={`tab ${selectedTab === 'Math' ? 'active' : ''}`}
+            onClick={() => setSelectedTab('Math')}
+          >
+            Math
+          </button>
+          <button 
+            className={`tab ${selectedTab === 'Mission' ? 'active' : ''}`}
+            onClick={() => setSelectedTab('Mission')}
+          >
+            Mission
+          </button>
+        </div>
+        <button className="reset-btn">
+          <span className="reset-icon">↻</span> Reset
+        </button>
+      </div>
 
-<<<<<<< HEAD
-      <div className="donation-details">
-=======
-<<<<<<< HEAD
-      <div className="donation-details">
-=======
-      <div className="donation-details" >
->>>>>>> 6041bc2a1986e0ece76f51df76f098219fb9a97a
->>>>>>> f52b676d9e5f80c5385418dcc0cb4847601430de
-        <div className="search-donation">
-          <div className="header">
-            <h2>Search Donation</h2>
-            <button className="add-donor-btn">+ Add New Donor</button>
-          </div>
-          <form>
-            <div className="form-row">
+      <div className="main-content">
+        <div className="left-section">
+          <div className="details-card">
+            <div className="receipt-grid">
               <div className="form-group">
-                <label>Name</label>
-                <input type="text" name="name" placeholder="John Doe" />
+                <label>Receipt Number</label>
+                <input type="text" value="C12077" disabled />
               </div>
               <div className="form-group">
-<<<<<<< HEAD
-                <label>Phone</label>
-=======
-<<<<<<< HEAD
-                <label>Phone</label>
-=======
-                <label >Phone</label>
->>>>>>> 6041bc2a1986e0ece76f51df76f098219fb9a97a
->>>>>>> f52b676d9e5f80c5385418dcc0cb4847601430de
-                <div className="phone-input">
-                  <select>
-                    <option>+91</option>
+                <label>Date</label>
+                <input type="text" value="24/02/2023" disabled />
+              </div>
+              <div className="form-group">
+                <label>Created by</label>
+                <input type="text" value="User Name" disabled />
+              </div>
+            </div>
+          </div>
+
+          <div className="details-card">
+            <h2>Donor Details</h2>
+            <div className="form-grid">
+              <div className="form-group">
+                <label>Name of Donor</label>
+                <div className="input-group">
+                  <select className="title-select">
+                    <option>Sri</option>
                   </select>
-                  <input type="text" name="phone" placeholder="9212341902" />
+                  <input type="text" placeholder="John Doe" />
                 </div>
               </div>
-            </div>
-
-            <div className="form-row">
               <div className="form-group">
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
->>>>>>> f52b676d9e5f80c5385418dcc0cb4847601430de
-                <label>Email</label>
-                <input
-                  type="email"
-                  name="email"
-                  placeholder="johndoe@gmail.com"
-                />
-<<<<<<< HEAD
-=======
-=======
-                <label >Email</label>
-                <input type="email" name="email" placeholder="johndoe@gmail.com" />
->>>>>>> 6041bc2a1986e0ece76f51df76f098219fb9a97a
->>>>>>> f52b676d9e5f80c5385418dcc0cb4847601430de
-              </div>
-            </div>
-
-            <div className="form-row">
-              <div className="form-group">
-                <label>Guru Name</label>
-                <select name="guruName">
-                  <option>John Doe</option>
-                  <option>Sam Doe</option>
-                  <option>Jane </option>
-                  <option>John Mark</option>
-                </select>
+                <label>Phone No.</label>
+                <div className="input-group">
+                  <select className="country-code">
+                    <option>+91</option>
+                  </select>
+                  <input type="text" placeholder="9212341902" />
+                </div>
               </div>
               <div className="form-group">
-                <label htmlFor="dikshaNumber">Diksha Number</label>
-                <input type="text" name="dikshaNumber" placeholder="John Doe" />
-              </div>
-            </div>
-
-            <div className="form-row">
-              <div className="form-group">
-                <label htmlFor="dikshaDate">Diksha Date</label>
-                <input type="date" name="dikshaDate" />
+                <label>Email ID</label>
+                <input type="email" placeholder="Enter email" />
               </div>
               <div className="form-group">
-                <label htmlFor="dikshaPlace">Diksha Place</label>
-<<<<<<< HEAD
-                <select name="dikshaPlace">
-=======
-<<<<<<< HEAD
-                <select name="dikshaPlace">
-=======
-                <select name="dikshaPlace" >
->>>>>>> 6041bc2a1986e0ece76f51df76f098219fb9a97a
->>>>>>> f52b676d9e5f80c5385418dcc0cb4847601430de
-                  <option>John Doe</option>
-                  <option>Sam Doe</option>
-                  <option>Jane </option>
-                  <option>John Mark</option>
+                <label>Identity type</label>
+                <select>
+                  <option>Select ID type</option>
                 </select>
               </div>
             </div>
+          </div>
 
-            <div className="form-actions">
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
->>>>>>> f52b676d9e5f80c5385418dcc0cb4847601430de
-              <button type="button" className="clear-btn">
-                Clear
-              </button>
-              <button type="submit" className="search-btn">
-                <span role="img" aria-label="search-icon">
-                  <img src={icons.search} alt="" />
-                </span>{" "}
-                Search
-<<<<<<< HEAD
-=======
-=======
-              <button type="button" className="clear-btn" >Clear</button>
-              <button type="submit" className="search-btn">
-                <span role="img" aria-label="search-icon">
-                  <img src={icons.search} alt="" />
-                </span> Search
->>>>>>> 6041bc2a1986e0ece76f51df76f098219fb9a97a
->>>>>>> f52b676d9e5f80c5385418dcc0cb4847601430de
-              </button>
+          <div className="details-card">
+            <h2>Address Details</h2>
+            <div className="form-grid">
+              <div className="form-group full-width">
+                <label>Address</label>
+                <input type="text" placeholder="Enter address" />
+              </div>
+              <div className="form-group">
+                <label>District</label>
+                <input type="text" placeholder="Enter district" />
+              </div>
+              <div className="form-group">
+                <label>State</label>
+                <select>
+                  <option>Select state</option>
+                </select>
+              </div>
             </div>
-          </form>
+          </div>
+
+          <div className="details-card">
+            <h2>Donation Details</h2>
+            <div className="form-grid">
+              <div className="form-group">
+                <label>Donation Amount</label>
+                <div className="input-group">
+                  <select>
+                    <option>₹</option>
+                  </select>
+                  <input type="text" placeholder="Enter amount" />
+                </div>
+              </div>
+              <div className="form-group">
+                <label>Reception Type</label>
+                <select>
+                  <option>Select type</option>
+                </select>
+              </div>
+              <div className="form-group full-width">
+                <label>In Memory of</label>
+                <input type="text" placeholder="Enter name" />
+              </div>
+            </div>
+          </div>
         </div>
-        <div className="devotee-details">
-          {/* Render DonationsHistory with the button */}
-          <DonationsHistory openPopup={openPopup} openPopup1={openPopup1} />
 
-          <Link to="/donationdetail" className="view-more">
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
->>>>>>> f52b676d9e5f80c5385418dcc0cb4847601430de
-            <div className="expand">
-              <h3>
-                Expand <img src={icons.angleRight} alt="" />
-              </h3>
-<<<<<<< HEAD
-=======
-=======
-            <div className='expand'>
-              <h3>Expand <img src={icons.angleRight} alt="" /></h3>
->>>>>>> 6041bc2a1986e0ece76f51df76f098219fb9a97a
->>>>>>> f52b676d9e5f80c5385418dcc0cb4847601430de
-            </div>
-          </Link>
+        <div className="donation-history">
+          <h2>Donation History</h2>
+          <div className="history-items">
+            {[{
+              date: "12/11/2023",
+              type: "Cash",
+              room: "GH-29",
+              for: "Math",
+              amount: "₹10,000.00"
+            }].map((item, index) => (
+              <div key={index} className="history-item">
+                <div className="history-header">
+                  <span className="date">{item.date}</span>
+                  <span className={`type ${item.type.toLowerCase()}`}>{item.type}</span>
+                </div>
+                <div className="history-details">
+                  <div className="detail-row">
+                    <span>Room No.:</span>
+                    <span>{item.room}</span>
+                  </div>
+                  <div className="detail-row">
+                    <span>Donation For:</span>
+                    <span>{item.for}</span>
+                  </div>
+                  <div className="detail-row">
+                    <span>Amount:</span>
+                    <span>{item.amount}</span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
-
-      {showReceiptPopup && (
-        <div className="popup-overlay">
-          <div className="popup-content">
-            <button className="close-popup" onClick={closePopup}>
-              &times;
-            </button>
-            <ReceiptDonating />
-          </div>
-        </div>
-      )}
-
-      {showReceiptPopup1 && (
-        <div className="popup-overlay">
-          <div className="popup-content">
-            <button className="close-popup" onClick={closePopup1}>
-              &times;
-            </button>
-            <ReceiptDonated />
-          </div>
-        </div>
-      )}
     </div>
   );
 };
 
-export default Donation;
+export default NewDonation;

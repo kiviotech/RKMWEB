@@ -1,275 +1,239 @@
-// import React from "react";
-// import ApplicationDetails from "../applicationDetails/ApplicationDetails";
-// import GuestDetails from "../GuestDetails/GuestDetails";
-// import VisitDetails from "../VisitDetails/VisitDetails";
-// import useApplicationStore from "../../../../../useApplicationStore";
-// import CommonButton from "../../../../components/ui/Button";
-// import { createGuestDetails } from "../../../../../services/src/api/repositories/guestDetailsRepository";
-// import { createBookingRequest } from "../../../../../services/src/api/repositories/bookingRequestRepository";
-
-// const VerifyDetails = ({ tabName }) => {
-//   const { formData, errors } = useApplicationStore();
-//   console.log(formData);
-
-//   const handleSubmit = async () => {
-//     try {
-//       const validGuests = formData.guests.filter(
-//         (guest) => guest.guestName && guest.guestAadhaar
-//       );
-
-//       if (validGuests.length === 0) {
-//         alert("Please fill in guest details before submitting.");
-//         return;
-//       }
-
-//       const guestDetailsData = validGuests.map((guest) => ({
-//         name: guest.guestName,
-//         phone_number: guest.guestNumber,
-//         aadhaar_number: guest.guestAadhaar,
-//         occupation: guest.guestOccupation,
-//         address: `${guest.guestAddress1.houseNumber}, ${guest.guestAddress1.streetName}, ${guest.guestAddress1.district}, ${guest.guestAddress1.state}, ${guest.guestAddress1.pinCode}`,
-//         room_allocation: null,
-//         donations: [],
-//         booking_request: null,
-//         age: formData.age,
-//         gender: formData.gender,
-//         status: "approved",
-//         relationship: guest.guestRelation,
-//         deeksha: formData.deeksha,
-//       }));
-
-//       const responses = await Promise.all(
-//         guestDetailsData.map((guestData) => createGuestDetails(guestData))
-//       );
-
-//       const guestIds = responses.map((response) => response.data.data.id);
-
-//       const bookingRequestData = {
-//         status: "awaiting",
-//         admin_comment: "",
-//         name: formData.name,
-//         age: formData.age,
-//         gender: formData.gender,
-//         email: formData.email,
-//         phone_number: formData.phoneNumber,
-//         occupation: formData.occupation,
-//         aadhaar_number: formData.aadhaar,
-//         number_of_guest_members: formData.guestMembers,
-//         recommendation_letter: [],
-//         reason_for_revisit: formData.reason,
-//         address: `${formData.address.houseNumber}, ${formData.address.streetName}, ${formData.address.district}, ${formData.address.state}, ${formData.address.pinCode}`,
-//         notifications: [],
-//         room_allocations: [],
-//         guest_house: null,
-//         guests: guestIds,
-//         arrival_date: formData.visitDate,
-//         departure_date: formData.departureDate,
-//         deeksha: formData.deeksha,
-//       };
-
-//       const bookingResponse = await createBookingRequest(bookingRequestData);
-
-//       if (bookingResponse.status === 200) {
-//         console.log(
-//           "Booking request successfully submitted:",
-//           bookingResponse.data
-//         );
-//         alert("Booking request successfully submitted!");
-//       } else {
-//         console.error("Error creating booking request:", bookingResponse);
-//         alert("Error creating booking request. Please try again.");
-//       }
-//     } catch (error) {
-//       console.error(
-//         "Error submitting guest details or booking request:",
-//         error
-//       );
-//       alert(
-//         "Error submitting guest details or booking request. Please try again."
-//       );
-//     }
-//   };
-
-//   return (
-//     <>
-//       <ApplicationDetails formData={formData} errors={errors} />
-//       <GuestDetails formData={formData} errors={errors} />
-//       <VisitDetails formData={formData} errors={errors} />
-//       {tabName && (
-//         <div className="submit-button">
-//           <CommonButton
-//             buttonName="Submit"
-//             style={{
-//               backgroundColor: "#9867E9",
-//               color: "#FFFFFF",
-//               borderColor: "#9867E9",
-//               fontSize: "18px",
-//               borderRadius: "7px",
-//               borderWidth: 1,
-//               padding: "15px 100px",
-//             }}
-//             onClick={handleSubmit}
-//           />
-//         </div>
-//       )}
-//     </>
-//   );
-// };
-
-// export default VerifyDetails;
-import React from "react";
-import ApplicationDetails from "../applicationDetails/ApplicationDetails";
-import GuestDetails from "../GuestDetails/GuestDetails";
-import VisitDetails from "../VisitDetails/VisitDetails";
+import React, { useEffect } from "react";
+import { icons } from "../../../../constants";
 import useApplicationStore from "../../../../../useApplicationStore";
-import CommonButton from "../../../../components/ui/Button";
-import { createGuestDetails } from "../../../../../services/src/api/repositories/guestDetailsRepository";
-import { createBookingRequest } from "../../../../../services/src/api/repositories/bookingRequestRepository";
+import "./VerifyDetails.scss";
+import { createNewGuestDetails } from "../../../../../services/src/services/guestDetailsService";
+import { createNewBookingRequest } from "../../../../../services/src/services/bookingRequestService";
 
-const VerifyDetails = ({ tabName }) => {
-  const { formData, errors } = useApplicationStore();
-  console.log(formData); // Log form data for debugging
+const VerifyDetails = () => {
+  const { formData } = useApplicationStore();
+
+  // Format date and time
+  const formatDateTime = (date, time) => {
+    if (!date || !time) return "Not specified";
+    const formattedDate = new Date(date).toLocaleDateString();
+    return `${formattedDate} at ${time}`;
+  };
+
+  // Calculate total days of stay
+  const calculateStayDuration = () => {
+    if (!formData.visitDate || !formData.departureDate) return "Not specified";
+    const arrival = new Date(formData.visitDate);
+    const departure = new Date(formData.departureDate);
+    const diffTime = Math.abs(departure - arrival);
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return `${diffDays} Days`;
+  };
+
+  // Log store data
+  useEffect(() => {
+    console.log("VerifyDetails - Current Zustand Store State:", {
+      applicantDetails: {
+        name: formData.name,
+        address: formData.address,
+        contact: formData.phoneNumber
+      },
+      guestDetails: formData.guests,
+      visitDetails: {
+        arrival: formatDateTime(formData.visitDate, formData.visitTime),
+        departure: formatDateTime(formData.departureDate, formData.departureTime),
+        previousVisit: formData.previousVisitDate
+      }
+    });
+  }, [formData]);
 
   const handleSubmit = async () => {
     try {
-      // Filter guests with valid name and Aadhaar
-      const validGuests = formData.guests.filter(
-        (guest) => guest.guestName && guest.guestAadhaar
-      );
-
-      if (validGuests.length === 0) {
-        alert("Please fill in guest details before submitting.");
-        return;
-      }
-
-      // Create guest details for each valid guest
-      const guestDetailsData = validGuests.map((guest) => ({
-        name: guest.guestName,
-        phone_number: guest.guestNumber,
-        aadhaar_number: guest.guestAadhaar,
-        occupation: guest.guestOccupation,
-        address: `${guest.guestAddress1.houseNumber}, ${guest.guestAddress1.streetName}, ${guest.guestAddress1.district}, ${guest.guestAddress1.state}, ${guest.guestAddress1.pinCode}`,
-        room_allocation: null,
-        donations: [],
-        booking_request: null,
-        age: formData.age,
-        gender: formData.gender,
-        status: "approved",
-        relationship: guest.guestRelation || "guest", // Default to 'guest'
-        deeksha: formData.deeksha,
-      }));
-
-      // Add booker (user) details as a guest
-      const bookerAsGuest = {
-        name: formData.name,
-        phone_number: formData.phoneNumber,
+      // Create main applicant guest details
+      const applicantData = {
+        name: `${formData.title} ${formData.name}`.trim(),
+        phone_number: `+${formData.countryCode}${formData.phoneNumber}`,
         aadhaar_number: formData.aadhaar,
         occupation: formData.occupation,
         address: `${formData.address.houseNumber}, ${formData.address.streetName}, ${formData.address.district}, ${formData.address.state}, ${formData.address.pinCode}`,
-        room_allocation: null,
-        donations: [],
-        booking_request: null,
-        age: formData.age,
+        age: parseInt(formData.age),
         gender: formData.gender,
-        status: "approved",
-        relationship: "booker", // Set booker relationship explicitly
+        status: "pending",
         deeksha: formData.deeksha,
+        email: formData.email,
+        relationship: "booker"
       };
 
-      // Combine both guest and booker details into one array
-      guestDetailsData.push(bookerAsGuest);
+      // Create main applicant guest record
+      const mainGuestResponse = await createNewGuestDetails(applicantData);
+      const mainGuestId = mainGuestResponse.data.id;
 
-      // Log the data before sending
-      console.log("Guest Details Data being sent:", guestDetailsData);
-
-      // Submit all guest details and collect guest IDs
-      const responses = await Promise.all(
-        guestDetailsData.map((guestData) =>
-          createGuestDetails(guestData).catch((error) => {
-            console.error(
-              "Error response:",
-              error.response?.data || error.message
-            );
-            throw error; // rethrow to be caught in outer catch block
-          })
-        )
+      // Create guest details for additional guests
+      const guestResponses = await Promise.all(
+        formData.guests.map(guest => {
+          const guestData = {
+            name: `${guest.guestTitle} ${guest.guestName}`.trim(),
+            phone_number: `+${guest.countryCode}${guest.guestNumber}`,
+            aadhaar_number: guest.guestAadhaar,
+            occupation: guest.guestOccupation,
+            address: `${guest.guestAddress.houseNumber}, ${guest.guestAddress.streetName}, ${guest.guestAddress.district}, ${guest.guestAddress.state}, ${guest.guestAddress.pinCode}`,
+            age: parseInt(guest.guestAge),
+            gender: guest.guestGender,
+            status: "pending",
+            deeksha: guest.guestDeeksha,
+            email: guest.guestEmail,
+            relationship: guest.guestRelation || "guest"
+          };
+          return createNewGuestDetails(guestData);
+        })
       );
 
-      // Extract guest IDs from the responses
-      const guestIds = responses.map((response) => response.data.data.id);
+      // Collect all guest IDs from the correct response path
+      const guestIds = guestResponses.map(response => response.data.id);
 
-      // Prepare booking request data
-      const bookingRequestData = {
+      // Create booking request
+      const bookingData = {
         status: "awaiting",
-        admin_comment: "",
-        name: formData.name,
-        age: formData.age,
+        name: `${formData.title} ${formData.name}`.trim(),
+        age: parseInt(formData.age),
         gender: formData.gender,
         email: formData.email,
-        phone_number: formData.phoneNumber,
+        phone_number: `+${formData.countryCode}${formData.phoneNumber}`,
         occupation: formData.occupation,
         aadhaar_number: formData.aadhaar,
-        number_of_guest_members: formData.guestMembers,
-        recommendation_letter: [],
-        reason_for_revisit: formData.reason,
+        number_of_guest_members: formData.guests.length,
+        reason_for_revisit: formData.reason || "",
         address: `${formData.address.houseNumber}, ${formData.address.streetName}, ${formData.address.district}, ${formData.address.state}, ${formData.address.pinCode}`,
-        notifications: [],
-        room_allocations: [],
-        guest_house: null,
-        guests: guestIds, // Using collected guest IDs (including booker)
         arrival_date: formData.visitDate,
         departure_date: formData.departureDate,
         deeksha: formData.deeksha,
+        guests: [mainGuestId, ...guestIds]
       };
 
-      // Submit the booking request
-      const bookingResponse = await createBookingRequest(bookingRequestData);
-
-      if (bookingResponse.status === 200) {
-        console.log(
-          "Booking request successfully submitted:",
-          bookingResponse.data
-        );
-        alert("Booking request successfully submitted!");
-      } else {
-        console.error("Error creating booking request:", bookingResponse);
-        alert("Error creating booking request. Please try again.");
-      }
+      await createNewBookingRequest(bookingData);
+      
+      // Handle successful submission
+      alert("Application submitted successfully!");
+      
     } catch (error) {
-      // Log detailed error information
-      console.error(
-        "Detailed error response:",
-        error.response?.data || error.message
-      );
-      alert(
-        "Error submitting guest details or booking request. Please check the console for details."
-      );
+      console.error("Error submitting application:", error);
+      alert("Failed to submit application. Please try again.");
     }
   };
 
   return (
-    <>
-      <ApplicationDetails formData={formData} errors={errors} />
-      <GuestDetails formData={formData} errors={errors} />
-      <VisitDetails formData={formData} errors={errors} />
-      {tabName && (
-        <div className="submit-button">
-          <CommonButton
-            buttonName="Submit"
-            style={{
-              backgroundColor: "#9867E9",
-              color: "#FFFFFF",
-              borderColor: "#9867E9",
-              fontSize: "18px",
-              borderRadius: "7px",
-              borderWidth: 1,
-              padding: "15px 100px",
-            }}
-            onClick={handleSubmit}
-          />
+    <div className="verify-details">
+      <h1>Verify Details</h1>
+      <div className="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th style={{ width: "5%" }}>Sl No.</th>
+              <th style={{ width: "40%" }}>Name (s)</th>
+              <th style={{ width: "5%", textAlign: "center" }}>Age</th>
+              <th style={{ width: "5%", textAlign: "center" }}>Gender (M/F)</th>
+              <th style={{ width: "15%" }}>Profession</th>
+              <th style={{ width: "20%" }}>Initiation By</th>
+            </tr>
+          </thead>
+          <tbody>
+            {/* Applicant Row */}
+            <tr>
+              <td>1</td>
+              <td>{formData.name}</td>
+              <td style={{ textAlign: "center" }}>{formData.age}</td>
+              <td style={{ textAlign: "center" }}>{formData.gender}</td>
+              <td>{formData.occupation}</td>
+              <td>{formData.deeksha || "Not specified"}</td>
+            </tr>
+            {/* Guest Rows */}
+            {formData.guests.map((guest, index) => (
+              <tr key={index}>
+                <td>{index + 2}</td>
+                <td>{guest.guestName}</td>
+                <td style={{ textAlign: "center" }}>{guest.guestAge}</td>
+                <td style={{ textAlign: "center" }}>{guest.guestGender}</td>
+                <td>{guest.guestOccupation}</td>
+                <td>{guest.guestDeeksha || "Not specified"}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <div className="details-section">
+        <p>
+          <strong>Arrival Date and Time:</strong>{" "}
+          {formatDateTime(formData.visitDate, formData.visitTime)}
+        </p>
+        <p>
+          <strong>Departure Date and Time:</strong>{" "}
+          {formatDateTime(formData.departureDate, formData.departureTime)}
+        </p>
+        <p>
+          <strong>Total Days of Stay:</strong> {calculateStayDuration()}
+        </p>
+        {formData.visited === "yes" && (
+          <p>
+            <strong>
+              Date of Last visit & stay in Ramakrishna Math Kamarpukur Guest House:
+            </strong>{" "}
+            {new Date(formData.previousVisitDate).toLocaleDateString()}
+          </p>
+        )}
+      </div>
+
+      <div className="address-details">
+        <h2>Address Details</h2>
+        {/* Applicant Address */}
+        <div className="address-block">
+          <h3>
+            Applicant
+            <img src={icons.edit} alt="Edit" className="edit-icon" />
+          </h3>
+          <p>
+            <strong>Name:</strong> {formData.name}
+          </p>
+          <p>
+            <strong>Address:</strong>{" "}
+            {`${formData.address.houseNumber}, ${formData.address.streetName}`}
+          </p>
+          <p className="styleForCity">
+            <strong>District:</strong> {formData.address.district}{" "}
+            <strong>Pincode:</strong> {formData.address.pinCode}{" "}
+            <strong>State:</strong> {formData.address.state}
+          </p>
+          <p>
+            <strong>Mobile Number:</strong> +{formData.countryCode} {formData.phoneNumber}
+          </p>
         </div>
-      )}
-    </>
+
+        {/* Guest Addresses */}
+        {formData.guests.map((guest, index) => (
+          <div key={index} className="address-block">
+            <h3>
+              Guest {index + 1}
+              <img src={icons.edit} alt="Edit" className="edit-icon" />
+            </h3>
+            <p>
+              <strong>Name:</strong> {guest.guestName}
+            </p>
+            <p>
+              <strong>Address:</strong>{" "}
+              {`${guest.guestAddress.houseNumber}, ${guest.guestAddress.streetName}`}
+            </p>
+            <p className="styleForCity">
+              <strong>District:</strong> {guest.guestAddress.district}{" "}
+              <strong>Pincode:</strong> {guest.guestAddress.pinCode}{" "}
+              <strong>State:</strong> {guest.guestAddress.state}
+            </p>
+            <p>
+              <strong>Mobile Number:</strong> +{guest.countryCode} {guest.guestNumber}
+            </p>
+          </div>
+        ))}
+      </div>
+
+      <div className="button-container">
+        <button className="save">Save for later</button>
+        <button className="submit-button" onClick={handleSubmit}>Submit</button>
+      </div>
+    </div>
   );
 };
 

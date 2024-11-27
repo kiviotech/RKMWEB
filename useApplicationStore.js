@@ -2,6 +2,7 @@ import { create } from "zustand";
 
 const useApplicationStore = create((set) => ({
   formData: {
+    title: "",
     name: "",
     age: "",
     gender: "",
@@ -11,6 +12,7 @@ const useApplicationStore = create((set) => ({
     deeksha: "",
     aadhaar: "",
     phoneNumber: "",
+    countryCode: "",
     address: {
       state: "",
       houseNumber: "",
@@ -20,35 +22,39 @@ const useApplicationStore = create((set) => ({
     },
     guests: [
       {
+        guestTitle: "",
         guestName: "",
+        guestAge: "",
+        guestGender: "",
+        guestEmail: "",
+        guestNumber: "",
+        countryCode: "91",
+        guestOccupation: "",
+        guestDeeksha: "",
         guestAadhaar: "",
         guestRelation: "",
-        guestNumber: "",
-        guestOccupation: "",
-        guestAddress1: {
+        guestRelationOther: "",
+        guestAddress: {
           state: "",
           houseNumber: "",
           district: "",
           streetName: "",
           pinCode: "",
         },
-        guestAddress2: {
-          state: "",
-          houseNumber: "",
-          district: "",
-          streetName: "",
-          pinCode: "",
-        },
+        sameAsApplicant: false,
       },
     ],
     visitDate: "",
+    visitTime: "",
     departureDate: "",
+    departureTime: "",
     file: null,
     visited: "",
     reason: "",
     previousVisitDate: "",
   },
   errors: {},
+
   setFormData: (name, value) =>
     set((state) => ({
       formData: {
@@ -56,6 +62,7 @@ const useApplicationStore = create((set) => ({
         [name]: value,
       },
     })),
+
   setAddressData: (name, value) =>
     set((state) => ({
       formData: {
@@ -66,16 +73,14 @@ const useApplicationStore = create((set) => ({
         },
       },
     })),
+
   setGuestData: (index, name, value) =>
     set((state) => {
       const updatedGuests = [...state.formData.guests];
-      if (
-        name.startsWith("guestAddress1") ||
-        name.startsWith("guestAddress2")
-      ) {
-        const [addressKey, addressField] = name.split(".");
-        updatedGuests[index][addressKey] = {
-          ...updatedGuests[index][addressKey],
+      if (name.startsWith("guestAddress.")) {
+        const addressField = name.split(".")[1];
+        updatedGuests[index].guestAddress = {
+          ...updatedGuests[index].guestAddress,
           [addressField]: value,
         };
       } else {
@@ -88,6 +93,7 @@ const useApplicationStore = create((set) => ({
         },
       };
     }),
+
   setVisitFormData: (name, value) =>
     set((state) => ({
       formData: {
@@ -95,6 +101,7 @@ const useApplicationStore = create((set) => ({
         [name]: value,
       },
     })),
+
   setFile: (file) =>
     set((state) => ({
       formData: {
@@ -102,6 +109,7 @@ const useApplicationStore = create((set) => ({
         file: file,
       },
     })),
+
   setErrors: (name, error) =>
     set((state) => ({
       errors: {
@@ -109,37 +117,39 @@ const useApplicationStore = create((set) => ({
         [name]: error,
       },
     })),
+
   updateGuestMembers: (guestCount) =>
     set((state) => {
-      let updatedGuests = [...state.formData.guests];
-      if (guestCount > updatedGuests.length) {
-        updatedGuests = [
-          ...updatedGuests,
-          ...Array(guestCount - updatedGuests.length).fill({
-            guestName: "",
-            guestAadhaar: "",
-            guestRelation: "",
-            guestNumber: "",
-            guestOccupation: "",
-            guestAddress1: {
-              state: "",
-              houseNumber: "",
-              district: "",
-              streetName: "",
-              pinCode: "",
-            },
-            guestAddress2: {
-              state: "",
-              houseNumber: "",
-              district: "",
-              streetName: "",
-              pinCode: "",
-            },
-          }),
-        ];
-      } else if (guestCount < updatedGuests.length) {
-        updatedGuests = updatedGuests.slice(0, guestCount);
-      }
+      const updatedGuests = Array(guestCount)
+        .fill()
+        .map((_, index) => {
+          if (index < state.formData.guests.length) {
+            return state.formData.guests[index];
+          } else {
+            return {
+              guestTitle: "",
+              guestName: "",
+              guestAge: "",
+              guestGender: "",
+              guestEmail: "",
+              guestNumber: "",
+              countryCode: "91",
+              guestOccupation: "",
+              guestDeeksha: "",
+              guestAadhaar: "",
+              guestRelation: "",
+              guestRelationOther: "",
+              guestAddress: {
+                state: "",
+                houseNumber: "",
+                district: "",
+                streetName: "",
+                pinCode: "",
+              },
+              sameAsApplicant: false,
+            };
+          }
+        });
 
       return {
         formData: {
@@ -149,6 +159,63 @@ const useApplicationStore = create((set) => ({
         },
       };
     }),
+
+  setCountryCode: (value) =>
+    set((state) => ({
+      formData: {
+        ...state.formData,
+        countryCode: value,
+      },
+    })),
+
+  removeGuest: (guestIndex) =>
+    set((state) => {
+      const updatedGuests = state.formData.guests.filter(
+        (_, index) => index !== guestIndex
+      );
+
+      return {
+        formData: {
+          ...state.formData,
+          guests: updatedGuests,
+          guestMembers: Math.max(1, state.formData.guestMembers - 1),
+        },
+      };
+    }),
+
+  resetForm: () =>
+    set((state) => ({
+      formData: {
+        title: "",
+        name: "",
+        age: "",
+        gender: "",
+        email: "",
+        guestMembers: 1,
+        occupation: "",
+        deeksha: "",
+        aadhaar: "",
+        phoneNumber: "",
+        countryCode: "",
+        address: {
+          state: "",
+          houseNumber: "",
+          district: "",
+          streetName: "",
+          pinCode: "",
+        },
+        guests: [],
+        visitDate: "",
+        visitTime: "",
+        departureDate: "",
+        departureTime: "",
+        file: null,
+        visited: "",
+        reason: "",
+        previousVisitDate: "",
+      },
+      errors: {},
+    })),
 }));
 
 export default useApplicationStore;

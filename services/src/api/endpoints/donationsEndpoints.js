@@ -4,6 +4,7 @@ const donationsEndpoints = {
   createDonation: "/donations",
   updateDonation: (id) => `/donations/${id}`,
   deleteDonation: (id) => `/donations/${id}`,
+  getDonationReasons: "/donations?populate=*",
 };
 
 export default donationsEndpoints;

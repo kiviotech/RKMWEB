@@ -34,10 +34,6 @@ import toggglerDashboardWite from "../assets/icons/toggglerDashboardWite.png";
 import togglerGridViewWhite from "../assets/icons/togglerGridViewWhite.png";
 import warning from "../assets/icons/warning.png";
 
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
->>>>>>> f52b676d9e5f80c5385418dcc0cb4847601430de
 import Paperclip from "../assets/icons/Paperclip.png";
 import Trash from "../assets/icons/Trash.png";
 import filter from "../assets/icons/filter.png";
@@ -45,7 +41,6 @@ import sort from "../assets/icons/sort.png";
 import plus from "../assets/icons/plus.png";
 
 import RMK_Logo from "../assets/image/RMK_Logo.png";
-<<<<<<< HEAD
 export default {
   googleIcon,
   facebookIcon,
@@ -87,79 +82,3 @@ export default {
   plus,
   RMK_Logo,
 };
-=======
-export default {
-  googleIcon,
-  facebookIcon,
-  appleIcon,
-  eyeIcon,
-  fieldTip,
-  notification,
-  dummyUser,
-  welcome,
-  house,
-  settings,
-  rupee,
-  search,
-  eyeHalf,
-  qR,
-  angleRight,
-  angleLeft,
-  bed,
-  bookedBed,
-  tooltip,
-  user,
-  userDummyImage,
-  checkCircleMarked,
-  markedYellow,
-  checkCircle,
-  marked,
-  crossCircle,
-  filledRedCircle,
-  bedSelected,
-  toggglerDashboard,
-  toggglerDashboardWite,
-  togglerGridView,
-  togglerGridViewWhite,
-  warning,
-  Paperclip,
-  Trash,
-  filter,
-  sort,
-  plus,
-  RMK_Logo,
-};
-=======
-import Paperclip from '../assets/icons/Paperclip.png';
-import Trash from '../assets/icons/Trash.png';
-
-import sort from '../assets/icons/sort.png'
-import filter from '../assets/icons/filter.png'
-export default {
-    googleIcon,
-    facebookIcon,
-    appleIcon,
-    eyeIcon,
-    fieldTip,
-    notification,
-    dummyUser, welcome, house,
-    settings, rupee, search,
-    eyeHalf, qR, angleRight,
-    angleLeft, bed,
-    bookedBed, tooltip,
-    user, userDummyImage,
-    checkCircleMarked,
-    markedYellow,
-    checkCircle,
-    marked,
-    crossCircle,
-    filledRedCircle,
-    bedSelected,
-    toggglerDashboard, toggglerDashboardWite,
-    togglerGridView, togglerGridViewWhite,warning,
-    Paperclip,Trash,
-    sort,filter
-
-}
->>>>>>> 6041bc2a1986e0ece76f51df76f098219fb9a97a
->>>>>>> f52b676d9e5f80c5385418dcc0cb4847601430de

@@ -1,763 +1,466 @@
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-// import React, { useState } from "react";
-// import "./ReceiptDonating.scss";
-// import icons from "../../../constants/icons";
-// import useGuestStore from "../../../../guestStore";
-
-// const ReceiptDonating = () => {
-//   const guest = useGuestStore((state) => state.selectedGuest);
-//   console.log(guest);
-//   const [donorDetails, setDonorDetails] = useState({
-//     name: "John Doe",
-//     phone: "+91 9212341902",
-//     email: "johndoe87@gmail.com",
-//     dateOfDonation: "24/02/2023",
-//   });
-
-//   const [donations, setDonations] = useState([
-//     {
-//       receiptNumber: "CJ2077",
-//       transactionType: "",
-//       reasonForDonation: "",
-//       amount: "",
-//     },
-//     {
-//       receiptNumber: "CJ2063",
-//       transactionType: "",
-//       reasonForDonation: "",
-//       amount: "",
-//     },
-//   ]);
-
-//   const [totalDonationAmount, setTotalDonationAmount] = useState(50000);
-
-//   const handleDonationChange = (index, field, value) => {
-//     const newDonations = [...donations];
-//     newDonations[index][field] = value;
-//     setDonations(newDonations);
-//   };
-
-//   const addDonation = () => {
-//     setDonations([
-//       ...donations,
-//       {
-//         receiptNumber: "",
-//         transactionType: "",
-//         reasonForDonation: "",
-//         amount: "",
-//       },
-//     ]);
-//   };
-
-//   const deleteDonation = (index) => {
-//     const newDonations = donations.filter((_, i) => i !== index);
-//     setDonations(newDonations);
-//   };
-
-//   const handleSubmit = (e) => {
-//     e.preventDefault();
-//     console.log("Donor Details:", donorDetails);
-//     console.log("Donations:", donations);
-//     console.log("Total Donation Amount:", totalDonationAmount);
-//   };
-
-//   return (
-//     <div className="receipt-form">
-//       <h2>Receipt Details</h2>
-//       {/* <form onSubmit={handleSubmit}> */}
-//       <div>
-//         <h3>Donor Details</h3>
-//         <form className="donor-details" onSubmit={handleSubmit}>
-//           <div className="dd-row">
-//             <label>Name of Donor:</label>
-//             <input type="text" value={guest.name} readOnly />
-//           </div>
-//           <div className="dd-row">
-//             <label>Phone No.:</label>
-//             <input type="text" value={guest.phone_number} readOnly />
-//           </div>
-
-//           <div className="dd-row">
-//             <label>Email ID:</label>
-//             <input type="email" value={donorDetails.email} readOnly />
-//           </div>
-
-//           <div className="dd-row">
-//             <label>Date of Donation:</label>
-//             <input type="date" value={donorDetails.dateOfDonation} readOnly />
-//           </div>
-//         </form>
-//       </div>
-
-//       <div className="donations-section">
-//         <h3>Donations</h3>
-//         {donations.map((donation, index) => (
-//           <div className="donate">
-//             <div key={index} className="donation">
-//               <div className="dd-row">
-//                 <label>Receipt Number:</label>
-//                 <input
-//                   type="text"
-//                   value={donation.receiptNumber}
-//                   onChange={(e) =>
-//                     handleDonationChange(index, "receiptNumber", e.target.value)
-//                   }
-//                 />
-//               </div>
-
-//               <div className="dd-row">
-//                 <label>Transaction Type:</label>
-//                 <select
-//                   value={donation.transactionType}
-//                   onChange={(e) =>
-//                     handleDonationChange(
-//                       index,
-//                       "transactionType",
-//                       e.target.value
-//                     )
-//                   }
-//                 >
-//                   <option value="">Select your Reason</option>
-//                   <option value="Credit Card">Credit Card</option>
-//                   <option value="Bank Transfer">Bank Transfer</option>
-//                 </select>
-//               </div>
-
-//               <div className="dd-row">
-//                 <label>Reason for Donation:</label>
-//                 <select
-//                   value={donation.reasonForDonation}
-//                   onChange={(e) =>
-//                     handleDonationChange(
-//                       index,
-//                       "reasonForDonation",
-//                       e.target.value
-//                     )
-//                   }
-//                 >
-//                   <option value="">Select your Reason</option>
-//                   <option value="Charity">Charity</option>
-//                   <option value="Event">Event</option>
-//                 </select>
-//               </div>
-
-//               <div className="dd-row">
-//                 <label>Donation Amount:</label>
-//                 <input
-//                   type="number"
-//                   value={donation.amount}
-//                   onChange={(e) =>
-//                     handleDonationChange(index, "amount", e.target.value)
-//                   }
-//                 />
-//               </div>
-//             </div>
-//             <div className="deleteBtn">
-//               <button type="button" onClick={() => deleteDonation(index)}>
-//                 <span>
-//                   <img src={icons.Trash} alt="" />
-//                   Delete this Donation
-//                 </span>
-//               </button>
-//             </div>
-//           </div>
-//         ))}
-//       </div>
-
-//       <div className="total">
-//         <div className="total-donation-amount">
-//           <label>Total Donation Amount: </label>
-//           <input
-//             type="number"
-//             value={totalDonationAmount}
-//             onChange={(e) => setTotalDonationAmount(e.target.value)}
-//           />
-//         </div>
-//         <div className="add-donation">
-//           <button type="button" onClick={addDonation}>
-//             {" "}
-//             <span>+</span> Add another Donation
-//           </button>
-//         </div>
-//       </div>
-
-//       <div className="form-buttons">
-//         <button
-//           type="button"
-//           className="cancel"
-//           onClick={() => console.log("Canceled")}
-//         >
-//           Cancel
-//         </button>
-//         <button type="submit" className="submit">
-//           Submit
-//         </button>
-//       </div>
-//       {/* </form> */}
-//     </div>
-//   );
-=======
-// import React, { useState } from 'react';
-// import './ReceiptDonating.scss'
-// import icons from '../../../constants/icons';
-
-// const ReceiptDonating = () => {
-//     const [donorDetails, setDonorDetails] = useState({
-//         name: 'John Doe',
-//         phone: '+91 9212341902',
-//         email: 'johndoe87@gmail.com',
-//         dateOfDonation: '24/02/2023',
-//     });
-
-//     const [donations, setDonations] = useState([
-//         { receiptNumber: 'CJ2077', transactionType: '', reasonForDonation: '', amount: '' },
-//         { receiptNumber: 'CJ2063', transactionType: '', reasonForDonation: '', amount: '' }
-//     ]);
-
-//     const [totalDonationAmount, setTotalDonationAmount] = useState(50000);
-
-//     const handleDonationChange = (index, field, value) => {
-//         const newDonations = [...donations];
-//         newDonations[index][field] = value;
-//         setDonations(newDonations);
-//     };
-
-//     const addDonation = () => {
-//         setDonations([...donations, { receiptNumber: '', transactionType: '', reasonForDonation: '', amount: '' }]);
-//     };
-
-//     const deleteDonation = (index) => {
-//         const newDonations = donations.filter((_, i) => i !== index);
-//         setDonations(newDonations);
-//     };
-
-//     const handleSubmit = (e) => {
-//         e.preventDefault();
-//         console.log('Donor Details:', donorDetails);
-//         console.log('Donations:', donations);
-//         console.log('Total Donation Amount:', totalDonationAmount);
-//     };
-
-//     return (
-//         <div className="receipt-form">
-//             <h2>Receipt Details</h2>
-//             {/* <form onSubmit={handleSubmit}> */}
-//             <div >
-//                 <h3>Donor Details</h3>
-//                 <form className="donor-details" onSubmit={handleSubmit}>
-//                     <div className="dd-row">
-//                         <label>Name of Donor:</label>
-//                         <input type="text" value={donorDetails.name} readOnly />
-//                     </div>
-//                     <div className="dd-row">
-//                         <label>Phone No.:</label>
-//                         <input type="text" value={donorDetails.phone} readOnly />
-//                     </div>
-
-//                     <div className="dd-row">
-//                         <label>Email ID:</label>
-//                         <input type="email" value={donorDetails.email} readOnly />
-//                     </div>
-
-//                     <div className="dd-row">
-//                         <label>Date of Donation:</label>
-//                         <input type="date" value={donorDetails.dateOfDonation} readOnly />
-//                     </div>
-//                 </form>
-//             </div>
-
-//             <div className="donations-section">
-//                 <h3>Donations</h3>
-//                 {donations.map((donation, index) => (
-//                     <div className="donate">
-//                         <div key={index} className="donation">
-//                             <div className="dd-row">
-//                                 <label>Receipt Number:</label>
-//                                 <input type="text" value={donation.receiptNumber} onChange={(e) => handleDonationChange(index, 'receiptNumber', e.target.value)} />
-//                             </div>
-
-//                             <div className="dd-row">
-//                                 <label>Transaction Type:</label>
-//                                 <select value={donation.transactionType} onChange={(e) => handleDonationChange(index, 'transactionType', e.target.value)}>
-//                                     <option value="">Select your Reason</option>
-//                                     <option value="Credit Card">Credit Card</option>
-//                                     <option value="Bank Transfer">Bank Transfer</option>
-//                                 </select>
-//                             </div>
-
-//                             <div className="dd-row">
-//                                 <label>Reason for Donation:</label>
-//                                 <select value={donation.reasonForDonation} onChange={(e) => handleDonationChange(index, 'reasonForDonation', e.target.value)}>
-//                                     <option value="">Select your Reason</option>
-//                                     <option value="Charity">Charity</option>
-//                                     <option value="Event">Event</option>
-//                                 </select>
-//                             </div>
-
-//                             <div className="dd-row">
-//                                 <label>Donation Amount:</label>
-//                                 <input type="number" value={donation.amount} onChange={(e) => handleDonationChange(index, 'amount', e.target.value)} />
-//                             </div>
-//                         </div>
-//                         <div className='deleteBtn'>
-//                             <button type="button" onClick={() => deleteDonation(index)}>
-//                                 <span><img src={icons.Trash} alt="" />Delete this Donation</span>
-//                             </button>
-//                         </div>
-//                     </div>
-//                 ))}
-//             </div>
-
-//             <div className="total">
-//                 <div className="total-donation-amount">
-//                     <label>Total Donation Amount: </label>
-//                     <input type="number" value={totalDonationAmount} onChange={(e) => setTotalDonationAmount(e.target.value)} />
-//                 </div>
-//                 <div className="add-donation">
-//                     <button type="button" onClick={addDonation}> <span>+</span> Add another Donation</button>
-//                 </div>
-//             </div>
-
-//             <div className="form-buttons">
-//                 <button type="button" className='cancel' onClick={() => console.log('Canceled')}>Cancel</button>
-//                 <button type="submit" className='submit'>Submit</button>
-//             </div>
-//             {/* </form> */}
-//         </div>
-//     );
->>>>>>> 6041bc2a1986e0ece76f51df76f098219fb9a97a
-// };
-
-// export default ReceiptDonating;
-
-<<<<<<< HEAD
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./ReceiptDonating.scss";
 import icons from "../../../constants/icons";
-import useGuestStore from "../../../../guestStore";
-// import { createDonation } from "../../../api/services/donationService"; // Import the service for adding donations
-import { createDonation } from "../../../../services/src/services/donationsService";
+import { createNewReceiptDetail } from "../../../../services/src/services/receiptDetailsService";
+import { useAuthStore } from "../../../../store/authStore";
+import { createNewDonation } from "../../../../services/src/services/donationsService";
+import { fetchGuestDetails } from "../../../../services/src/services/guestDetailsService";
 
 const ReceiptDonating = () => {
-  const guest = useGuestStore((state) => state.selectedGuest);
-
+  const [selectedOption, setSelectedOption] = useState("Get Consent");
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [donorDetails, setDonorDetails] = useState({
-    name: guest.name || "John Doe",
-    phone: guest.phone_number || "+91 9212341902",
-    email: "johndoe87@gmail.com",
-    dateOfDonation: new Date().toISOString().split("T")[0], // Default to current date
+    name: "",
+    phone: "",
+    email: "",
+    uin: "",
   });
 
   const [donations, setDonations] = useState([
     {
-      receiptNumber: "CJ2077",
-      transactionType: "",
-      reasonForDonation: "",
+      reason: "",
       amount: "",
+      purpose: "",
+      transactionType: "",
+      ddNumber: "",
+      ddDate: "",
+      bankName: "",
     },
   ]);
 
   const [totalDonationAmount, setTotalDonationAmount] = useState(0);
-  const [errors, setErrors] = useState({});
+  const [currentDate, setCurrentDate] = useState(
+    new Date().toISOString().split("T")[0]
+  );
+
+  const { user } = useAuthStore();
+
+  const [receiptNumber, setReceiptNumber] = useState("");
+  const [guests, setGuests] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filteredGuests, setFilteredGuests] = useState([]);
+  const [showDropdown, setShowDropdown] = useState(false);
+
+  useEffect(() => {
+    const loadGuests = async () => {
+      try {
+        const guestData = await fetchGuestDetails();
+        console.log("Fetched guests:", guestData);
+        const guestsArray = Array.isArray(guestData.data)
+          ? guestData.data
+          : Array.isArray(guestData)
+          ? guestData
+          : [];
+        setGuests(guestsArray);
+      } catch (error) {
+        console.error("Error loading guests:", error);
+        setGuests([]);
+      }
+    };
+    loadGuests();
+  }, []);
+
+  const handleSearch = (e) => {
+    const term = e.target.value.toLowerCase();
+    setSearchTerm(term);
+
+    if (!term) {
+      setShowDropdown(false);
+      setFilteredGuests([]);
+      return;
+    }
+
+    setShowDropdown(true);
+
+    if (!Array.isArray(guests)) {
+      console.error("Guests is not an array:", guests);
+      return;
+    }
+
+    const filtered = guests.filter((guest) => {
+      if (!guest || !guest.attributes) return false;
+
+      const nameMatch = guest.attributes.name?.toLowerCase().includes(term);
+      const phoneMatch = guest.attributes.phone_number?.includes(term);
+
+      return nameMatch || phoneMatch;
+    });
+
+    setFilteredGuests(filtered);
+  };
+
+  const selectGuest = (guest) => {
+    setDonorDetails({
+      name: guest.attributes.name || "",
+      phone: guest.attributes.phone_number || "",
+      email: "",
+      uin: guest.attributes.aadhaar_number || "",
+    });
+    setShowDropdown(false);
+    setSearchTerm(guest.attributes.name);
+  };
+
+  const generateReceiptNumber = (reason) => {
+    const randomNum = Math.floor(1000 + Math.random() * 9000); // Generates random 4-digit number
+    if (reason === "Math") {
+      return `MT${randomNum}`;
+    } else if (reason === "Mission") {
+      return `C${randomNum}`;
+    }
+    return "";
+  };
 
   const handleDonationChange = (index, field, value) => {
     const newDonations = [...donations];
     newDonations[index][field] = value;
+
+    // Generate receipt number when reason is selected
+    if (field === "reason") {
+      const newReceiptNumber = generateReceiptNumber(value);
+      setReceiptNumber(newReceiptNumber);
+    }
+
+    // Calculate total when amount changes
+    if (field === "amount") {
+      const total = newDonations.reduce((sum, donation) => {
+        const amount = parseFloat(donation.amount) || 0;
+        return sum + amount;
+      }, 0);
+      setTotalDonationAmount(total);
+    }
+
     setDonations(newDonations);
-
-    // Update the total donation amount when the amount changes
-    const newTotal = newDonations.reduce(
-      (total, donation) => total + Number(donation.amount || 0),
-      0
-    );
-    setTotalDonationAmount(newTotal);
-  };
-
-  const validateForm = () => {
-    let formErrors = {};
-    if (!donations[0].transactionType) {
-      formErrors.transactionType = "Transaction type is required.";
-    }
-    if (!donations[0].reasonForDonation) {
-      formErrors.reasonForDonation = "Reason for donation is required.";
-    }
-    if (totalDonationAmount <= 0) {
-      formErrors.amount = "Donation amount must be greater than zero.";
-    }
-    setErrors(formErrors);
-    return Object.keys(formErrors).length === 0;
   };
 
   const addDonation = () => {
     setDonations([
       ...donations,
       {
-        receiptNumber: "",
-        transactionType: "",
-        reasonForDonation: "",
+        reason: "",
         amount: "",
+        purpose: "",
+        transactionType: "",
+        ddNumber: "",
+        ddDate: "",
+        bankName: "",
       },
     ]);
   };
 
-  const deleteDonation = (index) => {
-    const newDonations = donations.filter((_, i) => i !== index);
-    setDonations(newDonations);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      // First create the receipt
+      const receiptData = {
+        Receipt_number: receiptNumber,
+        donation_date: new Date().toISOString().split("T")[0],
+        user: user?.id,
+        donation: null,
+      };
 
-    // Update total donation after deleting
-    const newTotal = newDonations.reduce(
-      (total, donation) => total + Number(donation.amount || 0),
-      0
-    );
-    setTotalDonationAmount(newTotal);
+      const receiptResponse = await createNewReceiptDetail(receiptData);
+
+      // Then create each donation
+      for (const donation of donations) {
+        const donationData = {
+          data: {
+            guest: "51", // Replace with actual guest ID
+            purposeForDonation: donation.purpose,
+            donationAmount: parseFloat(donation.amount),
+            transactionType: donation.transactionType,
+            donationFor: donation.reason,
+            ddch_number: donation.ddNumber || null,
+            ddch_date: donation.ddDate || null,
+            bankName: donation.bankName || null,
+            receipt_detail: receiptResponse.data.id,
+          },
+        };
+
+        await createNewDonation(donationData);
+      }
+
+      alert("Receipt and donations created successfully!");
+    } catch (error) {
+      console.error("Error creating receipt and donations:", error);
+      alert("Error creating receipt and donations: " + error.message);
+    }
   };
 
-  //   const handleSubmit = async (e) => {
-  //     e.preventDefault();
-
-  //     // Validate form before submitting
-  //     if (!validateForm()) {
-  //       return;
-  //     }
-
-  //     // Prepare data for API call
-  //     const donationData = {
-  //       data: {
-  //         guest: guest.id || "guest-id-placeholder", // Ensure this is replaced with the actual guest ID
-  //         donation_amount: totalDonationAmount,
-  //         donation_date: new Date().toISOString(), // Use ISO string for current date
-  //         transaction_type: donations[0].transactionType, // Assuming all donations share the same transaction type
-  //         reason_for_donation: donations[0].reasonForDonation, // Assuming same reason for all donations
-  //       },
-  //     };
-
-  //     try {
-  //       const response = await createDonation(donationData);
-  //       console.log("Donation created successfully", response);
-  //       alert("Donation submitted successfully!");
-  //     } catch (error) {
-  //       console.error("Error creating donation", error);
-  //       alert(`Error submitting donation: ${error.message}`);
-  //     }
-  //   };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault(); // Prevent default form submission
-
-    // Validate form before submitting
-    if (!validateForm()) {
-      return;
-    }
-
-    // Prepare data for API call
-    const donationData = {
-      guest: guest.id || "guest-id-placeholder", // Ensure this is replaced with the actual guest ID
-      donation_amount: totalDonationAmount,
-      donation_date: new Date().toISOString(), // Use ISO string for current date
-      transaction_type: donations[0].transactionType, // Assuming all donations share the same transaction type
-      reason_for_donation: donations[0].reasonForDonation, // Assuming same reason for all donations
-    };
-
-    try {
-      const response = await createDonation({ data: donationData }); // Only wrap the data object once
-      console.log("Donation created successfully", response);
-      alert("Donation submitted successfully!");
-    } catch (error) {
-      console.error("Error creating donation", error);
-      alert(`Error submitting donation: ${error.message}`);
-    }
+  const handleOptionClick = (option) => {
+    setSelectedOption(option);
+    setIsDropdownOpen(false);
+    console.log(`Selected option: ${option}`); // Replace with desired action
   };
 
   return (
     <div className="receipt-form">
-      <h2>Receipt Details</h2>
+      <div className="form-header">
+        <h2>New Donation</h2>
+        <div className="search-wrapper">
+          <div className="search-container">
+            <div className="search-icon">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              </svg>
+            </div>
+            <input
+              type="text"
+              placeholder="Search by Name or phone number"
+              value={searchTerm}
+              onChange={handleSearch}
+            />
+            <button className="search-button">Search</button>
+          </div>
+          {showDropdown && searchTerm && (
+            <div className="search-dropdown">
+              {filteredGuests.length > 0 ? (
+                filteredGuests.map((guest) => (
+                  <div
+                    key={guest.id}
+                    className="dropdown-item"
+                    onClick={() => selectGuest(guest)}
+                  >
+                    {guest.attributes.name} - {guest.attributes.phone_number}
+                  </div>
+                ))
+              ) : (
+                <div className="dropdown-item no-results">
+                  No matching results found
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
 
-      {/* Ensure the form wraps everything for submission */}
       <form onSubmit={handleSubmit}>
-        <div>
+        {/* Receipt Details */}
+        <div className="form-section">
+          <h3>Receipt Details</h3>
+          <div className="receipt-details">
+            <div className="row">
+              <label>Receipt Number:</label>
+              <input type="text" value={receiptNumber} readOnly />
+            </div>
+            <div className="row">
+              <label>Date:</label>
+              <input type="date" value={currentDate} readOnly />
+            </div>
+            <div className="row">
+              <label>Initiated By:</label>
+              <input
+                type="text"
+                value={user?.username || "Not logged in"}
+                readOnly
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Donor Details */}
+        <div className="form-section">
           <h3>Donor Details</h3>
           <div className="donor-details">
-            <div className="dd-row">
+            <div className="row">
               <label>Name of Donor:</label>
               <input type="text" value={donorDetails.name} readOnly />
             </div>
-            <div className="dd-row">
+            <div className="row">
               <label>Phone No.:</label>
               <input type="text" value={donorDetails.phone} readOnly />
             </div>
-
-            <div className="dd-row">
+            <div className="row">
               <label>Email ID:</label>
               <input type="email" value={donorDetails.email} readOnly />
             </div>
-
-            <div className="dd-row">
-              <label>Date of Donation:</label>
-              <input type="date" value={donorDetails.dateOfDonation} readOnly />
+            <div className="row">
+              <label>UIN:</label>
+              <input
+                type="text"
+                value={donorDetails.uin}
+                placeholder="PAN/Aadhaar number"
+                readOnly
+              />
             </div>
           </div>
         </div>
 
-        <div className="donations-section">
-          <h3>Donations</h3>
-          {donations.map((donation, index) => (
-            <div className="donate" key={index}>
-              <div className="donation">
-                <div className="dd-row">
-                  <label>Receipt Number:</label>
-                  <input
-                    type="text"
-                    value={donation.receiptNumber}
-                    onChange={(e) =>
-                      handleDonationChange(
-                        index,
-                        "receiptNumber",
-                        e.target.value
-                      )
-                    }
-                  />
+        {/* Donations Details */}
+        {/* <div className="form-section">
+          <h3>Donations Details</h3>
+          <div className="donation-details">
+            {donations.map((donation, index) => (
+              <>
+                <div key={index} className="donation-row">
+                  <div className="row">
+                    <label>Donation For:</label>
+                    <select
+                      value={donation.reason}
+                      onChange={(e) =>
+                        handleDonationChange(index, "reason", e.target.value)
+                      }
+                    >
+                      <option value="">Select your Reason</option>
+                      <option value="Math">Math</option>
+                      <option value="Mission">Mission</option>
+                    </select>
+                  </div>
+                  <div className="row">
+                    <label>Donation Amount:</label>
+                    <input
+                      type="number"
+                      value={donation.amount}
+                      onChange={(e) =>
+                        handleDonationChange(index, "amount", e.target.value)
+                      }
+                    />
+                  </div>
+                  <div className="row">
+                    <label>Purpose For Donation:</label>
+                    <select
+                      value={donation.purpose}
+                      onChange={(e) =>
+                        handleDonationChange(index, "purpose", e.target.value)
+                      }
+                    >
+                      <option value="">Select your Reason</option>
+                      <option value="for Thakur Seva">for Thakur Seva</option>
+                    </select>
+                  </div>
+                  <div className="row">
+                    <label>Transaction Type:</label>
+                    <select
+                      value={donation.transactionType}
+                      onChange={(e) =>
+                        handleDonationChange(
+                          index,
+                          "transactionType",
+                          e.target.value
+                        )
+                      }
+                    >
+                      <option value="">Select Transaction Type</option>
+                      <option value="Cash">Cash</option>
+                      <option value="Cheque">Cheque</option>
+                      <option value="Bank Transfer">Bank Transfer</option>
+                      <option value="DD">DD</option>
+                      <option value="M.O">M.O</option>
+                      <option value="Kind">Kind</option>
+                      <option value="Electronic Modes">Electronic Modes</option>
+                    </select>
+                  </div>
                 </div>
-
-                <div className="dd-row">
-                  <label>Transaction Type:</label>
-                  <select
-                    value={donation.transactionType}
-                    onChange={(e) =>
-                      handleDonationChange(
-                        index,
-                        "transactionType",
-                        e.target.value
-                      )
-                    }
-                  >
-                    <option value="">Select Transaction Type</option>
-                    <option value="Debit Card">Debit Card</option>
-                    <option value="Credit Card">Credit Card</option>
-                    <option value="Bank Transaction">Bank Transaction</option>
-                    <option value="Cheque">Cheque</option>
-                    <option value="UPI">UPI</option>
-                  </select>
-                  {errors.transactionType && (
-                    <span className="error">{errors.transactionType}</span>
-                  )}
+                <div className="transaction-details">
+                  {donation.transactionType &&
+                    donation.transactionType !== "Cash" && (
+                      <>
+                        <h3>Transaction Details</h3>
+                        <div className="transaction">
+                          <div className="row">
+                            <label>DD/CH Number:</label>
+                            <input
+                              type="text"
+                              value={donation.ddNumber}
+                              onChange={(e) =>
+                                handleDonationChange(
+                                  index,
+                                  "ddNumber",
+                                  e.target.value
+                                )
+                              }
+                            />
+                          </div>
+                          <div className="row">
+                            <label>DD/CH Date:</label>
+                            <input
+                              type="date"
+                              value={donation.ddDate}
+                              onChange={(e) =>
+                                handleDonationChange(
+                                  index,
+                                  "ddDate",
+                                  e.target.value
+                                )
+                              }
+                            />
+                          </div>
+                          <div className="row">
+                            <label>Bank Name:</label>
+                            <input
+                              type="text"
+                              value={donation.bankName}
+                              onChange={(e) =>
+                                handleDonationChange(
+                                  index,
+                                  "bankName",
+                                  e.target.value
+                                )
+                              }
+                            />
+                          </div>
+                        </div>
+                      </>
+                    )}
                 </div>
+              </>
+            ))}
+          </div>
+          <button type="button" className="add-donor" onClick={addDonation}>
+            + Add another Donation
+          </button>
+        </div> */}
 
-                <div className="dd-row">
-                  <label>Reason for Donation:</label>
-                  <select
-                    value={donation.reasonForDonation}
-                    onChange={(e) =>
-                      handleDonationChange(
-                        index,
-                        "reasonForDonation",
-                        e.target.value
-                      )
-                    }
-                  >
-                    <option value="">Select Reason</option>
-                    <option value="Charity">Charity</option>
-                    <option value="Event">Event</option>
-                    <option value="Festival">Festival</option>
-                    <option value="Others...">Others...</option>
-                  </select>
-                  {errors.reasonForDonation && (
-                    <span className="error">{errors.reasonForDonation}</span>
-                  )}
-                </div>
-
-                <div className="dd-row">
-                  <label>Donation Amount:</label>
-                  <input
-                    type="number"
-                    value={donation.amount}
-                    onChange={(e) =>
-                      handleDonationChange(index, "amount", e.target.value)
-                    }
-                  />
-                  {errors.amount && (
-                    <span className="error">{errors.amount}</span>
-                  )}
-                </div>
-              </div>
-              <div className="deleteBtn">
-                <button type="button" onClick={() => deleteDonation(index)}>
-                  <span>
-                    <img src={icons.Trash} alt="" />
-                    Delete this Donation
-                  </span>
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        <div className="total">
-          <div className="total-donation-amount">
+        {/* Total Donation Amount */}
+        <div className="form-section total-donation">
+          <div>
             <label>Total Donation Amount: </label>
             <input type="number" value={totalDonationAmount} readOnly />
           </div>
-          <div className="add-donation">
-            <button type="button" onClick={addDonation}>
-              {" "}
-              <span>+</span> Add another Donation
+          {/* Buttons */}
+          <div className="form-buttons">
+            <button
+              className="get-consent"
+              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+            >
+              {selectedOption}
+              <span className="dropdown-arrow">&#x25BC;</span>
+            </button>
+
+            {isDropdownOpen && (
+              <div className="dropdown-menu">
+                <div
+                  className="dropdown-item"
+                  onClick={() => handleOptionClick("Online")}
+                >
+                  Online
+                </div>
+                <div
+                  className="dropdown-item"
+                  onClick={() => handleOptionClick("Offline")}
+                >
+                  Offline
+                </div>
+              </div>
+            )}
+            <button type="submit" className="submit">
+              Submit
             </button>
           </div>
-        </div>
-
-        <div className="form-buttons">
-          <button
-            type="button"
-            className="cancel"
-            onClick={() => console.log("Canceled")}
-          >
-            Cancel
-          </button>
-          <button type="submit" className="submit">
-            Submit
-          </button>
         </div>
       </form>
     </div>
   );
-=======
-
-
-
->>>>>>> f52b676d9e5f80c5385418dcc0cb4847601430de
-import React, { useState } from 'react';
-import './ReceiptDonating.scss'
-import icons from '../../../constants/icons';
-
-const ReceiptDonating = () => {
-    const [donorDetails, setDonorDetails] = useState({
-        name: 'John Doe',
-        phone: '+91 9212341902',
-        email: 'johndoe87@gmail.com',
-        dateOfDonation: '24/02/2023',
-    });
-
-    const [donations, setDonations] = useState([
-        { receiptNumber: 'CJ2077', transactionType: '', reasonForDonation: '', amount: '' },
-        { receiptNumber: 'CJ2063', transactionType: '', reasonForDonation: '', amount: '' }
-    ]);
-
-    const [totalDonationAmount, setTotalDonationAmount] = useState(50000);
-
-    const handleDonationChange = (index, field, value) => {
-        const newDonations = [...donations];
-        newDonations[index][field] = value;
-        setDonations(newDonations);
-    };
-
-    const addDonation = () => {
-        setDonations([...donations, { receiptNumber: '', transactionType: '', reasonForDonation: '', amount: '' }]);
-    };
-
-    const deleteDonation = (index) => {
-        const newDonations = donations.filter((_, i) => i !== index);
-        setDonations(newDonations);
-    };
-
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        console.log('Donor Details:', donorDetails);
-        console.log('Donations:', donations);
-        console.log('Total Donation Amount:', totalDonationAmount);
-    };
-
-    return (
-        <div className="receipt-form">
-            <h2>Receipt Details</h2>
-            {/* <form onSubmit={handleSubmit}> */}
-            <div >
-                <h3>Donor Details</h3>
-                <form className="donor-details" onSubmit={handleSubmit}>
-                    <div className="dd-row">
-                        <label>Name of Donor:</label>
-                        <input type="text" value={donorDetails.name} readOnly />
-                    </div>
-                    <div className="dd-row">
-                        <label>Phone No.:</label>
-                        <input type="text" value={donorDetails.phone} readOnly />
-                    </div>
-
-                    <div className="dd-row">
-                        <label>Email ID:</label>
-                        <input type="email" value={donorDetails.email} readOnly />
-                    </div>
-
-                    <div className="dd-row">
-                        <label>Date of Donation:</label>
-                        <input type="date" value={donorDetails.dateOfDonation} readOnly />
-                    </div>
-                </form>
-            </div>
-
-            <div className="donations-section">
-                <h3>Donations</h3>
-                {donations.map((donation, index) => (
-                    <div className="donate">
-                        <div key={index} className="donation">
-                            <div className="dd-row">
-                                <label>Receipt Number:</label>
-                                <input type="text" value={donation.receiptNumber} onChange={(e) => handleDonationChange(index, 'receiptNumber', e.target.value)} />
-                            </div>
-
-                            <div className="dd-row">
-                                <label>Transaction Type:</label>
-                                <select value={donation.transactionType} onChange={(e) => handleDonationChange(index, 'transactionType', e.target.value)}>
-                                    <option value="">Select your Reason</option>
-                                    <option value="Credit Card">Credit Card</option>
-                                    <option value="Bank Transfer">Bank Transfer</option>
-                                </select>
-                            </div>
-
-                            <div className="dd-row">
-                                <label>Reason for Donation:</label>
-                                <select value={donation.reasonForDonation} onChange={(e) => handleDonationChange(index, 'reasonForDonation', e.target.value)}>
-                                    <option value="">Select your Reason</option>
-                                    <option value="Charity">Charity</option>
-                                    <option value="Event">Event</option>
-                                </select>
-                            </div>
-
-                            <div className="dd-row">
-                                <label>Donation Amount:</label>
-                                <input type="number" value={donation.amount} onChange={(e) => handleDonationChange(index, 'amount', e.target.value)} />
-                            </div>
-                        </div>
-                        <div className='deleteBtn'>
-                            <button type="button" onClick={() => deleteDonation(index)}>
-                                <span><img src={icons.Trash} alt="" />Delete this Donation</span>
-                            </button>
-                        </div>
-                    </div>
-                ))}
-            </div>
-
-            <div className="total">
-                <div className="total-donation-amount">
-                    <label>Total Donation Amount: </label>
-                    <input type="number" value={totalDonationAmount} onChange={(e) => setTotalDonationAmount(e.target.value)} />
-                </div>
-                <div className="add-donation">
-                    <button type="button" onClick={addDonation}> <span>+</span> Add another Donation</button>
-                </div>
-            </div>
-
-            <div className="form-buttons">
-                <button type="button" className='cancel' onClick={() => console.log('Canceled')}>Cancel</button>
-                <button type="submit" className='submit'>Submit</button>
-            </div>
-            {/* </form> */}
-        </div>
-    );
-<<<<<<< HEAD
-=======
->>>>>>> 6041bc2a1986e0ece76f51df76f098219fb9a97a
->>>>>>> f52b676d9e5f80c5385418dcc0cb4847601430de
 };
 
 export default ReceiptDonating;

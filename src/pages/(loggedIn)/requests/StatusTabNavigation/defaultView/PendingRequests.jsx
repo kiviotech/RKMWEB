@@ -256,7 +256,7 @@ const PendingRequests = ({ selectedDate }) => {
                                 </div>
                             </div>
                         </div>
-                        <div className="buttons">
+                        {/* <div className="buttons">
                             <CommonButton
                                 onClick={(e) => handleStatusChange(e, request.id, "approved")}
                                 buttonName="Approve"
@@ -300,7 +300,7 @@ const PendingRequests = ({ selectedDate }) => {
                                     // padding: "8px 20px",
                                 }}
                             />
-                        </div>
+                        </div> */}
                     </div>
                 ))}
             </div>

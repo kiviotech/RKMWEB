@@ -11,7 +11,7 @@ export const getDonationById = (id) =>
 
 // Create a new donation
 export const createDonation = (data) =>
-  apiClient.post(donationsEndpoints.createDonation, { data });
+  apiClient.post(donationsEndpoints.createDonation, data);
 
 // Update a donation by ID
 export const updateDonation = (id, data) =>
@@ -21,10 +21,14 @@ export const updateDonation = (id, data) =>
 export const deleteDonation = (id) =>
   apiClient.delete(donationsEndpoints.deleteDonation(id));
 
-// Fetch donations by a specific field (if applicable)
+// Fetch donations by field
 export const getDonationsByField = (field, value) =>
-  apiClient.get(`${donationsEndpoints.getDonations}?${field}=${value}`);
+  apiClient.get(`${donationsEndpoints.getDonations}&${field}=${value}`);
 
-// Fetch donations by user ID (if applicable)
+// Fetch donations by user ID
 export const getDonationsByUser = (userId) =>
-  apiClient.get(`${donationsEndpoints.getDonations}?userId=${userId}`);
+  apiClient.get(`${donationsEndpoints.getDonations}&userId=${userId}`);
+
+// Fetch donation reasons
+export const getDonationReasons = () =>
+  apiClient.get(donationsEndpoints.getDonationReasons);

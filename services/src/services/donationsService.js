@@ -1,20 +1,22 @@
 import {
   getDonations,
   getDonationById,
-  createDonation as createNewDonation,
-  updateDonation as updateDonationById,
-  deleteDonation as deleteDonationById,
+  createDonation,
+  updateDonation,
+  deleteDonation,
   getDonationsByField,
   getDonationsByUser,
+  getDonationReasons,
 } from "../api/repositories/donationsRepository";
 
 // Fetch all donations
-export const fetchAllDonations = async () => {
+export const fetchDonations = async () => {
   try {
     const response = await getDonations();
     return response.data;
   } catch (error) {
-    throw new Error("Error fetching donations: " + error.message);
+    console.error("Error fetching donations:", error);
+    throw error;
   }
 };
 
@@ -24,56 +26,73 @@ export const fetchDonationById = async (id) => {
     const response = await getDonationById(id);
     return response.data;
   } catch (error) {
-    throw new Error("Error fetching donation: " + error.message);
+    console.error(`Error fetching donation by ID ${id}:`, error);
+    throw error;
   }
 };
 
 // Create a new donation
-export const createDonation = async (data) => {
+export const createNewDonation = async (donationData) => {
   try {
-    const response = await createNewDonation(data);
+    const response = await createDonation(donationData);
     return response.data;
   } catch (error) {
-    throw new Error("Error creating donation: " + error.message);
+    console.error("Error creating donation:", error);
+    throw error;
   }
 };
 
 // Update a donation by ID
-export const updateDonation = async (id, data) => {
+export const updateDonationById = async (id, data) => {
   try {
-    const response = await updateDonationById(id, data);
+    const response = await updateDonation(id, data);
     return response.data;
   } catch (error) {
-    throw new Error("Error updating donation: " + error.message);
+    console.error(`Error updating donation with ID ${id}:`, error);
+    throw error;
   }
 };
 
 // Delete a donation by ID
-export const deleteDonation = async (id) => {
+export const deleteDonationById = async (id) => {
   try {
-    const response = await deleteDonationById(id);
+    const response = await deleteDonation(id);
     return response.data;
   } catch (error) {
-    throw new Error("Error deleting donation: " + error.message);
+    console.error(`Error deleting donation with ID ${id}:`, error);
+    throw error;
   }
 };
 
-// Fetch donations by a specific field (optional feature)
+// Fetch donations by field
 export const fetchDonationsByField = async (field, value) => {
   try {
     const response = await getDonationsByField(field, value);
     return response.data;
   } catch (error) {
-    throw new Error("Error fetching donations by field: " + error.message);
+    console.error(`Error fetching donations by ${field}:`, error);
+    throw error;
   }
 };
 
-// Fetch donations by user ID (optional feature)
+// Fetch donations by user
 export const fetchDonationsByUser = async (userId) => {
   try {
     const response = await getDonationsByUser(userId);
     return response.data;
   } catch (error) {
-    throw new Error("Error fetching donations by user: " + error.message);
+    console.error(`Error fetching donations for user ${userId}:`, error);
+    throw error;
+  }
+};
+
+// Fetch donation reasons
+export const fetchDonationReasons = async () => {
+  try {
+    const response = await getDonationReasons();
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching donation reasons:", error);
+    throw error;
   }
 };

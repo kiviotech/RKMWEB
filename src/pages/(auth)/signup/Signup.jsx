@@ -73,7 +73,12 @@ const Signup = () => {
     const isValidPassword = validatePassword();
     const isValidConfirmPassword = validateConfirmPassword();
 
-    if (!isValidUsername || !isValidEmail || !isValidPassword || !isValidConfirmPassword) {
+    if (
+      !isValidUsername ||
+      !isValidEmail ||
+      !isValidPassword ||
+      !isValidConfirmPassword
+    ) {
       return;
     }
 
@@ -187,7 +192,9 @@ const Signup = () => {
                 <img src={icons.eyeIcon} alt="password-toggler" />
               </button>
             </div>
-            {confirmPasswordError && <p className="error-message">{confirmPasswordError}</p>}
+            {confirmPasswordError && (
+              <p className="error-message">{confirmPasswordError}</p>
+            )}
           </div>
 
           {error && <p className="error-message">{error}</p>}
@@ -197,29 +204,29 @@ const Signup = () => {
             buttonWidth="100%"
             style={{
               backgroundColor: "#9866E9",
-              fontSize: "18px",
+              fontSize: "16px",
               borderRadius: "16px",
               borderWidth: 0,
-              padding: "8px 30px",
+              padding: "10px 20px",
             }}
             onClick={handleSignup}
           />
         </form>
-
-        <div className="or">
-          OR <p>Sign Up with</p>
-        </div>
-
-        <div className="social-login">
-          <button className="social-btn google">
-            <img src={icons.googleIcon} alt="google" />
-          </button>
-          <button className="social-btn facebook">
-            <img src={icons.facebookIcon} alt="facebook" />
-          </button>
-          <button className="social-btn apple">
-            <img src={icons.appleIcon} alt="apple" />
-          </button>
+        <div className="already-account">
+          <p>
+            {" "}
+            Already have an account?{" "}
+            <span
+              onClick={() => navigate("/")}
+              style={{
+                cursor: "pointer",
+                color: "#9866E9",
+                fontWeight: "bold",
+              }}
+            >
+              Login
+            </span>
+          </p>
         </div>
       </div>
     </div>

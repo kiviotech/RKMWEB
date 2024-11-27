@@ -15,15 +15,15 @@ const DeekshaUpasanaForm = () => {
     const fetchLanguages = async () => {
       const availableLanguages = [
         "English",
-        "Hindi",
-        "Tamil",
-        "Telugu",
-        "Kannada",
-        "Malayalam",
         "Bengali",
         "Gujarati",
-        "Marathi",
+        "Hindi",
+        "Kannada",
+        "Malayalam",
         "Punjabi",
+        "Tamil",
+        "Telugu",
+        "Urdu"
       ];
       setLanguages(availableLanguages);
     };
@@ -61,13 +61,13 @@ const DeekshaUpasanaForm = () => {
         PAN_no: contact.pan,
         Education: education.educationLevel,
         Occupation: education.occupation,
-        Languages_known: education.languages.join(', '),
+        Languages_known: education.languages.join(', ') || null,
         Spouse_consent: Boolean(consent.spouseConsent),
         Initiated_by_anyone: Boolean(consent.previousInitiation),
         Family_Deeksha: Boolean(relation.hasInitiatedFamily),
         Name_family_deeksha: relation.familyMemberName,
-        Relation: relation.relationship,
-        Family_Deeksha_Guru: relation.familyMemberGuru,
+        Relation: relation.relationship || null,
+        Family_Deeksha_Guru: relation.familyMemberGuru || null,
         Known_Guruji: Boolean(duration.isAcquainted),
         Known_Guru_name: duration.selectedSwami || null,
         Known_Guru_centre: duration.selectedCentre || null,

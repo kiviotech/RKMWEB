@@ -1,12 +1,12 @@
 import React, { useEffect } from "react";
 import { icons } from "../../../../constants";
-import useApplicationStore from "../../../../../useApplicationStore";
+import useDormitoryStore from "../../../../../dormitoryStore";
 import "./DormitoryVerifyDetails.scss";
 import { createNewGuestDetails } from "../../../../../services/src/services/guestDetailsService";
 import { createNewBookingRequest } from "../../../../../services/src/services/bookingRequestService";
 
 const DormitoryVerifyDetails = () => {
-  const { formData } = useApplicationStore();
+  const { formData } = useDormitoryStore();
 
   // Format date and time
   const formatDateTime = (date, time) => {
@@ -31,14 +31,17 @@ const DormitoryVerifyDetails = () => {
       applicantDetails: {
         name: formData.name,
         address: formData.address,
-        contact: formData.phoneNumber
+        contact: formData.phoneNumber,
       },
       guestDetails: formData.guests,
       visitDetails: {
         arrival: formatDateTime(formData.visitDate, formData.visitTime),
-        departure: formatDateTime(formData.departureDate, formData.departureTime),
-        previousVisit: formData.previousVisitDate
-      }
+        departure: formatDateTime(
+          formData.departureDate,
+          formData.departureTime
+        ),
+        previousVisit: formData.previousVisitDate,
+      },
     });
   }, [formData]);
 
@@ -56,7 +59,7 @@ const DormitoryVerifyDetails = () => {
         status: "pending",
         deeksha: formData.deeksha,
         email: formData.email,
-        relationship: "booker"
+        relationship: "booker",
       };
 
       // Create main applicant guest record
@@ -65,7 +68,7 @@ const DormitoryVerifyDetails = () => {
 
       // Create guest details for additional guests
       const guestResponses = await Promise.all(
-        formData.guests.map(guest => {
+        formData.guests.map((guest) => {
           const guestData = {
             name: `${guest.guestTitle} ${guest.guestName}`.trim(),
             phone_number: `+${guest.countryCode}${guest.guestNumber}`,
@@ -77,14 +80,14 @@ const DormitoryVerifyDetails = () => {
             status: "pending",
             deeksha: guest.guestDeeksha,
             email: guest.guestEmail,
-            relationship: guest.guestRelation || "guest"
+            relationship: guest.guestRelation || "guest",
           };
           return createNewGuestDetails(guestData);
         })
       );
 
       // Collect all guest IDs from the correct response path
-      const guestIds = guestResponses.map(response => response.data.id);
+      const guestIds = guestResponses.map((response) => response.data.id);
 
       // Create booking request
       const bookingData = {
@@ -102,14 +105,13 @@ const DormitoryVerifyDetails = () => {
         arrival_date: formData.visitDate,
         departure_date: formData.departureDate,
         deeksha: formData.deeksha,
-        guests: [mainGuestId, ...guestIds]
+        guests: [mainGuestId, ...guestIds],
       };
 
       await createNewBookingRequest(bookingData);
-      
+
       // Handle successful submission
       alert("Application submitted successfully!");
-      
     } catch (error) {
       console.error("Error submitting application:", error);
       alert("Failed to submit application. Please try again.");
@@ -119,13 +121,13 @@ const DormitoryVerifyDetails = () => {
   return (
     <div className="verify-details">
       <h1 className="verify-title">Verify Details</h1>
-      
+
       <div className="details-grid">
         <div className="detail-row">
           <span className="detail-label">Institution Name:</span>
           <span className="detail-value">{formData.institutionName}</span>
         </div>
-        
+
         <div className="detail-row">
           <span className="detail-label">Institution Type:</span>
           <span className="detail-value">{formData.institutionType}</span>
@@ -139,14 +141,16 @@ const DormitoryVerifyDetails = () => {
         <div className="detail-row">
           <span className="detail-label">Age:</span>
           <span className="detail-value">{formData.age} years</span>
-          
+
           <span className="detail-label gender-label">Gender:</span>
           <span className="detail-value">{formData.gender}</span>
         </div>
 
         <div className="detail-row">
           <span className="detail-label">Phone number:</span>
-          <span className="detail-value">+{formData.countryCode} {formData.phoneNumber}</span>
+          <span className="detail-value">
+            +{formData.countryCode} {formData.phoneNumber}
+          </span>
         </div>
 
         <div className="detail-row">
@@ -185,15 +189,17 @@ const DormitoryVerifyDetails = () => {
       <div className="address-section">
         <div className="detail-row">
           <span className="detail-label">Address:</span>
-          <span className="detail-value">{formData.address.houseNumber}, {formData.address.streetName}</span>
+          <span className="detail-value">
+            {formData.address.houseNumber}, {formData.address.streetName}
+          </span>
         </div>
         <div className="detail-row">
           <span className="detail-label">District:</span>
           <span className="detail-value">{formData.address.district}</span>
-          
+
           <span className="detail-label">Pincode:</span>
           <span className="detail-value">{formData.address.pinCode}</span>
-          
+
           <span className="detail-label">State:</span>
           <span className="detail-value">{formData.address.state}</span>
         </div>
@@ -214,7 +220,9 @@ const DormitoryVerifyDetails = () => {
 
       <div className="button-container">
         <button className="save-button">Save for later</button>
-        <button className="submit-button" onClick={handleSubmit}>Submit</button>
+        <button className="submit-button" onClick={handleSubmit}>
+          Submit
+        </button>
       </div>
     </div>
   );

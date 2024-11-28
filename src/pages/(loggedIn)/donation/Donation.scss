@@ -10,18 +10,28 @@
     align-items: center;
 
     .tag {
-      background: #8c52ff;
-      color: white;
-      padding: 6px 12px;
+      background-color: #f0f0f0;
+      color: #333;
+      padding: 8px 16px;
       border-radius: 20px;
-      font-size: 14px;
-      display: flex;
+      margin-right: 8px;
+      display: inline-flex;
       align-items: center;
-      gap: 5px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+
+      &.selected {
+        background-color: #7c5cfc;
+        color: white;
+      }
 
       .close {
+        margin-left: 8px;
         cursor: pointer;
-        font-weight: bold;
+        
+        &:hover {
+          opacity: 0.8;
+        }
       }
     }
 
@@ -193,6 +203,92 @@
           grid-template-columns: repeat(3, 1fr);
         }
       }
+
+      .donation-footer {
+        background: #FFFFFF;
+        padding: 16px 24px;
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 20px;
+
+        .total-amount {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          
+          .label {
+            font-size: 14px;
+            color: #666666;
+          }
+
+          .amount {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333333;
+          }
+        }
+
+        .action-buttons {
+          display: flex;
+          gap: 12px;
+
+          button {
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            border: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+
+            &:hover {
+              opacity: 0.9;
+            }
+
+            svg {
+              width: 16px;
+              height: 16px;
+            }
+          }
+
+          .cancel-btn {
+            background: #FFE5E5;
+            color: #FF4D4D;
+            
+            &:hover {
+              background: #FFD6D6;
+            }
+          }
+
+          .pending-btn {
+            background: #FFF3D9;
+            color: #FFB020;
+            
+            &:hover {
+              background: #FFE9C0;
+            }
+          }
+
+          .print-btn {
+            background: #8C52FF;
+            color: #FFFFFF;
+            
+            &:hover {
+              background: #7B45E8;
+            }
+
+            svg {
+              stroke: currentColor;
+            }
+          }
+        }
+      }
     }
 
     .donation-history {
@@ -269,6 +365,103 @@
           }
         }
       }
+    }
+  }
+}
+.required {
+  color: red;
+  margin-left: 2px;
+}
+
+.details-card {
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+
+    .consent-btn {
+      background: transparent;
+      color: #8c52ff;
+      border: none;
+      font-size: 14px;
+      cursor: pointer;
+    }
+  }
+
+  .form-grid {
+    .full-width {
+      grid-column: 1 / -1;
+    }
+
+    .input-group {
+      display: flex;
+      gap: 10px;
+
+      input {
+        flex: 1;
+      }
+
+      .currency-select {
+        width: 50px;
+        flex-shrink: 0;
+      }
+    }
+  }
+}
+
+.search-box {
+  position: relative;
+  width: 100%;
+
+  .search-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    max-height: 300px;
+    overflow-y: auto;
+    z-index: 1000;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+
+    .dropdown-item {
+      padding: 12px;
+      cursor: pointer;
+      border-bottom: 1px solid #eee;
+
+      &:hover {
+        background-color: #f5f5f5;
+      }
+
+      .guest-info {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 4px;
+
+        .guest-name {
+          font-weight: bold;
+        }
+
+        .guest-phone {
+          color: #666;
+        }
+      }
+
+      .guest-details {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.9em;
+        color: #666;
+      }
+    }
+
+    .no-results {
+      padding: 12px;
+      text-align: center;
+      color: #666;
     }
   }
 }

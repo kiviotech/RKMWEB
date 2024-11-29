@@ -4,7 +4,7 @@ import { useAuthStore } from "../../../../store/authStore";
 import { useDonationStore } from "../../../../donationStore";
 import { fetchGuestDetails } from "../../../../services/src/services/guestDetailsService";
 import { createNewReceiptDetail } from "../../../../services/src/services/receiptDetailsService";
-import { createNewDonation } from "../../../../services/src/services/donationsService";
+import { createNewDonation, fetchDonationsByField, updateDonationById } from "../../../../services/src/services/donationsService";
 
 const NewDonation = () => {
   const [selectedTab, setSelectedTab] = useState("Math");
@@ -38,6 +38,7 @@ const NewDonation = () => {
   });
   const [currentReceipt, setCurrentReceipt] = useState(null);
   const [donorTabs, setDonorTabs] = useState({});
+  const [donationHistory, setDonationHistory] = useState([]);
 
   console.log("Zustand Store Data:", {
     // auth: { user },
@@ -297,6 +298,50 @@ const NewDonation = () => {
     }
   };
 
+  const resetFormData = () => {
+    // Reset donor details
+    setDonorDetails({
+      title: 'Sri',
+      name: '',
+      phoneCode: '+91',
+      phone: '',
+      email: '',
+      mantraDiksha: '',
+      identityType: '',
+      identityNumber: '',
+      roomNumber: '',
+      pincode: '',
+      houseNumber: '',
+      streetName: '',
+      district: '',
+      state: ''
+    });
+
+    // Reset receipt and current receipt
+    setReceiptNumber('');
+    setCurrentReceipt(null);
+
+    // Reset donor tags and selected donor
+    setDonorTags([{
+      id: Date.now(),
+      name: "New Donor",
+      isNewDonor: true
+    }]);
+    setSelectedDonor(Date.now());
+
+    // Reset donation details in the store
+    handleDonationDetailsUpdate({
+      amount: '',
+      transactionType: '',
+      inMemoryOf: '',
+      transactionDetails: {
+        ddNumber: '',
+        ddDate: '',
+        bankName: ''
+      }
+    });
+  };
+
   const handlePrintReceipt = async (status = "completed") => {
     try {
       // First create receipt details
@@ -362,7 +407,10 @@ const NewDonation = () => {
 
         const donationResponse = await createNewDonation(donationPayload);
         console.log('Donation created successfully:', donationResponse);
-
+        
+        // Reset form after successful submission
+        resetFormData();
+        
       } else {
         throw new Error('Invalid receipt response format');
       }
@@ -376,13 +424,87 @@ const NewDonation = () => {
   };
 
   // Add handlers for Pending and Cancel buttons
-  const handlePending = () => {
-    handlePrintReceipt("pending");
+  const handlePending = async () => {
+    await handlePrintReceipt("pending");
+    resetFormData();
   };
 
-  const handleCancel = () => {
-    handlePrintReceipt("cancelled");
+  const handleCancel = async () => {
+    await handlePrintReceipt("cancelled");
+    resetFormData();
   };
+
+  // Add this function to calculate total donations
+  const calculateTotalDonations = () => {
+    if (!donations?.receipts || !selectedDonor) return 0;
+
+    const donorReceipts = donations.receipts.find(group => 
+      Array.isArray(group) && 
+      group.length > 0 && 
+      (group[0].donorId === selectedDonor || group[0].donorDetails?.guestId === selectedDonor)
+    ) || [];
+
+    return donorReceipts.reduce((total, receipt) => {
+      const amount = parseFloat(receipt.donationDetails?.amount || 0);
+      return total + (isNaN(amount) ? 0 : amount);
+    }, 0);
+  };
+
+  const handleReset = () => {
+    if (!selectedDonor || !currentReceipt) return;
+
+    // Find the donor's receipts group
+    const donorReceiptsIndex = donations.receipts.findIndex(group => 
+      Array.isArray(group) && 
+      group.length > 0 && 
+      (group[0].donorId === selectedDonor || group[0].donorDetails?.guestId === selectedDonor)
+    );
+
+    if (donorReceiptsIndex === -1) return;
+
+    // Create new receipts array without the current tab's receipt
+    const updatedReceipts = donations.receipts.map((group, index) => {
+      if (index === donorReceiptsIndex) {
+        return group.filter(receipt => receipt.type !== selectedTab);
+      }
+      return group;
+    });
+
+    // Update the store with new receipts
+    donations.receipts = updatedReceipts;
+
+    // Reset current receipt and receipt number
+    setCurrentReceipt(null);
+    setReceiptNumber('');
+
+    // Reset donation details in the form
+    handleDonationDetailsUpdate({
+      amount: '',
+      transactionType: '',
+      inMemoryOf: '',
+      transactionDetails: {
+        ddNumber: '',
+        ddDate: '',
+        bankName: ''
+      }
+    });
+  };
+
+  // Add this useEffect to fetch donation history when donor changes
+  React.useEffect(() => {
+    const fetchDonorHistory = async () => {
+      if (!donorDetails.guestId) return;
+      
+      try {
+        const response = await fetchDonationsByField('guest', donorDetails.guestId);
+        setDonationHistory(response.data || []);
+      } catch (error) {
+        console.error('Error fetching donation history:', error);
+      }
+    };
+
+    fetchDonorHistory();
+  }, [donorDetails.guestId]);
 
   return (
     <div className="donations-container">
@@ -462,7 +584,7 @@ const NewDonation = () => {
             Mission
           </button>
         </div>
-        <button className="reset-btn">
+        <button className="reset-btn" onClick={handleReset}>
           <span className="reset-icon">↻</span> Reset
         </button>
       </div>
@@ -742,7 +864,7 @@ const NewDonation = () => {
           <div className="donation-footer">
             <div className="total-amount">
               <span className="label">Total Donation Amount</span>
-              <span className="amount">₹ 50,000</span>
+              <span className="amount">₹ {calculateTotalDonations().toLocaleString('en-IN')}</span>
             </div>
             <div className="action-buttons">
               <button 
@@ -779,34 +901,52 @@ const NewDonation = () => {
         <div className="donation-history">
           <h2>Donation History</h2>
           <div className="history-items">
-            {[{
-              date: "12/11/2023",
-              type: "Cash",
-              room: "GH-29",
-              for: "Math",
-              amount: "₹10,000.00"
-            }].map((item, index) => (
-              <div key={index} className="history-item">
-                <div className="history-header">
-                  <span className="date">{item.date}</span>
-                  <span className={`type ${item.type.toLowerCase()}`}>{item.type}</span>
-                </div>
-                <div className="history-details">
-                  <div className="detail-row">
-                    <span>Room No.:</span>
-                    <span>{item.room}</span>
-                  </div>
-                  <div className="detail-row">
-                    <span>Donation For:</span>
-                    <span>{item.for}</span>
-                  </div>
-                  <div className="detail-row">
-                    <span>Amount:</span>
-                    <span>{item.amount}</span>
-                  </div>
-                </div>
+            {donationHistory.length > 0 ? (
+              donationHistory
+                .filter(donation => donation.attributes.donationFor === selectedTab)
+                .map((donation) => {
+                  const attributes = donation.attributes;
+                  return (
+                    <div key={donation.id} className="history-item">
+                      <div className="history-header">
+                        <span className="date">
+                          {new Date(attributes.createdAt).toLocaleDateString()}
+                        </span>
+                        <span className={`type ${attributes.transactionType?.toLowerCase()}`}>
+                          {attributes.transactionType || 'Cash'}
+                        </span>
+                      </div>
+                      <div className="history-details">
+                        <div className="detail-row">
+                          <span>Receipt No.:</span>
+                          <span>{attributes.receipt_detail?.data?.attributes?.Receipt_number || 'N/A'}</span>
+                        </div>
+                        <div className="detail-row">
+                          <span>Donation For:</span>
+                          <span>{attributes.donationFor}</span>
+                        </div>
+                        <div className="detail-row">
+                          <span>Amount:</span>
+                          <span>₹ {parseFloat(attributes.donationAmount).toLocaleString('en-IN', {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2
+                          })}</span>
+                        </div>
+                        <div className="detail-row">
+                          <span>Status:</span>
+                          <span className={`status ${attributes.status?.toLowerCase()}`}>
+                            {attributes.status}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })
+            ) : (
+              <div className="no-history">
+                No donation history available for {selectedTab}
               </div>
-            ))}
+            )}
           </div>
         </div>
       </div>

@@ -1,0 +1,248 @@
+import React, { useState, useEffect, useRef } from "react"
+import AllDonation from "./AllDonation"
+import "./AllDonationDetails.scss"
+
+const AllDonationDetails = () => {
+    const [searchTerm, setSearchTerm] = useState('');
+    const [dateRange, setDateRange] = useState({
+        startDate: '',
+        endDate: ''
+    });
+    const [selectedStatus, setSelectedStatus] = useState('ALL');
+    const [donatedFor, setDonatedFor] = useState('ALL');
+    const [showFilterPopup, setShowFilterPopup] = useState(false);
+    const [filterOptions, setFilterOptions] = useState({
+        receiptNumber: true,
+        donorName: true,
+        donationDate: true,
+        phoneNumber: true,
+        donatedFor: true,
+        donationStatus: true,
+        donationAmount: true,
+        action: true
+    });
+    const filterDropdownRef = useRef(null);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(0);
+    const itemsPerPage = 10;
+
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (filterDropdownRef.current && !filterDropdownRef.current.contains(event.target)) {
+                setShowFilterPopup(false);
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, []);
+
+    const handleSearch = (e) => {
+        setSearchTerm(e.target.value);
+    };
+
+    const handleDateChange = (e) => {
+        const { name, value } = e.target;
+        const newDateRange = {
+            ...dateRange,
+            [name]: value
+        };
+        
+        // Validate dates
+        if (newDateRange.startDate && newDateRange.endDate) {
+            if (new Date(newDateRange.endDate) < new Date(newDateRange.startDate)) {
+                newDateRange.endDate = newDateRange.startDate;
+            }
+        }
+        
+        setDateRange(newDateRange);
+    };
+
+    const handleStatusChange = (e) => {
+        setSelectedStatus(e.target.value);
+    };
+
+    const handleDonatedForChange = (e) => {
+        setDonatedFor(e.target.value);
+    };
+
+    const handleFilterChange = (field) => {
+        setFilterOptions(prev => ({
+            ...prev,
+            [field]: !prev[field]
+        }));
+    };
+
+    const handlePageChange = (pageNumber) => {
+        setCurrentPage(pageNumber);
+    };
+
+    return (
+        <div className="all-donation-details">
+            <div className="header-container">
+                <h1 className="page-title">All Donation</h1>
+                <button className="export-btn">
+                    <span className="download-icon">↓</span> Export Donations
+                </button>
+            </div>
+            <div className="donation-header">
+                <div className="left-section">
+                    <span className="sort-by">Sort by</span>
+                    <select 
+                        className="status-dropdown"
+                        value={selectedStatus}
+                        onChange={handleStatusChange}
+                    >
+                        <option value="ALL">All</option>
+                        <option value="COMPLETED">Completed</option>
+                        <option value="PENDING">Pending</option>
+                        <option value="CANCELLED">Cancelled</option>
+                    </select>
+                    <select 
+                        className="donated-for-dropdown"
+                        value={donatedFor}
+                        onChange={handleDonatedForChange}
+                    >
+                        <option value="ALL">All</option>
+                        <option value="MATH">Math Donation</option>
+                        <option value="MISSION">Ramakrishna Mission</option>
+                    </select>
+                </div>
+                
+                <div className="right-section">
+                    <div className="date-range">
+                        <span>From</span>
+                        <input 
+                            type="date" 
+                            name="startDate"
+                            value={dateRange.startDate}
+                            onChange={handleDateChange}
+                        />
+                        <span>To</span>
+                        <input 
+                            type="date" 
+                            name="endDate"
+                            value={dateRange.endDate}
+                            onChange={handleDateChange}
+                        />
+                    </div>
+                    <div className="search-container">
+                        <input 
+                            type="text" 
+                            placeholder="Search in table" 
+                            className="search-input"
+                            value={searchTerm}
+                            onChange={handleSearch}
+                        />
+                        <div className="filter-dropdown-container">
+                            <button 
+                                className="filter-btn"
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    setShowFilterPopup(!showFilterPopup);
+                                }}
+                            >
+                                <span className="material-icons-outlined">tune</span>
+                            </button>
+                            {showFilterPopup && (
+                                <div className="filter-dropdown" ref={filterDropdownRef}>
+                                    <div className="filter-options">
+                                        {Object.entries(filterOptions).map(([field, checked]) => (
+                                            <label key={field} className="filter-option">
+                                                <input
+                                                    type="checkbox"
+                                                    checked={checked}
+                                                    onChange={() => handleFilterChange(field)}
+                                                />
+                                                <span>{field.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}</span>
+                                            </label>
+                                        ))}
+                                    </div>
+                                    <div className="filter-actions">
+                                        <button 
+                                            className="reset-btn" 
+                                            onClick={() => setFilterOptions(Object.fromEntries(Object.keys(filterOptions).map(key => [key, true])))}
+                                        >
+                                            Reset
+                                        </button>
+                                        <button 
+                                            className="apply-btn" 
+                                            onClick={() => setShowFilterPopup(false)}
+                                        >
+                                            Apply
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <AllDonation 
+                searchTerm={searchTerm}
+                dateRange={dateRange}
+                selectedStatus={selectedStatus}
+                donatedFor={donatedFor}
+                filterOptions={filterOptions}
+                currentPage={currentPage}
+                itemsPerPage={itemsPerPage}
+                setTotalPages={setTotalPages}
+            />
+
+            {totalPages > 1 && (
+                <div className="pagination">
+                    <button 
+                        onClick={() => handlePageChange(currentPage - 1)}
+                        disabled={currentPage === 1}
+                        className="pagination-btn"
+                    >
+                        &lt;
+                    </button>
+                    
+                    {[...Array(totalPages)].map((_, index) => {
+                        const pageNumber = index + 1;
+                        
+                        // Always show first page, last page, current page, and pages around current page
+                        if (
+                            pageNumber === 1 ||
+                            pageNumber === totalPages ||
+                            (pageNumber >= currentPage - 1 && pageNumber <= currentPage + 1)
+                        ) {
+                            return (
+                                <button
+                                    key={pageNumber}
+                                    onClick={() => handlePageChange(pageNumber)}
+                                    className={`pagination-btn ${currentPage === pageNumber ? 'active' : ''}`}
+                                >
+                                    {pageNumber}
+                                </button>
+                            );
+                        }
+                        
+                        // Show ellipsis for skipped pages
+                        if (
+                            pageNumber === currentPage - 2 ||
+                            pageNumber === currentPage + 2
+                        ) {
+                            return <span key={pageNumber} className="ellipsis">...</span>;
+                        }
+                        
+                        return null;
+                    })}
+                    
+                    <button 
+                        onClick={() => handlePageChange(currentPage + 1)}
+                        disabled={currentPage === totalPages}
+                        className="pagination-btn"
+                    >
+                        &gt;
+                    </button>
+                </div>
+            )}
+        </div>
+    )
+}
+
+export default AllDonationDetails;

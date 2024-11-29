@@ -391,33 +391,34 @@ const DormitoryApplicationDetails = ({ goToNextStep, tabName }) => {
                 )}
               </div>
 
-              {/* Type of Institution Field */}
-              <div className="form-group">
-                <label>Type of Institution</label>
-                <select
-                  name="institutionType"
-                  value={formData.institutionType}
-                  onChange={handleInputChange}
-                >
-                  <option value="">Select Institution Type</option>
-                  <option value="School">School</option>
-                  <option value="College">College</option>
-                  <option value="Religious">Religious</option>
-                  <option value="Others">Others</option>
-                </select>
-                {formData.institutionType === "Others" && (
+              {/* Age and Gender Fields - Moved here */}
+              <div style={{ display: "flex", gap: "10px" }}>
+                <div className="form-group" style={{ width: "50%" }}>
+                  <label>Age</label>
                   <input
-                    type="text"
-                    name="otherInstitutionType"
-                    value={formData.otherInstitutionType || ""}
+                    type="number"
+                    name="age"
+                    value={formData.age}
                     onChange={handleInputChange}
-                    placeholder="Please specify"
-                    style={{ marginTop: "10px" }}
+                    placeholder="34"
                   />
-                )}
-                {errors.institutionType && (
-                  <span className="error">{errors.institutionType}</span>
-                )}
+                  {errors.age && <span className="error">{errors.age}</span>}
+                </div>
+                <div className="form-group" style={{ width: "50%" }}>
+                  <label>Gender</label>
+                  <select
+                    name="gender"
+                    value={formData.gender}
+                    onChange={handleInputChange}
+                    className="form-control"
+                  >
+                    <option value="">Select Gender</option>
+                    <option value="M">Male</option>
+                    <option value="F">Female</option>
+                    <option value="O">Other</option>
+                  </select>
+                  {errors.gender && <span className="error">{errors.gender}</span>}
+                </div>
               </div>
 
               {/* Phone Number Field */}
@@ -499,34 +500,33 @@ const DormitoryApplicationDetails = ({ goToNextStep, tabName }) => {
             </div>
 
             <div className="form-right-section">
-              {/* Age and Gender */}
-              <div style={{ display: "flex", gap: "10px" }}>
-                <div className="form-group" style={{ width: "50%" }}>
-                  <label>Age</label>
+              {/* Type of Institution Field - Moved here */}
+              <div className="form-group">
+                <label>Type of Institution</label>
+                <select
+                  name="institutionType"
+                  value={formData.institutionType}
+                  onChange={handleInputChange}
+                >
+                  <option value="">Select Institution Type</option>
+                  <option value="School">School</option>
+                  <option value="College">College</option>
+                  <option value="Religious">Religious</option>
+                  <option value="Others">Others</option>
+                </select>
+                {formData.institutionType === "Others" && (
                   <input
-                    type="number"
-                    name="age"
-                    value={formData.age}
+                    type="text"
+                    name="otherInstitutionType"
+                    value={formData.otherInstitutionType || ""}
                     onChange={handleInputChange}
-                    placeholder="34"
+                    placeholder="Please specify"
+                    style={{ marginTop: "10px" }}
                   />
-                  {errors.age && <span className="error">{errors.age}</span>}
-                </div>
-                <div className="form-group" style={{ width: "50%" }}>
-                  <label>Gender</label>
-                  <select
-                    name="gender"
-                    value={formData.gender}
-                    onChange={handleInputChange}
-                    className="form-control"
-                  >
-                    <option value="">Select Gender</option>
-                    <option value="M">Male</option>
-                    <option value="F">Female</option>
-                    <option value="O">Other</option>
-                  </select>
-                  {errors.gender && <span className="error">{errors.gender}</span>}
-                </div>
+                )}
+                {errors.institutionType && (
+                  <span className="error">{errors.institutionType}</span>
+                )}
               </div>
 
               {/* Email Field */}

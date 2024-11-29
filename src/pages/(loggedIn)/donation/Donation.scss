@@ -1,481 +1,704 @@
-.donations-container {
-  padding: 20px;
-  background-color: #f9f9f9;
-  font-family: Arial, sans-serif;
-
-  .donor-tags {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 20px;
-    align-items: center;
-
-    .tag {
-      background-color: #f0f0f0;
-      color: #333;
-      padding: 8px 16px;
-      border-radius: 20px;
-      margin-right: 8px;
-      display: inline-flex;
-      align-items: center;
-      cursor: pointer;
-      transition: all 0.2s ease;
-
-      &.selected {
-        background-color: #7c5cfc;
-        color: white;
-      }
-
-      .close {
-        margin-left: 8px;
-        cursor: pointer;
-        
-        &:hover {
-          opacity: 0.8;
-        }
-      }
-    }
-
-    .add-donation-btn {
-      background: transparent;
-      border: 1px solid #8c52ff;
-      color: #8c52ff;
-      padding: 6px 12px;
-      border-radius: 20px;
-      cursor: pointer;
-      font-size: 14px;
-    }
-  }
+.donation-container {
+  padding: 24px;
 
   .header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 20px;
+    margin-bottom: 24px;
 
-    h1 {
+    h2 {
       font-size: 24px;
-      font-weight: 500;
-      color: #333;
+      font-weight: 600;
     }
 
-    .search-section {
-      .search-box {
-        display: flex;
-        gap: 10px;
+    .add-donation-btn {
+      background: #8b5cf6;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
 
-        input {
-          width: 300px;
-          padding: 8px 12px;
-          border: 1px solid #ddd;
-          border-radius: 4px;
+      &:hover {
+        background: #7c3aed;
+      }
+    }
+  }
+
+  .dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+
+    .card {
+      background: white;
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+
+      h3 {
+        font-size: 18px;
+        margin-bottom: 20px;
+      }
+    }
+
+    .distribution-card {
+      .distribution-content {
+        display: flex;
+        justify-content: space-between;
+        gap: 24px;
+      }
+
+      .distribution-list {
+        flex: 1;
+
+        .distribution-item {
+          display: flex;
+          align-items: center;
+          margin-bottom: 16px;
+          gap: 12px;
+
+          .item-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+
+            &.math {
+              background: #8b5cf6;
+            }
+
+            &.mission {
+              background: #f97316;
+            }
+          }
+
+          .item-details {
+            flex: 1;
+
+            span {
+              font-size: 14px;
+              color: #6b7280;
+            }
+
+            h4 {
+              font-size: 20px;
+              font-weight: 600;
+              margin-top: 4px;
+            }
+          }
+
+          .percentage {
+            color: #6b7280;
+            font-size: 14px;
+          }
+        }
+      }
+
+      .donut-chart {
+        width: 160px;
+        height: 160px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+    }
+
+    .total-donations-card {
+      background: white;
+      border-radius: 24px !important;
+      padding: 24px !important;
+
+      h3 {
+        font-size: 24px !important;
+        font-weight: 600;
+        color: #111827;
+        margin-bottom: 16px;
+      }
+
+      .total-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 24px;
+
+        .left-section {
+          flex-shrink: 0;
+          padding-top: 24px;
+
+          .amount {
+            font-size: 36px;
+            color: #82ca9d;
+            font-weight: 500;
+            margin-bottom: 12px;
+          }
+
+          .growth-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: #ecfdf5;
+            padding: 4px 12px;
+            border-radius: 16px;
+
+            span {
+              color: #059669;
+              font-weight: 500;
+            }
+
+            p {
+              color: #374151;
+              font-size: 14px;
+            }
+          }
+        }
+
+        .right-section {
+          flex-grow: 1;
+          min-width: 0;
+        }
+      }
+    }
+  }
+
+  .leaving-guests-section {
+    margin-top: 24px;
+    background: white;
+    border-radius: 16px;
+    padding: 24px;
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+
+      h3 {
+        font-size: 20px;
+        font-weight: 600;
+        color: #111827;
+      }
+
+      .header-actions {
+        display: flex;
+        gap: 16px;
+
+        .search-box {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+
+          input {
+            padding: 8px 16px;
+            border: 1px solid #E5E7EB;
+            border-radius: 8px;
+            font-size: 14px;
+            width: 200px;
+
+            &::placeholder {
+              color: #9CA3AF;
+            }
+          }
+
+          .filter-btn {
+            background: white;
+            border: 1px solid #E5E7EB;
+            border-radius: 8px;
+            padding: 8px;
+            cursor: pointer;
+
+            &:hover {
+              background: #F9FAFB;
+            }
+          }
+        }
+      }
+    }
+
+    .table-container {
+      position: relative;
+      overflow: hidden;
+      
+      table {
+        width: 100%;
+        table-layout: fixed;
+
+        th, td {
+          padding: 12px 16px;
+          text-align: left;
+          border-bottom: 1px solid #E5E7EB;
+        }
+
+        th {
+          color: #6B7280;
+          font-weight: 500;
           font-size: 14px;
         }
 
-        .search-btn {
-          background: #8c52ff;
-          color: white;
+        td {
+          color: #111827;
+          font-size: 14px;
+        }
+
+        .donation-status {
+          padding: 4px 8px;
+          border-radius: 16px;
+          font-size: 12px;
+
+          &.donated {
+            background: #ECFDF5;
+            color: #059669;
+          }
+
+          &.not-donated {
+            background: #FEF2F2;
+            color: #DC2626;
+          }
+        }
+
+        .action-btn {
+          background: none;
           border: none;
-          padding: 8px 20px;
-          border-radius: 4px;
           cursor: pointer;
-        }
-      }
-    }
-  }
+          color: #6B7280;
+          padding: 4px;
+          border-radius: 4px;
 
-  .tab-section {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-
-    .tabs {
-      display: flex;
-      gap: 10px;
-
-      .tab {
-        padding: 8px 30px;
-        border-radius: 20px;
-        border: none;
-        font-size: 14px;
-        background: #f0f0f0;
-        color: #666;
-        cursor: pointer;
-
-        &.active {
-          background: #8c52ff;
-          color: white;
-        }
-      }
-    }
-
-    .reset-btn {
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      background: transparent;
-      border: none;
-      color: #8c52ff;
-      cursor: pointer;
-      font-size: 14px;
-
-      .reset-icon {
-        font-size: 16px;
-      }
-    }
-  }
-
-  .main-content {
-    display: flex;
-    gap: 20px;
-
-    .left-section {
-      flex: 3;
-
-      .details-card {
-        background: #fff;
-        padding: 20px;
-        border-radius: 8px;
-        margin-bottom: 20px;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-
-        h2 {
-          font-size: 16px;
-          font-weight: 500;
-          margin-bottom: 20px;
-          color: #333;
-        }
-
-        .form-grid {
-          display: grid;
-          grid-template-columns: repeat(2, 1fr);
-          gap: 20px;
-
-          .form-group {
-            label {
-              display: block;
-              font-size: 14px;
-              color: #666;
-              margin-bottom: 8px;
-            }
-
-            input, select {
-              width: 100%;
-              padding: 8px 12px;
-              border: 1px solid #ddd;
-              border-radius: 4px;
-              font-size: 14px;
-              color: #333;
-
-              &:disabled {
-                background: #f5f5f5;
-                cursor: not-allowed;
-              }
-            }
-
-            .input-group {
-              display: flex;
-              gap: 10px;
-
-              select {
-                width: 80px;
-                flex-shrink: 0;
-              }
-
-              input {
-                flex: 1;
-              }
-
-              .title-select {
-                width: 70px;
-              }
-
-              .country-code {
-                width: 80px;
-              }
-            }
+          &:hover {
+            background: #F3F4F6;
           }
         }
       }
+    }
+  }
 
-      .receipt-details {
-        .form-grid {
-          grid-template-columns: repeat(3, 1fr);
-        }
+  .recent-donations-section {
+    background: white;
+    border-radius: 16px;
+    padding-left: 18px;
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+
+      h3 {
+        font-size: 20px;
+        font-weight: 600;
+        color: #111827;
       }
 
-      .donation-footer {
-        background: #FFFFFF;
-        padding: 16px 24px;
-        border-radius: 8px;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+      .header-actions {
         display: flex;
-        justify-content: space-between;
         align-items: center;
-        margin-top: 20px;
+        gap: 16px;
 
-        .total-amount {
+        .search-box {
           display: flex;
           align-items: center;
-          gap: 12px;
-          
-          .label {
+          gap: 8px;
+
+          input {
+            padding: 8px 16px;
+            border: 1px solid #E5E7EB;
+            border-radius: 8px;
             font-size: 14px;
-            color: #666666;
+            width: 200px;
+
+            &::placeholder {
+              color: #9CA3AF;
+            }
           }
 
-          .amount {
-            font-size: 18px;
-            font-weight: 600;
-            color: #333333;
+          .filter-btn {
+            background: white;
+            border: 1px solid #E5E7EB;
+            border-radius: 8px;
+            padding: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            &:hover {
+              background: #F9FAFB;
+            }
+
+            .material-icons-outlined {
+              font-size: 20px;
+              color: #6B7280;
+            }
           }
         }
 
-        .action-buttons {
+        .view-all {
+          color: #8B5CF6;
+          background: none;
+          border: none;
+          font-size: 14px;
+          cursor: pointer;
+          
+          &:hover {
+            text-decoration: underline;
+          }
+        }
+      }
+    }
+
+    .table-container {
+      table {
+        width: 100%;
+        border-collapse: collapse;
+
+        th {
+          text-align: left;
+          padding: 12px 16px;
+          color: #6B7280;
+          font-weight: 500;
+          font-size: 14px;
+          border-bottom: 1px solid #E5E7EB;
+        }
+
+        td {
+          padding: 16px;
+          font-size: 14px;
+          color: #111827;
+          border-bottom: 1px solid #E5E7EB;
+        }
+
+        .status-badge {
+          padding: 4px 12px;
+          border-radius: 16px;
+          font-size: 12px;
+          font-weight: 500;
+
+          &.completed {
+            background: #ECFDF5;
+            color: #059669;
+          }
+
+          &.cancelled {
+            background: #FEF2F2;
+            color: #DC2626;
+          }
+
+          &.pending {
+            background: #FEF3C7;
+            color: #D97706;
+          }
+        }
+
+        .action-cell {
           display: flex;
-          gap: 12px;
+          gap: 8px;
 
           button {
-            padding: 8px 16px;
-            border-radius: 4px;
+            padding: 6px 16px;
+            border-radius: 20px;
+            border: none;
             font-size: 14px;
             cursor: pointer;
-            border: none;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-weight: 500;
-            transition: all 0.2s ease;
-
-            &:hover {
-              opacity: 0.9;
-            }
-
-            svg {
-              width: 16px;
-              height: 16px;
-            }
+            min-width: 80px;
+            text-align: center;
           }
 
           .cancel-btn {
-            background: #FFE5E5;
-            color: #FF4D4D;
+            background: #FEE2E2;
+            color: #EF4444;
             
             &:hover {
-              background: #FFD6D6;
+              background: #FEE2E2;
             }
           }
 
-          .pending-btn {
-            background: #FFF3D9;
-            color: #FFB020;
+          .submit-btn {
+            background: #8B5CF6;
+            color: white;
             
             &:hover {
-              background: #FFE9C0;
+              background: #7C3AED;
             }
           }
 
           .print-btn {
-            background: #8C52FF;
-            color: #FFFFFF;
+            background: transparent;
+            color: #8B5CF6;
             
             &:hover {
-              background: #7B45E8;
-            }
-
-            svg {
-              stroke: currentColor;
+              background: transparent;
             }
           }
-        }
-      }
-    }
-
-    .donation-history {
-      flex: 2;
-      background: #fff;
-      padding: 20px;
-      border-radius: 8px;
-      height: fit-content;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-
-      h2 {
-        font-size: 16px;
-        font-weight: 500;
-        margin-bottom: 20px;
-        color: #333;
-      }
-
-      .history-items {
-        max-height: calc(100vh - 300px);
-        overflow-y: auto;
-        padding-right: 10px;
-        
-        .history-item {
-          background: #fff;
-          border-radius: 8px;
-          padding: 16px;
-          margin-bottom: 16px;
-          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-          
-          .history-header {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 12px;
-            
-            .date {
-              color: #666;
-              font-size: 14px;
-            }
-            
-            .type {
-              padding: 4px 8px;
-              border-radius: 4px;
-              font-size: 12px;
-              font-weight: 500;
-              
-              &.cash { background: #E8F5E9; color: #2E7D32; }
-              &.cheque { background: #E3F2FD; color: #1565C0; }
-              &.dd { background: #FFF3E0; color: #E65100; }
-            }
-          }
-          
-          .history-details {
-            .detail-row {
-              display: flex;
-              justify-content: space-between;
-              margin-bottom: 8px;
-              font-size: 14px;
-              
-              &:last-child {
-                margin-bottom: 0;
-              }
-              
-              span:first-child {
-                color: #666;
-              }
-              
-              span:last-child {
-                font-weight: 500;
-              }
-              
-              .status {
-                padding: 2px 8px;
-                border-radius: 4px;
-                font-size: 12px;
-                
-                &.completed { background: #E8F5E9; color: #2E7D32; }
-                &.pending { background: #FFF3E0; color: #E65100; }
-                &.cancelled { background: #FFEBEE; color: #C62828; }
-              }
-            }
-          }
-        }
-        
-        .no-history {
-          text-align: center;
-          padding: 24px;
-          color: #666;
-          font-style: italic;
         }
       }
     }
   }
-}
-.required {
-  color: red;
-  margin-left: 2px;
+
+  .action-cell {
+    position: static;
+
+    .action-dropdown {
+      position: fixed;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+      width: 200px;
+      z-index: 1000;
+      padding: 8px 0;
+      border: 1px solid #E5E7EB;
+
+      button {
+        display: flex;
+        align-items: center;
+        width: 100%;
+        padding: 10px 16px;
+        border: none;
+        background: none;
+        gap: 12px;
+        cursor: pointer;
+        transition: background-color 0.2s;
+
+        &:hover {
+          background: #F3F4F6;
+        }
+
+        span {
+          font-size: 14px;
+          color: #374151;
+          
+          &.material-icons {
+            font-size: 20px;
+          }
+        }
+
+        .material-icons {
+          &[data-icon="whatsapp"] {
+            color: #25D366 !important;
+          }
+        }
+      }
+    }
+
+    .action-btn {
+      background: none;
+      border: none;
+      padding: 8px;
+      cursor: pointer;
+      color: #6B7280;
+
+      &:hover {
+        background: #F3F4F6;
+        border-radius: 4px;
+      }
+    }
+  }
+
+  .material-icons {
+    &[data-icon="whatsapp"] {
+      color: #25D366 !important;
+    }
+    
+    &[data-icon="notifications"] {
+      color: #8B5CF6 !important;
+    }
+    
+    &[data-icon="email"] {
+      color: #8B5CF6 !important;
+    }
+    
+    &[data-icon="sms"] {
+      color: #8B5CF6 !important;
+    }
+    
+    &[data-icon="phone"] {
+      color: #8B5CF6 !important;
+    }
+  }
 }
 
-.details-card {
-  .card-header {
+.table-container {
+  position: relative;
+  z-index: 1;
+}
+
+.filter-popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.filter-popup {
+  background: white;
+  border-radius: 8px;
+  padding: 24px;
+  width: 400px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+
+  .filter-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 20px;
 
-    .consent-btn {
-      background: transparent;
-      color: #8c52ff;
+    h3 {
+      margin: 0;
+      font-size: 18px;
+    }
+
+    button {
+      background: none;
       border: none;
-      font-size: 14px;
       cursor: pointer;
     }
   }
 
-  .form-grid {
-    .full-width {
-      grid-column: 1 / -1;
+  .filter-options {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 24px;
+
+    .filter-option {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+
+      input[type="checkbox"] {
+        width: 16px;
+        height: 16px;
+      }
+    }
+  }
+
+  .filter-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+
+    button {
+      padding: 8px 16px;
+      border-radius: 4px;
+      cursor: pointer;
     }
 
-    .input-group {
-      display: flex;
-      gap: 10px;
+    .reset-btn {
+      background: none;
+      border: 1px solid #e5e7eb;
+    }
 
-      input {
-        flex: 1;
-      }
-
-      .currency-select {
-        width: 50px;
-        flex-shrink: 0;
-      }
+    .apply-btn {
+      background: #8b5cf6;
+      color: white;
+      border: none;
     }
   }
 }
 
-.search-box {
+.filter-dropdown-container {
   position: relative;
-  width: 100%;
+  
+  .filter-btn {
+    background: white;
+    border: 1px solid #E5E7EB;
+    border-radius: 8px;
+    padding: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
-  .search-dropdown {
+    &:hover {
+      background: #F9FAFB;
+    }
+
+    .material-icons-outlined {
+      font-size: 20px;
+      color: #6B7280;
+    }
+  }
+
+  .filter-dropdown {
     position: absolute;
     top: 100%;
-    left: 0;
     right: 0;
+    margin-top: 8px;
     background: white;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    max-height: 300px;
-    overflow-y: auto;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border: 1px solid #E5E7EB;
+    width: 250px;
     z-index: 1000;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 
-    .dropdown-item {
+    .filter-options {
       padding: 12px;
-      cursor: pointer;
-      border-bottom: 1px solid #eee;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      max-height: 300px;
+      overflow-y: auto;
 
-      &:hover {
-        background-color: #f5f5f5;
-      }
-
-      .guest-info {
+      .filter-option {
         display: flex;
-        justify-content: space-between;
-        margin-bottom: 4px;
+        align-items: center;
+        gap: 8px;
+        cursor: pointer;
+        padding: 4px 0;
 
-        .guest-name {
-          font-weight: bold;
+        input[type="checkbox"] {
+          width: 16px;
+          height: 16px;
         }
 
-        .guest-phone {
-          color: #666;
+        span {
+          font-size: 14px;
+          color: #374151;
         }
-      }
-
-      .guest-details {
-        display: flex;
-        justify-content: space-between;
-        font-size: 0.9em;
-        color: #666;
       }
     }
 
-    .no-results {
+    .filter-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
       padding: 12px;
-      text-align: center;
-      color: #666;
+      border-top: 1px solid #E5E7EB;
+
+      button {
+        padding: 6px 12px;
+        border-radius: 4px;
+        font-size: 14px;
+        cursor: pointer;
+      }
+
+      .reset-btn {
+        background: none;
+        border: 1px solid #e5e7eb;
+        color: #374151;
+
+        &:hover {
+          background: #F9FAFB;
+        }
+      }
+
+      .apply-btn {
+        background: #8b5cf6;
+        color: white;
+        border: none;
+
+        &:hover {
+          background: #7c3aed;
+        }
+      }
     }
   }
 }

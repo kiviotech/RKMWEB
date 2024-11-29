@@ -32,6 +32,9 @@ import DeekshaDurationForm from "../pages/(loggedIn)/deeksha/DeekshaDurationForm
 import DeekshaBooksForm from "../pages/(loggedIn)/deeksha/DeekhaBooksForm";
 import DeekshaUpasanaForm from "../pages/(loggedIn)/deeksha/DeekshaUpasanaForm";
 import DormitoryApplicationForm from "../pages/dormitoryApplicationForm/DormitoryApplicationForm";
+import NewDonation from "../pages/(loggedIn)/donation/NewDonation";
+import AllDonation from "../pages/(loggedIn)/donation/AllDonation";
+import AllDonationDetails from "../pages/(loggedIn)/donation/AllDonationDetails";
 
 const AppRoutes = () => {
   return (
@@ -127,6 +130,23 @@ const AppRoutes = () => {
             </AdminRoute>
           }
         />
+        <Route
+          path="/newDonation"
+          element={
+            <AdminRoute>
+              <NewDonation />
+            </AdminRoute>
+          }
+        />
+                <Route
+          path="/allDonationDetails"
+          element={
+            <AdminRoute>
+              <AllDonationDetails />
+            </AdminRoute>
+          }
+        />
+
         <Route
           path="/donationdetail"
           element={
@@ -224,6 +244,14 @@ const AppRoutes = () => {
 
       <Route path="/application-form" element={<ApplicationForm />} />
       <Route path="/dormitory-application-form" element={<DormitoryApplicationForm />} />
+      <Route
+          path="/allDonation"
+          element={
+            <AdminRoute>
+              <AllDonation />
+            </AdminRoute>
+          }
+        />
     </Routes>
   );
 };

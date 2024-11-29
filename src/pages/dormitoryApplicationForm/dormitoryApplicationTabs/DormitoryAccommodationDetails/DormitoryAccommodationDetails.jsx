@@ -32,26 +32,55 @@ const DormitoryAccommodationDetails = ({ goToNextStep, goToPrevStep, tabName }) 
     console.log('Complete Form Data:', formData);
   }, [formData]);
 
-  const validateField = (field, value) => {
+  const validateField = (field, value, maleCount, femaleCount, totalCount) => {
     if (!value) {
       return `${field.charAt(0).toUpperCase() + field.slice(1).replace(/([A-Z])/g, ' $1')} is required`;
     }
+
+    // Add validation for total matching male + female
+    if (field === 'totalPeople' && parseInt(value) !== (parseInt(maleCount || 0) + parseInt(femaleCount || 0))) {
+      return 'Total people must equal the sum of male and female devotees';
+    }
+    if ((field === 'maleDevotees' || field === 'femaleDevotees') && 
+        (parseInt(maleCount || 0) + parseInt(femaleCount || 0)) !== parseInt(totalCount || 0)) {
+      return 'Sum of male and female devotees must equal total people';
+    }
+
     return '';
   };
 
   const handleInputChange = (field, value) => {
     console.log(`Updating ${field} with value:`, value);
+    
+    // Get the current values for validation
+    const updatedAccommodation = {
+      ...formData.accommodation,
+      [field]: value
+    };
+
+    // Validate the changed field and update related fields
+    const error = validateField(
+      field,
+      value,
+      updatedAccommodation.maleDevotees,
+      updatedAccommodation.femaleDevotees,
+      updatedAccommodation.totalPeople
+    );
+
     updateFormData({
-      accommodation: {
-        ...formData.accommodation,
-        [field]: value
-      }
+      accommodation: updatedAccommodation
     });
 
-    // Validate on change
+    // Update errors
     setErrors(prev => ({
       ...prev,
-      [field]: validateField(field, value)
+      [field]: error,
+      // Clear other related field errors if this field is valid
+      ...(error === '' && {
+        totalPeople: '',
+        maleDevotees: '',
+        femaleDevotees: ''
+      })
     }));
   };
 
@@ -62,10 +91,12 @@ const DormitoryAccommodationDetails = ({ goToNextStep, goToPrevStep, tabName }) 
 
   const handleProceed = () => {
     console.log('Proceeding with accommodation data:', formData.accommodation);
+    const { totalPeople, maleDevotees, femaleDevotees } = formData.accommodation;
+    
     const newErrors = {
-      totalPeople: validateField('totalPeople', formData.accommodation.totalPeople),
-      maleDevotees: validateField('maleDevotees', formData.accommodation.maleDevotees),
-      femaleDevotees: validateField('femaleDevotees', formData.accommodation.femaleDevotees),
+      totalPeople: validateField('totalPeople', totalPeople, maleDevotees, femaleDevotees, totalPeople),
+      maleDevotees: validateField('maleDevotees', maleDevotees, maleDevotees, femaleDevotees, totalPeople),
+      femaleDevotees: validateField('femaleDevotees', femaleDevotees, maleDevotees, femaleDevotees, totalPeople),
     };
 
     setErrors(newErrors);

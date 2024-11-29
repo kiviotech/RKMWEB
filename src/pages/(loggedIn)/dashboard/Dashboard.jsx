@@ -103,7 +103,7 @@ const Dashboard = () => {
           <h4 className="title">Application Details</h4>
           <div className="count">
             <div className="current-guest-count">
-              <strong>{currentGuestCount}</strong>
+              {/* <strong>{currentGuestCount}</strong> */}
               <br />
               <label>Current Guest Count</label>
             </div>

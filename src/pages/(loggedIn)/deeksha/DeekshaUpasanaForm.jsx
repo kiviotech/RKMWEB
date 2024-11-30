@@ -41,6 +41,7 @@ const DeekshaUpasanaForm = () => {
 
   const handleSubmit = async () => {
     const state = useDeekshaFormStore.getState();
+    const { resetStore } = useDeekshaFormStore.getState();
     const { 
       name, gender, maritalStatus, careOf,
       address, contact, education, consent,
@@ -79,7 +80,8 @@ const DeekshaUpasanaForm = () => {
         Booklet_language: upasana.selectedLanguage,
         Gender: gender,
         Marital_status: maritalStatus,
-        Care_Of: careOf
+        Care_Of: careOf,
+        status: "pending"
       }
     };
 
@@ -88,6 +90,7 @@ const DeekshaUpasanaForm = () => {
       const response = await createNewDeeksha(payload);
       
       if (response && response.data) {
+        resetStore();
         alert('Deeksha form submitted successfully!');
       } else {
         throw new Error('Invalid response format');

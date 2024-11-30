@@ -28,6 +28,7 @@ const PendingRequests = ({ selectedDate }) => {
                 if (bookingData) {
                     const bookingRequests = bookingData.map((item) => ({
                         id: item.id,
+                        status: item.attributes.status,
                         userImage: item.attributes.userImage || "",
                         createdAt: new Date(item.attributes.createdAt),
                         userDetails: {
@@ -102,57 +103,16 @@ const PendingRequests = ({ selectedDate }) => {
 
 
     // Function to update booking request status
-    const handleStatusChange = async (e, requestId, newStatus) => {
-        e.stopPropagation();
-
-        const token = await getToken(); // Fetch token
-        if (!token) {
-            console.error("No token available for API requests");
-            return;
-        }
-
-        try {
-            // Payload structure with the new status
-            const updatedData = {
-                data: {
-                    status: newStatus,
-                },
-            };
-            const response = await updateBookingRequest(requestId, updatedData);
-            console.log(
-                `Booking request updated to ${newStatus} successfully`,
-                response
-            );
-
-            // Update local state to reflect the status change
-            setRequests((prevRequests) =>
-                prevRequests.map((request) =>
-                    request.id === requestId
-                        ? {
-                            ...request,
-                            reason: newStatus.charAt(0).toUpperCase() + newStatus.slice(1), // Update reason with status
-                            icons: request.icons.map((icon) => {
-                                if (icon.id === 3 && newStatus === "approved") {
-                                    return { ...icon, isActive: true }; // Activate the check icon for approved
-                                } else if (icon.id === 2 && newStatus === "on_hold") {
-                                    return { ...icon, isActive: true }; // Activate the warning icon for on_hold
-                                } else if (icon.id === 1 && newStatus === "rejected") {
-                                    return { ...icon, isActive: true }; // Activate the cross icon for rejected
-                                } else {
-                                    return { ...icon, isActive: false }; // Deactivate other icons
-                                }
-                            }),
-                        }
-                        : request
-                )
-            );
-        } catch (error) {
-            console.error(
-                `Failed to update the booking request to ${newStatus}`,
-                error
-            );
-            console.log("Error response data:", error.response?.data?.error);
-        }
+    const handleStatusChange = async (requestId, newStatus) => {
+        // Update the local state to reflect the status change
+        setRequests(prevRequests => 
+            prevRequests.filter(request => request.id !== requestId)
+        );
+        
+        // Also update the filtered requests
+        setFilteredRequests(prevRequests => 
+            prevRequests.filter(request => request.id !== requestId)
+        );
     };
 
     // Handle the click on icons (approve, flag, reject)
@@ -173,6 +133,7 @@ const PendingRequests = ({ selectedDate }) => {
     // Handle the click on the guest card
     const handleCardClick = (guestDetails) => {
         if (!isModalOpen) {
+            console.log('User Details:', guestDetails);
             setSelectedGuest(guestDetails);
             setIsGuestDetailsPopupOpen(true);
         }
@@ -317,6 +278,7 @@ const PendingRequests = ({ selectedDate }) => {
                     onClose={closeModal}
                     guestDetails={selectedGuest}
                     guests={selectedGuest?.guests || []}
+                    onStatusChange={handleStatusChange}
                 />
             )}
         </div>

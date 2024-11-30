@@ -1,380 +1,299 @@
-import React from "react";
-import icons from "../../../constants/icons";
+import React, { useState } from "react";
 import CommonButton from "../../../components/ui/Button";
+import './GuestDetailsPopup.scss';
+import { updateBookingRequest } from "../../../../services/src/api/repositories/bookingRequestRepository";
+import { getToken } from "../../../../services/src/utils/storage";
 
+const icons = {
+    Reminder: "https://api.iconify.design/mdi:bell-ring-outline.svg",
+    Email: "https://api.iconify.design/mdi:email-outline.svg",
+    Contact: "https://api.iconify.design/mdi:phone.svg",
+    Calendar: "https://api.iconify.design/mdi:calendar.svg",
+    DefaultAvatar: "https://api.iconify.design/mdi:account-circle.svg",
+    Close: "https://api.iconify.design/mdi:close.svg",
+    Location: "https://api.iconify.design/mdi:map-marker.svg",
+    Clock: "https://api.iconify.design/mdi:clock-outline.svg",
+    Edit: "https://api.iconify.design/mdi:pencil.svg",
+    Delete: "https://api.iconify.design/mdi:delete.svg"
+};
 
-const GuestDetailsPopup = ({ isOpen, onClose, guestDetails }) => {
+const GuestDetailsPopup = ({ isOpen, onClose, guestDetails, guests, onStatusChange }) => {
+    const [selectedRow, setSelectedRow] = useState(null);
+    const [selectedVisitRow, setSelectedVisitRow] = useState(null);
+
+    console.log('GuestDetailsPopup - Full guestDetails:', guestDetails);
+    console.log('GuestDetailsPopup - User Details:', guestDetails?.userDetails);
+    console.log('GuestDetailsPopup - Guests:', guestDetails?.guests);
+    console.log('GuestDetailsPopup - Stay Duration:', {
+        arrivalDate: guestDetails?.userDetails?.arrivalDate,
+        departureDate: guestDetails?.userDetails?.departureDate
+    });
+
     if (!isOpen) return null;
 
-   
-    const guestData = [
-        { name: "Mrs. John Dee", age: 35, gender: "F", invite: "Yes" },
-        { name: "Mr. Ajay Kumar", age: 48, gender: "M", invite: "No" },
-        { name: "Mrs. John Dee", age: 35, gender: "F", invite: "Yes" },
-        { name: "Mrs. John Dee", age: 35, gender: "F", invite: "Yes" },
-        { name: "Mr. Ajay Kumar", age: 48, gender: "M", invite: "No" },
-        { name: "Mrs. John Dee", age: 35, gender: "F", invite: "Yes" },
-    ];
+    const handleRowClick = (guestId) => {
+        setSelectedRow(guestId);
+    };
 
-    const visitData = [
-        { date: "20/11/2024", days: 5, room: "GH-101", donation: "₹100.00" },
-        { date: "15/10/2024", days: 3, room: "GH-102", donation: "₹200.00" },
-        { date: "20/11/2024", days: 5, room: "GH-101", donation: "₹100.00" },
-        { date: "15/10/2024", days: 3, room: "GH-102", donation: "₹200.00" },
-    ];
+    const handleVisitRowClick = (index) => {
+        setSelectedVisitRow(index);
+    };
+
+    const arrivalDate = new Date(guestDetails?.userDetails?.arrivalDate);
+    const departureDate = new Date(guestDetails?.userDetails?.departureDate);
+    const stayDuration = Math.ceil((departureDate - arrivalDate) / (1000 * 60 * 60 * 24));
+
+    const handleStatusChange = async (requestId, newStatus) => {
+        try {
+            const token = await getToken();
+            if (!token) {
+                console.error("No token available for API requests");
+                return;
+            }
+
+            const updatedData = {
+                data: {
+                    status: newStatus,
+                },
+            };
+
+            // Call the API to update the status
+            const response = await updateBookingRequest(requestId, updatedData);
+            
+            // If the API call is successful, notify the parent component
+            if (response) {
+                onStatusChange && onStatusChange(requestId, newStatus);
+                onClose(); // Close the popup after successful status change
+            }
+        } catch (error) {
+            console.error(`Failed to update the booking request to ${newStatus}:`, error);
+            // You might want to show an error message to the user here
+        }
+    };
+
+    const renderActionButtons = () => {
+        const status = guestDetails?.status || guestDetails?.attributes?.status || 'awaiting';
+        console.log('Current status:', status);
+        
+        if (status === 'awaiting') {
+            return (
+                <div className="action-buttons">
+                    <button 
+                        className="hold-btn"
+                        onClick={() => handleStatusChange(guestDetails.id, 'on_hold')}
+                    >
+                        Put on hold
+                    </button>
+                    <button 
+                        className="approve-btn"
+                        onClick={() => handleStatusChange(guestDetails.id, 'approved')}
+                    >
+                        Approve
+                    </button>
+                    <button 
+                        className="reject-btn"
+                        onClick={() => handleStatusChange(guestDetails.id, 'rejected')}
+                    >
+                        Reject
+                    </button>
+                </div>
+            );
+        } else if (status === 'approved') {
+            return (
+                <div className="action-buttons">
+                    <button 
+                        className="hold-btn"
+                        onClick={() => handleStatusChange(guestDetails.id, 'on_hold')}
+                    >
+                        Put on hold
+                    </button>
+                    <button 
+                        className="reject-btn"
+                        onClick={() => handleStatusChange(guestDetails.id, 'rejected')}
+                    >
+                        Reject
+                    </button>
+                    <button 
+                        className="allocate-btn"
+                        onClick={() => handleButtonClick(guestDetails)}
+                    >
+                        Allocate Rooms
+                    </button>
+                </div>
+            );
+        }
+        
+        return null;
+    };
 
     return (
-        <div style={styles.overlay}>
-            <div style={styles.container}>
-                <button style={styles.closeButton} onClick={onClose}>
-                    &times;
-                </button>
+        <div className="popup-overlay">
+            <div className="popup-content">
+                <div className="header-section">
+                    <button className="close-btn" onClick={onClose}>
+                        <img src={icons.Close} alt="close" className="icon" />
+                    </button>
 
-                {/* Header Section */}
-                <div style={styles.header}>
-                    {/* Left Section */}
-                    <div style={styles.leftSection}>
-                        <div style={styles.profileImage}>
-                             A
-                        </div>
-                        <div style={styles.guestInfo}>
-                        <h2 style={styles.headerText}>Mr. John Dee</h2>
-
-                            <div style={styles.guestInfoTop}>
-
-                           
-                                <p style={styles.headerSubText}>
-                                  <strong>Age :</strong> <span style={styles.values}> 24</span>
-                                </p>
-                                <p style={styles.headerSubText}>
-                                   <strong>Gender :</strong>
-                                   <span style={styles.values}> M</span>
-                                </p>
-                                <p style={styles.headerSubText}>
-                                    <img src={icons.Email} style={styles.icons}></img>
-                                    <span style={styles.values}> johndee@gmail.com</span>
-                                </p>
-                                <p style={styles.headerSubText}>
-                                <img src={icons.Contact} style={styles.icons}></img>
-                                <span style={styles.values}>  +910000000000</span>
-                                
-                                </p>
-
+                    {/* Main Info Section */}
+                    <div className="main-info">
+                        <div className="left-section">
+                            <div className="avatar">
+                                <img src={guestDetails?.userImage || icons.DefaultAvatar} alt="profile" />
                             </div>
-
-
-                           <div style={styles.guestInfoTop}>
-
-                           <p style={styles.headerSubText}>
-                               <strong>Occupation :</strong> 
-                               <span style={styles.values}>   software engineer</span>
-                              
-                            </p>
-                            <p style={styles.headerSubText}>
-                                <strong>Aadhar no :- </strong>
-                                <span style={styles.values}>   **** **** **** 0000</span>
-                                </p>
-
-                           </div>
+                            <div className="user-details">
+                                <h2>{guestDetails?.userDetails?.name || "N/A"}</h2>
+                                <div className="info-grid">
+                                    <div className="info-item">
+                                        <span className="label">Age:</span>
+                                        <span className="value">{guestDetails?.userDetails?.age || "N/A"}</span>
+                                    </div>
+                                    <div className="info-item">
+                                        <span className="label">Gender:</span>
+                                        <span className="value">{guestDetails?.userDetails?.gender || "N/A"}</span>
+                                    </div>
+                                    <div className="info-item">
+                                        <img src={icons.Email} alt="email" className="icon" />
+                                        <span className="value">{guestDetails?.userDetails?.email || "N/A"}</span>
+                                    </div>
+                                    <div className="info-item">
+                                        <img src={icons.Contact} alt="phone" className="icon" />
+                                        <span className="value">{guestDetails?.userDetails?.mobile || "N/A"}</span>
+                                    </div>
+                                </div>
+                                <div className="info-grid">
+                                    <div className="info-item">
+                                        <span className="label">Occupation:</span>
+                                        <span className="value">{guestDetails?.userDetails?.occupation || "N/A"}</span>
+                                    </div>
+                                    <div className="info-item">
+                                        <span className="label">Diksha:</span>
+                                        <span className="value">{guestDetails?.userDetails?.deeksha || "N/A"}</span>
+                                    </div>
+                                    <div className="info-item">
+                                        <span className="label">Initiation by:</span>
+                                        <span className="value">Gurudev Name</span>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                    </div>
 
-                    {/* Right Section */}
-                    <div style={styles.rightSection}>
-                        <p><strong>Stay Duration:</strong> 3 days</p>
-                        <div style={styles.dateSection}>
-                            <p style={styles.headerSubText}>
-                            <img src={icons.Calendar} style={styles.icons}/>
-                            <strong style={styles.dateColor}>Arrival Date:</strong><span>00/00/0000</span>
-                            </p>
-                            <p style={styles.headerSubText}>
-                                <img src={icons.Calendar} style={styles.icons}/>
-                            <strong style={styles.dateColor}> Departure Date:</strong><span>00/00/0000</span>
-                            </p>
+                        <div className="right-section">
+                            <div className="reminder-bar">
+                                <div className="reminder-content">
+                                    <img src={icons.Reminder} alt="reminder" />
+                                    <span>Reminder: 26th Aug is Janmasthami</span>
+                                </div>
+                            </div>
+                            
+                            <div className="stay-info">
+                                <div className="duration">
+                                    <span className="label">Stay Duration:- </span>
+                                    <span className="value">{stayDuration || "N/A"} days</span>
+                                </div>
+                                <div className="dates">
+                                    <div className="date-row">
+                                        <img src={icons.Calendar} alt="calendar" />
+                                        <span className="date-label">Arrival Date:</span>
+                                        <span className="date-value">
+                                            {guestDetails?.userDetails?.arrivalDate || "N/A"}
+                                        </span>
+                                    </div>
+                                    <div className="date-row">
+                                        <img src={icons.Calendar} alt="calendar" />
+                                        <span className="date-label">Departure Date:</span>
+                                        <span className="date-value">
+                                            {guestDetails?.userDetails?.departureDate || "N/A"}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-             
-              
-
-                {/* Body */}
-                <div style={styles.body}>
-                    {/* Guests Section */}
-                    <div style={styles.guestsSection}>
-                        <h3>Guests</h3>
-                        <div style={{ maxHeight: "150px", overflowY: "auto",  }}>
-                        <table style={{ ...styles.table, borderSpacing: "0" }}>
-        <thead>
-            <tr>
-                <th style={styles.tableHeader}>Name</th>
-                <th style={styles.tableHeader}>Age</th>
-                <th style={styles.tableHeader}>Gender</th>
-                <th style={styles.tableHeader}>Initiation</th>
-            </tr>
-        </thead>
-        <tbody>
-            {guestData.map((guest, index) => (
-                <tr
-                    key={index}
-                    style={{
-                        backgroundColor: "#d3d3d3", // Gray background
-                        borderRadius: "8px",
-                        overflow: "hidden",
-                        transition: "background-color 0.3s ease", // Smooth transition
-                        marginBottom:'10px'
-                    }}
-                    onMouseEnter={(e) => {
-                        e.currentTarget.style.backgroundColor = "#ffc0cb"; // Pink on hover
-                    }}
-                    onMouseLeave={(e) => {
-                        e.currentTarget.style.backgroundColor = "#d3d3d3"; // Back to gray
-                    }}
-                >
-                    <td style={{ ...styles.tableCell, padding: "10px 15px" }}>{guest.name}</td>
-                    <td style={{ ...styles.tableCell, padding: "10px 15px" }}>{guest.age}</td>
-                    <td style={{ ...styles.tableCell, padding: "10px 15px" }}>{guest.gender}</td>
-                    <td style={{ ...styles.tableCell, padding: "10px 15px" }}>{guest.invite}</td>
-                </tr>
-            ))}
-        </tbody>
-    </table>
-        </div>
+                {/* Visit History Section */}
+                <div className="visit-history">
+                    <div className="history-header">
+                        <div className="left-title">Guests</div>
+                        <div className="center-title">Visit History of John Dee</div>
+                        <div className="right-link">
+                            <a href="#" className="check-availability">Check Availability</a>
+                        </div>
                     </div>
-                 
 
-                    {/* Visit History Section */}
-                    <div style={styles.historySection}>
-                        <h3>Visit History of John Dee</h3>
-                        <div style={{ maxHeight: "150px", overflowY: "auto" }}>
-            <table style={styles.table}>
-                <thead>
-                    <tr>
-                        <th style={styles.tableHeader}>Last Visited Date</th>
-                        <th style={styles.tableHeader}>Number of Days</th>
-                        <th style={styles.tableHeader}>Room Allocated</th>
-                        <th style={styles.tableHeader}>Donations</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {visitData.map((visit, index) => (
-                        <tr key={index}>
-                            <td style={styles.tableCell}>{visit.date}</td>
-                            <td style={styles.tableCell}>{visit.days}</td>
-                            <td style={styles.tableCell}>{visit.room}</td>
-                            <td style={styles.tableCell}>{visit.donation}</td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
-        </div>
-                    </div>
-                </div>
-               <div  style={styles.footer}>
-
-               <div style={styles.alert}>Alert - There is a revisit within 6 months</div>
-               
-               <div style={styles.buttons}>
-                            <CommonButton
-                                // onClick={(e) => handleStatusChange(e, request.id, "approved")}
-                                buttonName="Approve"
-                                buttonWidth="28%"
-                                style={{
-                                    backgroundColor: "#ECF8DB",
-                                    color: "#A3D65C",
-                                    borderColor: "#A3D65C",
-                                    fontSize: "14px",
-                                    borderRadius: "7px",
-                                    borderWidth: 1,
-                                    // padding: "8px 20px",
-                                }}
-                            />
-
-                            <CommonButton
-                                // onClick={(e) => handleStatusChange(e, request.id, "on_hold")}
-                                buttonName="Put on Hold"
-                                buttonWidth="60%"
-                                style={{
-                                    backgroundColor: "#FFF4B2",
-                                    color: "#F2900D",
-                                    borderColor: "#F2900D",
-                                    fontSize: "14px",
-                                    borderRadius: "7px",
-                                    borderWidth: 1,
-                                }}
-                            />
-
-                            <CommonButton
-                                // onClick={(e) => handleStatusChange(e, request.id, "rejected")}
-                                buttonName="Reject"
-                                buttonWidth="28%"
-                                style={{
-                                    backgroundColor: "#FFBDCB",
-                                    color: "#FC5275",
-                                    borderColor: "#FC5275",
-                                    fontSize: "14px",
-                                    borderRadius: "7px",
-                                    borderWidth: 1,
-                                    // padding: "8px 20px",
-                                }}
-                            />
+                    <div className="history-tables">
+                        {/* Guests Table */}
+                        <div className="guests-table-container">
+                            <div className="table-wrapper">
+                                <div className="table-scroll">
+                                    <table className="guests-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Name</th>
+                                                <th>Age</th>
+                                                <th>Gender</th>
+                                                <th>Relation</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {guestDetails?.guests?.map((guest) => (
+                                                <tr 
+                                                    key={guest.id}
+                                                    className={selectedRow === guest.id ? 'selected' : ''}
+                                                    onClick={() => handleRowClick(guest.id)}
+                                                >
+                                                    <td>{guest.name || "N/A"}</td>
+                                                    <td>{guest.age || "N/A"}</td>
+                                                    <td>{guest.gender || "N/A"}</td>
+                                                    <td>{guest.relation || "N/A"}</td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
                         </div>
 
-               </div>
+                        {/* Visit Details Table */}
+                        <div className="visit-details-table">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Last visited date</th>
+                                        <th>Number of days</th>
+                                        <th>Room Allocated</th>
+                                        <th>Donations</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {[0, 1, 2, 3, 4].map((index) => (
+                                        <tr 
+                                            key={index}
+                                            className={selectedVisitRow === index ? 'selected' : ''}
+                                            onClick={() => handleVisitRowClick(index)}
+                                        >
+                                            <td>00/00/0000</td>
+                                            <td>5</td>
+                                            <td>GH-101</td>
+                                            <td>₹100.00</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    {/* Alert and Action Buttons */}
+                    <div className="footer">
+                        <div className="alert">
+                            There is a Revisit within 6 months of Guest name
+                        </div>
+                        {renderActionButtons()}
+                    </div>
+                </div>
             </div>
         </div>
     );
 };
 
 export default GuestDetailsPopup;
-
-
-
-
-
-
-
-
-const styles = {
-    overlay: {
-        position: "fixed",
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        backgroundColor: "rgba(0, 0, 0, 0.5)",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        zIndex: 1000,
-    },
-    container: {
-        width: "89%", // Set the width to a larger percentage (or px if you prefer)
-        
-        background: "#fff",
-        borderRadius: "8px",
-        padding: "10px",
-        boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
-        position: "relative",
-        top: "-50px", // Move the container up
-        left: "50px", // Move the container to the right
-    },
-
-    closeButton: {
-        position: "absolute",
-        top: "10px",
-        right: "10px",
-        background: "transparent",
-        border: "none",
-        fontSize: "1.5em",
-        cursor: "pointer",
-        color: "#555",
-    },
-    header: {
-        borderBottom: "2px solid #ddd",
-        paddingBottom: "15px",
-        marginBottom: "15px",
-        display: "flex",
-        justifyContent: 'center',
-        alignItems: 'ceneter',
-        gap: '20%'
-        
-    },
-    leftSection: {
-        display: "flex",
-        alignItems: "flex-start",
-    },
-    profileImage: {
-        width: '60px',
-        height: '60px',
-        borderRadius: '50%',
-        backgroundColor: '#d43f3a',
-        color: '#fff',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        fontSize: '36px',
-        fontWeight: 'bold',
-        marginRight: '16px',
-        marginTop:'10px'
-    },
-    guestInfo: {
-        marginLeft: '10px',
-    },
-    guestInfoTop: {
-        display: 'flex',
-        flexDirection: 'row',
-        gap:'15px'
-    },
-    icons:{
-        marginRight:'5px'
-    },
-    headerText: {
-        margin: 0,
-        color: "#000",
-        fontSize: "1.5em",
-    },
-    headerSubText: {
-        margin: "5px 0",
-        color: "#000",
-    },
-    values:{
-        color: '#4B4B4B',
-
-        
-    },
-    
-    dateSection:{
-        display:'flex',
-        flexDirection:'column'
-
-    },
-    dateColor:{
-        color:' #9867E9',
-
-    },
-    stayInfo: {
-        marginTop: "10px",
-    },
-    body: {
-        display: "flex",
-        justifyContent: "space-between",
-        gap: "20px",
-    },
-    guestsSection: {
-        flex: 1,
-    },
-    historySection: {
-        flex: 1,
-    },
-    table: {
-        width: "100%",
-        borderCollapse: "collapse",
-        marginTop: "10px",
-    },
-    tableHeader: {
-        backgroundColor: "#f4f4f4",
-        color: "#333",
-        textAlign: "left",
-        padding: "10px",
-    },
-    tableCell: {
-        border: "1px solid #ddd",
-        padding: "10px",
-        textAlign: "left",
-    },
-    alert: {
-        color: "red",
-        marginBottom: "10px",
-        fontWeight: "bold",
-    },
-    buttons: {
-        flex: 1,
-        backgroundColor: 'red',
-        justifyContent: 'flex-end',
-        gap: 10,
-        height: 25,
-        width: 700,
-        // margin-top: 0;
-      }
-};

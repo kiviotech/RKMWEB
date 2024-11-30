@@ -21,7 +21,7 @@ import TabPendingGridView from "./StatusTabNavigation/gridView/TabPendingGridVie
 import TabRescheduledGridView from "./StatusTabNavigation/gridView/TabRescheduledGridView";
 
 const Requests = () => {
-  const [startDate, setStartDate] = useState(new Date());
+  const [startDate, setStartDate] = useState(null);
   const [isGuestsGridViewVisible, setIsGuestsGridViewVisible] = useState(false);
   const [activeToggler, setActiveToggler] = useState("dashboard");
   const [activeTab, setActiveTab] = useState("pending");
@@ -147,10 +147,10 @@ const Requests = () => {
               customInput={
                 <input
                   type="text"
-                  value={`${startDate.getDate()}th ${startDate.toLocaleString(
+                  value={startDate ? `${startDate.getDate()}th ${startDate.toLocaleString(
                     "default",
                     { month: "long" }
-                  )}, ${startDate.getFullYear()}`}
+                  )}, ${startDate.getFullYear()}` : "Select Date"}
                   readOnly
                 />
               }

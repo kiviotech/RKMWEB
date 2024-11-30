@@ -16,7 +16,18 @@ const ApprovedGuests = ({ selectedDate }) => {
   const [error, setError] = useState(null);
 
   const handleButtonClick = (request) => {
-    navigate("/book-room", { state: { userData: request } });
+    const guestData = {
+      name: request.userDetails.name,
+      arrivalDate: request.userDetails.arrivalDate,
+      departureDate: request.userDetails.departureDate,
+      numberOfGuests: request.noOfGuest,
+      guestDetails: request.userDetails,
+      additionalGuests: request.guests
+    };
+    
+    navigate("/book-room", { 
+      state: { guestData } 
+    });
   };
 
   // Fetch only approved booking requests
@@ -29,6 +40,7 @@ const ApprovedGuests = ({ selectedDate }) => {
         if (bookingData) {
           const bookingRequests = bookingData.map((item) => ({
             id: item.id,
+            status: item.attributes.status,
             userImage: item.attributes.userImage || "",
             createdAt: new Date(item.attributes.createdAt),
             userDetails: {
@@ -118,6 +130,20 @@ const ApprovedGuests = ({ selectedDate }) => {
     setSelectedGuest(null);
   };
 
+  const handleStatusChange = async (requestId, newStatus) => {
+    if (newStatus !== 'approved') {
+      // Remove the request from the approved list if the status is changed to something else
+      setRequests(prevRequests => 
+        prevRequests.filter(request => request.id !== requestId)
+      );
+      
+      // Also update the filtered requests
+      setFilteredRequests(prevRequests => 
+        prevRequests.filter(request => request.id !== requestId)
+      );
+    }
+  };
+
   if (loading) {
     return <div>Loading...</div>; // You can replace this with a loader component
   }
@@ -203,6 +229,7 @@ const ApprovedGuests = ({ selectedDate }) => {
           onClose={closeModal}
           guestDetails={selectedGuest}
           guests={selectedGuest?.guests || []}
+          onStatusChange={handleStatusChange}
         />
       )}
     </div>

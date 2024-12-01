@@ -134,12 +134,7 @@ const BookRoom = () => {
   const location = useLocation();
   const guestData = location.state?.guestData;
 
-  console.log('Guest Data:', {
-    guestData,
-    additionalGuests: guestData?.additionalGuests,
-    arrivalDate: guestData?.arrivalDate,
-    departureDate: guestData?.departureDate
-  });
+  console.log('Guest IDs:', guestData?.additionalGuests?.map(guest => guest.id));
 
   const [activeTab, setActiveTab] = useState("Guest house"); // State for active tab
   const [arrivalDate, setArrivalDate] = useState(""); // State for arrival date

@@ -591,17 +591,23 @@ const NewDonation = () => {
 
       <div className="main-content">
         <div className="left-section">
-          <div className="details-card">
+          <div className="details-card receipt-details">
+            <h2>Receipt Details</h2>
             <div className="receipt-grid">
               <div className="form-group">
                 <label>Receipt Number</label>
-                <input type="text" value={receiptNumber} disabled />
+                <input 
+                  type="text" 
+                  value={receiptNumber} 
+                  disabled 
+                  placeholder="CJ2077"
+                />
               </div>
               <div className="form-group">
                 <label>Date</label>
                 <input 
                   type="text" 
-                  value={selectedDonor && receiptNumber ? "24/02/2023" : ""} 
+                  value={new Date().toLocaleDateString('en-GB')} 
                   disabled 
                 />
               </div>
@@ -609,18 +615,19 @@ const NewDonation = () => {
                 <label>Created by</label>
                 <input 
                   type="text" 
-                  value={selectedDonor && receiptNumber ? (user?.username || 'N/A') : ""} 
+                  value={user?.username || 'User Name'} 
                   disabled 
                 />
               </div>
             </div>
           </div>
 
-          <div className="details-card">
+          <div className="details-card donor-details">
             <h2>Donor Details</h2>
             <div className="form-grid">
               <div className="form-group">
-                <label>Name of Donor</label>                <div className="input-group">
+                <label>Name of Donor</label>
+                <div className="input-group">
                   <select 
                     className="title-select"
                     value={donorDetails.title}
@@ -630,11 +637,6 @@ const NewDonation = () => {
                     <option value="Smt">Smt</option>
                     <option value="Mr">Mr</option>
                     <option value="Mrs">Mrs</option>
-                    <option value="Swami">Swami</option>
-                    <option value="Dr">Dr</option>
-                    <option value="Prof">Prof</option>
-                    <option value="Kumari">Kumari</option>
-                    <option value="Ms">Ms</option>
                   </select>
                   <input 
                     type="text" 
@@ -652,7 +654,7 @@ const NewDonation = () => {
                     value={donorDetails.phoneCode}
                     onChange={(e) => setDonorDetails({...donorDetails, phoneCode: e.target.value})}
                   >
-                    <option>+91</option>
+                    <option value="+91">+91</option>
                   </select>
                   <input 
                     type="text" 
@@ -666,7 +668,7 @@ const NewDonation = () => {
                 <label>Email ID</label>
                 <input 
                   type="email" 
-                  placeholder="Enter email"
+                  placeholder="johndoe87@gmail.com"
                   value={donorDetails.email}
                   onChange={(e) => setDonorDetails({...donorDetails, email: e.target.value})}
                 />

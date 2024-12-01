@@ -134,6 +134,13 @@ const BookRoom = () => {
   const location = useLocation();
   const guestData = location.state?.guestData;
 
+  console.log('Guest Data:', {
+    guestData,
+    additionalGuests: guestData?.additionalGuests,
+    arrivalDate: guestData?.arrivalDate,
+    departureDate: guestData?.departureDate
+  });
+
   const [activeTab, setActiveTab] = useState("Guest house"); // State for active tab
   const [arrivalDate, setArrivalDate] = useState(""); // State for arrival date
   const [departureDate, setDepartureDate] = useState(""); // State for departure date
@@ -478,7 +485,6 @@ const BookRoom = () => {
 
   const handleConfirmAllocation = async (confirmedGuests) => {
     try {
-      // Group guests by room number
       const guestsByRoom = confirmedGuests.reduce((acc, guest) => {
         if (!acc[guest.roomNo]) {
           acc[guest.roomNo] = [];
@@ -487,47 +493,68 @@ const BookRoom = () => {
         return acc;
       }, {});
 
-      // Update each room with its allocated guests
       for (const [roomNo, guests] of Object.entries(guestsByRoom)) {
-        // Find the room in roomsData
         const room = roomsData.find(r => r.attributes.room_number === roomNo);
         if (!room) continue;
 
-        // Prepare update data
+        // Get the current room data
+        const currentRoomResponse = await fetchRooms();
+        const currentRoom = currentRoomResponse.data.find(r => r.id === room.id);
+        
+        if (!currentRoom) {
+          console.error(`Room with ID ${room.id} not found`);
+          continue;
+        }
+
+        // Get current available beds
+        const currentAvailableBeds = parseInt(currentRoom.attributes.available_beds) || 0;
+        const newAvailableBeds = currentAvailableBeds - guests.length;
+
+        // Process guest data
+        const guestConnections = guests
+          .filter(guest => guest.id)
+          .map(guest => ({
+            id: guest.id,
+            type: "guest"
+          }));
+
+        console.log('Guest connections:', guestConnections);
+
         const updateData = {
           data: {
-            room_number: roomNo,
-            room_type: room.attributes.room_type,
-            status: room.attributes.status,
-            beds: room.attributes.beds,
-            room_category: room.attributes.room_category,
-            available_beds: room.attributes.available_beds - guests.length,
-            guests: guests.map(guest => guest.id) // Assuming each guest has an id
+            available_beds: newAvailableBeds,
+            guests: {
+              connect: guestConnections.map(guest => guest.id)
+            }
           }
         };
 
-        // Update the room in the backend
-        await updateRoomById(room.id, updateData);
+        console.log('Room ID:', room.id);
+        console.log('Update data:', JSON.stringify(updateData, null, 2));
+
+        try {
+          const updateResponse = await updateRoomById(room.id, updateData);
+          console.log('Update response:', updateResponse);
+        } catch (updateError) {
+          console.error('Error updating room:', updateError.response?.data);
+          throw updateError;
+        }
       }
 
-      // Clear the allocated guests after successful confirmation
       setAllocatedGuestsList([]);
-      
-      // Reset clicked beds
       setClickedBeds({
         "Guest house": {},
         "F": {},
         "Yatri Niwas": {}
       });
 
-      // Show success message
       alert("Room allocation confirmed successfully!");
-      
-      // Navigate to Requests page
       navigate('/Requests');
       
     } catch (error) {
       console.error("Error confirming allocation:", error);
+      console.error("Error details:", error.response?.data);
+      console.error("Full error object:", error);
       alert("Failed to confirm room allocation. Please try again.");
     }
   };

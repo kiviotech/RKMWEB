@@ -21,8 +21,18 @@ const ApprovedGuests = ({ selectedDate }) => {
       arrivalDate: request.userDetails.arrivalDate,
       departureDate: request.userDetails.departureDate,
       numberOfGuests: request.noOfGuest,
-      guestDetails: request.userDetails,
-      additionalGuests: request.guests
+      guestDetails: {
+        ...request.userDetails,
+        // Add any additional fields needed from userDetails
+      },
+      additionalGuests: request.guests.map(guest => ({
+        id: guest.id,
+        name: guest.name,
+        age: guest.age,
+        gender: guest.gender,
+        relation: guest.relation, // This matches the expected format in BookRoom
+        roomNo: "-" // Initialize with no room assigned
+      }))
     };
     
     navigate("/book-room", { 
@@ -36,6 +46,9 @@ const ApprovedGuests = ({ selectedDate }) => {
       try {
         const data = await getBookingRequestsByStatus('approved');
         const bookingData = data?.data?.data;
+        
+        console.log('Raw booking data:', data);
+        console.log('Booking data array:', bookingData);
 
         if (bookingData) {
           const bookingRequests = bookingData.map((item) => ({
@@ -88,6 +101,8 @@ const ApprovedGuests = ({ selectedDate }) => {
               relation: guest.attributes.relationship,
             })),
           }));
+
+          console.log('Transformed booking requests:', bookingRequests);
 
           setRequests(bookingRequests);
           setFilteredRequests(bookingRequests);

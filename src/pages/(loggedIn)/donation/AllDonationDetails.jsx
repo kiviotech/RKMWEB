@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from "react"
 import AllDonation from "./AllDonation"
 import "./AllDonationDetails.scss"
+import { fetchDonations } from '../../../../services/src/services/donationsService';
+import * as XLSX from 'xlsx';
 
 const AllDonationDetails = () => {
     const [searchTerm, setSearchTerm] = useState('');
@@ -36,6 +38,17 @@ const AllDonationDetails = () => {
         document.addEventListener('mousedown', handleClickOutside);
         return () => {
             document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, []);
+
+    useEffect(() => {
+        const handleExport = async () => {
+            try {
+                const data = await fetchDonations();
+                console.log('Export data:', data);
+            } catch (error) {
+                console.error('Error exporting donations:', error);
+            }
         };
     }, []);
 
@@ -79,11 +92,42 @@ const AllDonationDetails = () => {
         setCurrentPage(pageNumber);
     };
 
+    const handleExport = async () => {
+        try {
+            const response = await fetchDonations();
+            console.log('Raw Receipt Details:', response);
+
+            const data = response.data.map(item => ({
+                ID: item.id,
+                InMemoryOf: item.attributes?.InMemoryOf || 'N/A',
+                BankName: item.attributes?.bankName || 'N/A',
+                CreatedAt: item.attributes?.createdAt || 'N/A',
+                Date: item.attributes?.ddch_date || 'N/A',
+                Number: item.attributes?.ddch_number || 'N/A',
+                Amount: item.attributes?.donationAmount || 'N/A',
+                For: item.attributes?.donationFor || 'N/A',
+                Status: item.attributes?.status || 'N/A',
+                TransactionType: item.attributes?.transactionType || 'N/A',
+                UpdatedAt: item.attributes?.updatedAt || 'N/A',
+            }));
+
+            console.log('Transformed Data:', data);
+
+            const worksheet = XLSX.utils.json_to_sheet(data);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Donations");
+
+            XLSX.writeFile(workbook, "Donations.xlsx");
+        } catch (error) {
+            console.error('Error exporting donations:', error);
+        }
+    };
+
     return (
         <div className="all-donation-details">
             <div className="header-container">
                 <h1 className="page-title">All Donation</h1>
-                <button className="export-btn">
+                <button className="export-btn" onClick={handleExport}>
                     <span className="download-icon">↓</span> Export Donations
                 </button>
             </div>

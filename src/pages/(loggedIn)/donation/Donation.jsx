@@ -24,12 +24,36 @@ const Donation = () => {
   const [leavingGuestsTotalPages, setLeavingGuestsTotalPages] = useState(1);
   const itemsPerPage = 10;
 
-  // Function to get paginated guest data
+  // Add state for tomorrow's guests search
+  const [tomorrowGuestSearchTerm, setTomorrowGuestSearchTerm] = useState('');
+
+  // Add function to filter guest data based on search term
+  const getFilteredGuestData = () => {
+    return guestData.filter(guest => {
+      const searchStr = tomorrowGuestSearchTerm.toLowerCase();
+      return (
+        guest.roomNumber.toString().toLowerCase().includes(searchStr) ||
+        guest.guestName.toLowerCase().includes(searchStr) ||
+        guest.arrivalDate.toLowerCase().includes(searchStr) ||
+        guest.donation.toLowerCase().includes(searchStr) ||
+        (guest.donationAmount && guest.donationAmount.toLowerCase().includes(searchStr))
+      );
+    });
+  };
+
+  // Update getPaginatedGuestData to use filtered data
   const getPaginatedGuestData = () => {
+    const filteredData = getFilteredGuestData();
     const startIndex = (leavingGuestsPage - 1) * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
-    return guestData.slice(startIndex, endIndex);
+    return filteredData.slice(startIndex, endIndex);
   };
+
+  // Update useEffect to set total pages based on filtered data
+  useEffect(() => {
+    const filteredData = getFilteredGuestData();
+    setLeavingGuestsTotalPages(Math.ceil(filteredData.length / itemsPerPage));
+  }, [guestData, tomorrowGuestSearchTerm]); // Add dependencies
 
   useEffect(() => {
     const getGuestDetails = async () => {
@@ -365,6 +389,11 @@ const Donation = () => {
   const maxDonationAmount = Math.max(...monthlyData.map(data => data.amount));
   const yAxisTicks = Array.from({ length: 5 }, (_, i) => (maxDonationAmount / 4) * i);
 
+  // Function to handle print receipt action
+  const handlePrintReceipt = (donation) => {
+    console.log('Print Receipt for:', donation);
+  };
+
   return (
     <div className="donation-container">
       <div className="header">
@@ -560,7 +589,12 @@ const Donation = () => {
           <h3>Tomorrow's Leaving Guest</h3>
           <div className="header-actions">
             <div className="search-box">
-              <input type="text" placeholder="Search in table" />
+              <input 
+                type="text" 
+                placeholder="Search in table" 
+                value={tomorrowGuestSearchTerm}
+                onChange={(e) => setTomorrowGuestSearchTerm(e.target.value)}
+              />
               <div className="filter-dropdown-container">
                 <button 
                   className="filter-btn" 
@@ -669,6 +703,10 @@ const Donation = () => {
                           <button onClick={() => handleActionClick('call', guest)}>
                             <span className="material-icons" style={{ color: '#8B5CF6' }}>phone</span>
                             <span>Call the Guest</span>
+                          </button>
+                          <button onClick={() => handlePrintReceipt(guest)}>
+                            <span className="material-icons" style={{ color: '#8B5CF6' }}>print</span>
+                            <span>Print Receipt</span>
                           </button>
                         </div>
                       )}

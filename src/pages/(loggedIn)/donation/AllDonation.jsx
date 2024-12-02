@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { fetchDonations, updateDonationById } from "../../../../services/src/services/donationsService";
 import "./AllDonation.scss";
+import * as XLSX from 'xlsx';
 
 const AllDonation = ({ 
     searchTerm = '', 
@@ -41,8 +42,6 @@ const AllDonation = ({
 
         loadDonations();
     }, []);
-
-    console.log('Donations state:', donations);
 
     const filteredDonations = donations.filter(donation => {
         const searchString = (searchTerm || '').toLowerCase();
@@ -107,6 +106,32 @@ const AllDonation = ({
             console.error('Error cancelling donation:', error);
             // Optionally add error handling UI feedback here
         }
+    };
+
+    const handlePrintReceipt = (donation) => {
+        // Create data object
+        const donationData = {
+            'Receipt Number': donation.attributes.receipt_detail?.data?.attributes?.Receipt_number,
+            'Donor Name': donation.attributes.guest?.data?.attributes?.name,
+            'Donation Date': donation.attributes.receipt_detail?.data?.attributes?.donation_date,
+            'Phone Number': donation.attributes.guest?.data?.attributes?.phone_number,
+            'Donated For': donation.attributes.donationFor,
+            'Status': donation.attributes.status,
+            'Amount': donation.attributes.donationAmount
+        };
+
+        // Create worksheet
+        const ws = XLSX.utils.json_to_sheet([donationData]);
+
+        // Create workbook
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'Donation Receipt');
+
+        // Generate filename with receipt number
+        const fileName = `donation_receipt_${donationData['Receipt Number']}.xlsx`;
+
+        // Download file
+        XLSX.writeFile(wb, fileName);
     };
 
     if (loading) return <div>Loading...</div>;
@@ -174,7 +199,10 @@ const AllDonation = ({
                                                     
                                                     {donation.attributes.status.toLowerCase() === 'completed' && (
                                                         <>
-                                                            <button className="print-btn">
+                                                            <button 
+                                                                className="print-btn"
+                                                                onClick={() => handlePrintReceipt(donation)}
+                                                            >
                                                                 Print Receipt
                                                             </button>
                                                         </>

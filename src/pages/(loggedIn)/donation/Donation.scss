@@ -841,3 +841,25 @@
     }
   }
 }
+
+.positive {
+  color: green;
+}
+
+.negative {
+  color: red;
+}
+
+.total-content {
+  .growth-indicator {
+    span {
+      &.positive {
+        color: #22c55e !important;
+      }
+      
+      &.negative {
+        color: #ef4444 !important;
+      }
+    }
+  }
+}

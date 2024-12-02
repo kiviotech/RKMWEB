@@ -9,21 +9,13 @@ import { fetchDonations } from "../../../../services/src/services/donationsServi
 const Donation = () => {
   const navigate = useNavigate()
   // Data for the donut chart
-  const distributionData = [
-    { name: "Math Donation", value: 35.45, color: "#8b5cf6" },
-    { name: "Ramakrishna mission", value: 64.55, color: "#f97316" }
-  ]
+  const [distributionData, setDistributionData] = useState([
+    { name: "Math Donation", value: 0, color: "#8b5cf6" },
+    { name: "Ramakrishna mission", value: 0, color: "#f97316" }
+  ]);
 
-  // Updated monthly data to match the graph
-  const monthlyData = [
-    { name: 'Jun', amount: 5000 },
-    { name: 'Jul', amount: 10000 },
-    { name: 'Aug', amount: 32900 },
-    { name: 'Sept', amount: 15000 },
-    { name: 'Oct', amount: 18000 },
-    { name: 'Nov', amount: 12000 },
-    { name: 'Dec', amount: 2000 }
-  ]
+  // Replace static monthlyData with dynamic state
+  const [monthlyData, setMonthlyData] = useState([]);
 
   const [guestData, setGuestData] = useState([]);
 
@@ -258,13 +250,55 @@ const Donation = () => {
   const [mathDonation, setMathDonation] = useState(0);
   const [missionDonation, setMissionDonation] = useState(0);
 
-  // Update the useEffect
+  // Add this new state for growth percentage
+  const [growthPercentage, setGrowthPercentage] = useState(0);
+
+  // Update the useEffect for fetching donations
   useEffect(() => {
     const getAllDonations = async () => {
       try {
         const response = await fetchDonations();
-        const donations = response.data; // Access the data property
-        console.log("All donations:", donations);
+        const donations = response.data;
+
+        // Process donations for monthly data
+        const monthlyTotals = donations.reduce((acc, donation) => {
+          // Only include active/completed donations
+          if (donation.attributes.status !== 'cancelled') {
+            const date = new Date(donation.attributes.createdAt);
+            const monthYear = date.toLocaleString('en-US', { month: 'short', year: '2-digit' });
+            const amount = parseFloat(donation.attributes.donationAmount) || 0;
+
+            if (!acc[monthYear]) {
+              acc[monthYear] = 0;
+            }
+            acc[monthYear] += amount;
+          }
+          return acc;
+        }, {});
+
+        // Convert to array and ensure we have data for the last 7 months
+        const today = new Date();
+        const last7Months = Array.from({ length: 7 }, (_, i) => {
+          const date = new Date(today.getFullYear(), today.getMonth() - i, 1);
+          return date.toLocaleString('en-US', { month: 'short', year: '2-digit' });
+        }).reverse();
+
+        const sortedMonthlyData = last7Months.map(monthYear => ({
+          name: monthYear,
+          amount: monthlyTotals[monthYear] || 0
+        }));
+
+        setMonthlyData(sortedMonthlyData);
+
+        // Calculate growth percentage using the last two months
+        if (sortedMonthlyData.length >= 2) {
+          const currentMonth = sortedMonthlyData[sortedMonthlyData.length - 1].amount;
+          const previousMonth = sortedMonthlyData[sortedMonthlyData.length - 2].amount;
+          const growth = previousMonth !== 0 
+            ? ((currentMonth - previousMonth) / previousMonth) * 100
+            : 0;
+          setGrowthPercentage(growth);
+        }
 
         // Calculate totals
         const totals = donations.reduce((acc, donation) => {
@@ -284,12 +318,10 @@ const Donation = () => {
           return acc;
         }, { total: 0, math: 0, mission: 0 });
 
-        // Console logs
+        // Debugging: Log totals to verify calculations
         console.log("Total Donation Amount:", totals.total);
         console.log("Math Donation Amount:", totals.math);
         console.log("Mission Donation Amount:", totals.mission);
-        console.log("Math Percentage:", (totals.math / totals.total) * 100);
-        console.log("Mission Percentage:", (totals.mission / totals.total) * 100);
 
         setTotalDonation(totals.total);
         setMathDonation(totals.math);
@@ -313,6 +345,26 @@ const Donation = () => {
     getAllDonations();
   }, []);
 
+  // Function to calculate percentages
+  const calculatePercentages = (math, mission) => {
+    const total = math + mission;
+    if (total === 0) return [0, 0];
+    
+    const mathPercentage = (math / total) * 100;
+    const missionPercentage = (mission / total) * 100;
+    
+    return [
+      mathPercentage.toFixed(2),
+      missionPercentage.toFixed(2)
+    ];
+  };
+
+  const [mathPercent, missionPercent] = calculatePercentages(mathDonation, missionDonation);
+
+  // Calculate dynamic Y-axis ticks based on the maximum donation amount
+  const maxDonationAmount = Math.max(...monthlyData.map(data => data.amount));
+  const yAxisTicks = Array.from({ length: 5 }, (_, i) => (maxDonationAmount / 4) * i);
+
   return (
     <div className="donation-container">
       <div className="header">
@@ -334,7 +386,7 @@ const Donation = () => {
                   <span>Math Donation</span>
                   <h4>₹{mathDonation.toLocaleString('en-IN')}</h4>
                 </div>
-                <span className="percentage">{distributionData[0].value.toFixed(2)}%</span>
+                <span className="percentage">{mathPercent}%</span>
               </div>
               <div className="distribution-item">
                 <div className="item-dot mission"></div>
@@ -342,7 +394,7 @@ const Donation = () => {
                   <span>Ramakrishna mission</span>
                   <h4>₹{missionDonation.toLocaleString('en-IN')}</h4>
                 </div>
-                <span className="percentage">{distributionData[1].value.toFixed(2)}%</span>
+                <span className="percentage">{missionPercent}%</span>
               </div>
             </div>
             <div className="donut-chart">
@@ -426,7 +478,9 @@ const Donation = () => {
             <div className="left-section">
               <div className="amount">₹{totalDonation.toLocaleString('en-IN')}</div>
               <div className="growth-indicator">
-                <span>+12.02%</span>
+                <span className={growthPercentage >= 0 ? 'positive' : 'negative'}>
+                  {growthPercentage >= 0 ? '+' : ''}{growthPercentage.toFixed(2)}%
+                </span>
                 <p>than last month</p>
               </div>
             </div>
@@ -448,17 +502,38 @@ const Donation = () => {
                   axisLine={false}
                   tickLine={false}
                   tick={{ fontSize: 12, fill: '#6B7280' }}
-                  ticks={[10000, 20000, 30000, 40000]}
-                  tickFormatter={(value) => `${value/1000}k`}
+                  ticks={yAxisTicks}
+                  tickFormatter={(value) => `${(value / 1000).toFixed(1)}k`}
                 />
                 <Tooltip 
                   content={({ active, payload }) => {
                     if (active && payload && payload.length) {
+                      const data = payload[0].payload;
                       return (
-                        <div className="custom-tooltip">
-                          <p className="date">3rd August</p>
-                          <p className="label">Total Donation</p>
-                          <p className="amount">32.9k</p>
+                        <div style={{
+                          backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                          padding: '10px',
+                          borderRadius: '8px',
+                          boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
+                          transition: 'all 0.3s ease',
+                        }}>
+                          <p style={{
+                            margin: 0,
+                            fontSize: '14px',
+                            fontWeight: 'bold',
+                            color: '#333',
+                          }}>{data.name}</p>
+                          <p style={{
+                            margin: '5px 0 0',
+                            fontSize: '12px',
+                            color: '#666',
+                          }}>Total Donation</p>
+                          <p style={{
+                            margin: 0,
+                            fontSize: '16px',
+                            fontWeight: 'bold',
+                            color: '#111',
+                          }}>₹{(data.amount).toLocaleString('en-IN')}</p>
                         </div>
                       );
                     }

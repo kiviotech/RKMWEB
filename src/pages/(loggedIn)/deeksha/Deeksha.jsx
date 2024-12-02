@@ -5,8 +5,11 @@ import { FiUpload } from 'react-icons/fi';
 import { TbAdjustmentsHorizontal } from 'react-icons/tb';
 import './Deeksha.scss';
 import { fetchDeekshas, updateDeekshaById } from '../../../../services/src/services/deekshaService';
+import { useNavigate } from 'react-router-dom';
 
 const Deeksha = () => {
+    const navigate = useNavigate();
+
     const [stats, setStats] = useState({
         total: 0,
         pending: 0,
@@ -184,16 +187,23 @@ const Deeksha = () => {
                     </div>
                 </div>
 
-                <div className="right-section">
+                <div className="right-section" onClick={() => navigate('/deeksha-form')}>
                     {/* Diksha Forms Section */}
                     <div className="forms-section">
                         <h2>Diksha Initiation Forms</h2>
                         <div className="forms-list">
                             {forms.map((form) => (
-                                <div key={form.id} className="form-item">
+                                <div 
+                                    key={form.id} 
+                                    className="form-item"
+                                    style={{ cursor: 'pointer' }}
+                                >
                                     <BsFileEarmarkText className="form-icon" />
                                     <span className="form-title">{form.title}</span>
-                                    <button className="more-options">
+                                    <button 
+                                        className="more-options"
+                                        onClick={(e) => e.stopPropagation()}
+                                    >
                                         <FaEllipsisV />
                                     </button>
                                 </div>

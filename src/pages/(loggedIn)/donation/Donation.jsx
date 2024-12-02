@@ -4,6 +4,7 @@ import { PieChart, Pie, Cell, LineChart, Line, XAxis, YAxis, Tooltip } from 'rec
 import { useNavigate } from "react-router-dom"
 import AllDonation from './AllDonation'
 import { fetchGuestDetails } from "../../../../services/src/services/guestDetailsService"
+import { fetchDonations } from "../../../../services/src/services/donationsService"
 
 const Donation = () => {
   const navigate = useNavigate()
@@ -252,6 +253,66 @@ const Donation = () => {
     );
   };
 
+  // Add new state variables
+  const [totalDonation, setTotalDonation] = useState(0);
+  const [mathDonation, setMathDonation] = useState(0);
+  const [missionDonation, setMissionDonation] = useState(0);
+
+  // Update the useEffect
+  useEffect(() => {
+    const getAllDonations = async () => {
+      try {
+        const response = await fetchDonations();
+        const donations = response.data; // Access the data property
+        console.log("All donations:", donations);
+
+        // Calculate totals
+        const totals = donations.reduce((acc, donation) => {
+          const amount = parseFloat(donation.attributes.donationAmount) || 0;
+          
+          // Only count active/completed donations (not cancelled)
+          if (donation.attributes.status !== 'cancelled') {
+            acc.total += amount;
+            
+            if (donation.attributes.donationFor === 'Math') {
+              acc.math += amount;
+            } else if (donation.attributes.donationFor === 'Mission') {
+              acc.mission += amount;
+            }
+          }
+          
+          return acc;
+        }, { total: 0, math: 0, mission: 0 });
+
+        // Console logs
+        console.log("Total Donation Amount:", totals.total);
+        console.log("Math Donation Amount:", totals.math);
+        console.log("Mission Donation Amount:", totals.mission);
+        console.log("Math Percentage:", (totals.math / totals.total) * 100);
+        console.log("Mission Percentage:", (totals.mission / totals.total) * 100);
+
+        setTotalDonation(totals.total);
+        setMathDonation(totals.math);
+        setMissionDonation(totals.mission);
+
+        // Calculate percentages for the distribution chart
+        const mathPercentage = (totals.math / totals.total) * 100;
+        const missionPercentage = (totals.mission / totals.total) * 100;
+
+        // Update the distribution data
+        setDistributionData([
+          { name: "Math Donation", value: mathPercentage, color: "#8b5cf6" },
+          { name: "Ramakrishna mission", value: missionPercentage, color: "#f97316" }
+        ]);
+
+      } catch (error) {
+        console.error("Error fetching donations:", error);
+      }
+    };
+
+    getAllDonations();
+  }, []);
+
   return (
     <div className="donation-container">
       <div className="header">
@@ -271,32 +332,88 @@ const Donation = () => {
                 <div className="item-dot math"></div>
                 <div className="item-details">
                   <span>Math Donation</span>
-                  <h4>₹14,907</h4>
+                  <h4>₹{mathDonation.toLocaleString('en-IN')}</h4>
                 </div>
-                <span className="percentage">35.45%</span>
+                <span className="percentage">{distributionData[0].value.toFixed(2)}%</span>
               </div>
               <div className="distribution-item">
                 <div className="item-dot mission"></div>
                 <div className="item-details">
                   <span>Ramakrishna mission</span>
-                  <h4>₹29,660</h4>
+                  <h4>₹{missionDonation.toLocaleString('en-IN')}</h4>
                 </div>
-                <span className="percentage">64.55%</span>
+                <span className="percentage">{distributionData[1].value.toFixed(2)}%</span>
               </div>
             </div>
             <div className="donut-chart">
-              <PieChart width={160} height={160}>
+              <PieChart width={250} height={250}>
                 <Pie
                   data={distributionData}
-                  innerRadius={50}
-                  outerRadius={70}
+                  innerRadius={85}
+                  outerRadius={115}
                   paddingAngle={5}
                   dataKey="value"
+                  animationBegin={0}
+                  animationDuration={1000}
+                  animationEasing="ease-out"
                 >
                   {distributionData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={entry.color} />
                   ))}
                 </Pie>
+                <Tooltip 
+                  content={({ active, payload }) => {
+                    if (active && payload && payload.length) {
+                      return (
+                        <div style={{
+                          backgroundColor: 'rgba(255, 255, 255, 0.85)',
+                          padding: '12px',
+                          border: 'none',
+                          borderRadius: '8px',
+                          boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+                          backdropFilter: 'blur(8px)',
+                          transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+                          transform: 'translateY(-4px)',
+                          opacity: active ? '1' : '0',
+                        }}>
+                          <div style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            marginBottom: '8px',
+                          }}>
+                            <div style={{
+                              width: '8px',
+                              height: '8px',
+                              borderRadius: '50%',
+                              backgroundColor: payload[0].payload.color,
+                              marginRight: '8px',
+                              transition: 'transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)',
+                              transform: 'scale(1.2)',
+                            }} />
+                            <span style={{
+                              color: '#1F2937',
+                              fontSize: '14px',
+                              fontWeight: '500',
+                              transition: 'opacity 0.2s ease-in-out',
+                            }}>
+                              {payload[0].payload.name}
+                            </span>
+                          </div>
+                          <div style={{
+                            fontSize: '16px',
+                            fontWeight: '600',
+                            color: '#111827',
+                            transition: 'transform 0.3s ease',
+                            transform: 'translateX(0)',
+                          }}>
+                            {`${payload[0].value.toFixed(2)}%`}
+                          </div>
+                        </div>
+                      );
+                    }
+                    return null;
+                  }}
+                />
               </PieChart>
             </div>
           </div>
@@ -307,7 +424,7 @@ const Donation = () => {
           <h3>Total Donations</h3>
           <div className="total-content">
             <div className="left-section">
-              <div className="amount">₹44,567</div>
+              <div className="amount">₹{totalDonation.toLocaleString('en-IN')}</div>
               <div className="growth-indicator">
                 <span>+12.02%</span>
                 <p>than last month</p>

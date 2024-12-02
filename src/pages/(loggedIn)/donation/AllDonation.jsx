@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { fetchDonations } from "../../../../services/src/services/donationsService";
+import { fetchDonations, updateDonationById } from "../../../../services/src/services/donationsService";
 import "./AllDonation.scss";
 
 const AllDonation = ({ 
@@ -89,6 +89,26 @@ const AllDonation = ({
         return filteredDonations.slice(startIndex, endIndex);
     };
 
+    const handleCancelDonation = async (donationId) => {
+        try {
+            await updateDonationById(donationId, {
+                data: {
+                    status: 'cancelled'
+                }
+            });
+            
+            // Update the local state to reflect the change
+            setDonations(donations.map(donation => 
+                donation.id === donationId 
+                    ? { ...donation, attributes: { ...donation.attributes, status: 'cancelled' } }
+                    : donation
+            ));
+        } catch (error) {
+            console.error('Error cancelling donation:', error);
+            // Optionally add error handling UI feedback here
+        }
+    };
+
     if (loading) return <div>Loading...</div>;
     if (error) return <div>Error: {error}</div>;
     if (!Array.isArray(donations)) return <div>No donations available</div>;
@@ -135,25 +155,30 @@ const AllDonation = ({
                                         <td>{donation.attributes.donationAmount}</td>}
                                     {filterOptions.action && 
                                         <td className="action-cell">
-                                            {donation.attributes.status.toLowerCase() === 'pending' && (
+                                            {(donation.attributes.status.toLowerCase() === 'pending' || 
+                                              donation.attributes.status.toLowerCase() === 'completed') && (
                                                 <>
-                                                    <button className="cancel-btn">
+                                                    <button 
+                                                        className="cancel-btn"
+                                                        onClick={() => handleCancelDonation(donation.id)}
+                                                    >
                                                         Cancel
                                                     </button>
-                                                    <button className="submit-btn">
-                                                        Submit
-                                                    </button>
-                                                </>
-                                            )}
-                                            
-                                            {donation.attributes.status.toLowerCase() === 'completed' && (
-                                                <>
-                                                    <button className="cancel-btn">
-                                                        Cancel
-                                                    </button>
-                                                    <button className="print-btn">
-                                                        Print Receipt
-                                                    </button>
+                                                    {donation.attributes.status.toLowerCase() === 'pending' && (
+                                                        <>
+                                                            <button className="submit-btn">
+                                                                Submit
+                                                            </button>
+                                                        </>
+                                                    )}
+                                                    
+                                                    {donation.attributes.status.toLowerCase() === 'completed' && (
+                                                        <>
+                                                            <button className="print-btn">
+                                                                Print Receipt
+                                                            </button>
+                                                        </>
+                                                    )}
                                                 </>
                                             )}
                                         </td>}

@@ -22,7 +22,7 @@ const CheckOutDetails = () => {
 
         const currentDate = dayjs();
         const allocationsToShow = allAllocations.filter((allocation) => {
-          const departureDate = dayjs(allocation.attributes.departure_date);
+          const departureDate = dayjs(allocation.attributes?.departure_date);
           return (
             currentDate.isSame(departureDate, "day") ||
             currentDate.isAfter(departureDate)
@@ -53,11 +53,10 @@ const CheckOutDetails = () => {
     if (query.trim() === "") {
       setFilteredAllocations(allocations);
     } else {
-      const filtered = allocations.filter((allocation) =>
-        allocation.attributes.booking_request.data.attributes.name
-          .toLowerCase()
-          .includes(query.toLowerCase())
-      );
+      const filtered = allocations.filter((allocation) => {
+        const guestName = allocation.attributes?.booking_request?.data?.attributes?.name || "";
+        return guestName.toLowerCase().includes(query.toLowerCase());
+      });
       setFilteredAllocations(filtered);
       if (filtered.length > 0) {
         setSelectedUser(filtered[0]);
@@ -108,21 +107,18 @@ const CheckOutDetails = () => {
                   >
                     <td>
                       Mr.{" "}
-                      {
-                        allocation.attributes.booking_request.data.attributes
-                          .name
-                      }
+                      {allocation.attributes?.booking_request?.data?.attributes?.name || "N/A"}
                     </td>
                     <td>{allocation.id}</td>
                     <td>
                       <span
                         className={
-                          allocation.attributes.donation === "Paid"
+                          allocation.attributes?.donation === "Paid"
                             ? "donation-paid"
                             : "donation-not-paid"
                         }
                       >
-                        {allocation.attributes.donation}
+                        {allocation.attributes?.donation || "Not Set"}
                       </span>
                     </td>
                     <td>

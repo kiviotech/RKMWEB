@@ -34,6 +34,9 @@ const Deeksha = () => {
 
     const filterDropdownRef = useRef(null);
 
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [modalData, setModalData] = useState(null);
+
     useEffect(() => {
         const loadDeekshas = async () => {
             console.log('Fetching deekshas...');
@@ -229,6 +232,17 @@ const Deeksha = () => {
         XLSX.writeFile(workbook, `Deeksha_Applications_${date}.xlsx`);
     };
 
+    const handleSendReminder = (data) => {
+        setModalData(data);
+        setIsModalOpen(true);
+        
+        // Auto close after 3 seconds
+        setTimeout(() => {
+            setIsModalOpen(false);
+            setModalData(null);
+        }, 3000);
+    };
+
     return (
         <div className="deeksha-page">
             <div className="deeksha-container">
@@ -263,7 +277,9 @@ const Deeksha = () => {
                                     <span>Main Prayer Hall, Ramakrishna Math, Kolkata</span>
                                 </div>
                             </div>
-                            <button className="reminder-btn">Send reminder</button>
+                            <button className="reminder-btn" onClick={() => handleSendReminder({ date: '25th November 2024, 10:00 AM', location: 'Main Prayer Hall, Ramakrishna Math, Kolkata' })}>
+                                Send reminder
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -396,8 +412,108 @@ const Deeksha = () => {
                     <p>No applications found</p>
                 )}
             </div>
+
+            {isModalOpen && (
+                <div className="modal">
+                    <div className="modal-content animate-slide">
+                        <div className="success-animation">
+                            <div className="checkmark">✓</div>
+                        </div>
+                        <h2>Reminder Sent Successfully!</h2>
+                        <p>Date: {modalData.date}</p>
+                        <p>Location: {modalData.location}</p>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
+
+// Add some basic styles for the modal
+const modalStyles = `
+.modal {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.4);
+}
+
+.modal-content {
+    background-color: #fefefe;
+    padding: 30px;
+    border-radius: 8px;
+    width: 400px;
+    text-align: center;
+    position: relative;
+}
+
+.animate-slide {
+    animation: slideIn 0.3s ease-out forwards;
+}
+
+@keyframes slideIn {
+    0% {
+        transform: translateY(-100px);
+        opacity: 0;
+    }
+    100% {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.success-animation {
+    margin: 20px auto;
+}
+
+.checkmark {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #4CAF50;
+    color: white;
+    font-size: 30px;
+    margin: 0 auto;
+    animation: scaleIn 0.3s ease-out forwards;
+}
+
+@keyframes scaleIn {
+    0% {
+        transform: scale(0);
+    }
+    50% {
+        transform: scale(1.2);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+.modal-content h2 {
+    color: #333;
+    margin: 20px 0;
+}
+
+.modal-content p {
+    color: #666;
+    margin: 10px 0;
+}
+`;
+
+// Inject styles into the document
+const styleSheet = document.createElement("style");
+styleSheet.type = "text/css";
+styleSheet.innerText = modalStyles;
+document.head.appendChild(styleSheet);
 
 export default Deeksha;

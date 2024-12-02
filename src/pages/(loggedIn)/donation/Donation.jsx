@@ -3,6 +3,7 @@ import "./Donation.scss"
 import { PieChart, Pie, Cell, LineChart, Line, XAxis, YAxis, Tooltip } from 'recharts'
 import { useNavigate } from "react-router-dom"
 import AllDonation from './AllDonation'
+import { fetchGuestDetails } from "../../../../services/src/services/guestDetailsService"
 
 const Donation = () => {
   const navigate = useNavigate()
@@ -23,36 +24,45 @@ const Donation = () => {
     { name: 'Dec', amount: 2000 }
   ]
 
-  const leavingGuests = [
-    {
-      roomNumber: 'GH-101',
-      guestName: 'Mr. John Doe',
-      arrivalDate: '00/00/0000',
-      noOfGuests: 5,
-      stayDuration: '3 days',
-      donation: 'Not yet donated',
-      donationAmount: null,
-    },
-    {
-      roomNumber: 'GH-103',
-      guestName: 'Mr. Sophia William',
-      arrivalDate: '00/00/0000',
-      noOfGuests: 3,
-      stayDuration: '5 days',
-      donation: 'Not yet donated',
-      donationAmount: null,
-    },
-    {
-      roomNumber: 'GH-102',
-      guestName: 'Mr. John Doe',
-      arrivalDate: '00/00/0000',
-      noOfGuests: 2,
-      stayDuration: '5 days',
-      donation: 'Donated',
-      donationAmount: '₹7,750.00',
-    },
-    // ... add other rows similarly
-  ];
+  const [guestData, setGuestData] = useState([]);
+
+  // Add pagination states for both sections
+  const [leavingGuestsPage, setLeavingGuestsPage] = useState(1);
+  const [leavingGuestsTotalPages, setLeavingGuestsTotalPages] = useState(1);
+  const itemsPerPage = 10;
+
+  // Function to get paginated guest data
+  const getPaginatedGuestData = () => {
+    const startIndex = (leavingGuestsPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    return guestData.slice(startIndex, endIndex);
+  };
+
+  useEffect(() => {
+    const getGuestDetails = async () => {
+      try {
+        const response = await fetchGuestDetails();
+        // Transform the data to match the table structure
+        const formattedData = response.data.map(guest => ({
+          roomNumber: guest.attributes.room?.data?.attributes?.room_number || '-',
+          guestName: `Mr. ${guest.attributes.name}`,
+          arrivalDate: new Date(guest.attributes.createdAt).toLocaleDateString(),
+          noOfGuests: 1, // You might want to get this from somewhere specific
+          stayDuration: '3 days', // Calculate this based on your data
+          donation: guest.attributes.donations?.data?.length > 0 ? 'Donated' : 'Not yet donated',
+          donationAmount: guest.attributes.donations?.data?.length > 0 
+            ? `₹${guest.attributes.donations.data[0]?.attributes?.amount?.toLocaleString('en-IN') || 0}`
+            : null,
+        }));
+        setGuestData(formattedData);
+        setLeavingGuestsTotalPages(Math.ceil(formattedData.length / itemsPerPage));
+      } catch (error) {
+        console.error("Error fetching guest details:", error);
+      }
+    };
+
+    getGuestDetails();
+  }, []);
 
   // Add state for tracking which dropdown is open
   const [openActionId, setOpenActionId] = useState(null);
@@ -149,6 +159,98 @@ const Donation = () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, []);
+
+  // Add new state for tomorrow's guests filter popup and options
+  const [showTomorrowFilterPopup, setShowTomorrowFilterPopup] = useState(false);
+  const [tomorrowFilterOptions, setTomorrowFilterOptions] = useState({
+    roomNumber: true,
+    guestName: true,
+    arrivalDate: true,
+    noOfGuests: true,
+    stayDuration: true,
+    donation: true,
+    donationAmount: true,
+    action: true
+  });
+
+  // Add ref for tomorrow's filter dropdown
+  const tomorrowFilterDropdownRef = useRef(null);
+
+  // Function to handle tomorrow's filter changes
+  const handleTomorrowFilterChange = (field) => {
+    setTomorrowFilterOptions(prev => ({
+      ...prev,
+      [field]: !prev[field]
+    }));
+  };
+
+  // Add effect to handle clicks outside tomorrow's filter dropdown
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (tomorrowFilterDropdownRef.current && !tomorrowFilterDropdownRef.current.contains(event.target)) {
+        setShowTomorrowFilterPopup(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+  // Update the Pagination component
+  const Pagination = ({ currentPage, totalPages, onPageChange }) => {
+    return (
+      <div className="pagination">
+        <button 
+          className="pagination-btn"
+          onClick={() => onPageChange(currentPage - 1)}
+          disabled={currentPage === 1}
+        >
+          &lt;
+        </button>
+        
+        {[...Array(totalPages)].map((_, index) => {
+          const pageNumber = index + 1;
+          
+          // Always show first page, last page, current page, and pages around current page
+          if (
+            pageNumber === 1 ||
+            pageNumber === totalPages ||
+            (pageNumber >= currentPage - 1 && pageNumber <= currentPage + 1)
+          ) {
+            return (
+              <button
+                key={pageNumber}
+                onClick={() => onPageChange(pageNumber)}
+                className={`pagination-btn ${currentPage === pageNumber ? 'active' : ''}`}
+              >
+                {pageNumber}
+              </button>
+            );
+          }
+          
+          // Show ellipsis for skipped pages
+          if (
+            pageNumber === currentPage - 2 ||
+            pageNumber === currentPage + 2
+          ) {
+            return <span key={pageNumber} className="ellipsis">...</span>;
+          }
+          
+          return null;
+        })}
+        
+        <button 
+          className="pagination-btn"
+          onClick={() => onPageChange(currentPage + 1)}
+          disabled={currentPage === totalPages}
+        >
+          &gt;
+        </button>
+      </div>
+    );
+  };
 
   return (
     <div className="donation-container">
@@ -267,9 +369,44 @@ const Donation = () => {
           <div className="header-actions">
             <div className="search-box">
               <input type="text" placeholder="Search in table" />
-              <button className="filter-btn" onClick={() => setShowFilterPopup(true)}>
-                <span className="material-icons-outlined">tune</span>
-              </button>
+              <div className="filter-dropdown-container">
+                <button 
+                  className="filter-btn" 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setShowTomorrowFilterPopup(!showTomorrowFilterPopup);
+                  }}
+                >
+                  <span className="material-icons-outlined">tune</span>
+                </button>
+                {showTomorrowFilterPopup && (
+                  <div className="filter-dropdown" ref={tomorrowFilterDropdownRef}>
+                    <div className="filter-options">
+                      {Object.entries(tomorrowFilterOptions).map(([field, checked]) => (
+                        <label key={field} className="filter-option">
+                          <input
+                            type="checkbox"
+                            checked={checked}
+                            onChange={() => handleTomorrowFilterChange(field)}
+                          />
+                          <span>{field.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}</span>
+                        </label>
+                      ))}
+                    </div>
+                    <div className="filter-actions">
+                      <button 
+                        className="reset-btn" 
+                        onClick={() => setTomorrowFilterOptions(Object.fromEntries(Object.keys(tomorrowFilterOptions).map(key => [key, true])))}
+                      >
+                        Reset
+                      </button>
+                      <button className="apply-btn" onClick={() => setShowTomorrowFilterPopup(false)}>
+                        Apply
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>
@@ -278,73 +415,84 @@ const Donation = () => {
           <table>
             <thead>
               <tr>
-                <th>Room number</th>
-                <th>Guest Name</th>
-                <th>Arrival date</th>
-                <th>No. of Guests</th>
-                <th>Stay Duration</th>
-                <th>Donation</th>
-                <th>Donation Amount</th>
-                <th>Action</th>
+                {tomorrowFilterOptions.roomNumber && <th>Room number</th>}
+                {tomorrowFilterOptions.guestName && <th>Guest Name</th>}
+                {tomorrowFilterOptions.arrivalDate && <th>Arrival date</th>}
+                {tomorrowFilterOptions.noOfGuests && <th>No. of Guests</th>}
+                {tomorrowFilterOptions.stayDuration && <th>Stay Duration</th>}
+                {tomorrowFilterOptions.donation && <th>Donation</th>}
+                {tomorrowFilterOptions.donationAmount && <th>Donation Amount</th>}
+                {tomorrowFilterOptions.action && <th>Action</th>}
               </tr>
             </thead>
             <tbody>
-              {leavingGuests.map((guest, index) => (
+              {getPaginatedGuestData().map((guest, index) => (
                 <tr key={index}>
-                  <td>{guest.roomNumber}</td>
-                  <td>{guest.guestName}</td>
-                  <td>{guest.arrivalDate}</td>
-                  <td>{guest.noOfGuests}</td>
-                  <td>{guest.stayDuration}</td>
-                  <td>
-                    <span className={`donation-status ${guest.donation === 'Donated' ? 'donated' : 'not-donated'}`}>
-                      {guest.donation}
-                    </span>
-                  </td>
-                  <td>{guest.donationAmount || '-'}</td>
-                  <td className="action-cell">
-                    <button 
-                      className="action-btn"
-                      onClick={(e) => toggleDropdown(index, e)}
-                    >
-                      <span className="material-icons">more_vert</span>
-                    </button>
-                    
-                    {openActionId === index && (
-                      <div 
-                        className="action-dropdown"
-                        style={{
-                          top: `${dropdownPosition.top}px`,
-                          left: `${dropdownPosition.left}px`
-                        }}
+                  {tomorrowFilterOptions.roomNumber && <td>{guest.roomNumber}</td>}
+                  {tomorrowFilterOptions.guestName && <td>{guest.guestName}</td>}
+                  {tomorrowFilterOptions.arrivalDate && <td>{guest.arrivalDate}</td>}
+                  {tomorrowFilterOptions.noOfGuests && <td>{guest.noOfGuests}</td>}
+                  {tomorrowFilterOptions.stayDuration && <td>{guest.stayDuration}</td>}
+                  {tomorrowFilterOptions.donation && (
+                    <td>
+                      <span className={`donation-status ${guest.donation === 'Donated' ? 'donated' : 'not-donated'}`}>
+                        {guest.donation}
+                      </span>
+                    </td>
+                  )}
+                  {tomorrowFilterOptions.donationAmount && <td>{guest.donationAmount || '-'}</td>}
+                  {tomorrowFilterOptions.action && (
+                    <td className="action-cell">
+                      <button 
+                        className="action-btn"
+                        onClick={(e) => toggleDropdown(index, e)}
                       >
-                        <button onClick={() => handleActionClick('notification', guest)}>
-                          <span className="material-icons" style={{ color: '#8B5CF6' }}>notifications</span>
-                          <span>Send all notifications</span>
-                        </button>
-                        <button onClick={() => handleActionClick('whatsapp', guest)}>
-                          <span className="material-icons" style={{ color: '#25D366' }}>message</span>
-                          <span>Send Whatsapp</span>
-                        </button>
-                        <button onClick={() => handleActionClick('email', guest)}>
-                          <span className="material-icons" style={{ color: '#8B5CF6' }}>mail</span>
-                          <span>Send an E-mail</span>
-                        </button>
-                        <button onClick={() => handleActionClick('sms', guest)}>
-                          <span className="material-icons" style={{ color: '#8B5CF6' }}>chat</span>
-                          <span>Send SMS</span>
-                        </button>
-                        <button onClick={() => handleActionClick('call', guest)}>
-                          <span className="material-icons" style={{ color: '#8B5CF6' }}>phone</span>
-                          <span>Call the Guest</span>
-                        </button>
-                      </div>
-                    )}
-                  </td>
+                        <span className="material-icons">more_vert</span>
+                      </button>
+                      
+                      {openActionId === index && (
+                        <div 
+                          className="action-dropdown"
+                          style={{
+                            top: `${dropdownPosition.top}px`,
+                            left: `${dropdownPosition.left}px`
+                          }}
+                        >
+                          <button onClick={() => handleActionClick('notification', guest)}>
+                            <span className="material-icons" style={{ color: '#8B5CF6' }}>notifications</span>
+                            <span>Send all notifications</span>
+                          </button>
+                          <button onClick={() => handleActionClick('whatsapp', guest)}>
+                            <span className="material-icons" style={{ color: '#25D366' }}>message</span>
+                            <span>Send Whatsapp</span>
+                          </button>
+                          <button onClick={() => handleActionClick('email', guest)}>
+                            <span className="material-icons" style={{ color: '#8B5CF6' }}>mail</span>
+                            <span>Send an E-mail</span>
+                          </button>
+                          <button onClick={() => handleActionClick('sms', guest)}>
+                            <span className="material-icons" style={{ color: '#8B5CF6' }}>chat</span>
+                            <span>Send SMS</span>
+                          </button>
+                          <button onClick={() => handleActionClick('call', guest)}>
+                            <span className="material-icons" style={{ color: '#8B5CF6' }}>phone</span>
+                            <span>Call the Guest</span>
+                          </button>
+                        </div>
+                      )}
+                    </td>
+                  )}
                 </tr>
               ))}
             </tbody>
           </table>
+          <div className="pagination-wrapper">
+            <Pagination
+              currentPage={leavingGuestsPage}
+              totalPages={leavingGuestsTotalPages}
+              onPageChange={setLeavingGuestsPage}
+            />
+          </div>
         </div>
       </div>
 
@@ -402,7 +550,13 @@ const Donation = () => {
         </div>
       </div>
 
-      <AllDonation searchTerm={searchTerm} filterOptions={filterOptions} />
+      <AllDonation 
+        searchTerm={searchTerm} 
+        filterOptions={filterOptions}
+        itemsPerPage={10}
+        currentPage={1}
+        setTotalPages={(total) => {/* handle total pages if needed */}}
+      />
     </div>
   )
 }

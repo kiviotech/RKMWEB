@@ -6,6 +6,7 @@ import { TbAdjustmentsHorizontal } from 'react-icons/tb';
 import './Deeksha.scss';
 import { fetchDeekshas, updateDeekshaById } from '../../../../services/src/services/deekshaService';
 import { useNavigate } from 'react-router-dom';
+import * as XLSX from 'xlsx';
 
 const Deeksha = () => {
     const navigate = useNavigate();
@@ -34,9 +35,10 @@ const Deeksha = () => {
 
     useEffect(() => {
         const loadDeekshas = async () => {
+            console.log('Fetching deekshas...');
             try {
                 const response = await fetchDeekshas();
-                console.log('API Response:', response);
+                console.log('Deekshas fetched successfully:', response);
                 
                 // Calculate stats from response data
                 const totalApplications = response.data.length;
@@ -148,6 +150,26 @@ const Deeksha = () => {
         };
     }, []);
 
+    const handleExport = () => {
+        // Prepare data for export
+        const exportData = applications.map((app, index) => ({
+            'Sl No.': index + 1,
+            Name: app.name,
+            'Mobile Number': app.mobile,
+            'E-mail': app.email,
+            Address: app.address,
+            Status: app.status
+        }));
+
+        // Create a new workbook and add the data
+        const worksheet = XLSX.utils.json_to_sheet(exportData);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, 'Applications');
+
+        // Generate Excel file and trigger download
+        XLSX.writeFile(workbook, 'Deeksha_Applications.xlsx');
+    };
+
     return (
         <div className="deeksha-page">
             <div className="deeksha-container">
@@ -218,7 +240,7 @@ const Deeksha = () => {
                 <div className="table-header">
                     <h2>Diksha Initiation Application</h2>
                     <div className="header-actions">
-                        <button className="export-btn">
+                        <button className="export-btn" onClick={handleExport}>
                             <FiUpload className="export-icon" />
                             Export
                         </button>

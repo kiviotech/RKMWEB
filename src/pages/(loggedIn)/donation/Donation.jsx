@@ -71,6 +71,9 @@ const Donation = () => {
             ? `₹${guest.attributes.donations.data[0]?.attributes?.amount?.toLocaleString('en-IN') || 0}`
             : null,
         }));
+        
+        console.log("Tomorrow's Leaving Guest Data:", formattedData);
+        
         setGuestData(formattedData);
         setLeavingGuestsTotalPages(Math.ceil(formattedData.length / itemsPerPage));
       } catch (error) {
@@ -341,11 +344,6 @@ const Donation = () => {
           
           return acc;
         }, { total: 0, math: 0, mission: 0 });
-
-        // Debugging: Log totals to verify calculations
-        console.log("Total Donation Amount:", totals.total);
-        console.log("Math Donation Amount:", totals.math);
-        console.log("Mission Donation Amount:", totals.mission);
 
         setTotalDonation(totals.total);
         setMathDonation(totals.math);

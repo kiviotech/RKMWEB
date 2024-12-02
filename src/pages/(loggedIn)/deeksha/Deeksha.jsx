@@ -17,6 +17,7 @@ const Deeksha = () => {
         approved: 0
     });
 
+    const [allApplications, setAllApplications] = useState([]);
     const [applications, setApplications] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -42,7 +43,7 @@ const Deeksha = () => {
                 
                 // Calculate stats from response data
                 const totalApplications = response.data.length;
-                const pendingApplications = response.data.filter(item => 
+                const pending = response.data.filter(item => 
                     item.attributes.status === "pending"
                 ).length;
                 const approvedApplications = response.data.filter(item => 
@@ -52,22 +53,42 @@ const Deeksha = () => {
                 // Update stats
                 setStats({
                     total: totalApplications,
-                    pending: pendingApplications,
+                    pending: pending,
                     approved: approvedApplications
                 });
 
-                // Map data for applications table - filter for pending status only
-                const data = response.data
-                    .filter(item => item.attributes.status === "pending")
-                    .map(item => ({
-                        id: item.id,
-                        name: item.attributes.Name,
-                        mobile: item.attributes.Phone_no,
-                        email: item.attributes.Email,
-                        address: item.attributes.Address,
-                        status: item.attributes.status
-                    }));
-                setApplications(data);
+                // Store all applications
+                const allApplicationsData = response.data.map(item => ({
+                    id: item.id,
+                    name: item.attributes.Name,
+                    mobile: item.attributes.Phone_no,
+                    email: item.attributes.Email,
+                    address: item.attributes.Address,
+                    status: item.attributes.status,
+                    aadharNo: item.attributes.Aadhar_no,
+                    panNo: item.attributes.PAN_no,
+                    gender: item.attributes.Gender,
+                    education: item.attributes.Education,
+                    occupation: item.attributes.Occupation,
+                    maritalStatus: item.attributes.Marital_status,
+                    state: item.attributes.State,
+                    district: item.attributes.District,
+                    pincode: item.attributes.Pincode,
+                    country: item.attributes.Country,
+                    languagesKnown: item.attributes.Languages_known,
+                    bookletLanguage: item.attributes.Booklet_language,
+                    disabilities: item.attributes.Disabilities,
+                    hearingProblems: item.attributes.Hearing_Problems,
+                    waitingForDeeksha: item.attributes.Waiting_for_Deeksha
+                }));
+
+                // Store all applications in state
+                setAllApplications(allApplicationsData);
+
+                // Filter for pending applications for table display
+                const pendingApps = allApplicationsData.filter(item => item.status === "pending");
+                setApplications(pendingApps);
+                
                 setLoading(false);
             } catch (err) {
                 console.error('Error fetching deekshas:', err);
@@ -99,7 +120,7 @@ const Deeksha = () => {
             
             // Recalculate stats with correct status values
             const totalApplications = response.data.length;
-            const pendingApplications = response.data.filter(item => 
+            const pending = response.data.filter(item => 
                 item.attributes.status === "pending"
             ).length;
             const approvedApplications = response.data.filter(item => 
@@ -108,7 +129,7 @@ const Deeksha = () => {
 
             setStats({
                 total: totalApplications,
-                pending: pendingApplications,
+                pending: pending,
                 approved: approvedApplications
             });
 
@@ -121,7 +142,22 @@ const Deeksha = () => {
                     mobile: item.attributes.Phone_no,
                     email: item.attributes.Email,
                     address: item.attributes.Address,
-                    status: item.attributes.status
+                    status: item.attributes.status,
+                    aadharNo: item.attributes.Aadhar_no,
+                    panNo: item.attributes.PAN_no,
+                    gender: item.attributes.Gender,
+                    education: item.attributes.Education,
+                    occupation: item.attributes.Occupation,
+                    maritalStatus: item.attributes.Marital_status,
+                    state: item.attributes.State,
+                    district: item.attributes.District,
+                    pincode: item.attributes.Pincode,
+                    country: item.attributes.Country,
+                    languagesKnown: item.attributes.Languages_known,
+                    bookletLanguage: item.attributes.Booklet_language,
+                    disabilities: item.attributes.Disabilities,
+                    hearingProblems: item.attributes.Hearing_Problems,
+                    waitingForDeeksha: item.attributes.Waiting_for_Deeksha
                 }));
             setApplications(data);
         } catch (err) {
@@ -151,23 +187,46 @@ const Deeksha = () => {
     }, []);
 
     const handleExport = () => {
-        // Prepare data for export
-        const exportData = applications.map((app, index) => ({
+        // Prepare data for export with all applications
+        const exportData = allApplications.map((app, index) => ({
             'Sl No.': index + 1,
-            Name: app.name,
+            'Name': app.name,
             'Mobile Number': app.mobile,
             'E-mail': app.email,
-            Address: app.address,
-            Status: app.status
+            'Address': app.address,
+            'Status': app.status,
+            'Aadhar Number': app.aadharNo,
+            'PAN Number': app.panNo,
+            'Gender': app.gender,
+            'Education': app.education,
+            'Occupation': app.occupation,
+            'Marital Status': app.maritalStatus,
+            'State': app.state,
+            'District': app.district,
+            'Pincode': app.pincode,
+            'Country': app.country,
+            'Languages Known': app.languagesKnown,
+            'Booklet Language': app.bookletLanguage,
+            'Has Disabilities': app.disabilities ? 'Yes' : 'No',
+            'Has Hearing Problems': app.hearingProblems ? 'Yes' : 'No',
+            'Waiting for Deeksha (Years)': app.waitingForDeeksha
         }));
 
-        // Create a new workbook and add the data
+        // Create worksheet with custom column widths
         const worksheet = XLSX.utils.json_to_sheet(exportData);
-        const workbook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(workbook, worksheet, 'Applications');
+        
+        // Set column widths
+        const columnWidths = Object.keys(exportData[0]).map(key => ({
+            wch: Math.max(key.length, 15) // minimum width of 15 characters
+        }));
+        worksheet['!cols'] = columnWidths;
 
-        // Generate Excel file and trigger download
-        XLSX.writeFile(workbook, 'Deeksha_Applications.xlsx');
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, 'Deeksha Applications');
+
+        // Generate Excel file with current date in filename
+        const date = new Date().toISOString().split('T')[0];
+        XLSX.writeFile(workbook, `Deeksha_Applications_${date}.xlsx`);
     };
 
     return (
@@ -342,4 +401,3 @@ const Deeksha = () => {
 };
 
 export default Deeksha;
-

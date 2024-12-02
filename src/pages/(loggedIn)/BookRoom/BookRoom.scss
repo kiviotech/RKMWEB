@@ -1,6 +1,465 @@
+// .attithi-booking-wrapper {
+//   width: 100%;
+//   overflow-x: hidden;
+// }
+
+// .booking-header-panel {
+//   display: flex;
+//   align-items: center;
+//   padding: 15px 30px;
+//   background-color: #fff;
+//   width: 100%;
+//   gap: 24px;
+// }
+
+// .booking-controls-group {
+//   display: flex;
+//   align-items: center;
+//   gap: 24px;
+// }
+
+// .booking-tab-group {
+//   display: flex;
+//   gap: 8px;
+
+//   button {
+//     padding: 8px 16px;
+//     background-color: #f1f1f1;
+//     border: none;
+//     border-radius: 8px;
+//     font-weight: 500;
+//     min-width: 100px;
+//     color: #000;
+//     cursor: pointer;
+
+//     &.active {
+//       background-color: #9867e9;
+//       color: #fff;
+//     }
+//   }
+// }
+
+// .booking-filter-control {
+//   display: flex;
+//   align-items: center;
+//   gap: 8px;
+
+//   .filter-label {
+//     color: #8b5cf6;
+//     font-size: 14px;
+//     font-weight: 500;
+//   }
+
+//   .filter-select {
+//     padding: 8px 12px;
+//     border: 1px solid #e5e7eb;
+//     border-radius: 8px;
+//     min-width: 120px;
+//     color: #6b7280;
+//     background-color: white;
+//     cursor: pointer;
+    
+//     &::placeholder {
+//       color: #6b7280;
+//     }
+//   }
+// }
+
+// .booking-date-panel {
+//   display: flex;
+//   gap: 16px;
+//   margin-left: auto;
+//   align-items: center;
+  
+//   @media (max-width: 768px) {
+//     margin-left: 0;
+//     flex-wrap: wrap;
+//   }
+// }
+
+// .date-wrapper, .date-departurewrapper {
+//   position: relative;
+
+//   .date-input {
+//     padding: 8px 12px;
+//     padding-right: 30px;
+//     border: 1px solid #e5e7eb;
+//     border-radius: 8px;
+//     width: 130px;
+//     font-size: 14px;
+//     color: #6b7280;
+//     background-color: white;
+//     cursor: pointer;
+//     outline: none;
+//     appearance: none;
+//     -webkit-appearance: none;
+//     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='18' rx='2' ry='2'%3E%3C/rect%3E%3Cline x1='16' y1='2' x2='16' y2='6'%3E%3C/line%3E%3Cline x1='8' y1='2' x2='8' y2='6'%3E%3C/line%3E%3Cline x1='3' y1='10' x2='21' y2='10'%3E%3C/line%3E%3C/svg%3E");
+//     background-repeat: no-repeat;
+//     background-position: right 8px center;
+//     background-size: 16px;
+//     transition: border-color 0.2s ease, box-shadow 0.2s ease;
+
+//     &:hover {
+//       border-color: #9867e9;
+//     }
+
+//     &:focus {
+//       border-color: #9867e9;
+//       box-shadow: 0 0 0 2px rgba(152, 103, 233, 0.1);
+//     }
+
+//     &::placeholder {
+//       color: #9ca3af;
+//     }
+//   }
+
+//   .date-label {
+//     position: absolute;
+//     top: -7px;
+//     left: 10px;
+//     background: white;
+//     padding: 0 4px;
+//     font-size: 11px;
+//     color: #6b7280;
+//     z-index: 1;
+//     transition: color 0.2s ease;
+//   }
+
+//   &:hover .date-label {
+//     color: #9867e9;
+//   }
+
+//   &:focus-within .date-label {
+//     color: #9867e9;
+//   }
+// }
+
+// .outer-container {
+//   width: 98%;
+//   max-width: 1500px;
+//   display: flex;
+//   flex-direction: column;
+//   justify-content: center;
+//   margin: 20px auto;
+//   overflow: hidden;
+//   padding: 10px 25px;
+//   box-sizing: border-box;
+// }
+
+// .grid-container {
+//   max-width: 1300px;
+//   width: calc(100% - 20px);
+//   height: 59vh;
+//   border: 2px solid #ccc;
+//   border-radius: 24px;
+//   display: flex;
+//   flex-direction: column;
+//   margin: 20px 10px;
+//   position: relative;
+//   overflow: auto;
+//   scrollbar-width: none;
+//   -ms-overflow-style: none;
+  
+//   &::-webkit-scrollbar {
+//     display: none;
+//   }
+// }
+
+// .grid-header {
+//   position: sticky;
+//   top: 0;
+//   z-index: 2;
+//   background: white;
+//   display: flex;
+//   width: max-content;
+// }
+
+// .grid-body {
+//   display: flex;
+//   flex-direction: column;
+//   width: max-content;
+//   height: calc(100% - 50px);
+//   scrollbar-width: none;
+//   -ms-overflow-style: none;
+  
+//   &::-webkit-scrollbar {
+//     display: none;
+//   }
+// }
+
+// .grid-row {
+//   display: flex;
+//   align-items: center;
+//   min-height: 100px;
+//   width: max-content;
+// }
+
+// .corner-cell {
+//   position: sticky;
+//   left: 0;
+//   top: 0;
+//   z-index: 3;
+//   background: white;
+//   min-width: 85px;
+// }
+
+// .date-cell {
+//   position: sticky;
+//   top: 0;
+//   z-index: 2;
+//   background: white;
+//   min-width: 130px;
+//   text-align: center;
+//   padding: 8px 8px 8px 24px;
+//   box-sizing: border-box;
+//   display: flex;
+//   justify-content: center;
+//   align-items: center;
+// }
+
+// .loading-indicator {
+//   display: inline-block;
+//   color: #9867e9;
+//   animation: pulse 1s infinite;
+//   padding: 0 8px;
+// }
+
+// @keyframes pulse {
+//   0% { opacity: 0.3; }
+//   50% { opacity: 1; }
+//   100% { opacity: 0.3; }
+// }
+// .room-cell {
+//   position: sticky;
+//   left: 0;
+//   z-index: 1;
+//   background: white;
+//   min-width: 85px;
+//   display: flex;
+//   align-items: center;
+//   padding: 0 10px;
+//   height: 100%;
+//   z-index: 2;
+//   background-color: #fff;
+// }
+
+// .grid-cell {
+//   display: flex;
+//   align-items: center;
+//   justify-content: center;
+//   margin: 10px;
+//   min-width: 120px;
+//   border: 1px solid #e5e7eb;
+
+//   &.yatri-niwas-cell {
+//     border: none;
+//   }
+// }
+
+// .bed-grid {
+//   display: grid;
+//   gap: 5px;
+//   background: #fff;
+//   padding: 10px;
+//   border-radius: 8px;
+//   width: 100%;
+//   height: 100%;
+//   min-height: 80px;
+
+//   &.beds-2 {
+//     grid-template-columns: repeat(2, 1fr);
+//   }
+
+//   &.beds-3 {
+//     grid-template-columns: repeat(2, 1fr);
+//     grid-template-rows: 1fr 1fr;
+    
+//     .bed-icon:last-child {
+//       grid-column: span 2;
+//       justify-self: center;
+//     }
+//   }
+
+//   &.beds-4 {
+//     grid-template-columns: repeat(2, 1fr);
+//     grid-template-rows: repeat(2, 1fr);
+//   }
+// }
+
+// .bed-icon {
+//   display: flex;
+//   align-items: center;
+//   justify-content: center;
+//   cursor: pointer;
+//   transition: transform 0.2s ease;
+
+//   &:hover {
+//     transform: scale(1.1);
+//   }
+
+//   &.filled {
+//     cursor: not-allowed;
+//   }
+// }
+
+// .bed-img {
+//   width: 25px;
+//   height: 25px;
+//   object-fit: contain;
+// }
+// // Add hover effect for the entire cell
+// .grid-cell:hover .bed-grid {
+//   background: #f8f8ff;
+// }
+
+// .availability-box {
+//   background: white;
+//   border: 1px solid #8b5cf6;
+//   border-radius: 8px;
+//   padding: 8px;
+//   display: flex;
+//   flex-direction: column;
+//   align-items: center;
+//   justify-content: center;
+//   min-width: 60px;
+  
+//   .count {
+//     font-size: 18px;
+//     font-weight: bold;
+//     color: #8b5cf6;
+//   }
+  
+//   .status {
+//     font-size: 12px;
+//     color: #6b7280;
+//   }
+// }
+
+// // Add hover effect
+// .availability-box:hover {
+//   background: #8b5cf6;
+  
+//   .count, .status {
+//     color: white;
+//   }
+// }
+
+// // For selected state
+// .availability-box.selected {
+//   background: #8b5cf6;
+  
+//   .count, .status {
+//     color: white;
+//   }
+// }
+
+// .booking-content {
+//   display: flex;
+//   gap: 20px;
+//   padding: 20px;
+// }
+
+// .booking-grid {
+//   flex: 1;
+//   min-width: 0;
+//   transition: flex 0.3s ease;
+
+//   &:has(+ .guests-panel) {
+//     flex: 0 0 50%;
+//   }
+// }
+
+// .guests-panel {
+//   flex: 0 0 50%;
+//   padding: 20px;
+//   background: white;
+//   border-radius: 12px;
+//   display: flex;
+//   flex-direction: column;
+//   gap: 20px;
+//   max-height: calc(100vh - 150px);
+//   overflow-y: auto;
+// }
+
+// .guests-table {
+//   width: 50%;
+  
+//   h3 {
+//     margin-bottom: 12px;
+//     color: #374151;
+//   }
+
+//   table {
+//     width: 100%;
+//     border-collapse: collapse;
+    
+//     th, td {
+//       padding: 8px;
+//       text-align: left;
+//       border-bottom: 1px solid #e5e7eb;
+//     }
+
+//     th {
+//       background-color: #f9fafb;
+//       font-weight: 500;
+//       color: #6b7280;
+//     }
+//   }
+// }
+
+// .allocate-button {
+//   padding: 12px 24px;
+//   background-color: #8b5cf6;
+//   color: white;
+//   border: none;
+//   border-radius: 8px;
+//   cursor: pointer;
+//   font-weight: 500;
+//   margin-top: auto;
+
+//   &:hover {
+//     background-color: #7c3aed;
+//   }
+// }
+
+// @supports not (selector(:has(*))) {
+//   .booking-content {
+//     &:has(.guests-panel) {
+//       .booking-grid {
+//         flex: 0 0 50%;
+//       }
+//     }
+//   }
+// }
+
+// .no-guests-message {
+//   padding: 20px;
+//   text-align: center;
+//   color: #666;
+//   font-style: italic;
+// }
+
+// .confirm-button {
+//   margin-top: 1rem;
+//   padding: 0.5rem 1rem;
+//   background-color: #8b5cf6;
+//   color: white;
+//   border: none;
+//   border-radius: 4px;
+//   cursor: pointer;
+//   font-weight: 600;
+
+//   &:hover {
+//     background-color: #7c3aed;
+//   }
+// }
+
+
+
 .attithi-booking-wrapper {
   width: 100%;
   overflow-x: hidden;
+ 
 }
 
 .booking-header-panel {
@@ -8,8 +467,10 @@
   align-items: center;
   padding: 15px 30px;
   background-color: #fff;
-  width: 100%;
-  gap: 24px;
+  width: 77%;
+  gap: 124px;
+  // border: 1px solid red;
+ 
 }
 
 .booking-controls-group {
@@ -70,6 +531,9 @@
   gap: 16px;
   margin-left: auto;
   align-items: center;
+  // border: 1px solid black;
+  // margin-right: 10%;
+
   
   @media (max-width: 768px) {
     margin-left: 0;
@@ -79,6 +543,7 @@
 
 .date-wrapper, .date-departurewrapper {
   position: relative;
+
 
   .date-input {
     padding: 8px 12px;
@@ -135,6 +600,8 @@
 }
 
 .outer-container {
+
+ 
   width: 98%;
   max-width: 1500px;
   display: flex;
@@ -144,9 +611,12 @@
   overflow: hidden;
   padding: 10px 25px;
   box-sizing: border-box;
+ 
 }
 
 .grid-container {
+
+
   max-width: 1300px;
   width: calc(100% - 20px);
   height: 59vh;
@@ -159,6 +629,8 @@
   overflow: auto;
   scrollbar-width: none;
   -ms-overflow-style: none;
+// padding-top: 10px;
+// padding-left: 10px;
   
   &::-webkit-scrollbar {
     display: none;
@@ -166,21 +638,27 @@
 }
 
 .grid-header {
+
   position: sticky;
   top: 0;
   z-index: 2;
   background: white;
   display: flex;
   width: max-content;
+ padding-top: 8px;
+ padding-left: 35px;
+ 
 }
 
 .grid-body {
+ 
   display: flex;
   flex-direction: column;
   width: max-content;
   height: calc(100% - 50px);
   scrollbar-width: none;
   -ms-overflow-style: none;
+ 
   
   &::-webkit-scrollbar {
     display: none;
@@ -188,13 +666,17 @@
 }
 
 .grid-row {
+
+ 
   display: flex;
   align-items: center;
   min-height: 100px;
   width: max-content;
+
 }
 
 .corner-cell {
+ 
   position: sticky;
   left: 0;
   top: 0;
@@ -208,13 +690,14 @@
   top: 0;
   z-index: 2;
   background: white;
-  min-width: 130px;
+  min-width: 120px;
   text-align: center;
   padding: 8px 8px 8px 24px;
   box-sizing: border-box;
   display: flex;
   justify-content: center;
   align-items: center;
+ 
 }
 
 .loading-indicator {
@@ -230,6 +713,7 @@
   100% { opacity: 0.3; }
 }
 .room-cell {
+ 
   position: sticky;
   left: 0;
   z-index: 1;
@@ -244,6 +728,7 @@
 }
 
 .grid-cell {
+ 
   display: flex;
   align-items: center;
   justify-content: center;
@@ -257,6 +742,7 @@
 }
 
 .bed-grid {
+
   display: grid;
   gap: 5px;
   background: #fff;
@@ -265,6 +751,8 @@
   width: 100%;
   height: 100%;
   min-height: 80px;
+
+ 
 
   &.beds-2 {
     grid-template-columns: repeat(2, 1fr);
@@ -310,18 +798,20 @@
 // Add hover effect for the entire cell
 .grid-cell:hover .bed-grid {
   background: #f8f8ff;
+ 
 }
 
 .availability-box {
   background: white;
   border: 1px solid #8b5cf6;
   border-radius: 8px;
-  padding: 8px;
+  padding: 19px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-width: 60px;
+  min-width: 70px;
+ 
   
   .count {
     font-size: 18px;
@@ -370,6 +860,7 @@
 }
 
 .guests-panel {
+  // border: 1px solid black;
   flex: 0 0 50%;
   padding: 20px;
   background: white;
@@ -383,6 +874,7 @@
 
 .guests-table {
   width: 50%;
+  // border: 1px solid purple;
   
   h3 {
     margin-bottom: 12px;
@@ -416,6 +908,7 @@
   cursor: pointer;
   font-weight: 500;
   margin-top: auto;
+  width: 50%;
 
   &:hover {
     background-color: #7c3aed;
@@ -453,4 +946,3 @@
     background-color: #7c3aed;
   }
 }
-

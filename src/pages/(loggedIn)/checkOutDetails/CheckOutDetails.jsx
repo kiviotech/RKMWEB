@@ -18,7 +18,8 @@ const CheckOutDetails = () => {
     const fetchAllocations = async () => {
       try {
         const response = await fetchRoomAllocations();
-        const allAllocations = response.data;
+        const allAllocations = response.data.filter(allocation => 
+          allocation?.attributes?.booking_request?.data);
 
         const currentDate = dayjs();
         const allocationsToShow = allAllocations.filter((allocation) => {
@@ -137,7 +138,7 @@ const CheckOutDetails = () => {
           </table>
         </div>
       </div>
-      {selectedUser && (
+      {selectedUser && selectedUser.attributes?.booking_request?.data && (
         <GuestDetails
           selectedUser={selectedUser}
           showQRSection={false}

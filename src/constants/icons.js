@@ -20,6 +20,8 @@ import bookedBed from "../assets/icons/booked-bed.png";
 import tooltip from "../assets/image/tooltip.png";
 import user from "../assets/icons/user.png";
 import userDummyImage from "../assets/image/user-dummy-image.png";
+import whatsapp from "../assets/icons/whatsapp.png";
+import informationIcon from "../assets/icons/informationIcon.png";
 
 import checkCircleMarked from "../assets/icons/checkCircleMarked.png";
 import checkCircle from "../assets/icons/checkCircle.png";
@@ -81,4 +83,6 @@ export default {
   sort,
   plus,
   RMK_Logo,
+  whatsapp,
+  informationIcon
 };

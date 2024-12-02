@@ -39,6 +39,11 @@ const NewDonation = () => {
   const [currentReceipt, setCurrentReceipt] = useState(null);
   const [donorTabs, setDonorTabs] = useState({});
   const [donationHistory, setDonationHistory] = useState([]);
+  const [validationErrors, setValidationErrors] = useState({
+    name: '',
+    phone: '',
+    email: ''
+  });
 
   console.log("Zustand Store Data:", {
     // auth: { user },
@@ -343,6 +348,22 @@ const NewDonation = () => {
   };
 
   const handlePrintReceipt = async (status = "completed") => {
+    // Check form validity and set validation errors
+    const nameError = validateName(donorDetails.name);
+    const phoneError = validatePhone(donorDetails.phone);
+    const emailError = validateEmail(donorDetails.email);
+
+    setValidationErrors({
+      name: nameError,
+      phone: phoneError,
+      email: emailError
+    });
+
+    if (nameError || phoneError || emailError) {
+      alert("Please fill required fields");
+      return;
+    }
+
     try {
       // First create receipt details
       const receiptPayload = {
@@ -417,19 +438,48 @@ const NewDonation = () => {
       
     } catch (error) {
       console.error('Error in donation process:', error);
-      if (error.error?.details?.errors) {
-        console.error('Validation errors:', error.error.details.errors);
-      }
+      alert('Error processing donation. Please try again.');
     }
   };
 
-  // Add handlers for Pending and Cancel buttons
   const handlePending = async () => {
+    // Check form validity and set validation errors
+    const nameError = validateName(donorDetails.name);
+    const phoneError = validatePhone(donorDetails.phone);
+    const emailError = validateEmail(donorDetails.email);
+
+    setValidationErrors({
+      name: nameError,
+      phone: phoneError,
+      email: emailError
+    });
+
+    if (nameError || phoneError || emailError) {
+      alert("Please fill required fields");
+      return;
+    }
+
     await handlePrintReceipt("pending");
     resetFormData();
   };
 
   const handleCancel = async () => {
+    // Check form validity and set validation errors
+    const nameError = validateName(donorDetails.name);
+    const phoneError = validatePhone(donorDetails.phone);
+    const emailError = validateEmail(donorDetails.email);
+
+    setValidationErrors({
+      name: nameError,
+      phone: phoneError,
+      email: emailError
+    });
+
+    if (nameError || phoneError || emailError) {
+      alert("Please fill required fields");
+      return;
+    }
+
     await handlePrintReceipt("cancelled");
     resetFormData();
   };
@@ -505,6 +555,54 @@ const NewDonation = () => {
 
     fetchDonorHistory();
   }, [donorDetails.guestId]);
+
+  const validateName = (name) => {
+    if (!name.trim()) {
+      return 'Name is required';
+    }
+    if (name.length < 2) {
+      return 'Name must be at least 2 characters long';
+    }
+    if (!/^[a-zA-Z\s]*$/.test(name)) {
+      return 'Name should only contain letters and spaces';
+    }
+    return '';
+  };
+
+  const validatePhone = (phone) => {
+    if (!phone.trim()) {
+      return 'Phone number is required';
+    }
+    if (!/^[0-9]{10}$/.test(phone)) {
+      return 'Phone number must be 10 digits';
+    }
+    return '';
+  };
+
+  const validateEmail = (email) => {
+    if (!email.trim()) {
+      return 'Email is required'; // Changed to make email required
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return 'Please enter a valid email address';
+    }
+    return '';
+  };
+
+  // Add this function to check if form is valid
+  const isFormValid = () => {
+    // Check required fields
+    if (!donorDetails.name || !donorDetails.phone) {
+      return false;
+    }
+
+    // Check validation errors
+    if (validationErrors.name || validationErrors.phone || validationErrors.email) {
+      return false;
+    }
+
+    return true;
+  };
 
   return (
     <div className="donations-container">
@@ -628,41 +726,46 @@ const NewDonation = () => {
               <div className="form-group">
                 <label>Name of Donor</label>
                 <div className="input-group">
-                  <select 
-                    className="title-select"
-                    value={donorDetails.title}
-                    onChange={(e) => setDonorDetails({...donorDetails, title: e.target.value})}
-                  >
-                    <option value="Sri">Sri</option>
-                    <option value="Smt">Smt</option>
-                    <option value="Mr">Mr</option>
-                    <option value="Mrs">Mrs</option>
-                  </select>
                   <input 
                     type="text" 
                     placeholder="John Doe"
                     value={donorDetails.name}
-                    onChange={(e) => setDonorDetails({...donorDetails, name: e.target.value})}
+                    onChange={(e) => {
+                      const newName = e.target.value;
+                      setDonorDetails({...donorDetails, name: newName});
+                      setValidationErrors({
+                        ...validationErrors,
+                        name: validateName(newName)
+                      });
+                    }}
+                    className={validationErrors.name ? 'error' : ''}
                   />
                 </div>
+                {validationErrors.name && (
+                  <span className="error-message">{validationErrors.name}</span>
+                )}
               </div>
               <div className="form-group">
                 <label>Phone No.</label>
                 <div className="input-group">
-                  <select 
-                    className="country-code"
-                    value={donorDetails.phoneCode}
-                    onChange={(e) => setDonorDetails({...donorDetails, phoneCode: e.target.value})}
-                  >
-                    <option value="+91">+91</option>
-                  </select>
                   <input 
                     type="text" 
                     placeholder="9212341902"
                     value={donorDetails.phone}
-                    onChange={(e) => setDonorDetails({...donorDetails, phone: e.target.value})}
+                    onChange={(e) => {
+                      const newPhone = e.target.value;
+                      setDonorDetails({...donorDetails, phone: newPhone});
+                      setValidationErrors({
+                        ...validationErrors,
+                        phone: validatePhone(newPhone)
+                      });
+                    }}
+                    className={validationErrors.phone ? 'error' : ''}
                   />
                 </div>
+                {validationErrors.phone && (
+                  <span className="error-message">{validationErrors.phone}</span>
+                )}
               </div>
               <div className="form-group">
                 <label>Email ID</label>
@@ -670,8 +773,19 @@ const NewDonation = () => {
                   type="email" 
                   placeholder="johndoe87@gmail.com"
                   value={donorDetails.email}
-                  onChange={(e) => setDonorDetails({...donorDetails, email: e.target.value})}
+                  onChange={(e) => {
+                    const newEmail = e.target.value;
+                    setDonorDetails({...donorDetails, email: newEmail});
+                    setValidationErrors({
+                      ...validationErrors,
+                      email: validateEmail(newEmail)
+                    });
+                  }}
+                  className={validationErrors.email ? 'error' : ''}
                 />
+                {validationErrors.email && (
+                  <span className="error-message">{validationErrors.email}</span>
+                )}
               </div>
               <div className="form-group">
                 <label>Mantra Diksha</label>

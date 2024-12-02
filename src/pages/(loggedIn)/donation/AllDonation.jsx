@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { fetchDonations, updateDonationById } from "../../../../services/src/services/donationsService";
 import "./AllDonation.scss";
 import * as XLSX from 'xlsx';
+import { useNavigate } from "react-router-dom";
 
 const AllDonation = ({ 
     searchTerm = '', 
@@ -25,6 +26,7 @@ const AllDonation = ({
     const [donations, setDonations] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const navigate = useNavigate();
 
     useEffect(() => {
         const loadDonations = async () => {
@@ -134,6 +136,10 @@ const AllDonation = ({
         XLSX.writeFile(wb, fileName);
     };
 
+    const handleSubmit = () => {
+        navigate('/newDonation');
+    };
+
     if (loading) return <div>Loading...</div>;
     if (error) return <div>Error: {error}</div>;
     if (!Array.isArray(donations)) return <div>No donations available</div>;
@@ -191,7 +197,10 @@ const AllDonation = ({
                                                     </button>
                                                     {donation.attributes.status.toLowerCase() === 'pending' && (
                                                         <>
-                                                            <button className="submit-btn">
+                                                            <button 
+                                                                className="submit-btn"
+                                                                onClick={handleSubmit}
+                                                            >
                                                                 Submit
                                                             </button>
                                                         </>

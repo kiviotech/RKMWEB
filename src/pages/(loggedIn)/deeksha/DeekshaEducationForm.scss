@@ -1,0 +1,281 @@
+* {
+  box-sizing: border-box;
+}
+
+.deekshaEducationform-container {
+  padding: 40px;
+  font-family: "lexend";
+  width: 75%;
+  margin: 0 auto;
+
+  .deekshaEducationform-progress-bar {
+      width: 100%;
+      height: 8px;
+      background: #e0e0e0;
+      border-radius: 4px;
+      margin-bottom: 20px;
+
+      .deekshaEducationform-progress {
+          width: 40%;
+          height: 100%;
+          background: #9867e9;
+          border-radius: 4px;
+          transition: width 0.3s ease-in-out;
+      }
+  }
+
+  h1 {
+      text-align: center;
+      color: #9867e9;
+      margin-top: 40px;
+      font-size: 32px;
+  }
+
+  .deekshaEducationform-education-selection {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      margin-top: 40px;
+
+      p {
+          font-family: "Lexend";
+          font-size: 24px;
+          font-weight: bold;
+          line-height: 30px;
+          text-align: left;
+      }
+
+      .deekshaEducationform-options {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 30px;
+
+          label {
+              display: inline-block;
+              font-family: "Lexend";
+              font-size: 18px;
+              font-weight: bold;
+              cursor: pointer;
+              width: 30%;
+              margin-bottom: 10px;
+
+              input {
+                  margin-right: 10px;
+                  accent-color: #9867e9;
+              }
+          }
+      }
+  }
+
+  .deekshaEducationform-occupation {
+      margin-top: 30px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    
+
+      p {
+          font-family: "Lexend";
+          font-size: 24px;
+          font-weight:bold;
+          line-height: 30px;
+          text-align: left;
+          margin: 0;
+          width: auto;
+      }
+
+      input {
+          width: 423px;
+          padding: 12px;
+          border-radius: 5px ;
+          border: 1px solid #ccc;
+          opacity: 0.9;
+          font-size: 16px;
+          color: #515151;
+
+          ::placeholder {
+              color: #515151;
+          }
+      }
+  }
+
+
+
+  .deekshaEducationform-languages {
+      margin-top: 30px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+
+      .deekshaEducationform-languages-header {
+          display: flex;
+          flex-direction: row;
+          gap: 10px;
+          align-items: center;
+
+          p {
+              font-family: "Lexend";
+              font-size: 24px;
+              font-weight: bold;
+              line-height: 30px;
+              text-align: left;
+              display: inline;
+              max-width: 80%;
+          }
+
+          span {
+              max-width: 50%;
+          }
+
+          .deekshaEducationform-languages-list {
+              font-family: "Lexend";
+              font-size: 18px;
+              font-weight: 400;
+              line-height: 24px;
+              color: #444;
+              display: inline-block;
+              word-wrap: break-word;
+          }
+      }
+
+      .deekshaEducationform-language-select {
+          max-width: 50%;
+          height: 56px;
+          padding: 10px 20px;
+          border-radius: 5px;
+          border: 1px solid #ccc;
+          opacity: 0.9;
+          margin-bottom: 10px;
+          color: #515151;
+          font-size: 16px;
+      }
+
+      .deekshaEducationform-custom-language {
+          max-width: 50%;
+          margin-top: -20px;
+          display: flex;
+          flex-direction: row;
+          justify-content: flex-end;
+
+          input {
+              width: 76%;
+              padding: 12px;
+              border-radius: 5px;
+              border: 1px solid #ccc;
+              opacity: 0.9;
+
+              ::placeholder {
+                  color: #515151;
+              }
+          }
+
+          button {
+              padding: 9px;
+              background-color: white;
+              color: #9867e9;
+              border: none;
+              border-radius: 4px;
+              cursor: pointer;
+              font-size: 15px;
+          }
+
+          p {
+              color: #9867e9;
+              font-size: 15px;
+              display: flex;
+          }
+      }
+  }
+
+  .deekshaEducationform-button-group {
+      display: flex;
+      justify-content: flex-end;
+      gap: 20px;
+      margin-top: 40px;
+
+      button,
+      .link-button {
+          padding: 13px 35px;
+          border-radius: 5px;
+          border: none;
+          cursor: pointer;
+          font-size: 18px;
+          text-decoration: none;
+      }
+
+      .deekshaEducationform-back-button {
+          background: #e0e0e0;
+
+          &:hover {
+              background: #9A4EFC;
+              color: white;
+          }
+      }
+
+      .deekshaEducationform-Next-button {
+          background: #9A4EFC;
+          color: #fff;
+          text-decoration: none;
+          padding: 13px 35px;
+          font-size: 18px;
+          border-radius: 5px;
+
+          &:hover {
+              text-decoration: underline;
+          }
+      }
+  }
+}
+
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .deekshaEducationform-container {
+      width: 90%;
+  }
+
+  .deekshaEducationform-options label {
+      width: 100%;
+  }
+
+
+          
+          
+  // .deekshaEducationform-language-select{
+  //   border: 1px solid red;
+  // }
+
+  .deekshaEducationform-occupation input,
+  .deekshaEducationform-language-select,
+  .deekshaEducationform-custom-language input {
+    
+    
+      width: 100%;
+  }
+
+  .deekshaEducationform-button-group {
+      flex-direction: column;
+      gap: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  h1 {
+      font-size: 24px;
+  }
+
+  .deekshaEducationform-education-selection p,
+  .deekshaEducationform-occupation p,
+  .deekshaEducationform-languages-header p {
+      font-size: 20px;
+  }
+
+  .deekshaEducationform-options {
+      gap: 15px;
+  }
+
+  button {
+      padding: 10px 20px;
+      font-size: 16px;
+  }
+}

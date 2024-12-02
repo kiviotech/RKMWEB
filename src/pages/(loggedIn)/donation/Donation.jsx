@@ -186,7 +186,6 @@ const Donation = () => {
     roomNumber: true,
     guestName: true,
     arrivalDate: true,
-    noOfGuests: true,
     stayDuration: true,
     donation: true,
     donationAmount: true,
@@ -642,7 +641,6 @@ const Donation = () => {
                 {tomorrowFilterOptions.roomNumber && <th>Room number</th>}
                 {tomorrowFilterOptions.guestName && <th>Guest Name</th>}
                 {tomorrowFilterOptions.arrivalDate && <th>Arrival date</th>}
-                {tomorrowFilterOptions.noOfGuests && <th>No. of Guests</th>}
                 {tomorrowFilterOptions.stayDuration && <th>Stay Duration</th>}
                 {tomorrowFilterOptions.donation && <th>Donation</th>}
                 {tomorrowFilterOptions.donationAmount && <th>Donation Amount</th>}
@@ -655,7 +653,6 @@ const Donation = () => {
                   {tomorrowFilterOptions.roomNumber && <td>{guest.roomNumber}</td>}
                   {tomorrowFilterOptions.guestName && <td>{guest.guestName}</td>}
                   {tomorrowFilterOptions.arrivalDate && <td>{guest.arrivalDate}</td>}
-                  {tomorrowFilterOptions.noOfGuests && <td>{guest.noOfGuests}</td>}
                   {tomorrowFilterOptions.stayDuration && <td>{guest.stayDuration}</td>}
                   {tomorrowFilterOptions.donation && (
                     <td>

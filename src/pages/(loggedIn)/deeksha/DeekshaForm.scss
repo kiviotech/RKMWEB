@@ -1,68 +1,275 @@
-// .deeksha-form {
-//   padding: 40px;
-//   max-width: 800px;
-//   margin: 0 auto;
-//   background-color: #fff;
-//   border-radius: 10px;
-//   box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+* {
+  box-sizing: border-box;
+}
 
-//   h2 {
-//     color: #9867e9;
-//     font-family: "Nunito Sans", sans-serif;
-//     font-size: 30px;
-//     font-weight: 800;
-//     margin-bottom: 20px;
-//   }
+.deekshaform-container {
+  padding: 40px;
+  font-family: 'lexend';
+  width: 75%;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  font-weight: 500;
+  font-size: 24px;
 
-//   .form-group {
-//     margin-bottom: 20px;
+  @media (max-width: 1024px) {
+    width: 90%;
+    padding: 30px;
+  }
 
-//     label {
-//       display: block;
-//       margin-bottom: 5px;
-//       color: #333;
-//       font-family: "Nunito Sans", sans-serif;
-//       font-size: 18px;
-//       font-weight: 600;
-//     }
+  @media (max-width: 768px) {
+    font-size: 18px;
+    gap: 15px;
+    padding: 20px;
+  }
 
-//     input,
-//     select {
-//       width: 100%;
-//       padding: 10px;
-//       font-size: 16px;
-//       border: 1px solid #ccc;
-//       border-radius: 5px;
-//       background: #fff;
-//       box-shadow: 0px 3px 10px rgba(0, 0, 0, 0.1);
-//       color: #515151;
-//       font-family: "Nunito Sans", sans-serif;
-//     }
+  @media (max-width: 480px) {
+    font-size: 16px;
+    padding: 15px;
+  }
+}
 
-//     .error {
-//       color: red;
-//       font-size: 14px;
-//       margin-top: 5px;
-//     }
-//   }
+.deekshaform-progress-bar-container {
+  width: 100%;
+  height: 8px;
+  background: #E0E0E0;
+  border-radius: 4px;
+  margin-bottom: 20px;
+}
 
-//   .submit-btn {
-//     text-align: center;
+.deekshaform-progress-bar {
+  width: calculateProgress(); // Dynamic progress
+  height: 100%;
+  background: #9867E9;
+  border-radius: 4px;
+  transition: width 0.3s ease-in-out; // Smooth transition
+  margin-top: -1px;
+}
 
-//     button {
-//       padding: 10px 50px;
-//       background-color: #9867e9;
-//       color: #fff;
-//       border: none;
-//       font-size: 18px;
-//       font-weight: 600;
-//       border-radius: 7px;
-//       cursor: pointer;
-//       transition: background-color 0.3s ease;
+.deekshaform-header {
+  text-align: center;
+  color: #9867E9;
+  font-size: 32px;
 
-//       &:hover {
-//         background-color: #8650e2;
-//       }
-//     }
-//   }
-// }
+  @media (max-width: 768px) {
+    font-size: 24px;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 20px;
+  }
+}
+
+.deekshaform-input-container{
+ margin-top: -15px;
+}
+
+
+.deekshaform-gender-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: center;
+  }
+}
+
+.deekshaform-button-wrapper {
+  display: flex;
+  border-radius: 5px;
+  overflow: hidden;
+
+  @media (max-width: 480px) {
+    flex-direction: column;
+    width: 100%;
+  }
+}
+
+.deekshaform-gender-button{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 20px;
+  border: 1px solid #ccc;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s, color 0.3s; // Smooth transition
+  width: 100px; // Fixed width for consistent button size
+
+  &.deekshaform-male {
+    background-color: #9867E9;
+    color: #fff;
+    border-radius: 5px 0 0 5px; // Rounded left corner
+  }
+
+  &.deekshaform-female {
+    background-color: #9867E9;
+    color: #fff;
+    border-radius: 0 5px 5px 0; // Rounded right corner
+  }
+}
+
+.deekshaform-gender-icon {
+  width: 20px;
+  height: 20px;
+  margin-right: 8px;
+  
+}
+
+  
+
+.deekshaform-prefix-container {
+  margin-bottom: 20px;
+ 
+}
+
+.deekshaform-bold-label {
+  font-weight: bold;
+  font-size: 24px;
+  margin-bottom: 5px;
+  display: inline-block;
+ 
+  @media (max-width: 768px) {
+    font-size: 20px;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 18px;
+  }
+}
+
+.deekshaform-checkbox-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  margin-top: 10px;
+
+  @media (max-width: 480px) {
+    gap: 10px;
+  }
+}
+
+.deekshaform-checkbox-label{
+  display: flex;
+  gap: 4px;
+  align-items: center;
+ 
+
+}
+
+.deekshaform-inline-input-container {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  
+  // margin-bottom: 10px;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    gap: 5px;
+  }
+}
+
+.deekshaform-inline-input {
+  border: none;
+  border-bottom: 2px solid #6c63ff;
+  padding: 5px;
+  font-size: 16px;
+  flex: 1;
+
+  @media (max-width: 768px) {
+    font-size: 14px;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 12px;
+  }
+}
+
+.deekshaform-input {
+  padding: 10px;
+  width: 100%;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 16px;
+  color: #515151;
+
+  @media (max-width: 768px) {
+    font-size: 14px;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 12px;
+  }
+}
+
+.deekshaform-select-container {
+  padding: 5px;
+  width: 200px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  @media (max-width: 480px) {
+    width: 100%;
+  }
+}
+
+.deekshaform-select {
+  padding: 7px;
+  width: 200px;
+  border: none;
+  border-radius: 5px;
+  color: #515151;
+  font-size: 16px;
+
+  @media (max-width: 480px) {
+    width: 100%;
+  }
+}
+
+.deekshaform-button-container {
+  display: flex;
+  justify-content: flex-end;
+  gap: 20px;
+  margin-top: 20px;
+
+  @media (max-width: 768px) {
+    justify-content: center;
+    gap: 10px;
+  }
+
+  @media (max-width: 480px) {
+    flex-direction: column;
+  }
+}
+
+.deekshaform-footer-button {
+  padding: 13px 35px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 18px;
+  background-color: #9867E9;
+  color: #fff;
+  transition: 0.3s;
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+
+  @media (max-width: 768px) {
+    font-size: 16px;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 14px;
+    width: 100%;
+  }
+}

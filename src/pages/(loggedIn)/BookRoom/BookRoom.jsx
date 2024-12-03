@@ -233,6 +233,96 @@ const RoomListView = ({ rooms, activeTab }) => {
   );
 };
 
+// Remove the Modal import and add this custom modal component
+const CustomModal = ({ isOpen, onClose, children }) => {
+  if (!isOpen) return null;
+
+  const handleBackdropClick = (e) => {
+    if (e.target === e.currentTarget) {
+      onClose();
+    }
+  };
+
+  return (
+    <div className="modal-backdrop" onClick={handleBackdropClick}>
+      <div className="modal-content">
+        {children}
+      </div>
+    </div>
+  );
+};
+
+// Update the email modal component
+const ConfirmationEmailModal = ({ isOpen, onClose, guestData, arrivalDate, departureDate }) => {
+  const [emailContent, setEmailContent] = useState(`Dear Devotee,
+
+Namoskar,
+
+We have received, the below email and noted the contents. You are welcome to stay at our Guest House during the mentioned period i.e arrival - ${arrivalDate} and departure - ${departureDate} after breakfast at 07.30 a.m. The accommodation will be kept reserved for - devotees
+
+Please bring a hard copy of this letter for ready reference along with your ID Proof or copy of your ID Proof (Aadhaar/ PAN/ Voter Card/Passport) Also, try to reach the Math Office to do the registration formalities between 09.00 to 11.00 a.m. on the day of arrival
+
+May Sri Ramakrishna, Holy Mother Sri Sarada Devi and Swami Vivekananda bless you all !
+
+Pranam and namaskar again.
+
+Yours sincerely,
+
+Swami Lokahanananda
+Adhyaksha
+RAMAKRISHNA MATH & RAMAKRISHNA MISSION, KAMANKUNUR`);
+
+  // Update email content when dates change
+  useEffect(() => {
+    setEmailContent(prevContent => {
+      return prevContent.replace(
+        /arrival - .* and departure - .*/,
+        `arrival - ${arrivalDate} and departure - ${departureDate}`
+      );
+    });
+  }, [arrivalDate, departureDate]);
+
+  return (
+    <CustomModal isOpen={isOpen} onClose={onClose}>
+      <div className="email-template">
+        <div className="email-header">
+          <span className="close-button" onClick={onClose}>×</span>
+          <div className="email-fields">
+            <div className="field">
+              <span>From:</span>
+              <span className="email-address">emailaddress@gmail.com</span>
+            </div>
+            <div className="field">
+              <span>To:</span>
+              <div className="recipient-tags">
+                {guestData?.additionalGuests?.map((guest, index) => (
+                  <div key={index} className="recipient-chip">
+                    <div className="avatar">A</div>
+                    <span className="name">{guest.name}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div className="email-content">
+          <textarea
+            value={emailContent}
+            onChange={(e) => setEmailContent(e.target.value)}
+            className="email-content-textarea"
+          />
+        </div>
+
+        <div className="email-footer">
+          <button onClick={onClose} className="cancel-button">Cancel</button>
+          <button onClick={onClose} className="send-button">Send</button>
+        </div>
+      </div>
+    </CustomModal>
+  );
+};
+
 const BookRoom = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -260,6 +350,7 @@ const BookRoom = () => {
   const [allocatedGuestsList, setAllocatedGuestsList] = useState([]); // Add this new state
   const [selectedBedData, setSelectedBedData] = useState(null);
   const [isToggled, setIsToggled] = useState(false);
+  const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
 
   useEffect(() => {
     if (guestData) {
@@ -458,36 +549,28 @@ const BookRoom = () => {
 
   // Update the getBeds function to pass the correct parameters
   const getBeds = (beds, roomIndex, dateIndex) => {
-    const room = roomsData[roomIndex];
-    const currentDate = new Date(dates[dateIndex]);
-    
-    if (!room) {
-      console.error("No room found for index:", roomIndex);
-      return null;
-    }
-
     const currentRoom = filteredRooms[roomIndex];
     const totalBeds = currentRoom.beds;
     const availableBeds = currentRoom.availableBeds;
-
-    const occupiedBeds = room.attributes.guests?.data?.filter(guest => {
-      const arrivalDate = new Date(guest.attributes.arrival_date);
-      const departureDate = new Date(guest.attributes.departure_date);
-      return currentDate >= arrivalDate && currentDate <= departureDate;
-    }).length || 0;
+    const occupiedBeds = totalBeds - availableBeds;
 
     return (
       <div className={`bed-grid beds-${totalBeds}`}>
         {[...Array(totalBeds)].map((_, bedIndex) => {
           const bedId = `${roomIndex}-${dateIndex}-${bedIndex}`;
           const isClicked = clickedBeds[activeTab]?.[bedId];
-          const isFilled = bedIndex < occupiedBeds;
+          // Update the isFilled logic for F category
+          const isFilled = activeTab === 'F' ? 
+            bedIndex < occupiedBeds : 
+            bedIndex < (totalBeds - availableBeds);
 
           let bedImage = emptyBedImage;
           if (isFilled) {
             bedImage = filledBedImage;
           } else if (isClicked) {
             bedImage = selectedImage;
+          } else if (hoveredBeds[bedId]) {
+            bedImage = hoverImage;
           }
 
           return (
@@ -496,7 +579,9 @@ const BookRoom = () => {
               className={`bed-icon ${isFilled ? 'filled' : 'empty'}`}
               title={isFilled ? "Occupied" : "Available"}
               onClick={() => handleBedClick(bedIndex, bedId, isFilled, roomIndex, dateIndex)}
-              style={{ cursor: 'pointer' }}
+              onMouseEnter={() => handleMouseEnter(bedId)}
+              onMouseLeave={() => handleMouseLeave(bedId)}
+              style={{ cursor: isFilled ? 'not-allowed' : 'pointer' }}
             >
               <img
                 src={bedImage}
@@ -788,8 +873,8 @@ const BookRoom = () => {
         "Yatri Niwas": {}
       });
 
-      alert("Room allocation confirmed successfully!");
-      navigate('/Requests');
+      // Show email modal after successful confirmation
+      setIsEmailModalOpen(true);
       
     } catch (error) {
       console.error("Error confirming allocation:", error);
@@ -919,6 +1004,13 @@ const BookRoom = () => {
           )
         )}
       </div>
+      <ConfirmationEmailModal 
+        isOpen={isEmailModalOpen}
+        onClose={() => setIsEmailModalOpen(false)}
+        guestData={guestData}
+        arrivalDate={arrivalDate}
+        departureDate={departureDate}
+      />
     </div>
   );
 };

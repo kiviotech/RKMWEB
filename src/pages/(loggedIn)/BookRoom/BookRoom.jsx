@@ -389,6 +389,74 @@ const BookRoom = () => {
     setSelectedGuests(prev => prev.map((isSelected) => false));
   };
 
+  const handleBedClick = (bedIndex, bedId, isFilled, roomIndex, dateIndex) => {
+    // If bed is filled or no unallocated guests, don't proceed
+    if (isFilled || !guestData?.additionalGuests) return;
+
+    // Find the first selected but unallocated guest
+    const selectedUnallocatedGuestIndex = guestData.additionalGuests.findIndex((guest, index) => 
+      selectedGuests[index] && 
+      !allocatedGuestsList.some(allocated => allocated.name === guest.name)
+    );
+
+    if (selectedUnallocatedGuestIndex === -1) {
+      alert("Please select a guest to allocate first");
+      return;
+    }
+
+    const guest = guestData.additionalGuests[selectedUnallocatedGuestIndex];
+    const currentRoom = filteredRooms[roomIndex];
+
+    // Create new allocated guest
+    const newAllocatedGuest = {
+      ...guest,
+      roomNo: currentRoom.name
+    };
+
+    // Update allocated guests list
+    setAllocatedGuestsList(prev => [...prev, newAllocatedGuest]);
+
+    // Clear the selection for the allocated guest
+    const newSelectedGuests = [...selectedGuests];
+    newSelectedGuests[selectedUnallocatedGuestIndex] = false;
+    setSelectedGuests(newSelectedGuests);
+
+    // Get arrival and departure dates
+    const arrivalDateTime = new Date(arrivalDate);
+    const departureDateTime = new Date(departureDate);
+
+    // Update bed selection state for all dates between arrival and departure
+    const newClickedBeds = { ...clickedBeds };
+    dates.forEach((dateStr, idx) => {
+      const currentDate = new Date(dateStr);
+      if (currentDate >= arrivalDateTime && currentDate <= departureDateTime) {
+        const dateBedId = `${roomIndex}-${idx}-${bedIndex}`;
+        if (!newClickedBeds[activeTab]) {
+          newClickedBeds[activeTab] = {};
+        }
+        newClickedBeds[activeTab][dateBedId] = true;
+      }
+    });
+    
+    setClickedBeds(newClickedBeds);
+
+    // Update bed data for details panel
+    const bedData = {
+      bed: {
+        index: bedIndex,
+        id: bedId,
+        status: 'selected',
+        date: dates[dateIndex]
+      },
+      room: {
+        ...currentRoom,
+        guests: [newAllocatedGuest]
+      }
+    };
+    setSelectedBedData(bedData);
+  };
+
+  // Update the getBeds function to pass the correct parameters
   const getBeds = (beds, roomIndex, dateIndex) => {
     const room = roomsData[roomIndex];
     const currentDate = new Date(dates[dateIndex]);
@@ -402,79 +470,6 @@ const BookRoom = () => {
     const totalBeds = currentRoom.beds;
     const availableBeds = currentRoom.availableBeds;
 
-    const handleBedClick = (bedIndex, bedId, isFilled) => {
-      const bedData = {
-        bed: {
-          index: bedIndex,
-          id: bedId,
-          status: isFilled ? 'occupied' : 'available',
-          date: dates[dateIndex]
-        },
-        room: {
-          ...room.attributes,
-          id: room.id,
-          roomNumber: currentRoom.name,
-          type: currentRoom.type,
-          category: currentRoom.category,
-          totalBeds,
-          availableBeds,
-          guests: room.attributes.guests?.data || []
-        }
-      };
-
-      setSelectedBedData(bedData);
-
-      // Only allow bed selection if there are guest IDs and the bed isn't filled
-      if (!isFilled && guestData?.additionalGuests?.some(guest => guest.id)) {
-        const newClickedBeds = {
-          ...clickedBeds,
-          [activeTab]: {
-            ...clickedBeds[activeTab],
-            [bedId]: !clickedBeds[activeTab]?.[bedId]
-          }
-        };
-        setClickedBeds(newClickedBeds);
-      }
-    };
-
-    if (activeTab === 'F') {
-      const filledBedCount = totalBeds - availableBeds;
-      
-      return (
-        <div className={`bed-grid beds-${totalBeds}`}>
-          {[...Array(totalBeds)].map((_, bedIndex) => {
-            const bedId = `${roomIndex}-${dateIndex}-${bedIndex}`;
-            const isClicked = clickedBeds[activeTab]?.[bedId];
-            const isFilled = bedIndex < filledBedCount;
-
-            let bedImage = emptyBedImage;
-            if (isFilled) {
-              bedImage = filledBedImage;
-            } else if (isClicked) {
-              bedImage = selectedImage;
-            }
-
-            return (
-              <div
-                key={bedId}
-                className={`bed-icon ${isFilled ? 'filled' : 'empty'}`}
-                title={isFilled ? "Occupied" : "Available"}
-                onClick={() => handleBedClick(bedIndex, bedId, isFilled)}
-                style={{ cursor: 'pointer' }}
-              >
-                <img
-                  src={bedImage}
-                  alt="bed"
-                  className={`bed-img ${!isFilled && isClicked ? "clicked-img" : ""}`}
-                />
-              </div>
-            );
-          })}
-        </div>
-      );
-    }
-
-    // For non-F blocks
     const occupiedBeds = room.attributes.guests?.data?.filter(guest => {
       const arrivalDate = new Date(guest.attributes.arrival_date);
       const departureDate = new Date(guest.attributes.departure_date);
@@ -500,7 +495,7 @@ const BookRoom = () => {
               key={bedId}
               className={`bed-icon ${isFilled ? 'filled' : 'empty'}`}
               title={isFilled ? "Occupied" : "Available"}
-              onClick={() => handleBedClick(bedIndex, bedId, isFilled)}
+              onClick={() => handleBedClick(bedIndex, bedId, isFilled, roomIndex, dateIndex)}
               style={{ cursor: 'pointer' }}
             >
               <img

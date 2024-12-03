@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import "./ApplicationDetails.scss";
 import CommonButton from "../../../../components/ui/Button";
 import useApplicationStore from "../../../../../useApplicationStore";
+import {icons } from "../../../../constants"
 
 const ApplicationDetails = ({ goToNextStep, tabName }) => {
   const {
@@ -398,67 +399,52 @@ const ApplicationDetails = ({ goToNextStep, tabName }) => {
                 {errors.email && <span className="error">{errors.email}</span>}
               </div>
 
-              {/* Number of Guest Members (moved to right section) */}
+              {/* Phone Number Field */}
               <div className="form-group">
                 <label>Phone number</label>
-                <div className="phone-input">
-                  <div className="custom-select">
-                    <div
-                      className="selected-flag"
+                <div className="unified-input">
+                  <div className="custom-select" ref={dropdownRef}>
+                    <div 
+                      className="selected-country" 
                       onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                     >
-                      {countryCodes.find((c) => c.code === formData.countryCode)
-                        ?.flagUrl && (
-                        <img
-                          src={
-                            countryCodes.find(
-                              (c) => c.code === formData.countryCode
-                            )?.flagUrl
-                          }
-                          alt=""
-                          className="flag-icon"
-                        />
+                      {formData.countryCode && (
+                        <>
+                          <img 
+                            src={countryCodes.find(c => c.code === formData.countryCode)?.flagUrl} 
+                            alt="" 
+                            className="flag-icon" 
+                          />
+                          +{formData.countryCode}
+                        </>
                       )}
-                      <span>+{formData.countryCode}</span>
                     </div>
                     {isDropdownOpen && (
-                      <div className="options-list" ref={dropdownRef}>
-                        <div className="search-container">
-                          <input
-                            type="text"
-                            placeholder="Search country..."
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            onClick={(e) => e.stopPropagation()}
-                            className="search-input"
-                            autoFocus
-                          />
-                        </div>
-                        {filteredCountryCodes.map((country) => (
-                          <div
-                            key={country.id}
-                            className="option"
-                            onClick={() => {
-                              setCountryCode(country.code);
-                              setIsDropdownOpen(false);
-                              setSearchQuery("");
-                            }}
-                          >
-                            <img
-                              src={country.flagUrl}
-                              alt=""
-                              className="flag-icon"
-                            />
-                            <div className="country-info">
-                              <span className="country-name">
-                                {country.name}
-                              </span>
-                              <span className="country-code">
-                                +{country.code}
-                              </span>
+                      <div className="country-dropdown">
+                        <input
+                          type="text"
+                          placeholder="Search country..."
+                          value={searchQuery}
+                          onChange={(e) => setSearchQuery(e.target.value)}
+                          onClick={(e) => e.stopPropagation()}
+                        />
+                        <div className="country-list">
+                          {filteredCountryCodes.map((country) => (
+                            <div
+                              key={country.id}
+                              className="country-option"
+                              onClick={() => {
+                                setCountryCode(country.code);
+                                setIsDropdownOpen(false);
+                                setSearchQuery("");
+                              }}
+                            >
+                              <img src={country.flagUrl} alt="" className="flag-icon" />
+                              <span>+{country.code}</span>
+                              <span className="country-name">{country.name}</span>
                             </div>
-                          </div>
-                        ))}
+                          ))}
+                        </div>
                       </div>
                     )}
                   </div>
@@ -470,9 +456,7 @@ const ApplicationDetails = ({ goToNextStep, tabName }) => {
                     placeholder="921234902"
                   />
                 </div>
-                {errors.phoneNumber && (
-                  <span className="error">{errors.phoneNumber}</span>
-                )}
+                {errors.phoneNumber && <span className="error">{errors.phoneNumber}</span>}
               </div>
             </div>
 

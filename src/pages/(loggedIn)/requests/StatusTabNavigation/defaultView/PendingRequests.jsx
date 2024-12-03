@@ -8,7 +8,7 @@ import { useNavigate } from "react-router-dom";
 import { getBookingRequestsByStatus, updateBookingRequest } from "../../../../../../services/src/api/repositories/bookingRequestRepository"; // Add updateBookingRequest
 import { getToken } from "../../../../../../services/src/utils/storage";
 
-const PendingRequests = ({ selectedDate }) => {
+const PendingRequests = ({ selectedDate, searchQuery }) => {
     const navigate = useNavigate();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [requestId, setRequestId] = useState(null);
@@ -90,16 +90,30 @@ const PendingRequests = ({ selectedDate }) => {
 
     // Filter requests based on selected date
     useEffect(() => {
-        if (selectedDate) {
-            const filtered = requests
-                .filter((request) => new Date(request.createdAt).toDateString() === selectedDate.toDateString())
-                .sort((a, b) => a.createdAt - b.createdAt);
+        let filtered = requests;
 
-            setFilteredRequests(filtered);
-        } else {
-            setFilteredRequests(requests);
+        // Filter by date if selected
+        if (selectedDate) {
+            filtered = filtered.filter(request => 
+                new Date(request.createdAt).toDateString() === selectedDate.toDateString()
+            );
         }
-    }, [selectedDate, requests]);
+
+        // Filter by search query if present
+        if (searchQuery) {
+            filtered = filtered.filter(request => 
+                request.userDetails.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                request.guests.some(guest => 
+                    guest.name.toLowerCase().includes(searchQuery.toLowerCase())
+                )
+            );
+        }
+
+        // Sort by creation date
+        filtered = filtered.sort((a, b) => a.createdAt - b.createdAt);
+
+        setFilteredRequests(filtered);
+    }, [selectedDate, requests, searchQuery]);
 
 
     // Function to update booking request status

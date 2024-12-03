@@ -25,6 +25,7 @@ const Requests = () => {
   const [isGuestsGridViewVisible, setIsGuestsGridViewVisible] = useState(false);
   const [activeToggler, setActiveToggler] = useState("dashboard");
   const [activeTab, setActiveTab] = useState("pending");
+  const [searchQuery, setSearchQuery] = useState("");
 
   // Common styles for togglers
   const commonStyle = {
@@ -69,13 +70,18 @@ const Requests = () => {
     setActiveTab(tabId);
   };
 
+  // Add search handler
+  const handleSearch = (query) => {
+    setSearchQuery(query);
+  };
+
   // Function to render tab content based on active tab
   const renderTabContent = () => {
     if (activeTab === "pending") {
       return isGuestsGridViewVisible ? (
-        <TabPendingGridView selectedDate={startDate} />
+        <TabPendingGridView selectedDate={startDate} searchQuery={searchQuery} />
       ) : (
-        <PendingRequests selectedDate={startDate} />
+        <PendingRequests selectedDate={startDate} searchQuery={searchQuery} />
       );
     } else if (activeTab === "approved") {
       return isGuestsGridViewVisible ? (
@@ -197,7 +203,7 @@ const Requests = () => {
               style={getStyle("gridView")}
             />
           </div>
-          <SearchBar />
+          <SearchBar onSearch={handleSearch} />
         </div>
       </div>
 

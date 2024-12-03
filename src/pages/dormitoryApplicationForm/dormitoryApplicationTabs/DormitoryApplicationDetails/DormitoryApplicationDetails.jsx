@@ -333,6 +333,9 @@ const DormitoryApplicationDetails = ({ goToNextStep, tabName }) => {
     }
   };
 
+  // Add searchInputRef
+  const searchInputRef = useRef(null);
+
   return (
     <div className="application-form">
       <form onSubmit={handleSubmit}>
@@ -424,64 +427,57 @@ const DormitoryApplicationDetails = ({ goToNextStep, tabName }) => {
               {/* Phone Number Field */}
               <div className="form-group">
                 <label>Phone number</label>
-                <div className="phone-input">
-                  <div className="custom-select">
-                    <div
-                      className="selected-flag"
-                      onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                    >
-                      {countryCodes.find((c) => c.code === formData.countryCode)
-                        ?.flagUrl && (
-                        <img
-                          src={
-                            countryCodes.find(
-                              (c) => c.code === formData.countryCode
-                            )?.flagUrl
+                <div className="unified-input">
+                  <div className="custom-select" ref={dropdownRef}>
+                    <div 
+                      className="selected-country" 
+                      onClick={() => {
+                        setIsDropdownOpen(!isDropdownOpen);
+                        setTimeout(() => {
+                          if (searchInputRef.current) {
+                            searchInputRef.current.focus();
                           }
-                          alt=""
-                          className="flag-icon"
-                        />
+                        }, 0);
+                      }}
+                    >
+                      {formData.countryCode && (
+                        <>
+                          <img 
+                            src={countryCodes.find(c => c.code === formData.countryCode)?.flagUrl} 
+                            alt="" 
+                            className="flag-icon" 
+                          />
+                          +{formData.countryCode}
+                        </>
                       )}
-                      <span>+{formData.countryCode}</span>
                     </div>
                     {isDropdownOpen && (
-                      <div className="options-list" ref={dropdownRef}>
-                        <div className="search-container">
-                          <input
-                            type="text"
-                            placeholder="Search country..."
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            onClick={(e) => e.stopPropagation()}
-                            className="search-input"
-                            autoFocus
-                          />
-                        </div>
-                        {filteredCountryCodes.map((country) => (
-                          <div
-                            key={country.id}
-                            className="option"
-                            onClick={() => {
-                              handleCountryCodeChange(country.code);
-                              setIsDropdownOpen(false);
-                              setSearchQuery("");
-                            }}
-                          >
-                            <img
-                              src={country.flagUrl}
-                              alt=""
-                              className="flag-icon"
-                            />
-                            <div className="country-info">
-                              <span className="country-name">
-                                {country.name}
-                              </span>
-                              <span className="country-code">
-                                +{country.code}
-                              </span>
+                      <div className="country-dropdown">
+                        <input
+                          ref={searchInputRef}
+                          type="text"
+                          placeholder="Search country..."
+                          value={searchQuery}
+                          onChange={(e) => setSearchQuery(e.target.value)}
+                          onClick={(e) => e.stopPropagation()}
+                        />
+                        <div className="country-list">
+                          {filteredCountryCodes.map((country) => (
+                            <div
+                              key={country.id}
+                              className="country-option"
+                              onClick={() => {
+                                handleCountryCodeChange(country.code);
+                                setIsDropdownOpen(false);
+                                setSearchQuery("");
+                              }}
+                            >
+                              <img src={country.flagUrl} alt="" className="flag-icon" />
+                              <span>+{country.code}</span>
+                              <span className="country-name">{country.name}</span>
                             </div>
-                          </div>
-                        ))}
+                          ))}
+                        </div>
                       </div>
                     )}
                   </div>

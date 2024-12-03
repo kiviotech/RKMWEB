@@ -29,6 +29,28 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
+    
+    // Add validation for departure date
+    if (name === 'departureDate') {
+      if (formData.visitDate && new Date(value) < new Date(formData.visitDate)) {
+        setErrors('departureDate', 'Departure date cannot be before arrival date');
+        return;
+      }
+    }
+    
+    // Add validation for arrival date
+    if (name === 'visitDate') {
+      if (formData.departureDate && new Date(value) > new Date(formData.departureDate)) {
+        setErrors('visitDate', 'Arrival date cannot be after departure date');
+        return;
+      }
+    }
+    
+    // Clear error when valid input is provided
+    if (errors[name]) {
+      setErrors(name, '');
+    }
+    
     setVisitFormData(name, value);
     console.log("Visit Input Change:", { field: name, value });
   };
@@ -71,6 +93,19 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
     let hasErrors = false;
+    
+    // Add date validation checks
+    if (formData.visitDate && formData.departureDate) {
+      if (new Date(formData.departureDate) < new Date(formData.visitDate)) {
+        setErrors('departureDate', 'Departure date cannot be before arrival date');
+        hasErrors = true;
+      }
+      if (new Date(formData.visitDate) > new Date(formData.departureDate)) {
+        setErrors('visitDate', 'Arrival date cannot be after departure date');
+        hasErrors = true;
+      }
+    }
+
     console.log("Visit Details Submission Attempt:", {
       currentData: {
         visitDate: formData.visitDate,

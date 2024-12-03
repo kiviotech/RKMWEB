@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import CommonButton from "../../../components/ui/Button";
 import './GuestDetailsPopup.scss';
 import { updateBookingRequest } from "../../../../services/src/api/repositories/bookingRequestRepository";
@@ -20,6 +20,15 @@ const icons = {
 const GuestDetailsPopup = ({ isOpen, onClose, guestDetails, guests, onStatusChange }) => {
     const [selectedRow, setSelectedRow] = useState(null);
     const [selectedVisitRow, setSelectedVisitRow] = useState(null);
+    const [selectedGuestName, setSelectedGuestName] = useState(guestDetails?.userDetails?.name || "");
+
+    useEffect(() => {
+        if (guestDetails?.guests?.length > 0) {
+            const firstGuest = guestDetails.guests[0];
+            setSelectedRow(firstGuest.id);
+            setSelectedGuestName(firstGuest.name || guestDetails?.userDetails?.name || "");
+        }
+    }, [guestDetails]);
 
     console.log('GuestDetailsPopup - Full guestDetails:', guestDetails);
     console.log('GuestDetailsPopup - User Details:', guestDetails?.userDetails);
@@ -33,6 +42,8 @@ const GuestDetailsPopup = ({ isOpen, onClose, guestDetails, guests, onStatusChan
 
     const handleRowClick = (guestId) => {
         setSelectedRow(guestId);
+        const selectedGuest = guestDetails?.guests?.find(guest => guest.id === guestId);
+        setSelectedGuestName(selectedGuest?.name || guestDetails?.userDetails?.name || "");
     };
 
     const handleVisitRowClick = (index) => {
@@ -215,7 +226,7 @@ const GuestDetailsPopup = ({ isOpen, onClose, guestDetails, guests, onStatusChan
                 <div className="visit-history">
                     <div className="history-header">
                         <div className="left-title">Guests</div>
-                        <div className="center-title">Visit History of John Dee</div>
+                        <div className="center-title">Visit History of {selectedGuestName}</div>
                         <div className="right-link">
                             <a href="#" className="check-availability">Check Availability</a>
                         </div>
@@ -266,18 +277,24 @@ const GuestDetailsPopup = ({ isOpen, onClose, guestDetails, guests, onStatusChan
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {[0, 1, 2, 3, 4].map((index) => (
-                                        <tr 
-                                            key={index}
-                                            className={selectedVisitRow === index ? 'selected' : ''}
-                                            onClick={() => handleVisitRowClick(index)}
-                                        >
-                                            <td>00/00/0000</td>
-                                            <td>5</td>
-                                            <td>GH-101</td>
-                                            <td>₹100.00</td>
+                                    {guestDetails?.visitHistory?.length > 0 ? (
+                                        guestDetails.visitHistory.map((visit, index) => (
+                                            <tr 
+                                                key={index}
+                                                className={selectedVisitRow === index ? 'selected' : ''}
+                                                onClick={() => handleVisitRowClick(index)}
+                                            >
+                                                <td>{visit.visitDate || 'N/A'}</td>
+                                                <td>{visit.numberOfDays || 'N/A'}</td>
+                                                <td>{visit.roomAllocated || 'N/A'}</td>
+                                                <td>₹{visit.donations?.toFixed(2) || '0.00'}</td>
+                                            </tr>
+                                        ))
+                                    ) : (
+                                        <tr>
+                                            <td colSpan="4" className="no-data">No visit history available</td>
                                         </tr>
-                                    ))}
+                                    )}
                                 </tbody>
                             </table>
                         </div>

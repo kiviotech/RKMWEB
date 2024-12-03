@@ -315,22 +315,46 @@ const BookRoom = () => {
     let selectedBeds = [];
     let roomAssignments = [];
 
-    // Go through each room to find available beds
-    for (let roomIndex = 0; roomIndex < filteredRooms.length && bedsNeeded > 0; roomIndex++) {
-      const room = roomsData[roomIndex];
-      const availableBeds = room?.attributes?.available_beds ?? 0;
-      const totalBeds = room?.attributes?.beds ?? 0;
-      const filledBedCount = totalBeds - availableBeds;
-
-      // Only allocate up to the available beds in this room
-      const bedsToAllocateInThisRoom = Math.min(availableBeds, bedsNeeded);
+    // Modified logic for F category
+    if (activeTab === 'F') {
+      // Find rooms with available beds
+      const availableRooms = filteredRooms.filter(room => room.availableBeds > 0);
       
-      // Start assigning from the first available bed position (after filled beds)
-      for (let i = 0; i < bedsToAllocateInThisRoom; i++) {
-        const bedIndex = filledBedCount + i; // Start after filled beds
-        selectedBeds.push({ roomIndex, bedIndex });
-        roomAssignments.push(filteredRooms[roomIndex].name);
-        bedsNeeded--;
+      for (let roomIndex = 0; roomIndex < filteredRooms.length && bedsNeeded > 0; roomIndex++) {
+        const room = filteredRooms[roomIndex];
+        const availableBeds = room.availableBeds;
+        const totalBeds = room.beds;
+        const filledBedCount = totalBeds - availableBeds;
+
+        // Calculate how many beds we can allocate in this room
+        const bedsToAllocateInThisRoom = Math.min(availableBeds, bedsNeeded);
+        
+        // Allocate beds in this room
+        for (let i = 0; i < bedsToAllocateInThisRoom; i++) {
+          const bedIndex = filledBedCount + i;
+          selectedBeds.push({ roomIndex, bedIndex });
+          roomAssignments.push(room.name);
+          bedsNeeded--;
+        }
+
+        if (bedsNeeded === 0) break;
+      }
+    } else {
+      // Existing logic for other categories
+      for (let roomIndex = 0; roomIndex < filteredRooms.length && bedsNeeded > 0; roomIndex++) {
+        const room = roomsData[roomIndex];
+        const availableBeds = room?.attributes?.available_beds ?? 0;
+        const totalBeds = room?.attributes?.beds ?? 0;
+        const filledBedCount = totalBeds - availableBeds;
+
+        const bedsToAllocateInThisRoom = Math.min(availableBeds, bedsNeeded);
+        
+        for (let i = 0; i < bedsToAllocateInThisRoom; i++) {
+          const bedIndex = filledBedCount + i;
+          selectedBeds.push({ roomIndex, bedIndex });
+          roomAssignments.push(filteredRooms[roomIndex].name);
+          bedsNeeded--;
+        }
       }
     }
 

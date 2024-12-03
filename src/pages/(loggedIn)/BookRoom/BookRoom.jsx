@@ -6,6 +6,8 @@ import hoverImage from "../../../assets/icons/hoverImage.jpeg";
 import selectedImage from "../../../assets/icons/selectedImage.jpeg";
 import { fetchRooms, updateRoomById } from "../../../../services/src/services/roomService";
 import { useLocation, useNavigate } from 'react-router-dom';
+import { BsListUl } from 'react-icons/bs';
+import { IoGrid } from "react-icons/io5";
 
 // Add these new components at the top of the file
 const AllocatedGuestsTable = ({ guests, onConfirmAllocation, roomsData }) => {
@@ -185,6 +187,52 @@ const BedDetailsPanel = ({ bedData }) => {
   );
 };
 
+// Add this new component for the list view
+const RoomListView = ({ rooms, activeTab }) => {
+  const getCategoryDetails = () => {
+    switch (activeTab) {
+      case "Guest house":
+        return {
+          text: "Guest House",
+          color: "#7ACD06"
+        };
+      case "F":
+        return {
+          text: "Peerless Flat",
+          color: "#F2930D"
+        };
+      case "Yatri Niwas":
+        return {
+          text: "Yatri Niwas",
+          color: "#FF4B4B"  // You can adjust this color as needed
+        };
+      default:
+        return {
+          text: "",
+          color: "#000000"
+        };
+    }
+  };
+
+  const { text, color } = getCategoryDetails();
+
+  return (
+    <div className="room-list-view">
+      <div className="room-category-header" style={{ color }}>
+        {text}
+      </div>
+      <div className="room-list-grid">
+        {rooms.map((room, index) => (
+          <div key={index} className="room-list-item">
+            <div className="room-number">{room.name}</div>
+            <div className="available-count">{room.availableBeds}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
 const BookRoom = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -211,6 +259,7 @@ const BookRoom = () => {
   const [selectedGuests, setSelectedGuests] = useState([]);
   const [allocatedGuestsList, setAllocatedGuestsList] = useState([]); // Add this new state
   const [selectedBedData, setSelectedBedData] = useState(null);
+  const [isToggled, setIsToggled] = useState(false);
 
   useEffect(() => {
     if (guestData) {
@@ -580,70 +629,77 @@ const BookRoom = () => {
       id: room.id
     }));
 
+  // Update the renderDateGrid function to include the list view toggle
   const renderDateGrid = () => {
     return (
       <div className="grid-container" onScroll={handleScroll}>
-        <div className="grid-header">
-          <div className="corner-cell"></div>
-          {isLoadingLeft && (
-            <div className="date-cell">
-              <span className="loading-indicator">...</span>
-            </div>
-          )}
-          {dates.map((date, index) => (
-            <div key={index} className="date-cell">
-              {formatDate(date)}
-            </div>
-          ))}
-          {isLoadingRight && (
-            <div className="date-cell">
-              <span className="loading-indicator">...</span>
-            </div>
-          )}
-        </div>
-        <div className="grid-body">
-          {filteredRooms.map((room, roomIndex) => {
-            // Handler for room click
-            const handleRoomClick = () => {
-              const roomData = {
-                roomNumber: room.name,
-                roomType: room.type,
-                roomCategory: room.category,
-                totalBeds: room.beds,
-                availableBeds: room.availableBeds,
-                roomId: room.id,
-                rawData: roomsData[roomIndex]?.attributes || {}
-              };
-              console.log('Room Data:', roomData);
-            };
-
-            return (
-              <div key={roomIndex} className="grid-row">
-                <div 
-                  className="room-cell"
-                  onClick={handleRoomClick}
-                  style={{ cursor: 'pointer' }}
-                >
-                  {room.name}
+        {isToggled ? (
+          <RoomListView rooms={filteredRooms} activeTab={activeTab} />
+        ) : (
+          <>
+            <div className="grid-header">
+              <div className="corner-cell"></div>
+              {isLoadingLeft && (
+                <div className="date-cell">
+                  <span className="loading-indicator">...</span>
                 </div>
-                {dates.map((_, dateIndex) => (
-                  <div
-                    key={dateIndex}
-                    className={`grid-cell ${
-                      activeTab === "Yatri Niwas" ? "yatri-niwas-cell" : ""
-                    }`}
-                  >
-                    {activeTab === "Yatri Niwas" ? (
-                      <AvailabilityBox availableBeds={room.availableBeds} />
-                    ) : (
-                      getBeds(room.beds, roomIndex, dateIndex)
-                    )}
+              )}
+              {dates.map((date, index) => (
+                <div key={index} className="date-cell">
+                  {formatDate(date)}
+                </div>
+              ))}
+              {isLoadingRight && (
+                <div className="date-cell">
+                  <span className="loading-indicator">...</span>
+                </div>
+              )}
+            </div>
+            <div className="grid-body">
+              {filteredRooms.map((room, roomIndex) => {
+                // Handler for room click
+                const handleRoomClick = () => {
+                  const roomData = {
+                    roomNumber: room.name,
+                    roomType: room.type,
+                    roomCategory: room.category,
+                    totalBeds: room.beds,
+                    availableBeds: room.availableBeds,
+                    roomId: room.id,
+                    rawData: roomsData[roomIndex]?.attributes || {}
+                  };
+                  console.log('Room Data:', roomData);
+                };
+
+                return (
+                  <div key={roomIndex} className="grid-row">
+                    <div 
+                      className="room-cell"
+                      onClick={handleRoomClick}
+                      style={{ cursor: 'pointer' }}
+                    >
+                      {room.name}
+                    </div>
+                    {dates.map((_, dateIndex) => (
+                      <div
+                        key={dateIndex}
+                        className={`grid-cell ${
+                          activeTab === "Yatri Niwas" ? "yatri-niwas-cell" : ""
+                        }`}
+                      >
+                        {activeTab === "Yatri Niwas" ? (
+                          <AvailabilityBox availableBeds={room.availableBeds} />
+                        ) : (
+                          getBeds(room.beds, roomIndex, dateIndex)
+                        )}
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </div>
-            );
-          })}
-        </div>
+                );
+              })}
+            </div>
+          </>
+        )}
       </div>
     );
   };
@@ -739,22 +795,36 @@ const BookRoom = () => {
               </button>
             ))}
           </div>
-
-          <div className="booking-filter-control">
-            <span className="filter-label">Sort by</span>
-            <select
-              className="filter-select"
-              value={sortType}
-              onChange={(e) => setSortType(e.target.value)}
-            >
-              <option value="">All Types</option>
-              <option value="AC Rooms">AC</option>
-              <option value="Non-AC Rooms">Non-AC</option>
-            </select>
-          </div>
         </div>
 
+
         <div className="booking-date-panel">
+        <div className="booking-filter-control">
+          <div className="view-toggle">
+            <button 
+              className={!isToggled ? 'active' : ''} 
+              onClick={() => setIsToggled(false)}
+            >
+              <IoGrid />
+            </button>
+            <button 
+              className={isToggled ? 'active' : ''} 
+              onClick={() => setIsToggled(true)}
+            >
+              <BsListUl />
+            </button>
+          </div>
+          <span className="filter-label">Sort by</span>
+          <select
+            className="filter-select"
+            value={sortType}
+            onChange={(e) => setSortType(e.target.value)}
+          >
+            <option value="">All Types</option>
+            <option value="AC Rooms">AC</option>
+            <option value="Non-AC Rooms">Non-AC</option>
+          </select>
+        </div>
           <div className="date-wrapper">
             <input
               type="date"

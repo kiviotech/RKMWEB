@@ -25,6 +25,7 @@ const ApplicationDetails = ({ goToNextStep, tabName }) => {
   );
 
   const dropdownRef = useRef(null);
+  const searchInputRef = useRef(null);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -406,7 +407,14 @@ const ApplicationDetails = ({ goToNextStep, tabName }) => {
                   <div className="custom-select" ref={dropdownRef}>
                     <div 
                       className="selected-country" 
-                      onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                      onClick={() => {
+                        setIsDropdownOpen(!isDropdownOpen);
+                        setTimeout(() => {
+                          if (searchInputRef.current) {
+                            searchInputRef.current.focus();
+                          }
+                        }, 0);
+                      }}
                     >
                       {formData.countryCode && (
                         <>
@@ -422,6 +430,7 @@ const ApplicationDetails = ({ goToNextStep, tabName }) => {
                     {isDropdownOpen && (
                       <div className="country-dropdown">
                         <input
+                          ref={searchInputRef}
                           type="text"
                           placeholder="Search country..."
                           value={searchQuery}

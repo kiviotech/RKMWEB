@@ -23,6 +23,7 @@ import userDummyImage from "../assets/image/user-dummy-image.png";
 import whatsapp from "../assets/icons/whatsapp.png";
 import informationIcon from "../assets/icons/informationIcon.png";
 import down_arrow from "../assets/icons/down_arrow.png";
+import edit_icon from "../assets/icons/edit_icon.png";
 
 
 import checkCircleMarked from "../assets/icons/checkCircleMarked.png";
@@ -87,5 +88,6 @@ export default {
   RMK_Logo,
   whatsapp,
   informationIcon,
-  down_arrow
+  down_arrow,
+  edit_icon
 };

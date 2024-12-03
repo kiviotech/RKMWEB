@@ -349,10 +349,10 @@ const BookRoom = () => {
         }
       };
 
-      console.log('Setting bed data:', bedData);
-      setSelectedBedData(bedData); // Make sure this state setter is being called
+      setSelectedBedData(bedData);
 
-      if (!isFilled) {
+      // Only allow bed selection if there are guest IDs and the bed isn't filled
+      if (!isFilled && guestData?.additionalGuests?.some(guest => guest.id)) {
         const newClickedBeds = {
           ...clickedBeds,
           [activeTab]: {

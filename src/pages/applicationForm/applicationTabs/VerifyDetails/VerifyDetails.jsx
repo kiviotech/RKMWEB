@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { icons } from "../../../../constants";
+import edit_icon from "../../../../assets/icons/edit_icon.png"
 import useApplicationStore from "../../../../../useApplicationStore";
 import "./VerifyDetails.scss";
 import { createNewGuestDetails } from "../../../../../services/src/services/guestDetailsService";
@@ -121,7 +121,124 @@ const VerifyDetails = () => {
   };
 
   return (
-    <div className="verify-details">
+    // <div className="verify-details" style={{ marginLeft: "15px" }}>
+    //   <h1>Verify Details</h1>
+    //   <div className="table-container">
+    //     <table>
+    //       <thead>
+    //         <tr>
+    //           <th style={{ width: "5%" }}>Sl No.</th>
+    //           <th style={{ width: "40%" }}>Name (s)</th>
+    //           <th style={{ width: "5%", textAlign: "center" }}>Age</th>
+    //           <th style={{ width: "5%", textAlign: "center" }}>Gender (M/F)</th>
+    //           <th style={{ width: "15%" }}>Profession</th>
+    //           <th style={{ width: "20%" }}>Initiation By</th>
+    //         </tr>
+    //       </thead>
+    //       <tbody>
+    //         {/* Applicant Row */}
+    //         <tr>
+    //           <td>1</td>
+    //           <td>{formData.name}</td>
+    //           <td style={{ textAlign: "center" }}>{formData.age}</td>
+    //           <td style={{ textAlign: "center" }}>{formData.gender}</td>
+    //           <td>{formData.occupation}</td>
+    //           <td>{formData.deeksha || "Not specified"}</td>
+    //         </tr>
+    //         {/* Guest Rows */}
+    //         {formData.guests.map((guest, index) => (
+    //           <tr key={index}>
+    //             <td>{index + 2}</td>
+    //             <td>{guest.guestName}</td>
+    //             <td style={{ textAlign: "center" }}>{guest.guestAge}</td>
+    //             <td style={{ textAlign: "center" }}>{guest.guestGender}</td>
+    //             <td>{guest.guestOccupation}</td>
+    //             <td>{guest.guestDeeksha || "Not specified"}</td>
+    //           </tr>
+    //         ))}
+    //       </tbody>
+    //     </table>
+    //   </div>
+
+    //   <div className="details-section">
+    //     <p>
+    //       <strong>Arrival Date and Time:</strong>{" "}
+    //       {formatDateTime(formData.visitDate, formData.visitTime)}
+    //     </p>
+    //     <p>
+    //       <strong>Departure Date and Time:</strong>{" "}
+    //       {formatDateTime(formData.departureDate, formData.departureTime)}
+    //     </p>
+    //     <p>
+    //       <strong>Total Days of Stay:</strong> {calculateStayDuration()}
+    //     </p>
+    //     {formData.visited === "yes" && (
+    //       <p>
+    //         <strong>
+    //           Date of Last visit & stay in Ramakrishna Math Kamarpukur Guest House:
+    //         </strong>{" "}
+    //         {new Date(formData.previousVisitDate).toLocaleDateString()}
+    //       </p>
+    //     )}
+    //   </div>
+
+    //   <div className="address-details">
+    //     <h2>Address Details</h2>
+    //     {/* Applicant Address */}
+    //     <div className="address-block">
+    //       <h3>
+    //         Applicant
+    //         <img src={icons.edit} alt="Edit" className="edit-icon" />
+    //       </h3>
+    //       <p>
+    //         <strong>Name:</strong> {formData.name}
+    //       </p>
+    //       <p>
+    //         <strong>Address:</strong>{" "}
+    //         {`${formData.address.houseNumber}, ${formData.address.streetName}`}
+    //       </p>
+    //       <p className="styleForCity">
+    //         <strong>District:</strong> {formData.address.district}{" "}
+    //         <strong>Pincode:</strong> {formData.address.pinCode}{" "}
+    //         <strong>State:</strong> {formData.address.state}
+    //       </p>
+    //       <p>
+    //         <strong>Mobile Number:</strong> +{formData.countryCode} {formData.phoneNumber}
+    //       </p>
+    //     </div>
+
+    //     {/* Guest Addresses */}
+    //     {formData.guests.map((guest, index) => (
+    //       <div key={index} className="address-block">
+    //         <h3>
+    //           Guest {index + 1}
+    //           <img src={icons.edit} alt="Edit" className="edit-icon" />
+    //         </h3>
+    //         <p>
+    //           <strong>Name:</strong> {guest.guestName}
+    //         </p>
+    //         <p>
+    //           <strong>Address:</strong>{" "}
+    //           {`${guest.guestAddress.houseNumber}, ${guest.guestAddress.streetName}`}
+    //         </p>
+    //         <p className="styleForCity">
+    //           <strong>District:</strong> {guest.guestAddress.district}{" "}
+    //           <strong>Pincode:</strong> {guest.guestAddress.pinCode}{" "}
+    //           <strong>State:</strong> {guest.guestAddress.state}
+    //         </p>
+    //         <p>
+    //           <strong>Mobile Number:</strong> +{guest.countryCode} {guest.guestNumber}
+    //         </p>
+    //       </div>
+    //     ))}
+    //   </div>
+
+    //   <div className="button-container">
+    //     <button className="save">Save for later</button>
+    //     <button className="submit-button" onClick={handleSubmit}>Submit</button>
+    //   </div>
+    // </div>
+    <div className="verify-details" style={{marginLeft:'15px'}}>
       <h1>Verify Details</h1>
       <div className="table-container">
         <table>
@@ -162,15 +279,15 @@ const VerifyDetails = () => {
 
       <div className="details-section">
         <p>
-          <strong>Arrival Date and Time:</strong>{" "}
-          {formatDateTime(formData.visitDate, formData.visitTime)}
+          <strong>Arrival Date and Time :</strong>{" "}
+          <span> {formatDateTime(formData.visitDate, formData.visitTime)}</span>
         </p>
         <p>
-          <strong>Departure Date and Time:</strong>{" "}
-          {formatDateTime(formData.departureDate, formData.departureTime)}
+          <strong>Departure Date and Time :</strong>{" "}
+          <span> {formatDateTime(formData.departureDate, formData.departureTime)}</span>
         </p>
         <p>
-          <strong>Total Days of Stay:</strong> {calculateStayDuration()}
+          <span><strong>Total Days of Stay :</strong> {calculateStayDuration()}</span>
         </p>
         {formData.visited === "yes" && (
           <p>
@@ -188,47 +305,49 @@ const VerifyDetails = () => {
         <div className="address-block">
           <h3>
             Applicant
-            <img src={icons.edit} alt="Edit" className="edit-icon" />
+            <img src={edit_icon} alt="Edit" className="edit-icon" />
           </h3>
-          <p>
-            <strong>Name:</strong> {formData.name}
+          <p >
+            <div><strong >Name :</strong> <span>{formData.name}</span></div>
+           <div> <strong >Aadhaar Number :</strong> <span>{formData.aadhaar}</span></div>
+            <div><strong >Mobile Number :</strong> <span>+{formData.countryCode} {formData.phoneNumber}</span></div>
           </p>
           <p>
-            <strong>Address:</strong>{" "}
-            {`${formData.address.houseNumber}, ${formData.address.streetName}`}
+            <strong>Address :</strong>{" "}
+           <span> {`${formData.address.houseNumber}, ${formData.address.streetName}`}</span>
           </p>
-          <p className="styleForCity">
-            <strong>District:</strong> {formData.address.district}{" "}
-            <strong>Pincode:</strong> {formData.address.pinCode}{" "}
-            <strong>State:</strong> {formData.address.state}
+          <p >
+            <div><strong>District :</strong> <span>{formData.address.district}{" "}</span></div>
+            <div><strong>Pincode :</strong><span> {formData.address.pinCode}{" "}</span></div>
+            <div><strong>State :</strong> <span>{formData.address.state}</span></div>
           </p>
-          <p>
-            <strong>Mobile Number:</strong> +{formData.countryCode} {formData.phoneNumber}
-          </p>
+          {/* <p>
+            <strong>Mobile Number :</strong> +{formData.countryCode} {formData.phoneNumber}
+          </p> */}
         </div>
 
         {/* Guest Addresses */}
         {formData.guests.map((guest, index) => (
           <div key={index} className="address-block">
             <h3>
-              Guest {index + 1}
-              <img src={icons.edit} alt="Edit" className="edit-icon" />
+              Member {index + 1}
+              <img src={edit_icon} alt="Edit" className="edit-icon" />
             </h3>
-            <p>
-              <strong>Name:</strong> {guest.guestName}
+            <p >
+              <div><strong>Name :</strong> {guest.guestName}</div>
+              <div><strong>Aadhar Number :</strong> {guest.guestAadhaar}</div>
+              <div><strong>Mobile Number :</strong> +{guest.countryCode} {guest.guestNumber}</div>
             </p>
             <p>
-              <strong>Address:</strong>{" "}
-              {`${guest.guestAddress.houseNumber}, ${guest.guestAddress.streetName}`}
+              <strong>Address :</strong>{" "}
+              <span>{`${guest.guestAddress.houseNumber}, ${guest.guestAddress.streetName}`}</span>
             </p>
-            <p className="styleForCity">
-              <strong>District:</strong> {guest.guestAddress.district}{" "}
-              <strong>Pincode:</strong> {guest.guestAddress.pinCode}{" "}
-              <strong>State:</strong> {guest.guestAddress.state}
+            <p style={{display:'flex',gap:'50px',}}>
+           <div>   <strong>District :</strong> {guest.guestAddress.district}{" "}</div>
+             <div> <strong>Pincode :</strong> {guest.guestAddress.pinCode}{" "}</div>
+              <div><strong>State :</strong> {guest.guestAddress.state}</div>
             </p>
-            <p>
-              <strong>Mobile Number:</strong> +{guest.countryCode} {guest.guestNumber}
-            </p>
+           
           </div>
         ))}
       </div>

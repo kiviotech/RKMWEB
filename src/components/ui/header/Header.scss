@@ -66,19 +66,85 @@
     position: absolute;
     right: 30px;
     top: 15px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+
+    .notification-container {
+      position: relative;
+      cursor: pointer;
+    }
 
     .notification {
       position: relative;
-      bottom: 8px;
-    }
-
-    img {
-      margin-right: 20px;
     }
 
     .user-image {
       width: 44px;
       height: 44px;
     }
+  }
+}
+
+.user-profile {
+  position: relative;
+  display: inline-block;
+
+  .user-image {
+    cursor: pointer;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    object-fit: cover;
+  }
+
+  .dropdown-menu {
+    position: absolute;
+    top: 50px;
+    right: 0;
+    background: white;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    border-radius: 4px;
+    padding: 8px;
+    z-index: 1000;
+    min-width: 120px;
+
+    button {
+      background: none;
+      border: none;
+      padding: 8px 16px;
+      cursor: pointer;
+      width: 100%;
+      text-align: left;
+      font-size: 14px;
+      color: #333;
+
+      &:hover {
+        background-color: #f5f5f5;
+      }
+    }
+  }
+}
+
+.notification-container {
+  position: relative;
+}
+
+.notification-popup {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  padding: 1rem;
+  margin-top: 0.5rem;
+  min-width: 200px;
+  z-index: 1000;
+
+  p {
+    color: #666;
+    text-align: center;
+    margin: 0;
   }
 }

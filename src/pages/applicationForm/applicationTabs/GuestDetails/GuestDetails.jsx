@@ -21,7 +21,7 @@ const GuestDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
   const [countryCodes, setCountryCodes] = useState([]);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [searchInputRef, setSearchInputRef] = useState(null);
+  const searchInputRef = useRef(null);
   const dropdownRef = useRef(null);
 
   useEffect(() => {
@@ -116,10 +116,12 @@ const GuestDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
   );
 
   useEffect(() => {
-    if (isDropdownOpen && searchInputRef) {
-      searchInputRef.focus();
+    if (isDropdownOpen && searchInputRef.current) {
+      setTimeout(() => {
+        searchInputRef.current.focus();
+      }, 0);
     }
-  }, [isDropdownOpen, searchInputRef]);
+  }, [isDropdownOpen]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -381,22 +383,48 @@ const GuestDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
   const handleProceed = () => {
     console.log("Proceed Attempt - Current Guest State:", {
       guests: formData.guests,
-      errors
+      errors,
+      activeTab
     });
 
+    // Find current guest index
+    const currentGuestIndex = guestTabs.indexOf(activeTab);
+    
+    // Validate current guest's required fields
+    let currentGuestHasErrors = false;
+    const requiredFields = [
+      "guestTitle",
+      "guestName",
+      "guestAge",
+      "guestGender",
+      "guestEmail",
+      "guestNumber",
+      "guestRelation"
+    ];
+
+    requiredFields.forEach(field => {
+      if (!formData.guests[currentGuestIndex][field]) {
+        setErrors(`${field}${currentGuestIndex}`, `${field.replace('guest', '')} is required`);
+        currentGuestHasErrors = true;
+      }
+    });
+
+    if (currentGuestHasErrors) {
+      console.log("Current Guest Validation Failed:", errors);
+      return;
+    }
+
+    // If there are more guests to fill out, move to the next guest tab
+    if (currentGuestIndex < formData.guests.length - 1) {
+      const nextGuestTab = guestTabs[currentGuestIndex + 1];
+      setActiveTab(nextGuestTab);
+      console.log("Moving to next guest tab:", nextGuestTab);
+      return;
+    }
+
+    // If we're on the last guest and all validations pass, proceed to next step
     let hasErrors = false;
     formData.guests.forEach((guest, index) => {
-      // Validate each guest's required fields
-      const requiredFields = [
-        "guestTitle",
-        "guestName",
-        "guestAge",
-        "guestGender",
-        "guestEmail",
-        "guestNumber",
-        "guestRelation"
-      ];
-
       requiredFields.forEach(field => {
         if (!guest[field]) {
           setErrors(`${field}${index}`, `${field.replace('guest', '')} is required`);
@@ -410,6 +438,13 @@ const GuestDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
       goToNextStep();
     } else {
       console.log("Guest Details Validation Failed:", errors);
+      // Move to the first guest with errors
+      const firstErrorIndex = formData.guests.findIndex((guest) => 
+        requiredFields.some(field => !guest[field])
+      );
+      if (firstErrorIndex !== -1) {
+        setActiveTab(guestTabs[firstErrorIndex]);
+      }
     }
   };
 
@@ -481,8 +516,8 @@ const GuestDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
   }, []);
 
   return (
-    <div className="guest-details">
-      <h2>Additional Guest Details</h2>
+    <div className="guest-details" style={{ marginLeft: "50px" }}>
+      <h2 style={{ marginTop: "55px" }}>Additional Guest Details</h2>
 
       <div className="form-tabs custom-form-tab">
         {guestTabs.map((tab, index) => (
@@ -628,71 +663,53 @@ const GuestDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
 
                   <div className="form-group">
                     <label>Phone Number</label>
-                    <div className="phone-input">
-                      <div className="custom-select">
-                        <div
-                          className="selected-flag"
-                          onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                    <div className="unified-input">
+                      <div className="custom-select" ref={dropdownRef}>
+                        <div 
+                          className="selected-country" 
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setIsDropdownOpen(!isDropdownOpen);
+                          }}
                         >
-                          {countryCodes.find(
-                            (c) => c.code === formData.guests[index].countryCode
-                          )?.flagUrl && (
-                            <img
-                              src={
-                                countryCodes.find(
-                                  (c) =>
-                                    c.code ===
-                                    formData.guests[index].countryCode
-                                )?.flagUrl
-                              }
-                              alt=""
-                              className="flag-icon"
-                            />
+                          {formData.guests[index].countryCode && (
+                            <>
+                              <img 
+                                src={countryCodes.find(c => c.code === formData.guests[index].countryCode)?.flagUrl} 
+                                alt="" 
+                                className="flag-icon" 
+                              />
+                              +{formData.guests[index].countryCode}
+                            </>
                           )}
-                          <span>+{formData.guests[index].countryCode}</span>
                         </div>
                         {isDropdownOpen && (
-                          <div className="options-list" ref={dropdownRef}>
-                            <div className="search-container">
-                              <input
-                                type="text"
-                                placeholder="Search country..."
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                                onClick={(e) => e.stopPropagation()}
-                                className="search-input"
-                                ref={setSearchInputRef}
-                              />
-                            </div>
-                            {filteredCountryCodes.map((country) => (
-                              <div
-                                key={country.id}
-                                className="option"
-                                onClick={() => {
-                                  setGuestData(
-                                    index,
-                                    "countryCode",
-                                    country.code
-                                  );
-                                  setIsDropdownOpen(false);
-                                  setSearchQuery("");
-                                }}
-                              >
-                                <img
-                                  src={country.flagUrl}
-                                  alt=""
-                                  className="flag-icon"
-                                />
-                                <div className="country-info">
-                                  <span className="country-name">
-                                    {country.name}
-                                  </span>
-                                  <span className="country-code">
-                                    +{country.code}
-                                  </span>
+                          <div className="country-dropdown">
+                            <input
+                              type="text"
+                              ref={searchInputRef}
+                              placeholder="Search country..."
+                              value={searchQuery}
+                              onChange={(e) => setSearchQuery(e.target.value)}
+                              onClick={(e) => e.stopPropagation()}
+                            />
+                            <div className="country-list">
+                              {filteredCountryCodes.map((country) => (
+                                <div
+                                  key={country.id}
+                                  className="country-option"
+                                  onClick={() => {
+                                    setGuestData(index, "countryCode", country.code);
+                                    setIsDropdownOpen(false);
+                                    setSearchQuery("");
+                                  }}
+                                >
+                                  <img src={country.flagUrl} alt="" className="flag-icon" />
+                                  <span>+{country.code}</span>
+                                  <span className="country-name">{country.name}</span>
                                 </div>
-                              </div>
-                            ))}
+                              ))}
+                            </div>
                           </div>
                         )}
                       </div>
@@ -705,9 +722,7 @@ const GuestDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
                       />
                     </div>
                     {errors[`guestNumber${index}`] && (
-                      <span className="error">
-                        {errors[`guestNumber${index}`]}
-                      </span>
+                      <span className="error">{errors[`guestNumber${index}`]}</span>
                     )}
                   </div>
                 </div>

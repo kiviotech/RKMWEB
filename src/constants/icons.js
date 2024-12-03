@@ -23,6 +23,7 @@ import userDummyImage from "../assets/image/user-dummy-image.png";
 import whatsapp from "../assets/icons/whatsapp.png";
 import informationIcon from "../assets/icons/informationIcon.png";
 
+
 import checkCircleMarked from "../assets/icons/checkCircleMarked.png";
 import checkCircle from "../assets/icons/checkCircle.png";
 import markedYellow from "../assets/icons/markedYellow.png";

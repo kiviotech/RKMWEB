@@ -1,0 +1,144 @@
+// *{
+//     margin: 0;
+//     padding: 0;
+//     box-sizing: border-box;
+// }
+
+
+
+.deekshabooks-form-container {
+    padding: 40px;
+    font-family: "Lexend";
+    width: 75%;
+    margin: 0 auto;
+  }
+  
+  .deekshabooks-progress-bar {
+    width: 100%;
+    height: 8px;
+    background: #e0e0e0;
+    border-radius: 4px;
+    margin-bottom: 20px;
+  }
+  
+  .deekshabooks-progress-bar-inner {
+    width: 87.5%; // 7/8 steps
+    height: 100%;
+    background: #9867e9;
+    border-radius: 4px;
+    transition: width 0.3s ease-in-out;
+  }
+  
+  .deekshabooks-heading {
+    font-family: "Lexend";
+    font-size: 32px;
+    font-weight: 600;
+    line-height: 40px;
+    text-align: center;
+    color: #9867e9;
+    margin-top: 40px;
+  }
+  
+
+.deekshabooks-formgroup{
+    display: flex;
+    flex-direction: column;
+    
+}
+
+  .deekshabooks-question {
+    font-family: "Lexend";
+    font-size: 24px;
+    font-weight: 500;
+    line-height: 30px;
+    text-align: left;
+    margin: 30px 0 10px 0;
+  }
+  
+  .deekshabooks-input-field {
+    width: 705px;
+    // height: 56px;
+    padding: 12px;
+    margin-top: 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+    color: #515151;
+  }
+  
+  .deekshabooks-add-book {
+    font-family: "Lexend";
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 30px;
+    color: #9867e9;
+    cursor: pointer;
+    margin-top: 20px
+  }
+  
+  .deekshabooks-icon-container {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 20px;
+
+    button{
+      width: 85px;
+          height: 45px;
+          background-size: cover;
+          border: none;
+          background-color: white;
+          box-shadow: none;
+          cursor: pointer;
+          img{
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+          }
+    }
+  }
+  
+  .deekshabooks-icon {
+    width: 50px;
+    height: 50px;
+    cursor: pointer;
+  }
+  
+  .deekshabooks-button-container {
+    display: flex;
+    justify-content: flex-end;
+    gap: 20px;
+    margin-top: 40px;
+
+    button,
+    .link-button {
+      padding: 13px 35px;
+      border-radius: 5px;
+      border: none;
+      cursor: pointer;
+      font-size: 18px;
+      text-decoration: none;
+    }
+
+    .deekshabooksform-back-button {
+      background: #e0e0e0;
+
+      &:hover {
+        background: #9A4EFC;
+        color: white;
+       
+      }
+    }
+
+    .deekshabooksform-next-button {
+      background: #9A4EFC;
+      color: #fff;
+      text-decoration: none;
+      padding: 13px 35px;
+      font-size: 18px;
+      border-radius: 5px;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }

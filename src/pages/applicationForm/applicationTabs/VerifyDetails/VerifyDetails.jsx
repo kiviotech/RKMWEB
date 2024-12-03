@@ -56,7 +56,9 @@ const VerifyDetails = () => {
         status: "pending",
         deeksha: formData.deeksha,
         email: formData.email,
-        relationship: "booker"
+        relationship: "booker",
+        arrival_date: formData.visitDate,
+        departure_date: formData.departureDate
       };
 
       // Create main applicant guest record
@@ -77,7 +79,9 @@ const VerifyDetails = () => {
             status: "pending",
             deeksha: guest.guestDeeksha,
             email: guest.guestEmail,
-            relationship: guest.guestRelation || "guest"
+            relationship: guest.guestRelation || "guest",
+            arrival_date: formData.visitDate,
+            departure_date: formData.departureDate
           };
           return createNewGuestDetails(guestData);
         })

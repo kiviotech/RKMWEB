@@ -1,0 +1,239 @@
+* {
+  box-sizing: border-box;
+}
+h3{
+  margin-left: 80px;
+}
+
+.deekshaRelationForm {
+  padding: 40px;
+  font-family: "Lexend";
+  width: 75%;
+  margin: 0 auto;
+
+  @media (max-width: 768px) {
+    width: 90%;
+    padding: 20px;
+  }
+
+  @media (max-width: 480px) {
+    width: 100%;
+    padding: 15px;
+  }
+}
+
+.deekshaRelationForm-progressBar {
+  width: 100%;
+  height: 8px;
+  background: #e0e0e0;
+  border-radius: 4px;
+  margin-bottom: 20px;
+}
+
+.deekshaRelationForm-progressBar-progress {
+  width: 62.5%; // 5/8 steps
+  height: 100%;
+  background: #9867e9;
+  border-radius: 4px;
+  transition: width 0.3s ease-in-out;
+}
+
+.deekshaRelationForm-heading {
+  color: #9867e9;
+  font-size: 32px;
+  text-align: center;
+  margin-top: 40px;
+
+  @media (max-width: 480px) {
+    font-size: 24px;
+  }
+}
+
+.deekshaRelationForm-yesNoInput {
+  margin-top: 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: 25px;
+
+  p {
+    font-family: "Lexend";
+    font-size: 24px;
+    font-weight: 500;
+    line-height: 30px;
+    text-align: left;
+
+    @media (max-width: 480px) {
+      font-size: 18px;
+    }
+  }
+}
+
+.deekshaRelationForm-yesNoInput-column {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  button {
+    width: 85px;
+    height: 45px;
+    background-size: cover;
+    border: none;
+    cursor: pointer;
+    background-color: none;
+   
+    background-color:white;
+    box-shadow: none;
+
+
+    @media (max-width: 480px) {
+      width: 70px;
+      height: 35px;
+    }
+  }
+}
+
+.deeksharelationImageStyle {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.deekshaRelationForm-yesNoInput-conditionalFields {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.deekshaRelationForm-yesNoInput-conditionalFields-ifYes {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+
+  input,
+  select {
+    width: 250px;
+   
+    padding: 12px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    color: #515151;
+    font-size: 16px;
+
+    @media (max-width: 480px) {
+      width: 100%;
+      height: 48px;
+    }
+  }
+}
+
+.deekshaRelationForm-yesNoInput-conditionalFields-relationship-icons {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  margin-left: 14%;
+
+  @media (max-width: 768px) {
+    grid-template-columns: repeat(2, 1fr);
+    margin-left: 0;
+  }
+
+  @media (max-width: 480px) {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+}
+
+.relation-item {
+  width: 275px;
+
+  border: 2px solid #ccc;
+  border-radius: 5px;
+  padding: 10px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  cursor: pointer;
+  background-color: transparent;
+  color: #000;
+
+  @media (max-width: 480px) {
+    width: 100%;
+    height: auto;
+    padding: 8px;
+  }
+}
+
+.relation-item:hover {
+  border-color: #9867e9;
+}
+
+.relation-item.active {
+  border-color: #9867e9;
+  background-color: #9867e9;
+  color: #fff;
+}
+
+.relation-item img {
+  width: 30px;
+  height: 30px;
+
+  @media (max-width: 480px) {
+    width: 25px;
+    height: 25px;
+  }
+}
+
+.relation-item span {
+  font-size: 18px;
+  font-weight: 500;
+
+  @media (max-width: 480px) {
+    font-size: 16px;
+  }
+}
+
+.deekshaRelationform-button-group {
+  display: flex;
+  justify-content: flex-end;
+  gap: 20px;
+  margin-top: 40px;
+
+  button,
+  .link-button {
+    padding: 13px 35px;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+    font-size: 18px;
+    text-decoration: none;
+
+    @media (max-width: 480px) {
+      padding: 10px 25px;
+      font-size: 16px;
+    }
+  }
+
+  .deekshaRelationform-back-button {
+    background: #e0e0e0;
+
+    &:hover {
+      background: #9a4efc;
+      color: white;
+    }
+  }
+
+  .deekshaRelationform-next-button {
+    background: #9867e9;
+    color: #fff;
+    text-decoration: none;
+    padding: 13px 35px;
+    font-size: 18px;
+    border-radius: 5px;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}

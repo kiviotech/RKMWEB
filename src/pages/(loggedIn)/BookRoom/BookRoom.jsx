@@ -753,7 +753,7 @@ const BookRoom = () => {
               type="date"
               id="arrival-date"
               value={arrivalDate}
-              onChange={(e) => setArrivalDate(e.target.value)}
+              disabled
               className="date-input"
             />
             <label htmlFor="arrival-date" className="date-label">
@@ -766,7 +766,7 @@ const BookRoom = () => {
               type="date"
               id="departure-date"
               value={departureDate}
-              onChange={(e) => setDepartureDate(e.target.value)}
+              disabled
               className="date-input"
             />
             <label htmlFor="departure-date" className="date-label">
@@ -779,12 +779,13 @@ const BookRoom = () => {
         <div className="booking-grid">
           {renderDateGrid()}
         </div>
-        {selectedBedData ? (
+        {selectedBedData && !guestData?.additionalGuests?.some(guest => guest.id) ? (
           <div className="details-panel-container">
             <BedDetailsPanel bedData={selectedBedData} />
           </div>
         ) : (
-          guestData && (
+          // Only show guest allocation tables if guestData exists and has valid guest IDs
+          guestData?.additionalGuests?.some(guest => guest.id) && (
             <div className="guests-panel">
               <AllocatedGuestsTable 
                 guests={allocatedGuestsList} 

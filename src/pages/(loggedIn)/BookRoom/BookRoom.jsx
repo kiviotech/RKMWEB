@@ -481,19 +481,26 @@ const BookRoom = () => {
 
   // Update the useEffect that initializes dates to ensure we have the correct date range
   useEffect(() => {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    setStartDate(today);
+    const initializeDates = () => {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
 
-    // Generate dates for the next 6 months
-    const initialDates = [];
-    for (let i = 0; i < 180; i++) {
-      const date = new Date(today);
-      date.setDate(today.getDate() + i);
-      initialDates.push(date.toISOString().split('T')[0]);
-    }
-    setDates(initialDates);
-  }, []);
+      // Use the arrival date if it exists, otherwise use today's date
+      const startDate = arrivalDate ? new Date(arrivalDate) : today;
+      setStartDate(startDate);
+
+      // Generate dates for the next 6 months starting from the startDate
+      const initialDates = [];
+      for (let i = 0; i < 180; i++) {
+        const date = new Date(startDate);
+        date.setDate(startDate.getDate() + i);
+        initialDates.push(date.toISOString().split('T')[0]);
+      }
+      setDates(initialDates);
+    };
+
+    initializeDates();
+  }, [arrivalDate]);
 
   // Update the handleScroll function
   const handleScroll = (e) => {

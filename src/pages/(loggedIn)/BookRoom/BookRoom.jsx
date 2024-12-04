@@ -341,8 +341,8 @@ const BookRoom = () => {
   const location = useLocation();
   const guestData = location.state?.guestData;
 
-  console.log('Request ID in BookRoom:', guestData?.requestId);
-  console.log('Guest IDs:', guestData?.additionalGuests?.map(guest => guest.id));
+  // console.log('Request ID in BookRoom:', guestData?.requestId);
+  // console.log('Guest IDs:', guestData?.additionalGuests?.map(guest => guest.id));
 
   const [activeTab, setActiveTab] = useState("Guest house"); // State for active tab
   const [arrivalDate, setArrivalDate] = useState(""); // State for arrival date
@@ -496,7 +496,25 @@ const BookRoom = () => {
   };
 
   const handleBedClick = (bedIndex, bedId, isFilled, roomIndex, dateIndex) => {
-    if (isFilled) return;
+    // If there are no guest IDs in the booking request, show bed details for filled beds
+    if (!guestData?.additionalGuests?.some(guest => guest.id)) {
+      if (isFilled) {
+        const currentRoom = roomsData[roomIndex];
+        const bedData = {
+          bed: {
+            index: bedIndex,
+            id: bedId,
+            status: 'occupied',
+            date: dates[dateIndex]
+          },
+          room: currentRoom
+        };
+        setSelectedBedData(bedData);
+      } else {
+        setSelectedBedData(null);
+      }
+      return;
+    }
 
     // Check if this bed is already selected
     const isCurrentlySelected = clickedBeds[activeTab]?.[bedId];
@@ -597,6 +615,14 @@ const BookRoom = () => {
   // Update the getBeds function to pass the correct parameters
   const getBeds = (beds, roomIndex, dateIndex) => {
     const currentRoom = filteredRooms[roomIndex];
+    const originalRoomData = roomsData[roomIndex];
+    // console.log('Current Room Data:', {
+    //   filteredRoom: currentRoom,
+    //   originalRoom: originalRoomData,
+    //   dateIndex,
+    //   currentDate: dates[dateIndex]
+    // });
+
     const totalBeds = currentRoom.beds;
     const availableBeds = currentRoom.availableBeds;
     const occupiedBeds = totalBeds - availableBeds;
@@ -606,10 +632,40 @@ const BookRoom = () => {
         {[...Array(totalBeds)].map((_, bedIndex) => {
           const bedId = `${roomIndex}-${dateIndex}-${bedIndex}`;
           const isClicked = clickedBeds[activeTab]?.[bedId];
-          // Update the isFilled logic for F category
-          const isFilled = activeTab === 'F' ? 
-            bedIndex < occupiedBeds : 
-            bedIndex < (totalBeds - availableBeds);
+
+          // Updated isFilled logic
+          const isFilled = (() => {
+            // Get the current date we're rendering
+            const currentDate = new Date(dates[dateIndex]);
+            
+            // Check if the room has guest data
+            const roomGuests = originalRoomData?.attributes?.guests?.data || [];
+            
+            // Check if any guest's stay period overlaps with current date
+            return roomGuests.some(guest => {
+              const guestArrival = new Date(guest.attributes.arrival_date);
+              const guestDeparture = new Date(guest.attributes.departure_date);
+              
+              // Set hours to 0 for accurate date comparison
+              currentDate.setHours(0, 0, 0, 0);
+              guestArrival.setHours(0, 0, 0, 0);
+              guestDeparture.setHours(0, 0, 0, 0);
+              
+              const isWithinStayPeriod = currentDate >= guestArrival && currentDate <= guestDeparture;
+              
+              // For debugging
+              if (isWithinStayPeriod) {
+                // console.log('Bed filled:', {
+                //   bedIndex,
+                //   currentDate: currentDate.toISOString(),
+                //   guestArrival: guestArrival.toISOString(),
+                //   guestDeparture: guestDeparture.toISOString()
+                // });
+              }
+              
+              return isWithinStayPeriod;
+            });
+          })();
 
           let bedImage = emptyBedImage;
           if (isFilled) {
@@ -1008,9 +1064,9 @@ const BookRoom = () => {
         <div className="booking-grid">
           {renderDateGrid()}
         </div>
-        {selectedBedData && !guestData?.additionalGuests?.some(guest => guest.id) ? (
+        {!guestData?.additionalGuests?.some(guest => guest.id) ? (
           <div className="details-panel-container">
-            <BedDetailsPanel bedData={selectedBedData} />
+            {selectedBedData && <BedDetailsPanel bedData={selectedBedData} />}
           </div>
         ) : (
           // Only show guest allocation tables if guestData exists and has valid guest IDs

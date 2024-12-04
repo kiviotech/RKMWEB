@@ -8,6 +8,7 @@ import { fetchRooms, updateRoomById } from "../../../../services/src/services/ro
 import { useLocation, useNavigate } from 'react-router-dom';
 import { BsListUl } from 'react-icons/bs';
 import { IoGrid } from "react-icons/io5";
+import { updateBookingRequestById } from "../../../../services/src/services/bookingRequestService";
 
 // Add these new components at the top of the file
 const AllocatedGuestsTable = ({ guests, onConfirmAllocation, roomsData }) => {
@@ -872,6 +873,18 @@ const BookRoom = () => {
         await updateRoomById(room.id, updateData);
       }
 
+      // Update the booking request status to "confirmed"
+      const bookingRequestId = guestData?.requestId;
+      if (bookingRequestId) {
+        const bookingUpdateData = {
+          data: {
+            status: "confirmed",
+            // Add other fields as necessary
+          }
+        };
+        await updateBookingRequestById(bookingRequestId, bookingUpdateData);
+      }
+
       // Clear the allocation states
       setAllocatedGuestsList([]);
       setClickedBeds({
@@ -882,7 +895,7 @@ const BookRoom = () => {
 
       return true; // Return true to indicate success
     } catch (error) {
-      console.error("Error updating rooms:", error);
+      console.error("Error updating rooms or booking request:", error);
       throw error; // Rethrow the error to be handled by the modal
     }
   };

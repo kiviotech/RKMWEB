@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import CommonButton from "../../../../components/ui/Button";
 import "./VisitDetails.scss";
 import useApplicationStore from "../../../../../useApplicationStore";
+import { BASE_URL } from "../../../../../services/apiClient";
 
 const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
   const { formData, errors, setVisitFormData, setFile, setErrors } =
@@ -65,25 +66,58 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
     });
   };
 
+  const handleFileUpload = async (file) => {
+    try {
+      const formData = new FormData();
+      formData.append('files', file);
+
+      const response = await fetch(`${BASE_URL}/upload`, {
+        method: 'POST',
+        body: formData,
+        headers: {
+          'Authorization': `Bearer dab72e1a44ce33db65569da89fdc1927935e21775c16a6d6f8f035533fb939552a712001461dd2cabfbffb50b81b3635d6ffb080a24c475f1b8246bbc399da4189dfd3fae5fed6998811fc81e9954d670b6b60e4859bda4634148a94f3ddfecf9c4364858523f5f447bbce967ffc679e35810f1f3c282a6a6f4ee877b58fb8ee`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Upload failed');
+      }
+
+      const data = await response.json();
+      setFile({
+        ...data[0],
+        fileId: data[0].id
+      });
+      console.log("File Upload Success:", data[0]);
+    } catch (error) {
+      console.error("File Upload Error:", error);
+      setErrors('file', 'Failed to upload file');
+    }
+  };
+
   const handleFileChange = (e) => {
     const file = e.target.files[0];
-    setFile(file);
-    console.log("File Upload:", { 
-      fileName: file?.name,
-      fileType: file?.type,
-      fileSize: file?.size
-    });
+    if (file) {
+      handleFileUpload(file);
+      console.log("File Upload Initiated:", { 
+        fileName: file?.name,
+        fileType: file?.type,
+        fileSize: file?.size
+      });
+    }
   };
 
   const handleDrop = (e) => {
     e.preventDefault();
     const file = e.dataTransfer.files[0];
-    setFile(file);
-    console.log("File Drop:", { 
-      fileName: file?.name,
-      fileType: file?.type,
-      fileSize: file?.size
-    });
+    if (file) {
+      handleFileUpload(file);
+      console.log("File Drop Upload Initiated:", { 
+        fileName: file?.name,
+        fileType: file?.type,
+        fileSize: file?.size
+      });
+    }
   };
 
   const handleDragOver = (e) => {

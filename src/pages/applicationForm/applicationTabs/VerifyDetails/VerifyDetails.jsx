@@ -4,9 +4,11 @@ import useApplicationStore from "../../../../../useApplicationStore";
 import "./VerifyDetails.scss";
 import { createNewGuestDetails } from "../../../../../services/src/services/guestDetailsService";
 import { createNewBookingRequest } from "../../../../../services/src/services/bookingRequestService";
+import { useNavigate } from "react-router-dom";
 
 const VerifyDetails = () => {
   const { formData } = useApplicationStore();
+  const navigate = useNavigate();
 
   // Format date and time
   const formatDateTime = (date, time) => {
@@ -90,7 +92,7 @@ const VerifyDetails = () => {
       // Collect all guest IDs from the correct response path
       const guestIds = guestResponses.map(response => response.data.id);
 
-      // Create booking request
+      // Create booking request with updated schema
       const bookingData = {
         status: "awaiting",
         name: `${formData.title} ${formData.name}`.trim(),
@@ -100,13 +102,18 @@ const VerifyDetails = () => {
         phone_number: `+${formData.countryCode}${formData.phoneNumber}`,
         occupation: formData.occupation,
         aadhaar_number: formData.aadhaar,
-        number_of_guest_members: formData.guests.length,
+        number_of_guest_members: formData.guests.length.toString(),
         reason_for_revisit: formData.reason || "",
         address: `${formData.address.houseNumber}, ${formData.address.streetName}, ${formData.address.district}, ${formData.address.state}, ${formData.address.pinCode}`,
         arrival_date: formData.visitDate,
         departure_date: formData.departureDate,
         deeksha: formData.deeksha,
-        guests: [mainGuestId, ...guestIds]
+        guests: [mainGuestId, ...guestIds],
+        // Add the file to accommodation_requirements if it exists
+        accommodation_requirements: formData.file ? [formData.file] : [],
+        // Add default values for required fields
+        number_of_male_devotees: "0",
+        number_of_female_devotees: "0"
       };
 
       await createNewBookingRequest(bookingData);
@@ -120,124 +127,20 @@ const VerifyDetails = () => {
     }
   };
 
+  const handleEditClick = (section) => {
+    switch(section) {
+      case 'applicant':
+        navigate('/application-form', { state: { activeTab: 0 } });
+        break;
+      case 'guest':
+        navigate('/application-form', { state: { activeTab: 1 } });
+        break;
+      default:
+        break;
+    }
+  };
+
   return (
-    // <div className="verify-details" style={{ marginLeft: "15px" }}>
-    //   <h1>Verify Details</h1>
-    //   <div className="table-container">
-    //     <table>
-    //       <thead>
-    //         <tr>
-    //           <th style={{ width: "5%" }}>Sl No.</th>
-    //           <th style={{ width: "40%" }}>Name (s)</th>
-    //           <th style={{ width: "5%", textAlign: "center" }}>Age</th>
-    //           <th style={{ width: "5%", textAlign: "center" }}>Gender (M/F)</th>
-    //           <th style={{ width: "15%" }}>Profession</th>
-    //           <th style={{ width: "20%" }}>Initiation By</th>
-    //         </tr>
-    //       </thead>
-    //       <tbody>
-    //         {/* Applicant Row */}
-    //         <tr>
-    //           <td>1</td>
-    //           <td>{formData.name}</td>
-    //           <td style={{ textAlign: "center" }}>{formData.age}</td>
-    //           <td style={{ textAlign: "center" }}>{formData.gender}</td>
-    //           <td>{formData.occupation}</td>
-    //           <td>{formData.deeksha || "Not specified"}</td>
-    //         </tr>
-    //         {/* Guest Rows */}
-    //         {formData.guests.map((guest, index) => (
-    //           <tr key={index}>
-    //             <td>{index + 2}</td>
-    //             <td>{guest.guestName}</td>
-    //             <td style={{ textAlign: "center" }}>{guest.guestAge}</td>
-    //             <td style={{ textAlign: "center" }}>{guest.guestGender}</td>
-    //             <td>{guest.guestOccupation}</td>
-    //             <td>{guest.guestDeeksha || "Not specified"}</td>
-    //           </tr>
-    //         ))}
-    //       </tbody>
-    //     </table>
-    //   </div>
-
-    //   <div className="details-section">
-    //     <p>
-    //       <strong>Arrival Date and Time:</strong>{" "}
-    //       {formatDateTime(formData.visitDate, formData.visitTime)}
-    //     </p>
-    //     <p>
-    //       <strong>Departure Date and Time:</strong>{" "}
-    //       {formatDateTime(formData.departureDate, formData.departureTime)}
-    //     </p>
-    //     <p>
-    //       <strong>Total Days of Stay:</strong> {calculateStayDuration()}
-    //     </p>
-    //     {formData.visited === "yes" && (
-    //       <p>
-    //         <strong>
-    //           Date of Last visit & stay in Ramakrishna Math Kamarpukur Guest House:
-    //         </strong>{" "}
-    //         {new Date(formData.previousVisitDate).toLocaleDateString()}
-    //       </p>
-    //     )}
-    //   </div>
-
-    //   <div className="address-details">
-    //     <h2>Address Details</h2>
-    //     {/* Applicant Address */}
-    //     <div className="address-block">
-    //       <h3>
-    //         Applicant
-    //         <img src={icons.edit} alt="Edit" className="edit-icon" />
-    //       </h3>
-    //       <p>
-    //         <strong>Name:</strong> {formData.name}
-    //       </p>
-    //       <p>
-    //         <strong>Address:</strong>{" "}
-    //         {`${formData.address.houseNumber}, ${formData.address.streetName}`}
-    //       </p>
-    //       <p className="styleForCity">
-    //         <strong>District:</strong> {formData.address.district}{" "}
-    //         <strong>Pincode:</strong> {formData.address.pinCode}{" "}
-    //         <strong>State:</strong> {formData.address.state}
-    //       </p>
-    //       <p>
-    //         <strong>Mobile Number:</strong> +{formData.countryCode} {formData.phoneNumber}
-    //       </p>
-    //     </div>
-
-    //     {/* Guest Addresses */}
-    //     {formData.guests.map((guest, index) => (
-    //       <div key={index} className="address-block">
-    //         <h3>
-    //           Guest {index + 1}
-    //           <img src={icons.edit} alt="Edit" className="edit-icon" />
-    //         </h3>
-    //         <p>
-    //           <strong>Name:</strong> {guest.guestName}
-    //         </p>
-    //         <p>
-    //           <strong>Address:</strong>{" "}
-    //           {`${guest.guestAddress.houseNumber}, ${guest.guestAddress.streetName}`}
-    //         </p>
-    //         <p className="styleForCity">
-    //           <strong>District:</strong> {guest.guestAddress.district}{" "}
-    //           <strong>Pincode:</strong> {guest.guestAddress.pinCode}{" "}
-    //           <strong>State:</strong> {guest.guestAddress.state}
-    //         </p>
-    //         <p>
-    //           <strong>Mobile Number:</strong> +{guest.countryCode} {guest.guestNumber}
-    //         </p>
-    //       </div>
-    //     ))}
-    //   </div>
-
-    //   <div className="button-container">
-    //     <button className="save">Save for later</button>
-    //     <button className="submit-button" onClick={handleSubmit}>Submit</button>
-    //   </div>
-    // </div>
     <div className="verify-details" style={{marginLeft:'15px'}}>
       <h1>Verify Details</h1>
       <div className="table-container">
@@ -305,7 +208,13 @@ const VerifyDetails = () => {
         <div className="address-block">
           <h3>
             Applicant
-            <img src={edit_icon} alt="Edit" className="edit-icon" />
+            <img 
+              src={edit_icon} 
+              alt="Edit" 
+              className="edit-icon" 
+              onClick={() => handleEditClick('applicant')}
+              style={{ cursor: 'pointer' }}
+            />
           </h3>
           <p >
             <div><strong >Name :</strong> <span>{formData.name}</span></div>
@@ -331,7 +240,13 @@ const VerifyDetails = () => {
           <div key={index} className="address-block">
             <h3>
               Member {index + 1}
-              <img src={edit_icon} alt="Edit" className="edit-icon" />
+              <img 
+                src={edit_icon} 
+                alt="Edit" 
+                className="edit-icon" 
+                onClick={() => handleEditClick('guest')}
+                style={{ cursor: 'pointer' }}
+              />
             </h3>
             <p >
               <div><strong>Name :</strong> {guest.guestName}</div>

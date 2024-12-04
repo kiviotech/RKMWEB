@@ -6,6 +6,7 @@ import GuestDetails from "./applicationTabs/GuestDetails/GuestDetails";
 import VisitDetails from "./applicationTabs/VisitDetails/VisitDetails";
 import VerifyDetails from "./applicationTabs/VerifyDetails/VerifyDetails";
 import useApplicationStore from "../../../useApplicationStore";
+import { useLocation } from "react-router-dom";
 
 const ApplicationForm = () => {
   const { formData } = useApplicationStore();
@@ -186,6 +187,15 @@ const ApplicationForm = () => {
       setActiveFormTab((prev) => prev + 1);
     }
   };
+
+  const location = useLocation();
+
+  useEffect(() => {
+    const { state } = location;
+    if (state?.activeTab !== undefined) {
+      setActiveFormTab(state.activeTab);
+    }
+  }, [location]);
 
   return (
     <div className="application-form">

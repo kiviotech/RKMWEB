@@ -16,24 +16,35 @@ const ApprovedGuests = ({ selectedDate }) => {
   const [error, setError] = useState(null);
 
   const handleButtonClick = (request) => {
+    console.log('Main Request ID:', request.id);
+    console.log('Guest IDs:', request.guests.map(guest => guest.id));
+
     const guestData = {
+      requestId: request.id,
       name: request.userDetails.name,
       arrivalDate: request.userDetails.arrivalDate,
       departureDate: request.userDetails.departureDate,
       numberOfGuests: request.noOfGuest,
       guestDetails: {
         ...request.userDetails,
-        // Add any additional fields needed from userDetails
       },
-      additionalGuests: request.guests.map(guest => ({
-        id: guest.id,
-        name: guest.name,
-        age: guest.age,
-        gender: guest.gender,
-        relation: guest.relation, // This matches the expected format in BookRoom
-        roomNo: "-" // Initialize with no room assigned
-      }))
+      additionalGuests: request.guests.map(guest => {
+        console.log('Processing guest ID:', guest.id);
+        return {
+          id: guest.id,
+          name: guest.name,
+          age: guest.age,
+          gender: guest.gender,
+          relation: guest.relation,
+          roomNo: guest.room?.data?.attributes?.room_number || "-"
+        };
+      })
     };
+    
+    console.log('Formatted Guest Data IDs:', {
+      requestId: request.id,
+      guestIds: guestData.additionalGuests.map(guest => guest.id)
+    });
     
     navigate("/book-room", { 
       state: { guestData } 
@@ -47,9 +58,6 @@ const ApprovedGuests = ({ selectedDate }) => {
         const data = await getBookingRequestsByStatus('approved');
         const bookingData = data?.data?.data;
         
-        console.log('Raw booking data:', data);
-        console.log('Booking data array:', bookingData);
-
         if (bookingData) {
           const bookingRequests = bookingData.map((item) => ({
             id: item.id,
@@ -99,10 +107,9 @@ const ApprovedGuests = ({ selectedDate }) => {
               age: guest.attributes.age,
               gender: guest.attributes.gender,
               relation: guest.attributes.relationship,
+              room: guest.attributes.room
             })),
           }));
-
-          console.log('Transformed booking requests:', bookingRequests);
 
           setRequests(bookingRequests);
           setFilteredRequests(bookingRequests);
@@ -220,18 +227,37 @@ const ApprovedGuests = ({ selectedDate }) => {
             </div>
             <div className="buttons">
               <CommonButton
-                buttonName="Allocate Rooms"
+                buttonName={(() => {
+                  const hasRoom = request.guests.some(guest => 
+                    guest.room?.data?.attributes?.room_number
+                  );
+                  return hasRoom ? "View" : "Allocate Rooms";
+                })()}
                 buttonWidth="220px"
                 style={{
-                  backgroundColor: "#FFBDCB",
-                  color: "#FC5275",
-                  borderColor: "#FC5275",
+                  backgroundColor: (() => {
+                    const hasRoom = request.guests.some(guest => 
+                      guest.room?.data?.attributes?.room_number
+                    );
+                    return hasRoom ? "#9867E9" : "#FFBDCB";
+                  })(),
+                  color: (() => {
+                    const hasRoom = request.guests.some(guest => 
+                      guest.room?.data?.attributes?.room_number
+                    );
+                    return hasRoom ? "#fff" : "#FC5275";
+                  })(),
+                  borderColor: (() => {
+                    const hasRoom = request.guests.some(guest => 
+                      guest.room?.data?.attributes?.room_number
+                    );
+                    return hasRoom ? "#9867E9" : "#FC5275";
+                  })(),
                   fontSize: "14px",
                   borderRadius: "7px",
                   borderWidth: 1,
-                  // padding: "5px 0px",
                 }}
-                onClick={() => handleButtonClick(request)} // Pass the request data
+                onClick={() => handleButtonClick(request)}
               />
             </div>
           </div>

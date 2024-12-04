@@ -253,7 +253,8 @@ const CustomModal = ({ isOpen, onClose, children }) => {
 };
 
 // Update the email modal component
-const ConfirmationEmailModal = ({ isOpen, onClose, guestData, arrivalDate, departureDate }) => {
+const ConfirmationEmailModal = ({ isOpen, onClose, guestData, arrivalDate, departureDate, onSend }) => {
+  const navigate = useNavigate();
   const [emailContent, setEmailContent] = useState(`Dear Devotee,
 
 Namoskar,
@@ -272,7 +273,6 @@ Swami Lokahanananda
 Adhyaksha
 RAMAKRISHNA MATH & RAMAKRISHNA MISSION, KAMANKUNUR`);
 
-  // Update email content when dates change
   useEffect(() => {
     setEmailContent(prevContent => {
       return prevContent.replace(
@@ -281,6 +281,18 @@ RAMAKRISHNA MATH & RAMAKRISHNA MISSION, KAMANKUNUR`);
       );
     });
   }, [arrivalDate, departureDate]);
+
+  const handleSend = async () => {
+    try {
+      // Call the onSend prop function and wait for it to complete
+      await onSend();
+      onClose();
+      navigate('/Requests');
+    } catch (error) {
+      console.error('Error sending email:', error);
+      alert('Failed to send email and allocate rooms. Please try again.');
+    }
+  };
 
   return (
     <CustomModal isOpen={isOpen} onClose={onClose}>
@@ -316,7 +328,7 @@ RAMAKRISHNA MATH & RAMAKRISHNA MISSION, KAMANKUNUR`);
 
         <div className="email-footer">
           <button onClick={onClose} className="cancel-button">Cancel</button>
-          <button onClick={onClose} className="send-button">Send</button>
+          <button onClick={handleSend} className="send-button">Send</button>
         </div>
       </div>
     </CustomModal>
@@ -328,6 +340,7 @@ const BookRoom = () => {
   const location = useLocation();
   const guestData = location.state?.guestData;
 
+  console.log('Request ID in BookRoom:', guestData?.requestId);
   console.log('Guest IDs:', guestData?.additionalGuests?.map(guest => guest.id));
 
   const [activeTab, setActiveTab] = useState("Guest house"); // State for active tab
@@ -351,6 +364,7 @@ const BookRoom = () => {
   const [selectedBedData, setSelectedBedData] = useState(null);
   const [isToggled, setIsToggled] = useState(false);
   const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
+  const [confirmedGuestsForAllocation, setConfirmedGuestsForAllocation] = useState([]);
 
   useEffect(() => {
     if (guestData) {
@@ -808,9 +822,14 @@ const BookRoom = () => {
     );
   };
 
-  const handleConfirmAllocation = async (confirmedGuests) => {
+  const handleConfirmAllocation = (confirmedGuests) => {
+    setConfirmedGuestsForAllocation(confirmedGuests);
+    setIsEmailModalOpen(true);
+  };
+
+  const handleEmailSend = async () => {
     try {
-      const guestsByRoom = confirmedGuests.reduce((acc, guest) => {
+      const guestsByRoom = confirmedGuestsForAllocation.reduce((acc, guest) => {
         if (!acc[guest.roomNo]) {
           acc[guest.roomNo] = [];
         }
@@ -818,32 +837,27 @@ const BookRoom = () => {
         return acc;
       }, {});
 
+      // Process each room allocation
       for (const [roomNo, guests] of Object.entries(guestsByRoom)) {
         const room = roomsData.find(r => r.attributes.room_number === roomNo);
         if (!room) continue;
 
-        // Get the current room data
         const currentRoomResponse = await fetchRooms();
         const currentRoom = currentRoomResponse.data.find(r => r.id === room.id);
         
         if (!currentRoom) {
-          console.error(`Room with ID ${room.id} not found`);
-          continue;
+          throw new Error(`Room with ID ${room.id} not found`);
         }
 
-        // Get current available beds
         const currentAvailableBeds = parseInt(currentRoom.attributes.available_beds) || 0;
         const newAvailableBeds = currentAvailableBeds - guests.length;
 
-        // Process guest data
         const guestConnections = guests
           .filter(guest => guest.id)
           .map(guest => ({
             id: guest.id,
             type: "guest"
           }));
-
-        console.log('Guest connections:', guestConnections);
 
         const updateData = {
           data: {
@@ -854,18 +868,11 @@ const BookRoom = () => {
           }
         };
 
-        console.log('Room ID:', room.id);
-        console.log('Update data:', JSON.stringify(updateData, null, 2));
-
-        try {
-          const updateResponse = await updateRoomById(room.id, updateData);
-          console.log('Update response:', updateResponse);
-        } catch (updateError) {
-          console.error('Error updating room:', updateError.response?.data);
-          throw updateError;
-        }
+        // Update the room
+        await updateRoomById(room.id, updateData);
       }
 
+      // Clear the allocation states
       setAllocatedGuestsList([]);
       setClickedBeds({
         "Guest house": {},
@@ -873,14 +880,10 @@ const BookRoom = () => {
         "Yatri Niwas": {}
       });
 
-      // Show email modal after successful confirmation
-      setIsEmailModalOpen(true);
-      
+      return true; // Return true to indicate success
     } catch (error) {
-      console.error("Error confirming allocation:", error);
-      console.error("Error details:", error.response?.data);
-      console.error("Full error object:", error);
-      alert("Failed to confirm room allocation. Please try again.");
+      console.error("Error updating rooms:", error);
+      throw error; // Rethrow the error to be handled by the modal
     }
   };
 
@@ -1010,6 +1013,7 @@ const BookRoom = () => {
         guestData={guestData}
         arrivalDate={arrivalDate}
         departureDate={departureDate}
+        onSend={handleEmailSend}
       />
     </div>
   );

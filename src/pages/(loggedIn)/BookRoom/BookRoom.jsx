@@ -616,12 +616,6 @@ const BookRoom = () => {
   const getBeds = (beds, roomIndex, dateIndex) => {
     const currentRoom = filteredRooms[roomIndex];
     const originalRoomData = roomsData[roomIndex];
-    // console.log('Current Room Data:', {
-    //   filteredRoom: currentRoom,
-    //   originalRoom: originalRoomData,
-    //   dateIndex,
-    //   currentDate: dates[dateIndex]
-    // });
 
     const totalBeds = currentRoom.beds;
     const availableBeds = currentRoom.availableBeds;
@@ -633,39 +627,8 @@ const BookRoom = () => {
           const bedId = `${roomIndex}-${dateIndex}-${bedIndex}`;
           const isClicked = clickedBeds[activeTab]?.[bedId];
 
-          // Updated isFilled logic
-          const isFilled = (() => {
-            // Get the current date we're rendering
-            const currentDate = new Date(dates[dateIndex]);
-            
-            // Check if the room has guest data
-            const roomGuests = originalRoomData?.attributes?.guests?.data || [];
-            
-            // Check if any guest's stay period overlaps with current date
-            return roomGuests.some(guest => {
-              const guestArrival = new Date(guest.attributes.arrival_date);
-              const guestDeparture = new Date(guest.attributes.departure_date);
-              
-              // Set hours to 0 for accurate date comparison
-              currentDate.setHours(0, 0, 0, 0);
-              guestArrival.setHours(0, 0, 0, 0);
-              guestDeparture.setHours(0, 0, 0, 0);
-              
-              const isWithinStayPeriod = currentDate >= guestArrival && currentDate <= guestDeparture;
-              
-              // For debugging
-              if (isWithinStayPeriod) {
-                // console.log('Bed filled:', {
-                //   bedIndex,
-                //   currentDate: currentDate.toISOString(),
-                //   guestArrival: guestArrival.toISOString(),
-                //   guestDeparture: guestDeparture.toISOString()
-                // });
-              }
-              
-              return isWithinStayPeriod;
-            });
-          })();
+          // Correct the logic to determine if a bed is filled
+          const isFilled = bedIndex < occupiedBeds;
 
           let bedImage = emptyBedImage;
           if (isFilled) {

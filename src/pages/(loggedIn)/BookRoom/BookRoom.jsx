@@ -496,8 +496,44 @@ const BookRoom = () => {
   };
 
   const handleBedClick = (bedIndex, bedId, isFilled, roomIndex, dateIndex) => {
-    // If bed is filled or no unallocated guests, don't proceed
-    if (isFilled || !guestData?.additionalGuests) return;
+    if (isFilled) return;
+
+    // Check if this bed is already selected
+    const isCurrentlySelected = clickedBeds[activeTab]?.[bedId];
+
+    // Get arrival and departure dates
+    const arrivalDateTime = new Date(arrivalDate);
+    const departureDateTime = new Date(departureDate);
+
+    // If bed is already selected, deselect it and remove guest allocation
+    if (isCurrentlySelected) {
+      const newClickedBeds = { ...clickedBeds };
+      
+      // Remove selection for all dates between arrival and departure
+      dates.forEach((dateStr, idx) => {
+        const currentDate = new Date(dateStr);
+        if (currentDate >= arrivalDateTime && currentDate <= departureDateTime) {
+          const dateBedId = `${roomIndex}-${idx}-${bedIndex}`;
+          if (newClickedBeds[activeTab]) {
+            delete newClickedBeds[activeTab][dateBedId];
+          }
+        }
+      });
+
+      setClickedBeds(newClickedBeds);
+
+      // Find and remove the guest allocated to this bed
+      const currentRoom = filteredRooms[roomIndex];
+      setAllocatedGuestsList(prev => 
+        prev.filter(guest => guest.roomNo !== currentRoom.name)
+      );
+
+      setSelectedBedData(null);
+      return;
+    }
+
+    // If no unallocated guests, don't proceed
+    if (!guestData?.additionalGuests) return;
 
     // Find the first selected but unallocated guest
     const selectedUnallocatedGuestIndex = guestData.additionalGuests.findIndex((guest, index) => 
@@ -526,10 +562,6 @@ const BookRoom = () => {
     const newSelectedGuests = [...selectedGuests];
     newSelectedGuests[selectedUnallocatedGuestIndex] = false;
     setSelectedGuests(newSelectedGuests);
-
-    // Get arrival and departure dates
-    const arrivalDateTime = new Date(arrivalDate);
-    const departureDateTime = new Date(departureDate);
 
     // Update bed selection state for all dates between arrival and departure
     const newClickedBeds = { ...clickedBeds };

@@ -190,8 +190,8 @@ const NewDonation = () => {
       isNewDonor: true
     };
     
-    // Add new donor to the beginning of the array instead of the end
-    setDonorTags(prev => [prev[0], newDonor]);
+    // Add new donor to the array while preserving existing donors
+    setDonorTags(prev => [...prev, newDonor]);
     setSelectedDonor(newDonor.id);
     
     // Reset form for the new donor
@@ -990,24 +990,43 @@ const NewDonation = () => {
 
   return (
     <div className="donations-container">
-      <div className="donor-tags" style={{display: 'flex', justifyContent: 'space-between'}}>
-        <div>        
+      <div className="donor-tags" style={{
+        display: 'flex', 
+        justifyContent: 'space-between',
+        overflowX: 'auto',
+        scrollbarWidth: 'none',  // Firefox
+        msOverflowStyle: 'none', // IE and Edge
+        paddingBottom: '10px',
+        '&::-webkit-scrollbar': {  // Chrome, Safari, newer versions of Opera
+          display: 'none'
+        }
+      }}>
+        <div style={{
+          display: 'flex',
+          gap: '10px',  // Space between tags
+          flexWrap: 'nowrap',  // Prevent wrapping
+          msOverflowStyle: 'none',
+          '&::-webkit-scrollbar': {
+            display: 'none'
+          }
+        }}>        
           {donorTags.map(tag => (
-          <div 
-            key={tag.id} 
-            className={`tag ${selectedDonor === tag.id ? 'selected' : ''}`}
-            onClick={() => handleTagClick(tag.id)}
-          >
-            {tag.name} 
-            <span className="close" onClick={(e) => {
-              e.stopPropagation();
-              handleRemoveTag(tag.id);
-            }}>×</span>
-          </div>
-        ))}
-        <button className="add-donation-btn" onClick={handleAddDonation}>
-          + Add Donation
-        </button></div>
+            <div 
+              key={tag.id} 
+              className={`tag ${selectedDonor === tag.id ? 'selected' : ''}`}
+              onClick={() => handleTagClick(tag.id)}
+            >
+              {tag.name} 
+              <span className="close" onClick={(e) => {
+                e.stopPropagation();
+                handleRemoveTag(tag.id);
+              }}>×</span>
+            </div>
+          ))}
+          <button className="add-donation-btn" onClick={handleAddDonation}>
+            + Add Donation
+          </button>
+        </div>
         <div style={{display: 'flex', flexDirection: 'column'}}>
             <div className="info-row">
               <label className="info-label">User: </label>

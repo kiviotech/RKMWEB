@@ -75,6 +75,12 @@
     cursor: pointer;
     font-size: 14px;
   }
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
 }
 
 .header {

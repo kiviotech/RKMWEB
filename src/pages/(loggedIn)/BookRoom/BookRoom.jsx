@@ -11,7 +11,7 @@ import { IoGrid } from "react-icons/io5";
 import { updateBookingRequestById } from "../../../../services/src/services/bookingRequestService";
 
 // Add these new components at the top of the file
-const AllocatedGuestsTable = ({ guests, onConfirmAllocation, roomsData }) => {
+const AllocatedGuestsTable = ({ guests, onConfirmAllocation, roomsData, hasUnallocatedGuests }) => {
   const allocatedGuests = guests?.filter(guest => guest.roomNo && guest.roomNo !== "-") || [];
 
   // Group guests by room number
@@ -24,6 +24,11 @@ const AllocatedGuestsTable = ({ guests, onConfirmAllocation, roomsData }) => {
   }, {});
 
   const handleConfirm = () => {
+    if (hasUnallocatedGuests) {
+      alert("Please allocate all guests before confirming");
+      return;
+    }
+    
     if (onConfirmAllocation) {
       onConfirmAllocation(allocatedGuests);
     }
@@ -1039,6 +1044,11 @@ const BookRoom = () => {
                 guests={allocatedGuestsList} 
                 onConfirmAllocation={handleConfirmAllocation}
                 roomsData={roomsData}
+                hasUnallocatedGuests={guestData?.additionalGuests?.some((_, index) => 
+                  !allocatedGuestsList.some(allocated => 
+                    allocated.name === guestData.additionalGuests[index].name
+                  )
+                )}
               />
               <NonAllocatedGuestsTable 
                 guests={guestData.additionalGuests.filter((_, index) => 

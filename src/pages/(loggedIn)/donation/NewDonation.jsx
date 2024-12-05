@@ -44,11 +44,12 @@ const NewDonation = () => {
     phone: '',
     email: ''
   });
+  const [isLoadingPincode, setIsLoadingPincode] = useState(false);
 
-  console.log("Zustand Store Data:", {
-    // auth: { user },
-    donations
-  });
+  // console.log("Zustand Store Data:", {
+  //   // auth: { user },
+  //   donations
+  // });
 
   React.useEffect(() => {
     const loadGuestDetails = async () => {
@@ -604,6 +605,30 @@ const NewDonation = () => {
     return true;
   };
 
+  // Add this function to fetch pincode details
+  const fetchPincodeDetails = async (pincode) => {
+    if (pincode.length !== 6) return;
+    
+    setIsLoadingPincode(true);
+    try {
+      const response = await fetch(`https://api.postalpincode.in/pincode/${pincode}`);
+      const data = await response.json();
+      
+      if (data[0].Status === "Success") {
+        const postOffice = data[0].PostOffice[0];
+        setDonorDetails(prev => ({
+          ...prev,
+          district: postOffice.District,
+          state: postOffice.State
+        }));
+      }
+    } catch (error) {
+      console.error('Error fetching pincode details:', error);
+    } finally {
+      setIsLoadingPincode(false);
+    }
+  };
+
   return (
     <div className="donations-container">
       <div className="donor-tags">
@@ -702,7 +727,7 @@ const NewDonation = () => {
                 />
               </div>
               <div className="form-group">
-                <label>Date</label>
+                <label style={{marginLeft: "30px"}}>Date</label>
                 <input 
                   type="text" 
                   value={new Date().toLocaleDateString('en-GB')} 
@@ -721,7 +746,7 @@ const NewDonation = () => {
           </div>
 
           <div className="details-card donor-details">
-            <h2>Donor Details</h2>
+            <h2 style={{fontWeight: 'bold', fontSize: '24px', color: '#000'}}>Donor Details</h2>
             <div className="form-grid">
               <div className="form-group">
                 <label>Name of Donor</label>
@@ -835,13 +860,20 @@ const NewDonation = () => {
             <h2>Address Details</h2>
             <div className="form-grid">
               <div className="form-group">
-                <label>Pincode<span className="required">*</span></label>
+                <label>Pincode</label>
                 <input 
                   type="text" 
                   placeholder="560041"
                   value={donorDetails.pincode}
-                  onChange={(e) => setDonorDetails({...donorDetails, pincode: e.target.value})}
+                  onChange={(e) => {
+                    const value = e.target.value.replace(/\D/g, '').slice(0, 6);
+                    setDonorDetails({...donorDetails, pincode: value});
+                    if (value.length === 6) {
+                      fetchPincodeDetails(value);
+                    }
+                  }}
                 />
+                {isLoadingPincode && <small style={{color: '#666'}}>Loading...</small>}
               </div>
               <div className="form-group">
                 <label>House Number</label>
@@ -862,21 +894,23 @@ const NewDonation = () => {
                 />
               </div>
               <div className="form-group">
-                <label>District<span className="required">*</span></label>
+                <label>District</label>
                 <input 
                   type="text" 
                   placeholder="Enter district"
                   value={donorDetails.district}
                   onChange={(e) => setDonorDetails({...donorDetails, district: e.target.value})}
+                  readOnly={isLoadingPincode}
                 />
               </div>
               <div className="form-group">
-                <label>State<span className="required">*</span></label>
+                <label>State</label>
                 <input 
                   type="text" 
                   placeholder="Enter state"
                   value={donorDetails.state}
                   onChange={(e) => setDonorDetails({...donorDetails, state: e.target.value})}
+                  readOnly={isLoadingPincode}
                 />
               </div>
             </div>
@@ -887,12 +921,13 @@ const NewDonation = () => {
             <div className="form-grid">
               <div className="form-group">
                 <label>Donation Amount</label>
-                <div className="input-group">
+                <div className="input-group" style={{ display: "flex", gap: "0px"}}>
                   <input 
                     type="text" 
                     placeholder="Enter the amount" 
                     value={currentReceipt?.donationDetails?.amount || ''}
                     onChange={(e) => handleDonationDetailsUpdate({ amount: e.target.value })}
+                    style={{ border: 'none', padding: "8px 12px"}}
                   />
                   <select className="currency-select">
                     <option>₹</option>
@@ -904,6 +939,7 @@ const NewDonation = () => {
                 <select
                   value={currentReceipt?.donationDetails?.transactionType || ''}
                   onChange={(e) => handleDonationDetailsUpdate({ transactionType: e.target.value })}
+                  style={{fontSize: "14px", padding: "8px 12px", boxShadow: "none", border: "1px solid #e7e5eb"}}
                 >
                   <option value="">Select your Reason</option>
                   <option value="cash">Cash</option>
@@ -916,6 +952,7 @@ const NewDonation = () => {
                 <select
                   value={currentReceipt?.donationDetails?.inMemoryOf || ''}
                   onChange={(e) => handleDonationDetailsUpdate({ inMemoryOf: e.target.value })}
+                  style={{fontSize: "14px"}}
                 >
                   <option value="">Select</option>
                   <option value="Thakur Seva">Thakur Seva</option>

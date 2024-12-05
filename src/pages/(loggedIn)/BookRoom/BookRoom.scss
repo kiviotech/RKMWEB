@@ -567,13 +567,15 @@
 
 .confirm-button {
   margin-top: 1rem;
-  padding: 0.5rem 1rem;
+  padding: 8px 16px;
   background-color: #8b5cf6;
   color: white;
   border: none;
   border-radius: 4px;
   cursor: pointer;
-  font-weight: 600;
+  font-weight: 500;
+  height: 36px;
+  line-height: 20px;
 
   &:hover {
     background-color: #7c3aed;
@@ -583,7 +585,7 @@
     opacity: 0.6;
     cursor: not-allowed;
     &:hover {
-      background-color: initial; // Prevent hover effect when disabled
+      background-color: initial;
     }
   }
 }
@@ -705,6 +707,7 @@
       font-weight: bold;
       font-size: 1.1em;
       margin-bottom: 5px;
+      white-space: nowrap;
     }
 
     .available-count {
@@ -1042,5 +1045,26 @@
   &:focus {
     outline: none;
     box-shadow: none;
+  }
+}
+
+.reset-button {
+  margin-top: 1rem;
+  padding: 8px 16px;
+  background-color: #fff;
+  color: #f44336;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-left: 10px;
+  font-size: 14px;
+  font-weight: 500;
+  height: 36px;
+  line-height: 20px;
+  transition: background-color 0.3s;
+
+  &:disabled {
+    background-color: #ffcdd2;
+    cursor: not-allowed;
   }
 }

@@ -11,7 +11,7 @@ import { IoGrid } from "react-icons/io5";
 import { updateBookingRequestById } from "../../../../services/src/services/bookingRequestService";
 
 // Add these new components at the top of the file
-const AllocatedGuestsTable = ({ guests, onConfirmAllocation, roomsData, hasUnallocatedGuests }) => {
+const AllocatedGuestsTable = ({ guests, onConfirmAllocation, roomsData, hasUnallocatedGuests, onReset }) => {
   const allocatedGuests = guests?.filter(guest => guest.roomNo && guest.roomNo !== "-") || [];
 
   // Group guests by room number
@@ -61,12 +61,21 @@ const AllocatedGuestsTable = ({ guests, onConfirmAllocation, roomsData, hasUnall
               ))}
             </tbody>
           </table>
-          <button 
-            className="confirm-button"
-            onClick={handleConfirm}
-          >
-            Confirm Allocation
-          </button>
+          <div style={{ display: 'flex', justifyContent: 'flex-start', marginTop: '10px' }}>
+            <button 
+              className="confirm-button"
+              onClick={handleConfirm}
+            >
+              Confirm Allocation
+            </button>
+            <button 
+              className="reset-button"
+              onClick={onReset}
+              disabled={allocatedGuests.length === 0}
+            >
+              Reset
+            </button>
+          </div>
         </>
       ) : (
         <div className="no-guests-message">No guests allocated</div>
@@ -1045,6 +1054,43 @@ const BookRoom = () => {
     }
   };
 
+  const handleReset = () => {
+    // Reset all allocations
+    setAllocatedGuestsList([]);
+    
+    // Reset all bed selections
+    setClickedBeds({
+      "Guest house": {},
+      "F": {},
+      "Yatri Niwas": {}
+    });
+    
+    // Reset all guests to selected (making them available for allocation)
+    if (guestData?.additionalGuests) {
+      setSelectedGuests(new Array(guestData.additionalGuests.length).fill(true));
+    }
+    
+    // Reset bed data
+    setSelectedBedData(null);
+
+    // Reset room available beds count to original state
+    setRoomsData(prevRooms => 
+      prevRooms.map(room => {
+        const allocatedToThisRoom = allocatedGuestsList.filter(
+          guest => guest.roomNo === room.attributes.room_number
+        ).length;
+        
+        return {
+          ...room,
+          attributes: {
+            ...room.attributes,
+            available_beds: parseInt(room.attributes.available_beds) + allocatedToThisRoom
+          }
+        };
+      })
+    );
+  };
+
   return (
     <div className="attithi-booking-wrapper">
       <div className="booking-header-panel">
@@ -1138,6 +1184,7 @@ const BookRoom = () => {
                     allocated.name === guestData.additionalGuests[index].name
                   )
                 )}
+                onReset={handleReset}
               />
               <NonAllocatedGuestsTable 
                 guests={guestData.additionalGuests.filter((_, index) => 

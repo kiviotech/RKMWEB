@@ -1,679 +1,3 @@
-// .donations-container {
-//   padding: 10px;
-//   font-family: Arial, sans-serif;
-
-//   .donor-tags {
-//     display: flex;
-//     gap: 10px;
-//     margin-bottom: 20px;
-//     align-items: center;
-
-//     .tag {
-//       background-color: #f0f0f0;
-//       color: #333;
-//       padding: 8px 16px;
-//       border-radius: 20px;
-//       margin-right: 8px;
-//       display: inline-flex;
-//       align-items: center;
-//       cursor: pointer;
-//       transition: all 0.2s ease;
-
-//       &.selected {
-//         background-color: #7c5cfc;
-//         color: white;
-//       }
-
-//       .close {
-//         margin-left: 8px;
-//         cursor: pointer;
-        
-//         &:hover {
-//           opacity: 0.8;
-//         }
-//       }
-//     }
-
-//     .add-donation-btn {
-//       background: transparent;
-//       border: 1px solid #8c52ff;
-//       color: #8c52ff;
-//       padding: 6px 12px;
-//       border-radius: 20px;
-//       cursor: pointer;
-//       font-size: 14px;
-//     }
-//   }
-
-//   .header {
-//     display: flex;
-//     justify-content: space-between;
-//     align-items: center;
-//     margin-bottom: 20px;
-
-//     h1 {
-//       font-size: 24px;
-//       font-weight: 500;
-//       color: #333;
-//     }
-
-//     .search-section {
-//       .search-box {
-//         display: flex;
-//         gap: 10px;
-
-//         input {
-//           width: 300px;
-//           padding: 8px 12px;
-//           border: 1px solid #ddd;
-//           border-radius: 4px;
-//           font-size: 14px;
-//         }
-
-//         .search-btn {
-//           background: #8c52ff;
-//           color: white;
-//           border: none;
-//           padding: 8px 20px;
-//           border-radius: 4px;
-//           cursor: pointer;
-//         }
-//       }
-//     }
-//   }
-
-//   .tab-section {
-//     display: flex;
-//     justify-content: space-between;
-//     align-items: center;
-//     margin-bottom: 20px;
-
-//     .tabs {
-//       display: flex;
-//       gap: 10px;
-
-//       .tab {
-//         padding: 8px 30px;
-//         border-radius: 20px;
-//         border: none;
-//         font-size: 14px;
-//         background: #f0f0f0;
-//         color: #666;
-//         cursor: pointer;
-
-//         &.active {
-//           background: #8c52ff;
-//           color: white;
-//         }
-//       }
-//     }
-
-//     .reset-btn {
-//       display: flex;
-//       align-items: center;
-//       gap: 5px;
-//       background: transparent;
-//       border: none;
-//       color: #8c52ff;
-//       cursor: pointer;
-//       font-size: 14px;
-
-//       .reset-icon {
-//         font-size: 16px;
-//       }
-//     }
-//   }
-
-//   .main-content {
-//     display: flex;
-//     gap: 20px;
-
-//     .left-section {
-//       flex: 3;
-
-//       .details-card {
-//         border: 1px solid #CACACA;
-//         border-radius: 12px;
-//         padding: 24px;
-//         margin-bottom: 16px;
-//         background: #fff;
-
-//         .card-header {
-//           display: flex;
-//           justify-content: space-between;
-//           align-items: center;
-//           margin-bottom: 20px;
-
-//           h2 {
-//             font-size: 18px;
-//             font-weight: 500;
-//             color: #333;
-//           }
-
-//           .consent-btn {
-//             background: transparent;
-//             color: #7C5CFC;
-//             border: none;
-//             font-size: 14px;
-//             cursor: pointer;
-//             font-weight: 500;
-//           }
-//         }
-
-//         .form-grid {
-//           display: grid;
-//           grid-template-columns: repeat(2, 1fr);
-//           gap: 16px;
-
-//           .form-group {
-//             label {
-//               display: block;
-//               font-size: 14px;
-//               color: #666;
-//               margin-bottom: 8px;
-//               font-weight: 500;
-//             }
-
-//             input {
-//               width: 100%;
-//               padding: 10px 12px;
-//               border: 1px solid #E5E7EB;
-//               border-radius: 8px;
-//               font-size: 14px;
-//               color: #333;
-//               background: #fff;
-
-//               &::placeholder {
-//                 color: #9CA3AF;
-//               }
-
-//               &:focus {
-//                 border-color: #7C5CFC;
-//                 outline: none;
-//               }
-//             }
-
-//             // Style for date input
-//             input[type="date"] {
-//               appearance: none;
-//               padding-right: 12px;
-              
-//               &::-webkit-calendar-picker-indicator {
-//                 opacity: 0.7;
-//                 cursor: pointer;
-//               }
-//             }
-//           }
-//         }
-//       }
-
-//       .receipt-details {
-//         border: 1px solid #CACACA;
-//         .form-grid {
-//           grid-template-columns: repeat(3, 1fr);
-//           gap: 16px;
-//         }
-//       }
-
-//       .donation-footer {
-//         background: #FFFFFF;
-//         padding: 12px 20px;
-//         border-radius: 8px;
-//         box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-//         display: flex;
-//         justify-content: space-between;
-//         align-items: center;
-//         margin-top: 16px;
-
-//         .total-amount {
-//           display: flex;
-//           align-items: center;
-//           gap: 12px;
-          
-//           .label {
-//             font-size: 14px;
-//             color: #666666;
-//           }
-
-//           .amount {
-//             font-size: 18px;
-//             font-weight: 600;
-//             color: #333333;
-//           }
-//         }
-
-//         .action-buttons {
-//           display: flex;
-//           gap: 8px;
-
-//           button {
-//             padding: 6px 12px;
-//             border-radius: 4px;
-//             font-size: 14px;
-//             cursor: pointer;
-//             border: none;
-//             display: flex;
-//             align-items: center;
-//             gap: 8px;
-//             font-weight: 500;
-//             transition: all 0.2s ease;
-
-//             &:hover {
-//               opacity: 0.9;
-//             }
-
-//             svg {
-//               width: 16px;
-//               height: 16px;
-//             }
-//           }
-
-//           .cancel-btn {
-//             background: #FFE5E5;
-//             color: #FF4D4D;
-            
-//             &:hover {
-//               background: #FFD6D6;
-//             }
-//           }
-
-//           .pending-btn {
-//             background: #FFF3D9;
-//             color: #FFB020;
-            
-//             &:hover {
-//               background: #FFE9C0;
-//             }
-//           }
-
-//           .print-btn {
-//             background: #8C52FF;
-//             color: #FFFFFF;
-            
-//             &:hover {
-//               background: #7B45E8;
-//             }
-
-//             svg {
-//               stroke: currentColor;
-//             }
-//           }
-//         }
-//       }
-//     }
-
-//     .donation-history {
-//       flex: 2;
-//       background: #fff;
-//       border: 1px solid #CACACA;
-//       padding: 16px;
-//       border-radius: 8px;
-//       height: fit-content;
-//       box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-
-//       h2 {
-//         font-size: 16px;
-//         font-weight: 500;
-//         margin-bottom: 16px;
-//         color: #333;
-//       }
-
-//       .history-items {
-//         max-height: calc(100vh - 300px);
-//         overflow-y: auto;
-//         padding-right: 10px;
-        
-//         .history-item {
-//           background: #fff;
-//           border-radius: 8px;
-//           padding: 12px;
-//           margin-bottom: 12px;
-//           box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-          
-//           .history-header {
-//             display: flex;
-//             justify-content: space-between;
-//             margin-bottom: 12px;
-            
-//             .date {
-//               color: #666;
-//               font-size: 14px;
-//             }
-            
-//             .type {
-//               padding: 4px 8px;
-//               border-radius: 4px;
-//               font-size: 12px;
-//               font-weight: 500;
-              
-//               &.cash { background: #E8F5E9; color: #2E7D32; }
-//               &.cheque { background: #E3F2FD; color: #1565C0; }
-//               &.dd { background: #FFF3E0; color: #E65100; }
-//             }
-//           }
-          
-//           .history-details {
-//             .detail-row {
-//               display: flex;
-//               justify-content: space-between;
-//               margin-bottom: 8px;
-//               font-size: 14px;
-              
-//               &:last-child {
-//                 margin-bottom: 0;
-//               }
-              
-//               span:first-child {
-//                 color: #666;
-//               }
-              
-//               span:last-child {
-//                 font-weight: 500;
-//               }
-              
-//               .status {
-//                 padding: 2px 8px;
-//                 border-radius: 4px;
-//                 font-size: 12px;
-                
-//                 &.completed { background: #E8F5E9; color: #2E7D32; }
-//                 &.pending { background: #FFF3E0; color: #E65100; }
-//                 &.cancelled { background: #FFEBEE; color: #C62828; }
-//               }
-//             }
-//           }
-//         }
-        
-//         .no-history {
-//           text-align: center;
-//           padding: 24px;
-//           color: #666;
-//           font-style: italic;
-//         }
-//       }
-//     }
-//   }
-// }
-// .required {
-//   color: red;
-//   margin-left: 2px;
-// }
-
-// .details-card {
-//   .card-header {
-//     display: flex;
-//     justify-content: space-between;
-//     align-items: center;
-//     margin-bottom: 20px;
-
-//     .consent-btn {
-//       background: transparent;
-//       color: #8c52ff;
-//       border: none;
-//       font-size: 14px;
-//       cursor: pointer;
-//     }
-//   }
-
-//   .form-grid {
-//     .full-width {
-//       grid-column: 1 / -1;
-//     }
-
-//     .input-group {
-//       display: flex;
-//       gap: 10px;
-
-//       input {
-//         flex: 1;
-//       }
-
-//       .currency-select {
-//         width: 50px;
-//         flex-shrink: 0;
-//       }
-//     }
-//   }
-// }
-
-// .search-box {
-//   position: relative;
-//   width: 100%;
-
-//   .search-dropdown {
-//     position: absolute;
-//     top: 100%;
-//     left: 0;
-//     right: 0;
-//     background: white;
-//     border: 1px solid #ddd;
-//     border-radius: 4px;
-//     max-height: 300px;
-//     overflow-y: auto;
-//     z-index: 1000;
-//     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-
-//     .dropdown-item {
-//       padding: 12px;
-//       cursor: pointer;
-//       border-bottom: 1px solid #eee;
-
-//       &:hover {
-//         background-color: #f5f5f5;
-//       }
-
-//       .guest-info {
-//         display: flex;
-//         justify-content: space-between;
-//         margin-bottom: 4px;
-
-//         .guest-name {
-//           font-weight: bold;
-//         }
-
-//         .guest-phone {
-//           color: #666;
-//         }
-//       }
-
-//       .guest-details {
-//         display: flex;
-//         justify-content: space-between;
-//         font-size: 0.9em;
-//         color: #666;
-//       }
-//     }
-
-//     .no-results {
-//       padding: 12px;
-//       text-align: center;
-//       color: #666;
-//     }
-//   }
-// }
-
-// // Additional styles for better input appearance
-// input:-webkit-autofill,
-// input:-webkit-autofill:hover,
-// input:-webkit-autofill:focus,
-// input:-webkit-autofill:active {
-//   -webkit-box-shadow: 0 0 0 30px white inset !important;
-// }
-
-// // Specific styles for select dropdowns to match design
-// select {
-//   cursor: pointer;
-  
-//   &::-ms-expand {
-//     display: none;
-//   }
-// }
-
-// // Receipt Details Card - Keeping original styles
-// .details-card.receipt-details {
-//   background: #FFFFFF;
-//   padding: 24px;
-//   border-radius: 12px;
-//   margin-bottom: 20px;
-//   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-
-//   h2 {
-//     font-size: 18px;
-//     font-weight: 500;
-//     color: #333333;
-//     margin-bottom: 20px;
-//   }
-
-//   .receipt-grid {
-//     display: grid;
-//     grid-template-columns: repeat(3, 1fr);
-//     gap: 24px;
-
-//     .form-group {
-//       label {
-//         display: block;
-//         font-size: 14px;
-//         color: #666666;
-//         margin-bottom: 8px;
-//       }
-
-//       input {
-//         width: 100%;
-//         padding: 8px 12px;
-//         border: none;
-//         outline: none;
-//         border-radius: 6px;
-//         font-size: 14px;
-//         color: #333333;
-//         background-color: #fff;
-//         box-shadow: none;
-
-//         &:disabled {
-//           background-color: #fff;
-//           cursor: not-allowed;
-//         }
-
-//         &::placeholder {
-//           color: #9CA3AF;
-//         }
-
-//         &:focus {
-//           outline: none;
-//           box-shadow: none;
-//         }
-//       }
-//     }
-//   }
-// }
-
-// // Donor Details Card - New styles matching the image
-// .details-card.donor-details {
-//   background: #FFFFFF;
-//   border: 1px solid #CACACA;
-//   padding: 24px;
-//   border-radius: 12px;
-//   margin-bottom: 16px;
-//   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-
-//   h2 {
-//     font-size: 20px;
-//     font-weight: 500;
-//     color: #333333;
-//     margin-bottom: 16px;
-//   }
-
-//   .form-grid {
-//     display: grid;
-//     grid-template-columns: repeat(2, 1fr);
-//     gap: 8px;
-//     align-items: start;
-
-//     .form-group {
-//       margin-bottom: 8px;
-
-//       label {
-//         display: block;
-//         font-size: 14px;
-//         color: #666666;
-//         margin-bottom: 4px;
-//         font-weight: 500;
-//       }
-
-//       input, select {
-//         width: 100%;
-//         padding: 8px 12px;
-//         border: 1px solid #E5E7EB;
-//         border-radius: 8px;
-//         font-size: 14px;
-//         color: #333333;
-//         background-color: #fff;
-//         box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-//         outline: none;
-
-//         &::placeholder {
-//           color: #9CA3AF;
-//         }
-//       }
-//     }
-//   }
-// }
-
-// .error-message {
-//   color: #dc3545;
-//   font-size: 12px;
-//   margin-top: 4px;
-//   display: block;
-// }
-
-// .form-group {
-//   position: relative;
-  
-//   input.error {
-//     border-color: #dc3545;
-    
-//     &:focus {
-//       box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
-//     }
-//   }
-// }
-
-// .action-buttons {
-//   button:disabled {
-//     opacity: 0.6;
-//     cursor: not-allowed;
-//   }
-// }
-
-// .form-group {
-//   .input-group input.error,
-//   input.error {
-//     border-color: #ff4d4f;
-    
-//     &:focus {
-//       box-shadow: 0 0 0 2px rgba(255, 77, 79, 0.2);
-//     }
-//   }
-
-//   .error-message {
-//     color: #ff4d4f;
-//     font-size: 12px;
-//     margin-top: 4px;
-//     display: block;
-//   }
-// }
-
-// // Update input placeholder styles
-// input::placeholder {
-//   color: #9CA3AF;
-//   font-size: 14px;
-// }
-
-// // Update spacing between form groups
-// .form-group {
-//   margin-bottom: 16px;
-// }
-
-
 .donations-container {
   // border: 1px solid red;
   padding: 10px;
@@ -1391,40 +715,136 @@ input::placeholder {
 .form-group {
   margin-bottom: 16px;
 }
-// 
-// .transaction-type{
-//   border:1px solid #e7e5eb;
-//   box-Shadow:none;
 
-//   padding:8px 12px;
-//   font-Size:14px;
-  
-//   color:#333 ;
+.confirmation-dialog {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
 
-//   &::placeholder{
-//     color: #9ca3af;
-//   }
+  .dialog-content {
+    background-color: white;
+    padding: 24px;
+    border-radius: 8px;
+    width: 400px;
+    max-width: 90%;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 
+    h3 {
+      margin: 0 0 16px;
+      color: #333;
+    }
 
+    p {
+      margin: 0 0 24px;
+      color: #666;
+    }
 
+    .dialog-buttons {
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
 
+      button {
+        padding: 8px 24px;
+        border-radius: 4px;
+        border: none;
+        cursor: pointer;
+        font-weight: 500;
 
-// }
+        &:first-child {
+          background-color: #f5f5f5;
+          color: #333;
 
-// .inMemory{
-//   font-size: 14px;
-//   color: #333;
- 
-//    &::placeholder{
-//     color:#9ca3af
-//    }
-// }
+          &:hover {
+            background-color: #eee;
+          }
+        }
 
-// .mantraDeeksha{
-//   font-size: 14px;
-//   color: #9ca3af;
- 
-//    &.has-value{
-//     color: #333;
-//    }
-// }
+        &.confirm-btn {
+          background-color: #dc3545;
+          color: white;
+
+          &:hover {
+            background-color: #c82333;
+          }
+        }
+      }
+    }
+  }
+}
+
+.receipt-placeholder {
+  padding: 20px;
+  text-align: center;
+  color: #666;
+  font-style: italic;
+}
+
+.donor-unified-input {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+
+  .donor-custom-select {
+    position: relative;
+    min-width: 100px;
+    
+    &::after {
+      content: '';
+      position: absolute;
+      right: 8px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 0;
+      height: 0;
+      border-left: 5px solid transparent;
+      border-right: 5px solid transparent;
+      border-top: 5px solid #666;
+      pointer-events: none;
+    }
+    
+    select {
+      height: 100%;
+      border-radius: 4px;
+      border: 1px solid #e7e5eb;
+      padding: 8px;
+      padding-right: 24px;
+      background-color: #fff;
+      font-size: 14px;
+      outline: none;
+      box-shadow: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      appearance: none;
+      
+      &:focus {
+        outline: none;
+        box-shadow: none;
+        border-color: #e7e5eb;
+      }
+    }
+  }
+
+  input {
+    flex: 1;
+    border-radius: 4px;
+    
+    &.error {
+      border-color: #ff4d4f;
+    }
+  }
+}
+
+.error-message {
+  color: #ff4d4f;
+  font-size: 12px;
+  margin-top: 4px;
+  display: block;
+}

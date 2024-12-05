@@ -5,6 +5,7 @@ import { useDonationStore } from "../../../../donationStore";
 import { fetchGuestDetails } from "../../../../services/src/services/guestDetailsService";
 import { createNewReceiptDetail } from "../../../../services/src/services/receiptDetailsService";
 import { createNewDonation, fetchDonationsByField, updateDonationById } from "../../../../services/src/services/donationsService";
+import { useNavigate } from 'react-router-dom';
 
 const NewDonation = () => {
   const [selectedTab, setSelectedTab] = useState("Math");
@@ -45,11 +46,13 @@ const NewDonation = () => {
     email: ''
   });
   const [isLoadingPincode, setIsLoadingPincode] = useState(false);
+  const [showCancelConfirm, setShowCancelConfirm] = useState(false);
+  const navigate = useNavigate();
 
-  // console.log("Zustand Store Data:", {
-  //   // auth: { user },
-  //   donations
-  // });
+  console.log("Zustand Store Data:", {
+    // auth: { user },
+    donations
+  });
 
   React.useEffect(() => {
     const loadGuestDetails = async () => {
@@ -81,6 +84,13 @@ const NewDonation = () => {
     // Check if the selected donor is a verified guest
     const selectedDonorTag = donorTags.find(tag => tag.id === selectedDonor);
     if (!selectedDonorTag?.isVerifiedGuest) {
+      setReceiptNumber('');
+      setCurrentReceipt(null);
+      return;
+    }
+
+    // Check if donor name exists
+    if (!donorDetails.name?.trim()) {
       setReceiptNumber('');
       setCurrentReceipt(null);
       return;
@@ -127,10 +137,23 @@ const NewDonation = () => {
   // When donor details are updated, update both receipts
   const handleDonorDetailsUpdate = (details) => {
     // Update both Math and Mission receipts with the same donor details
-    donations.receipts.forEach(receipt => {
-      updateDonationDetails(receipt.receiptNumber, details);
-    });
+    if (currentReceipt?.receiptNumber) {
+      updateDonationDetails(currentReceipt.receiptNumber, { donorDetails: details });
+    }
     setDonorDetails(details);
+    
+    // If there are receipts for this donor, update all of them
+    const donorReceipts = donations.receipts.find(group => 
+      Array.isArray(group) && 
+      group.length > 0 && 
+      (group[0].donorId === selectedDonor || group[0].donorDetails?.guestId === selectedDonor)
+    ) || [];
+    
+    donorReceipts.forEach(receipt => {
+      if (receipt.receiptNumber !== currentReceipt?.receiptNumber) {
+        updateDonationDetails(receipt.receiptNumber, { donorDetails: details });
+      }
+    });
   };
 
   const handleAddDonation = () => {
@@ -465,6 +488,10 @@ const NewDonation = () => {
   };
 
   const handleCancel = async () => {
+    setShowCancelConfirm(true);
+  };
+
+  const confirmCancel = async () => {
     // Check form validity and set validation errors
     const nameError = validateName(donorDetails.name);
     const phoneError = validatePhone(donorDetails.phone);
@@ -483,6 +510,8 @@ const NewDonation = () => {
 
     await handlePrintReceipt("cancelled");
     resetFormData();
+    setShowCancelConfirm(false);
+    navigate('/donation');
   };
 
   // Add this function to calculate total donations
@@ -723,7 +752,6 @@ const NewDonation = () => {
                   type="text" 
                   value={receiptNumber} 
                   disabled 
-                  placeholder="CJ2077"
                 />
               </div>
               <div className="form-group">
@@ -750,7 +778,24 @@ const NewDonation = () => {
             <div className="form-grid">
               <div className="form-group">
                 <label>Name of Donor</label>
-                <div className="input-group">
+                <div className="donor-unified-input">
+                  <div className="donor-custom-select">
+                    <select
+                      value={donorDetails.title}
+                      onChange={(e) => setDonorDetails({...donorDetails, title: e.target.value})}
+                    >
+                      <option value="">Title</option>
+                      <option value="Sri">Sri</option>
+                      <option value="Smt">Smt.</option>
+                      <option value="Mr">Mr.</option>
+                      <option value="Mrs">Mrs.</option>
+                      <option value="Swami">Swami</option>
+                      <option value="Dr">Dr.</option>
+                      <option value="Prof">Prof.</option>
+                      <option value="Kumari">Kumari</option>
+                      <option value="Ms">Ms.</option>
+                    </select>
+                  </div>
                   <input 
                     type="text" 
                     placeholder="John Doe"
@@ -758,10 +803,7 @@ const NewDonation = () => {
                     onChange={(e) => {
                       const newName = e.target.value;
                       setDonorDetails({...donorDetails, name: newName});
-                      setValidationErrors({
-                        ...validationErrors,
-                        name: validateName(newName)
-                      });
+                      handleDonorDetailsUpdate({...donorDetails, name: newName});
                     }}
                     className={validationErrors.name ? 'error' : ''}
                   />
@@ -876,6 +918,26 @@ const NewDonation = () => {
                 {isLoadingPincode && <small style={{color: '#666'}}>Loading...</small>}
               </div>
               <div className="form-group">
+                <label>State</label>
+                <input 
+                  type="text" 
+                  placeholder="Enter state"
+                  value={donorDetails.state}
+                  onChange={(e) => setDonorDetails({...donorDetails, state: e.target.value})}
+                  readOnly={isLoadingPincode}
+                />
+              </div>
+              <div className="form-group">
+                <label>District</label>
+                <input 
+                  type="text" 
+                  placeholder="Enter district"
+                  value={donorDetails.district}
+                  onChange={(e) => setDonorDetails({...donorDetails, district: e.target.value})}
+                  readOnly={isLoadingPincode}
+                />
+              </div>
+              <div className="form-group">
                 <label>House Number</label>
                 <input 
                   type="text" 
@@ -893,26 +955,6 @@ const NewDonation = () => {
                   onChange={(e) => setDonorDetails({...donorDetails, streetName: e.target.value})}
                 />
               </div>
-              <div className="form-group">
-                <label>District</label>
-                <input 
-                  type="text" 
-                  placeholder="Enter district"
-                  value={donorDetails.district}
-                  onChange={(e) => setDonorDetails({...donorDetails, district: e.target.value})}
-                  readOnly={isLoadingPincode}
-                />
-              </div>
-              <div className="form-group">
-                <label>State</label>
-                <input 
-                  type="text" 
-                  placeholder="Enter state"
-                  value={donorDetails.state}
-                  onChange={(e) => setDonorDetails({...donorDetails, state: e.target.value})}
-                  readOnly={isLoadingPincode}
-                />
-              </div>
             </div>
           </div>
 
@@ -921,17 +963,18 @@ const NewDonation = () => {
             <div className="form-grid">
               <div className="form-group">
                 <label>Donation Amount</label>
-                <div className="input-group" style={{ display: "flex", gap: "0px"}}>
+                <div className="input-group">
                   <input 
                     type="text" 
                     placeholder="Enter the amount" 
                     value={currentReceipt?.donationDetails?.amount || ''}
-                    onChange={(e) => handleDonationDetailsUpdate({ amount: e.target.value })}
-                    style={{ border: 'none', padding: "8px 12px"}}
+                    onChange={(e) => {
+                      // Only allow numbers
+                      const value = e.target.value.replace(/\D/g, '');
+                      handleDonationDetailsUpdate({ amount: value });
+                    }}
+                    style={{ border: '1px solid #e7e5eb', padding: "8px 12px", width: "100%" }}
                   />
-                  <select className="currency-select">
-                    <option>₹</option>
-                  </select>
                 </div>
               </div>
               <div className="form-group">
@@ -949,14 +992,13 @@ const NewDonation = () => {
               </div>
               <div className="form-group full-width">
                 <label>In Memory of</label>
-                <select
+                <input
+                  type="text"
+                  placeholder="Enter in memory of"
                   value={currentReceipt?.donationDetails?.inMemoryOf || ''}
                   onChange={(e) => handleDonationDetailsUpdate({ inMemoryOf: e.target.value })}
                   style={{fontSize: "14px"}}
-                >
-                  <option value="">Select</option>
-                  <option value="Thakur Seva">Thakur Seva</option>
-                </select>
+                />
               </div>
             </div>
           </div>
@@ -1103,6 +1145,19 @@ const NewDonation = () => {
           </div>
         </div>
       </div>
+
+      {showCancelConfirm && (
+        <div className="confirmation-dialog">
+          <div className="dialog-content">
+            <h3>Confirm Cancellation</h3>
+            <p>Are you sure you want to cancel this donation?</p>
+            <div className="dialog-buttons">
+              <button onClick={() => setShowCancelConfirm(false)}>No</button>
+              <button onClick={confirmCancel} className="confirm-btn">Yes</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

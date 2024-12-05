@@ -719,8 +719,9 @@ const NewDonation = () => {
 
   return (
     <div className="donations-container">
-      <div className="donor-tags">
-        {donorTags.map(tag => (
+      <div className="donor-tags" style={{display: 'flex', justifyContent: 'space-between'}}>
+        <div>        
+          {donorTags.map(tag => (
           <div 
             key={tag.id} 
             className={`tag ${selectedDonor === tag.id ? 'selected' : ''}`}
@@ -735,16 +736,16 @@ const NewDonation = () => {
         ))}
         <button className="add-donation-btn" onClick={handleAddDonation}>
           + Add Donation
-        </button>
-        <div className="top-right-info">
-          <div className="form-group scrollable">
-            <label className="info-label">User:</label>
-            <span className="info-data">{user?.username || 'User Name'}</span>
-          </div>
-          <div className="form-group scrollable">
-            <label className="info-label">Date:</label>
-            <span className="info-data">{new Date().toLocaleDateString('en-GB')}</span>
-          </div>
+        </button></div>
+        <div style={{display: 'flex', flexDirection: 'column'}}>
+            <div>
+              <label className="info-label">User: </label>
+              <span className="info-data">{user?.username || 'User Name'}</span>
+            </div>
+            <div>
+              <label className="info-label">Date: </label>
+              <span className="info-data">{new Date().toLocaleDateString('en-GB')}</span>
+            </div>
         </div>
       </div>
 

@@ -1630,7 +1630,7 @@ const NewDonation = () => {
         </div>
       )}
 
-      {isModalOpen && (
+      {/* {isModalOpen && (
         <div className="modal-overlay">
           <div className="modal-content">
             <button className="close-button" onClick={() => setIsModalOpen(false)}>×</button>
@@ -1659,6 +1659,62 @@ const NewDonation = () => {
             <div className="modal-buttons">
               <button className="cancel-btn" onClick={() => setIsModalOpen(false)}>Cancel</button>
               <button className="confirm-btn" onClick={handleConfirmPrint}>
+                Confirm & Print
+              </button>
+            </div>
+          </div>
+        </div>
+      )} */}
+
+
+      {isModalOpen && (
+        <div className="confirmation-dialog">
+          <div className="modal-content">
+            <div className="model-header">
+              <h4>Receipt Preview</h4>
+              <button className="close-button" onClick={() => setIsModalOpen(false)}>×</button>
+            </div>
+            <div className="receipt-content">
+              <div className="receipt-header">
+                <div className="receipt-info">
+                  <span>Receipt No: <strong>{receiptNumber}</strong></span>
+                  <span>Date: <strong>{new Date().toLocaleDateString()}</strong></span>
+                </div>
+              </div>
+              <div className="receipt-body">
+                <div className="receipt-thanks">
+                  <p>Received with thanks from </p>
+                  <div className="receipt-address">
+                    <p>Devotees for Daily Prasad
+                      <p>Ramakrishna Math, Kamarpukur, PO: Kamarpukur, Dist: Hoogly, State: West Bengal, Pin: 712612</p>
+                    </p>
+                  </div>
+                </div>
+                <div className="receipt-amt">
+                  <p>The sum of Rupees: </p>
+                  <div style={{paddingLeft: '20px'}} className="amt">
+                    <p>{numberToWords(parseFloat(currentReceipt?.donationDetails?.amount || 0))} Only</p>
+                  </div>
+                </div>
+                <div className="receipt-amt">
+                  <p>By transaction type: </p>
+                  <p style={{paddingLeft: '20px'}}>{currentReceipt?.donationDetails?.transactionType || 'Cash'}</p>
+                </div>
+                <div className="receipt-amt">
+                  <p>As Donation for: </p>
+                  <p style={{paddingLeft: '20px'}}>{selectedTab}</p>
+                </div>
+              </div>
+              <div className="receipt-amount">
+                <strong>₹ {parseFloat(currentReceipt?.donationDetails?.amount || 0).toLocaleString('en-IN', {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2
+                })}</strong>
+              </div>
+            </div>
+            <div className="print">
+              <button className="cancel-button" onClick={() => setIsModalOpen(false)}>Cancel</button>
+              <button className="confirm-button" onClick={handleConfirmPrint}>
                 Confirm & Print
               </button>
             </div>

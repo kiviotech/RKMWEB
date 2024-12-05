@@ -71,7 +71,7 @@ const GuestDetailsPopup = ({ isOpen, onClose, guestDetails, guests, onStatusChan
 
             // Call the API to update the status
             const response = await updateBookingRequest(requestId, updatedData);
-            
+
             // If the API call is successful, notify the parent component
             if (response) {
                 onStatusChange && onStatusChange(requestId, newStatus);
@@ -86,8 +86,8 @@ const GuestDetailsPopup = ({ isOpen, onClose, guestDetails, guests, onStatusChan
     const RejectConfirmationPopup = ({ onCancel, onConfirm }) => {
         return (
             <div className="popup-overlay confirmation-overlay">
-                <div className="confirmation-popup" style={{ 
-                    width: '400px', 
+                <div className="confirmation-popup" style={{
+                    width: '400px',
                     maxWidth: '90vw',
                     padding: '40px 30px',
                     height: '300px',
@@ -97,9 +97,9 @@ const GuestDetailsPopup = ({ isOpen, onClose, guestDetails, guests, onStatusChan
                 }}>
                     <div className="warning-icon">
                         <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="48" height="48">
-                            <path d="M12 3L22 21H2L12 3Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                            <path d="M12 9V13" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                            <path d="M12 17H12.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                            <path d="M12 3L22 21H2L12 3Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                            <path d="M12 9V13" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                            <path d="M12 17H12.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                         </svg>
                     </div>
                     <h3>Are you sure you want to reject this guest?</h3>
@@ -119,7 +119,7 @@ const GuestDetailsPopup = ({ isOpen, onClose, guestDetails, guests, onStatusChan
 
     const renderActionButtons = () => {
         const status = guestDetails?.status || guestDetails?.attributes?.status || 'awaiting';
-        
+
         const handleRejectClick = () => {
             setShowRejectConfirmation(true);
         };
@@ -132,26 +132,26 @@ const GuestDetailsPopup = ({ isOpen, onClose, guestDetails, guests, onStatusChan
         if (status === 'awaiting') {
             return (
                 <div className="action-buttons">
-                    <button 
+                    <button
                         className="hold-btn"
                         onClick={() => handleStatusChange(guestDetails.id, 'on_hold')}
                     >
                         Put on hold
                     </button>
-                    <button 
+                    <button
                         className="approve-btn"
                         onClick={() => handleStatusChange(guestDetails.id, 'approved')}
                     >
                         Approve
                     </button>
-                    <button 
+                    <button
                         className="reject-btn"
                         onClick={handleRejectClick}
                     >
                         Reject
                     </button>
                     {showRejectConfirmation && (
-                        <RejectConfirmationPopup 
+                        <RejectConfirmationPopup
                             onCancel={() => setShowRejectConfirmation(false)}
                             onConfirm={handleRejectConfirm}
                         />
@@ -161,26 +161,26 @@ const GuestDetailsPopup = ({ isOpen, onClose, guestDetails, guests, onStatusChan
         } else if (status === 'approved') {
             return (
                 <div className="action-buttons">
-                    <button 
+                    <button
                         className="hold-btn"
                         onClick={() => handleStatusChange(guestDetails.id, 'on_hold')}
                     >
                         Put on hold
                     </button>
-                    <button 
+                    <button
                         className="reject-btn"
                         onClick={handleRejectClick}
                     >
                         Reject
                     </button>
-                    <button 
+                    <button
                         className="allocate-btn"
                         onClick={() => handleButtonClick(guestDetails)}
                     >
                         Allocate Rooms
                     </button>
                     {showRejectConfirmation && (
-                        <RejectConfirmationPopup 
+                        <RejectConfirmationPopup
                             onCancel={() => setShowRejectConfirmation(false)}
                             onConfirm={handleRejectConfirm}
                         />
@@ -188,7 +188,7 @@ const GuestDetailsPopup = ({ isOpen, onClose, guestDetails, guests, onStatusChan
                 </div>
             );
         }
-        
+
         return null;
     };
 
@@ -210,11 +210,11 @@ const GuestDetailsPopup = ({ isOpen, onClose, guestDetails, guests, onStatusChan
                                 <h2>{guestDetails?.userDetails?.name || "N/A"}</h2>
                                 <div className="info-grid">
                                     <div className="info-item">
-                                        <span className="label">Age:</span>
+                                        <span className="label">Age</span>
                                         <span className="value">{guestDetails?.userDetails?.age || "N/A"}</span>
                                     </div>
                                     <div className="info-item">
-                                        <span className="label">Gender:</span>
+                                        <span className="label">Gender</span>
                                         <span className="value">{guestDetails?.userDetails?.gender || "N/A"}</span>
                                     </div>
                                     <div className="info-item">
@@ -228,29 +228,29 @@ const GuestDetailsPopup = ({ isOpen, onClose, guestDetails, guests, onStatusChan
                                 </div>
                                 <div className="info-grid">
                                     <div className="info-item">
-                                        <span className="label">Occupation:</span>
+                                        <span className="label">Occupation</span>
                                         <span className="value">{guestDetails?.userDetails?.occupation || "N/A"}</span>
                                     </div>
                                     <div className="info-item">
-                                        <span className="label">Diksha:</span>
+                                        <span className="label">Initiation by</span>
                                         <span className="value">{guestDetails?.userDetails?.deeksha || "N/A"}</span>
                                     </div>
-                                    <div className="info-item">
-                                        <span className="label">Initiation by:</span>
+                                    {/* <div className="info-item">
+                                        <span className="label">Initiation by</span>
                                         <span className="value">Gurudev Name</span>
-                                    </div>
+                                    </div> */}
                                 </div>
                             </div>
                         </div>
 
                         <div className="right-section">
                             <div className="reminder-bar">
-                                <div className="reminder-content">
+                                {/* <div className="reminder-content">
                                     <img src={icons.Reminder} alt="reminder" />
                                     <span>Reminder: 26th Aug is Janmasthami</span>
-                                </div>
+                                </div> */}
                             </div>
-                            
+
                             <div className="stay-info">
                                 <div className="duration">
                                     <span className="label">Stay Duration:- </span>
@@ -282,9 +282,9 @@ const GuestDetailsPopup = ({ isOpen, onClose, guestDetails, guests, onStatusChan
                     <div className="history-header">
                         <div className="left-title">Guests</div>
                         <div className="center-title">Visit History of {selectedGuestName}</div>
-                        <div className="right-link">
+                        {/* <div className="right-link">
                             <a href="#" className="check-availability">Check Availability</a>
-                        </div>
+                        </div> */}
                     </div>
 
                     <div className="history-tables">
@@ -303,7 +303,7 @@ const GuestDetailsPopup = ({ isOpen, onClose, guestDetails, guests, onStatusChan
                                         </thead>
                                         <tbody>
                                             {guestDetails?.guests?.map((guest) => (
-                                                <tr 
+                                                <tr
                                                     key={guest.id}
                                                     className={selectedRow === guest.id ? 'selected' : ''}
                                                     onClick={() => handleRowClick(guest.id)}
@@ -333,24 +333,36 @@ const GuestDetailsPopup = ({ isOpen, onClose, guestDetails, guests, onStatusChan
                                 </thead>
                                 <tbody>
                                     {guestDetails?.visitHistory?.length > 0 ? (
-                                        guestDetails.visitHistory.map((visit, index) => (
-                                            <tr 
-                                                key={index}
-                                                className={selectedVisitRow === index ? 'selected' : ''}
-                                                onClick={() => handleVisitRowClick(index)}
-                                            >
-                                                <td>{visit.visitDate || 'N/A'}</td>
-                                                <td>{visit.numberOfDays || 'N/A'}</td>
-                                                <td>{visit.roomAllocated || 'N/A'}</td>
-                                                <td>₹{visit.donations?.toFixed(2) || '0.00'}</td>
-                                            </tr>
-                                        ))
+                                        guestDetails.visitHistory.map((visit, index) => {
+                                            // Calculate the difference in months between the visit date and the present date
+                                            const visitDate = new Date(visit.visitDate);
+                                            const currentDate = new Date();
+                                            const monthsDifference =
+                                                (currentDate.getFullYear() - visitDate.getFullYear()) * 12 +
+                                                (currentDate.getMonth() - visitDate.getMonth());
+
+                                            const isWithinSixMonths = monthsDifference < 6;
+
+                                            return (
+                                                <tr
+                                                    key={index}
+                                                    className={isWithinSixMonths ? 'highlighted' : ''}
+                                                    onClick={() => handleVisitRowClick(index)}
+                                                >
+                                                    <td>{visit.visitDate || 'N/A'}</td>
+                                                    <td>{visit.numberOfDays || 'N/A'}</td>
+                                                    <td>{visit.roomAllocated || 'N/A'}</td>
+                                                    <td>₹{visit.donations?.toFixed(2) || '0.00'}</td>
+                                                </tr>
+                                            );
+                                        })
                                     ) : (
                                         <tr>
                                             <td colSpan="4" className="no-data">No visit history available</td>
                                         </tr>
                                     )}
                                 </tbody>
+
                             </table>
                         </div>
                     </div>
@@ -364,7 +376,7 @@ const GuestDetailsPopup = ({ isOpen, onClose, guestDetails, guests, onStatusChan
                     </div>
                 </div>
             </div>
-        </div>
+        </div >
     );
 };
 

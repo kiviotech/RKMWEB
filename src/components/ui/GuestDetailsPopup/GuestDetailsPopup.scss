@@ -11,9 +11,10 @@
 .popup-content {
     background: white;
     border-radius: 8px;
+    padding: 40px 20px;
     width: 100%;
-    max-width: 1000px;
-    max-height: 90vh;
+    max-width: 1200px;
+    max-height: 150vh;
     overflow-y: auto;
 }
 
@@ -28,6 +29,7 @@
         align-items: flex-start;
         
         .left-section {
+            width: 75%;
             display: flex;
             gap: 12px;
             
@@ -57,8 +59,8 @@
                 .info-grid {
                     display: flex;
                     flex-wrap: wrap;
-                    gap: 16px;
-                    margin-bottom: 8px;
+                    gap: 20px;
+                    margin-bottom: 10px;
                     
                     .info-item {
                         display: flex;
@@ -67,7 +69,7 @@
                         
                         .label {
                             color: #666;
-                            font-size: 13px;
+                            font-size: 16px;
                             &::after {
                                 content: ":";
                                 margin-right: 4px;
@@ -76,7 +78,7 @@
                         
                         .value {
                             color: #333;
-                            font-size: 13px;
+                            font-size: 14px;
                         }
                         
                         img.icon {
@@ -90,6 +92,7 @@
         }
 
         .right-section {
+            width: 25%;
             .reminder-bar {
                 display: flex;
                 align-items: center;
@@ -133,10 +136,10 @@
             }
             
             .stay-info {
-                text-align: right;
+                text-align: left;
                 
                 .duration {
-                    margin-bottom: 8px;
+                    margin-bottom: 15px;
                     font-size: 13px;
                     
                     .label {
@@ -152,28 +155,30 @@
                 .dates {
                     display: flex;
                     flex-direction: column;
-                    gap: 8px;
+                    gap: 15px;
                     
                     .date-row {
                         display: flex;
                         align-items: center;
                         gap: 8px;
-                        justify-content: flex-end;
+                        justify-content: flex-start;
                         
                         img {
-                            width: 14px;
-                            height: 14px;
+                            width: 15px;
                             filter: invert(40%);
                         }
                         
                         .date-label {
                             color: #9867E9;
-                            font-size: 13px;
+                            font-size: 18px;
+                            font-weight: 700;
                         }
                         
                         .date-value {
                             color: #666;
-                            font-size: 13px;
+                            font-size: 16px;
+                            font-weight: 700;
+
                         }
                     }
                 }
@@ -183,7 +188,7 @@
     
     .close-btn {
         position: absolute;
-        top: 16px;
+        top: 0px;
         right: 16px;
         background: none;
         border: none;
@@ -239,7 +244,6 @@
         justify-content: space-between;
         align-items: center;
         margin-bottom: 20px;
-        padding: 0 12px;
         
         .left-title {
             flex: 0 0 auto;
@@ -723,7 +727,7 @@
         cursor: pointer;
         transition: background-color 0.2s ease;
         
-        &.selected {
+        &.highlighted {
             background: #FFE5E5;
             
             td {
@@ -732,9 +736,9 @@
             }
         }
         
-        &:hover:not(.selected) td {
-            background: #F8F8F8;
-        }
+        &:hover:not(.highlighted) td {
+            background: #f8f8f8;
+          }
     }
     
     tbody {

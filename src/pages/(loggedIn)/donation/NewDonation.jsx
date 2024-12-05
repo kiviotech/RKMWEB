@@ -262,9 +262,13 @@ const NewDonation = () => {
     const district = addressParts[addressParts.length - 3] || '';
     const streetAddress = addressParts.slice(0, addressParts.length - 3).join(', ') || '';
 
+    // Remove the title from the name if it exists at the beginning
+    const titleRegex = /^(Sri|Smt\.|Mr\.|Mrs\.|Swami|Dr\.|Prof\.|Kumari|Ms\.)\s*/i;
+    const nameWithoutTitle = guestData.name.replace(titleRegex, '').trim();
+
     const donorDetailsData = {
-      title: guestData.title || 'Sri', // Set the title from guest data
-      name: guestData.name.replace(guestData.title, '').trim() || '', // Remove title from name
+      title: guestData.title || 'Sri',
+      name: nameWithoutTitle, // Use the name without title
       phoneCode: '+91',
       phone: guestData.phone_number?.replace('+91', '') || '',
       email: guestData.email || '',
@@ -273,7 +277,7 @@ const NewDonation = () => {
       identityNumber: guestData.aadhaar_number || '',
       roomNumber: '',
       pincode: pincode,
-      houseNumber: '', // Could be extracted from streetAddress if needed
+      houseNumber: '',
       streetName: streetAddress,
       district: district,
       state: state,

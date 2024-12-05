@@ -813,3 +813,82 @@
         }
     }
 }
+
+.confirmation-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.confirmation-popup {
+    background: white;
+    padding: 24px;
+    border-radius: 8px;
+    text-align: center;
+    max-width: 400px;
+    width: 90%;
+
+    .warning-icon {
+        color: #FF4D6D;
+        margin-bottom: 16px;
+        
+        svg {
+            width: 48px;
+            height: 48px;
+        }
+    }
+
+    h3 {
+        margin: 0 0 8px;
+        font-size: 18px;
+        color: #333;
+    }
+
+    p {
+        margin: 0 0 24px;
+        color: #666;
+        font-size: 14px;
+    }
+
+    .confirmation-buttons {
+        display: flex;
+        justify-content: center;
+        gap: 16px;
+
+        button {
+            padding: 8px 24px;
+            border-radius: 4px;
+            border: 1px solid;
+            cursor: pointer;
+            font-weight: 500;
+            min-width: 80px;
+
+            &.cancel-btn {
+                background: white;
+                color: #666;
+                border-color: #E0E0E0;
+                
+                &:hover {
+                    background: #f5f5f5;
+                }
+            }
+
+            &.reject-confirm-btn {
+                background: #FFE5E5;
+                color: #F24A4A;
+                border-color: #F24A4A;
+                
+                &:hover {
+                    background: #FFD6D6;
+                }
+            }
+        }
+    }
+}

@@ -21,6 +21,7 @@ const GuestDetailsPopup = ({ isOpen, onClose, guestDetails, guests, onStatusChan
     const [selectedRow, setSelectedRow] = useState(null);
     const [selectedVisitRow, setSelectedVisitRow] = useState(null);
     const [selectedGuestName, setSelectedGuestName] = useState(guestDetails?.userDetails?.name || "");
+    const [showRejectConfirmation, setShowRejectConfirmation] = useState(false);
 
     useEffect(() => {
         if (guestDetails?.guests?.length > 0) {
@@ -82,10 +83,52 @@ const GuestDetailsPopup = ({ isOpen, onClose, guestDetails, guests, onStatusChan
         }
     };
 
+    const RejectConfirmationPopup = ({ onCancel, onConfirm }) => {
+        return (
+            <div className="popup-overlay confirmation-overlay">
+                <div className="confirmation-popup" style={{ 
+                    width: '400px', 
+                    maxWidth: '90vw',
+                    padding: '40px 30px',
+                    height: '300px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'space-between'
+                }}>
+                    <div className="warning-icon">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="48" height="48">
+                            <path d="M12 3L22 21H2L12 3Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                            <path d="M12 9V13" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                            <path d="M12 17H12.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                    </div>
+                    <h3>Are you sure you want to reject this guest?</h3>
+                    <p>Once confirmed, the action will be final and cannot be undone.</p>
+                    <div className="confirmation-buttons">
+                        <button className="cancel-btn" onClick={onCancel}>
+                            Cancel
+                        </button>
+                        <button className="reject-confirm-btn" onClick={onConfirm}>
+                            Reject
+                        </button>
+                    </div>
+                </div>
+            </div>
+        );
+    };
+
     const renderActionButtons = () => {
         const status = guestDetails?.status || guestDetails?.attributes?.status || 'awaiting';
-        console.log('Current status:', status);
         
+        const handleRejectClick = () => {
+            setShowRejectConfirmation(true);
+        };
+
+        const handleRejectConfirm = () => {
+            handleStatusChange(guestDetails.id, 'rejected');
+            setShowRejectConfirmation(false);
+        };
+
         if (status === 'awaiting') {
             return (
                 <div className="action-buttons">
@@ -103,10 +146,16 @@ const GuestDetailsPopup = ({ isOpen, onClose, guestDetails, guests, onStatusChan
                     </button>
                     <button 
                         className="reject-btn"
-                        onClick={() => handleStatusChange(guestDetails.id, 'rejected')}
+                        onClick={handleRejectClick}
                     >
                         Reject
                     </button>
+                    {showRejectConfirmation && (
+                        <RejectConfirmationPopup 
+                            onCancel={() => setShowRejectConfirmation(false)}
+                            onConfirm={handleRejectConfirm}
+                        />
+                    )}
                 </div>
             );
         } else if (status === 'approved') {
@@ -120,7 +169,7 @@ const GuestDetailsPopup = ({ isOpen, onClose, guestDetails, guests, onStatusChan
                     </button>
                     <button 
                         className="reject-btn"
-                        onClick={() => handleStatusChange(guestDetails.id, 'rejected')}
+                        onClick={handleRejectClick}
                     >
                         Reject
                     </button>
@@ -130,6 +179,12 @@ const GuestDetailsPopup = ({ isOpen, onClose, guestDetails, guests, onStatusChan
                     >
                         Allocate Rooms
                     </button>
+                    {showRejectConfirmation && (
+                        <RejectConfirmationPopup 
+                            onCancel={() => setShowRejectConfirmation(false)}
+                            onConfirm={handleRejectConfirm}
+                        />
+                    )}
                 </div>
             );
         }

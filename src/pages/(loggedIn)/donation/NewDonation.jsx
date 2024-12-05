@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import "./NewDonation.scss";
 import { useAuthStore } from "../../../../store/authStore";
 import { useDonationStore } from "../../../../donationStore";
@@ -43,11 +43,17 @@ const NewDonation = () => {
   const [validationErrors, setValidationErrors] = useState({
     name: '',
     phone: '',
-    email: ''
+    email: '',
+    identityNumber: ''
   });
   const [isLoadingPincode, setIsLoadingPincode] = useState(false);
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
   const navigate = useNavigate();
+  const [countryCodes, setCountryCodes] = useState([]);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const dropdownRef = useRef(null);
+  const searchInputRef = useRef(null);
 
   console.log("Zustand Store Data:", {
     // auth: { user },
@@ -619,6 +625,30 @@ const NewDonation = () => {
     return '';
   };
 
+  // Add these validation functions near your other validation functions
+  const validateIdentityNumber = (type, number) => {
+    if (!number) return '';
+    
+    switch (type) {
+      case 'Aadhaar':
+        if (!/^\d{12}$/.test(number)) {
+          return 'Aadhaar number must be 12 digits';
+        }
+        break;
+      case 'PAN':
+        if (!/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/.test(number)) {
+          return 'PAN must be in format: ABCDE1234F';
+        }
+        break;
+      case 'Passport':
+        if (!/^[A-Z]{1}[0-9]{7}$/.test(number)) {
+          return 'Passport must be in format: A1234567';
+        }
+        break;
+    }
+    return '';
+  };
+
   // Add this function to check if form is valid
   const isFormValid = () => {
     // Check required fields
@@ -657,6 +687,45 @@ const NewDonation = () => {
       setIsLoadingPincode(false);
     }
   };
+
+  // Add this useEffect after other useEffects
+  useEffect(() => {
+    // Fetch country codes list
+    fetch("https://restcountries.com/v3.1/all")
+      .then((response) => response.json())
+      .then((data) => {
+        const codes = data
+          .filter((country) => country.idd.root)
+          .map((country) => ({
+            code: (
+              country.idd.root + (country.idd.suffixes?.[0] || "")
+            ).replace(/[^0-9]/g, ""),
+            flagUrl: country.flags.svg,
+            id: country.cca2,
+            name: country.name.common,
+          }))
+          .sort((a, b) => a.name.localeCompare(b.name));
+        setCountryCodes(codes);
+      })
+      .catch((error) => {
+        console.error("Error fetching country codes:", error);
+      });
+  }, []);
+
+  // Add this useEffect for handling clicks outside dropdown
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsDropdownOpen(false);
+        setSearchQuery("");
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   return (
     <div className="donations-container">
@@ -779,10 +848,14 @@ const NewDonation = () => {
               <div className="form-group">
                 <label>Name of Donor</label>
                 <div className="donor-unified-input">
-                  <div className="donor-custom-select">
+                  <div className="donor-custom-select" style={{ position: 'relative' }}>
                     <select
                       value={donorDetails.title}
                       onChange={(e) => setDonorDetails({...donorDetails, title: e.target.value})}
+                      style={{
+                        appearance: 'none',
+                        paddingRight: '24px' // Make room for the arrow
+                      }}
                     >
                       <option value="">Title</option>
                       <option value="Sri">Sri</option>
@@ -795,6 +868,29 @@ const NewDonation = () => {
                       <option value="Kumari">Kumari</option>
                       <option value="Ms">Ms.</option>
                     </select>
+                    <div style={{
+                      position: 'absolute',
+                      right: '8px',
+                      top: '50%',
+                      transform: 'translateY(-50%)',
+                      pointerEvents: 'none'
+                    }}>
+                      <svg 
+                        width="12" 
+                        height="12" 
+                        viewBox="0 0 12 12" 
+                        fill="none" 
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path 
+                          d="M2.5 4.5L6 8L9.5 4.5" 
+                          stroke="currentColor" 
+                          strokeWidth="1.5" 
+                          strokeLinecap="round" 
+                          strokeLinejoin="round"
+                        />
+                      </svg>
+                    </div>
                   </div>
                   <input 
                     type="text" 
@@ -814,20 +910,70 @@ const NewDonation = () => {
               </div>
               <div className="form-group">
                 <label>Phone No.</label>
-                <div className="input-group">
+                <div className="phone-unified-input">
+                  <div className="phone-custom-select" ref={dropdownRef}>
+                    <div 
+                      className="phone-selected-country" 
+                      onClick={() => {
+                        setIsDropdownOpen(!isDropdownOpen);
+                        setTimeout(() => {
+                          if (searchInputRef.current) {
+                            searchInputRef.current.focus();
+                          }
+                        }, 0);
+                      }}
+                    >
+                      {donorDetails.phoneCode && (
+                        <>
+                          <img 
+                            src={countryCodes.find(c => `+${c.code}` === donorDetails.phoneCode)?.flagUrl} 
+                            alt="" 
+                            className="flag-icon" 
+                          />
+                          {donorDetails.phoneCode}
+                        </>
+                      )}
+                    </div>
+                    {isDropdownOpen && (
+                      <div className="phone-country-dropdown">
+                        <input
+                          ref={searchInputRef}
+                          type="text"
+                          placeholder="Search country..."
+                          value={searchQuery}
+                          onChange={(e) => setSearchQuery(e.target.value)}
+                          onClick={(e) => e.stopPropagation()}
+                        />
+                        <div className="phone-country-list">
+                          {countryCodes
+                            .filter(country => 
+                              country.code.includes(searchQuery) ||
+                              country.name?.toLowerCase().includes(searchQuery.toLowerCase())
+                            )
+                            .map((country) => (
+                              <div
+                                key={country.id}
+                                className="phone-country-option"
+                                onClick={() => {
+                                  setDonorDetails({...donorDetails, phoneCode: `+${country.code}`});
+                                  setIsDropdownOpen(false);
+                                  setSearchQuery("");
+                                }}
+                              >
+                                <img src={country.flagUrl} alt="" className="flag-icon" />
+                                <span>+{country.code}</span>
+                                <span className="country-name">{country.name}</span>
+                              </div>
+                            ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
                   <input 
                     type="text" 
                     placeholder="9212341902"
                     value={donorDetails.phone}
-                    onChange={(e) => {
-                      const newPhone = e.target.value;
-                      setDonorDetails({...donorDetails, phone: newPhone});
-                      setValidationErrors({
-                        ...validationErrors,
-                        phone: validatePhone(newPhone)
-                      });
-                    }}
-                    className={validationErrors.phone ? 'error' : ''}
+                    onChange={(e) => setDonorDetails({...donorDetails, phone: e.target.value})}
                   />
                 </div>
                 {validationErrors.phone && (
@@ -860,16 +1006,29 @@ const NewDonation = () => {
                   value={donorDetails.mantraDiksha}
                   onChange={(e) => setDonorDetails({...donorDetails, mantraDiksha: e.target.value})}
                 >
-                  <option value="">Select Yes/No</option>
-                  <option value="yes">Yes</option>
-                  <option value="no">No</option>
+                  <option value="">Select Deeksha</option>
+                  <option value="Sri Ramakrishna – Life and Teachings">Sri Ramakrishna – Life and Teachings</option>
+                  <option value="Sri Sarada Devi – Life and Teachings">Sri Sarada Devi – Life and Teachings</option>
+                  <option value="Swami Vivekananda – His Life and Legacy">Swami Vivekananda – His Life and Legacy</option>
+                  <option value="The Gospel of Sri Ramakrishna">The Gospel of Sri Ramakrishna</option>
+                  <option value="none">None</option>
                 </select>
               </div>
               <div className="form-group">
                 <label>Identity type</label>
                 <select
                   value={donorDetails.identityType}
-                  onChange={(e) => setDonorDetails({...donorDetails, identityType: e.target.value})}
+                  onChange={(e) => {
+                    setDonorDetails({
+                      ...donorDetails,
+                      identityType: e.target.value,
+                      identityNumber: '' // Reset number when type changes
+                    });
+                    setValidationErrors({
+                      ...validationErrors,
+                      identityNumber: ''
+                    });
+                  }}
                 >
                   <option value="">Select ID type</option>
                   <option value="Aadhaar">Aadhaar</option>
@@ -881,10 +1040,38 @@ const NewDonation = () => {
                 <label>Identity Number</label>
                 <input 
                   type="text" 
-                  placeholder="Enter ID number"
+                  placeholder={
+                    donorDetails.identityType === 'Aadhaar' ? "123456789012" :
+                    donorDetails.identityType === 'PAN' ? "ABCDE1234F" :
+                    donorDetails.identityType === 'Passport' ? "A1234567" :
+                    "Enter ID number"
+                  }
                   value={donorDetails.identityNumber}
-                  onChange={(e) => setDonorDetails({...donorDetails, identityNumber: e.target.value})}
+                  onChange={(e) => {
+                    let value = e.target.value;
+                    
+                    // Apply formatting based on type
+                    switch (donorDetails.identityType) {
+                      case 'Aadhaar':
+                        value = value.replace(/\D/g, '').slice(0, 12);
+                        break;
+                      case 'PAN':
+                        value = value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 10);
+                        break;
+                      case 'Passport':
+                        value = value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 8);
+                        break;
+                    }
+                    
+                    setDonorDetails({...donorDetails, identityNumber: value});
+                    const error = validateIdentityNumber(donorDetails.identityType, value);
+                    setValidationErrors({...validationErrors, identityNumber: error});
+                  }}
+                  className={validationErrors.identityNumber ? 'error' : ''}
                 />
+                {validationErrors.identityNumber && (
+                  <span className="error-message">{validationErrors.identityNumber}</span>
+                )}
               </div>
               <div className="form-group">
                 <label>Guest House Room No.</label>

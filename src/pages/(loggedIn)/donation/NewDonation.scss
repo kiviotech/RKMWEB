@@ -796,20 +796,6 @@ input::placeholder {
     position: relative;
     min-width: 100px;
     
-    &::after {
-      content: '';
-      position: absolute;
-      right: 8px;
-      top: 50%;
-      transform: translateY(-50%);
-      width: 0;
-      height: 0;
-      border-left: 5px solid transparent;
-      border-right: 5px solid transparent;
-      border-top: 5px solid #666;
-      pointer-events: none;
-    }
-    
     select {
       height: 100%;
       border-radius: 4px;
@@ -847,4 +833,174 @@ input::placeholder {
   font-size: 12px;
   margin-top: 4px;
   display: block;
+}
+
+.unified-input {
+  display: flex;
+  gap: 10px;
+  
+  .custom-select {
+    position: relative;
+    min-width: 120px;
+    
+    .selected-country {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      padding: 8px 12px;
+      border: 1px solid #e7e5eb;
+      border-radius: 4px;
+      cursor: pointer;
+      
+      .flag-icon {
+        width: 20px;
+        height: 15px;
+        object-fit: cover;
+      }
+    }
+    
+    .country-dropdown {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      width: 300px;
+      max-height: 300px;
+      background: white;
+      border: 1px solid #e7e5eb;
+      border-radius: 4px;
+      z-index: 1000;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      
+      input {
+        width: 100%;
+        padding: 8px;
+        border: none;
+        border-bottom: 1px solid #e7e5eb;
+        outline: none;
+      }
+      
+      .country-list {
+        overflow-y: auto;
+        max-height: 250px;
+        
+        .country-option {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          padding: 8px 12px;
+          cursor: pointer;
+          
+          &:hover {
+            background-color: #f5f5f5;
+          }
+          
+          .flag-icon {
+            width: 20px;
+            height: 15px;
+            object-fit: cover;
+          }
+          
+          .country-name {
+            color: #666;
+            font-size: 14px;
+          }
+        }
+      }
+    }
+  }
+  
+  input[type="text"] {
+    flex: 1;
+  }
+}
+
+.phone-unified-input {
+  display: flex;
+  gap: 10px;
+  
+  .phone-custom-select {
+    position: relative;
+    min-width: 120px;
+    
+    .phone-selected-country {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      padding: 12px;
+      height: 42px;
+      border: 1px solid #e7e5eb;
+      border-radius: 4px;
+      cursor: pointer;
+      outline: none !important;
+      box-shadow: none !important;
+      
+      .flag-icon {
+        width: 20px;
+        height: 15px;
+        object-fit: cover;
+      }
+
+      &:focus {
+        outline: none !important;
+        box-shadow: none !important;
+      }
+    }
+    
+    .phone-country-dropdown {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      width: 300px;
+      max-height: 300px;
+      background: white;
+      border: 1px solid #e7e5eb;
+      border-radius: 4px;
+      z-index: 1000;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      
+      input {
+        width: 100%;
+        padding: 12px;
+        height: 42px;
+        border: none;
+        border-bottom: 1px solid #e7e5eb;
+        outline: none !important;
+        box-shadow: none !important;
+      }
+      
+      .phone-country-list {
+        overflow-y: auto;
+        max-height: 250px;
+        
+        .phone-country-option {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          padding: 8px 12px;
+          cursor: pointer;
+          
+          &:hover {
+            background-color: #f5f5f5;
+          }
+          
+          .flag-icon {
+            width: 20px;
+            height: 15px;
+            object-fit: cover;
+          }
+          
+          .country-name {
+            color: #666;
+            font-size: 14px;
+          }
+        }
+      }
+    }
+  }
+  
+  input[type="text"] {
+    flex: 1;
+    height: 42px;
+    padding: 12px;
+  }
 }

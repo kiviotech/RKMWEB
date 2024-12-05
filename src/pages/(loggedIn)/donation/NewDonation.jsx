@@ -39,6 +39,7 @@ const NewDonation = () => {
   const [showDropdown, setShowDropdown] = useState(false);
   const [currentReceipt, setCurrentReceipt] = useState({
     donationDetails: {
+      donationType: '',
       amount: '',
       transactionType: 'cash',
       inMemoryOf: '',
@@ -1434,6 +1435,24 @@ const NewDonation = () => {
         <div className="donation-section">
           <div className="details-card donation-details">
             <h2>Donations Details</h2>
+            <div className="form-group">
+              <label>Donation Type</label>
+              <select
+                value={currentReceipt?.donationDetails?.donationType || ''}
+                onChange={(e) => {
+                  handleDonationDetailsUpdate({
+                    donationType: e.target.value
+                  });
+                }}
+              >
+                <option value="">Select your Reason</option>
+                <option value="general">General Donation</option>
+                <option value="puja">Puja</option>
+                <option value="prasad">Prasad</option>
+                <option value="maintenance">Maintenance</option>
+                <option value="education">Education</option>
+              </select>
+            </div>
             <div className="form-group">
               <label>Donation Amount</label>
               <input 

@@ -396,7 +396,7 @@ const BookRoom = () => {
     }
   }, [guestData]);
 
-  // Initialize selectedGuests when guestData changes
+  // Update the useEffect that initializes selectedGuests
   useEffect(() => {
     if (guestData?.additionalGuests) {
       // Initialize all guests as selected (true)
@@ -823,14 +823,11 @@ const BookRoom = () => {
       !allocatedGuestsList.some(allocated => allocated.name === guest.name)
     );
 
-    // Find the first selected unallocated guest
-    const selectedUnallocatedGuest = unallocatedGuests.find((guest, index) => {
-      const originalIndex = guestData.additionalGuests.findIndex(g => g.name === guest.name);
-      return selectedGuests[originalIndex];
-    });
+    // Find the first unallocated guest
+    const selectedUnallocatedGuest = unallocatedGuests[0];
 
     if (!selectedUnallocatedGuest) {
-      alert("Please select a guest to allocate first");
+      alert("No guests available to allocate");
       return;
     }
 
@@ -847,12 +844,9 @@ const BookRoom = () => {
     // Update allocated guests list
     setAllocatedGuestsList(prev => [...prev, newAllocatedGuest]);
 
-    // Update selected guests state - only uncheck the allocated guest
-    setSelectedGuests(prev => {
-      const newSelectedGuests = [...prev];
-      newSelectedGuests[originalGuestIndex] = false;
-      return newSelectedGuests;
-    });
+    // Keep all guests checked
+    const newSelectedGuests = new Array(guestData.additionalGuests.length).fill(true);
+    setSelectedGuests(newSelectedGuests);
 
     // Update room's available beds in the UI
     setRoomsData(prevRooms => 

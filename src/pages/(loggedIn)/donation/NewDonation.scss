@@ -78,19 +78,31 @@
       .form-group {
         display: flex;
         align-items: center;
-        margin-bottom: 5px;
-        white-space: nowrap;
-      }
-
-      .info-label {
-        font-weight: bold;
-        color: #333;
-        font-size: 14px;
-      }
-
-      .info-data {
-        color: #666;
-        font-size: 14px;
+        gap: 5px;
+        max-width: 150px;
+        overflow-x: auto;
+        
+        /* Hide scrollbar for Chrome, Safari and Opera */
+        &::-webkit-scrollbar {
+          display: none;
+        }
+        
+        /* Hide scrollbar for IE, Edge and Firefox */
+        -ms-overflow-style: none;  /* IE and Edge */
+        scrollbar-width: none;  /* Firefox */
+        
+        .info-label {
+          flex-shrink: 0; /* Prevent label from shrinking */
+          font-weight: bold;
+          color: #333;
+          font-size: 14px;
+        }
+        
+        .info-data {
+          white-space: nowrap; /* Keep text in single line */
+          color: #666;
+          font-size: 14px;
+        }
       }
     }
   }
@@ -1642,5 +1654,11 @@ input, select {
 
 .form-group input.error {
   border-color: #dc3545;
+}
+
+.scrollable {
+  max-width: 150px; /* Adjust width as needed */
+  overflow-x: auto;
+  white-space: nowrap;
 }
 

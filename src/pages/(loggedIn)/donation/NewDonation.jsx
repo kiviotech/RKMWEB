@@ -4,7 +4,7 @@ import { useAuthStore } from "../../../../store/authStore";
 import { useDonationStore } from "../../../../donationStore";
 import { fetchGuestDetails } from "../../../../services/src/services/guestDetailsService";
 import { createNewReceiptDetail } from "../../../../services/src/services/receiptDetailsService";
-import { createNewDonation, fetchDonationsByField, updateDonationById } from "../../../../services/src/services/donationsService";
+import { createNewDonation } from "../../../../services/src/services/donationsService";
 import { useNavigate } from 'react-router-dom';
 
 const NewDonation = () => {
@@ -92,10 +92,8 @@ const NewDonation = () => {
   };
 
   React.useEffect(() => {
-    // Skip if no selected donor
     if (!selectedDonor) return;
 
-    // Only generate receipt number if it doesn't exist
     if (!receiptNumber) {
       const generatedNumber = generateReceiptNumber(selectedTab);
       
@@ -120,33 +118,62 @@ const NewDonation = () => {
         }
       };
 
-      // Batch these updates together
       setReceiptNumber(generatedNumber);
       setCurrentReceipt(receiptData);
       addDonation(receiptData);
     }
-  }, [selectedDonor, selectedTab]); // Only depend on selectedDonor and selectedTab
+  }, [selectedDonor, selectedTab]);
 
-  // When donor details are updated, update both receipts
-  const handleDonorDetailsUpdate = (details) => {
-    // Update both Math and Mission receipts with the same donor details
-    if (currentReceipt?.receiptNumber) {
-      updateDonationDetails(currentReceipt.receiptNumber, { donorDetails: details });
+  const handleTabClick = (tabType) => {
+    setSelectedTab(tabType);
+    setDonorTabs(prev => ({
+      ...prev,
+      [selectedDonor]: tabType
+    }));
+    
+    const newReceiptNumber = generateReceiptNumber(tabType);
+    setReceiptNumber(newReceiptNumber);
+    
+    if (currentReceipt) {
+      const updatedReceipt = {
+        ...currentReceipt,
+        receiptNumber: newReceiptNumber,
+        type: tabType
+      };
+      setCurrentReceipt(updatedReceipt);
+      addDonation(updatedReceipt);
     }
-    setDonorDetails(details);
-    
-    // If there are receipts for this donor, update all of them
-    const donorReceipts = donations.receipts.find(group => 
-      Array.isArray(group) && 
-      group.length > 0 && 
-      (group[0].donorId === selectedDonor || group[0].donorDetails?.guestId === selectedDonor)
-    ) || [];
-    
-    donorReceipts.forEach(receipt => {
-      if (receipt.receiptNumber !== currentReceipt?.receiptNumber) {
-        updateDonationDetails(receipt.receiptNumber, { donorDetails: details });
+  };
+
+  const handleReset = () => {
+    if (!selectedDonor || !currentReceipt) return;
+
+    const newReceiptNumber = generateReceiptNumber(selectedTab);
+    setReceiptNumber(newReceiptNumber);
+
+    const resetReceipt = {
+      receiptNumber: newReceiptNumber,
+      date: new Date().toLocaleDateString(),
+      createdBy: user?.username || 'N/A',
+      type: selectedTab,
+      status: 'pending',
+      amount: 0,
+      donorId: selectedDonor,
+      donorDetails: donorDetails,
+      donationDetails: {
+        amount: '',
+        transactionType: 'cash',
+        inMemoryOf: '',
+        transactionDetails: {
+          ddNumber: '',
+          ddDate: '',
+          bankName: ''
+        }
       }
-    });
+    };
+
+    setCurrentReceipt(resetReceipt);
+    addDonation(resetReceipt);
   };
 
   const handleAddDonation = () => {
@@ -158,7 +185,9 @@ const NewDonation = () => {
     setDonorTags(prev => [...prev, newDonor]);
     setSelectedDonor(newDonor.id);
     
-    // Reset donor details
+    const newReceiptNumber = generateReceiptNumber(selectedTab);
+    setReceiptNumber(newReceiptNumber);
+    
     setDonorDetails({
       title: 'Sri',
       name: '',
@@ -175,12 +204,35 @@ const NewDonation = () => {
       district: '',
       state: ''
     });
+
+    const newReceipt = {
+      receiptNumber: newReceiptNumber,
+      date: new Date().toLocaleDateString(),
+      createdBy: user?.username || 'N/A',
+      type: selectedTab,
+      status: 'pending',
+      amount: 0,
+      donorId: newDonor.id,
+      donorDetails: donorDetails,
+      donationDetails: {
+        amount: '',
+        transactionType: 'cash',
+        inMemoryOf: '',
+        transactionDetails: {
+          ddNumber: '',
+          ddDate: '',
+          bankName: ''
+        }
+      }
+    };
+
+    setCurrentReceipt(newReceipt);
+    addDonation(newReceipt);
   };
 
   const handleRemoveTag = (idToRemove) => {
     setDonorTags(donorTags.filter(tag => tag.id !== idToRemove));
     setSelectedDonor(null);
-    // Clear the form when removing the tag
     setDonorDetails({
       title: 'Sri',
       name: '',
@@ -201,23 +253,19 @@ const NewDonation = () => {
 
   const handleTagClick = (id) => {
     setSelectedDonor(id);
-    // Set tab to donor's last selected tab or default to 'Math'
     setSelectedTab(donorTabs[id] || 'Math');
     
-    // Find the donor's receipts
     const donorReceipts = donations.receipts.find(group => 
       Array.isArray(group) && 
       group.length > 0 && 
       (group[0].donorId === id || group[0].donorDetails?.guestId === id)
     ) || [];
 
-    // Get the first receipt to access donor details
     const firstReceipt = donorReceipts[0];
     
     if (firstReceipt?.donorDetails) {
       setDonorDetails(firstReceipt.donorDetails);
     } else if (id === donorTags.find(tag => tag.isNewDonor)?.id) {
-      // Reset form for new donor
       setDonorDetails({
         title: 'Sri',
         name: '',
@@ -237,7 +285,6 @@ const NewDonation = () => {
     }
   };
 
-  // Filter guests based on search term
   const filteredGuests = guestDetails?.data?.filter(guest => {
     const searchLower = searchTerm.toLowerCase();
     const name = guest.attributes.name?.toLowerCase() || '';
@@ -245,7 +292,6 @@ const NewDonation = () => {
     return name.includes(searchLower) || phone.includes(searchTerm);
   }) || [];
 
-  // Handle guest selection
   const handleGuestSelect = (guest) => {
     console.log('Selected Guest Data:', {
       guestId: guest.id,
@@ -255,7 +301,6 @@ const NewDonation = () => {
     
     const guestData = guest.attributes;
     
-    // Extract address components
     const addressParts = guestData.address?.split(', ') || [];
     const pincode = addressParts[addressParts.length - 1]?.match(/\d{6}/)?.[0] || '';
     const state = addressParts[addressParts.length - 2] || '';
@@ -263,8 +308,8 @@ const NewDonation = () => {
     const streetAddress = addressParts.slice(0, addressParts.length - 3).join(', ') || '';
 
     const donorDetailsData = {
-      title: guestData.title || 'Sri', // Set the title from guest data
-      name: guestData.name.replace(guestData.title, '').trim() || '', // Remove title from name
+      title: guestData.title || 'Sri',
+      name: guestData.name.replace(guestData.title, '').trim() || '',
       phoneCode: '+91',
       phone: guestData.phone_number?.replace('+91', '') || '',
       email: guestData.email || '',
@@ -273,7 +318,7 @@ const NewDonation = () => {
       identityNumber: guestData.aadhaar_number || '',
       roomNumber: '',
       pincode: pincode,
-      houseNumber: '', // Could be extracted from streetAddress if needed
+      houseNumber: '',
       streetName: streetAddress,
       district: district,
       state: state,
@@ -285,21 +330,30 @@ const NewDonation = () => {
     setShowDropdown(false);
   };
 
-  const handleTabClick = (tabType) => {
-    setSelectedTab(tabType);
-    setDonorTabs(prev => ({
-      ...prev,
-      [selectedDonor]: tabType
-    }));
+  const handleDonorDetailsUpdate = (details) => {
+    if (currentReceipt?.receiptNumber) {
+      updateDonationDetails(currentReceipt.receiptNumber, { donorDetails: details });
+    }
+    setDonorDetails(details);
+    
+    const donorReceipts = donations.receipts.find(group => 
+      Array.isArray(group) && 
+      group.length > 0 && 
+      (group[0].donorId === selectedDonor || group[0].donorDetails?.guestId === selectedDonor)
+    ) || [];
+    
+    donorReceipts.forEach(receipt => {
+      if (receipt.receiptNumber !== currentReceipt?.receiptNumber) {
+        updateDonationDetails(receipt.receiptNumber, { donorDetails: details });
+      }
+    });
   };
 
-  // Add handler for donation details updates
   const handleDonationDetailsUpdate = (details) => {
     if (currentReceipt?.receiptNumber) {
       const updatedDonationDetails = {
         ...currentReceipt.donationDetails,
         ...details,
-        // Ensure we preserve transaction details
         transactionDetails: {
           ...(currentReceipt.donationDetails?.transactionDetails || {}),
           ...(details.transactionDetails || {})
@@ -316,7 +370,6 @@ const NewDonation = () => {
   };
 
   const resetFormData = () => {
-    // Reset donor details
     setDonorDetails({
       title: 'Sri',
       name: '',
@@ -334,11 +387,9 @@ const NewDonation = () => {
       state: ''
     });
 
-    // Reset receipt and current receipt
     setReceiptNumber('');
     setCurrentReceipt(null);
 
-    // Reset donor tags and selected donor
     setDonorTags([{
       id: Date.now(),
       name: "New Donor",
@@ -346,7 +397,6 @@ const NewDonation = () => {
     }]);
     setSelectedDonor(Date.now());
 
-    // Reset donation details in the store
     handleDonationDetailsUpdate({
       amount: '',
       transactionType: '',
@@ -360,7 +410,6 @@ const NewDonation = () => {
   };
 
   const handlePrintReceipt = async (status = "completed") => {
-    // Check form validity and set validation errors
     const nameError = validateName(donorDetails.name);
     const phoneError = validatePhone(donorDetails.phone);
     const emailError = validateEmail(donorDetails.email);
@@ -377,7 +426,6 @@ const NewDonation = () => {
     }
 
     try {
-      // First create receipt details
       const receiptPayload = {
         Receipt_number: receiptNumber,
         donation_date: new Date().toISOString().split('T')[0],
@@ -390,7 +438,6 @@ const NewDonation = () => {
         const receiptId = receiptResponse.data.id;
         console.log('Receipt Details ID:', receiptId);
 
-        // Get the correct transaction type based on current receipt
         let transactionType = "Cash";
         switch(currentReceipt?.donationDetails?.transactionType?.toLowerCase()) {
           case 'cheque':
@@ -439,10 +486,8 @@ const NewDonation = () => {
         const donationResponse = await createNewDonation(donationPayload);
         console.log('Donation created successfully:', donationResponse);
         
-        // Reset form after successful submission
         resetFormData();
         
-        // Show success message and navigate
         alert('Donation submitted successfully!');
         navigate('/donation');
         
@@ -457,7 +502,6 @@ const NewDonation = () => {
   };
 
   const handlePending = async () => {
-    // Check form validity and set validation errors
     const nameError = validateName(donorDetails.name);
     const phoneError = validatePhone(donorDetails.phone);
     const emailError = validateEmail(donorDetails.email);
@@ -482,7 +526,6 @@ const NewDonation = () => {
   };
 
   const confirmCancel = async () => {
-    // Check form validity and set validation errors
     const nameError = validateName(donorDetails.name);
     const phoneError = validatePhone(donorDetails.phone);
     const emailError = validateEmail(donorDetails.email);
@@ -504,7 +547,6 @@ const NewDonation = () => {
     navigate('/donation');
   };
 
-  // Add this function to calculate total donations
   const calculateTotalDonations = () => {
     if (!donations?.receipts || !selectedDonor) return 0;
 
@@ -520,47 +562,6 @@ const NewDonation = () => {
     }, 0);
   };
 
-  const handleReset = () => {
-    if (!selectedDonor || !currentReceipt) return;
-
-    // Find the donor's receipts group
-    const donorReceiptsIndex = donations.receipts.findIndex(group => 
-      Array.isArray(group) && 
-      group.length > 0 && 
-      (group[0].donorId === selectedDonor || group[0].donorDetails?.guestId === selectedDonor)
-    );
-
-    if (donorReceiptsIndex === -1) return;
-
-    // Create new receipts array without the current tab's receipt
-    const updatedReceipts = donations.receipts.map((group, index) => {
-      if (index === donorReceiptsIndex) {
-        return group.filter(receipt => receipt.type !== selectedTab);
-      }
-      return group;
-    });
-
-    // Update the store with new receipts
-    donations.receipts = updatedReceipts;
-
-    // Reset current receipt and receipt number
-    setCurrentReceipt(null);
-    setReceiptNumber('');
-
-    // Reset donation details in the form
-    handleDonationDetailsUpdate({
-      amount: '',
-      transactionType: '',
-      inMemoryOf: '',
-      transactionDetails: {
-        ddNumber: '',
-        ddDate: '',
-        bankName: ''
-      }
-    });
-  };
-
-  // Add this useEffect to fetch donation history when donor changes
   React.useEffect(() => {
     const fetchDonorHistory = async () => {
       if (!donorDetails.guestId) return;
@@ -598,7 +599,7 @@ const NewDonation = () => {
 
   const validateEmail = (email) => {
     if (!email.trim()) {
-      return 'Email is required'; // Changed to make email required
+      return 'Email is required';
     }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       return 'Please enter a valid email address';
@@ -606,7 +607,6 @@ const NewDonation = () => {
     return '';
   };
 
-  // Add these validation functions near your other validation functions
   const validateAadhaar = (number) => {
     if (!number) return '';
     if (!/^\d{12}$/.test(number)) {
@@ -631,14 +631,11 @@ const NewDonation = () => {
     return '';
   };
 
-  // Add this function to check if form is valid
   const isFormValid = () => {
-    // Check required fields
     if (!donorDetails.name || !donorDetails.phone) {
       return false;
     }
 
-    // Check validation errors
     if (validationErrors.name || validationErrors.phone || validationErrors.email) {
       return false;
     }
@@ -646,7 +643,6 @@ const NewDonation = () => {
     return true;
   };
 
-  // Add this function to fetch pincode details
   const fetchPincodeDetails = async (pincode) => {
     if (pincode.length !== 6) return;
     
@@ -670,9 +666,7 @@ const NewDonation = () => {
     }
   };
 
-  // Add this useEffect after other useEffects
   useEffect(() => {
-    // Fetch country codes list
     fetch("https://restcountries.com/v3.1/all")
       .then((response) => response.json())
       .then((data) => {
@@ -694,7 +688,6 @@ const NewDonation = () => {
       });
   }, []);
 
-  // Add this useEffect for handling clicks outside dropdown
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -709,7 +702,6 @@ const NewDonation = () => {
     };
   }, []);
 
-  // Modify the condition to show transaction details
   const showTransactionDetails = currentReceipt?.donationDetails?.transactionType && 
     currentReceipt.donationDetails.transactionType.toLowerCase() !== 'cash';
 
@@ -733,11 +725,11 @@ const NewDonation = () => {
           + Add Donation
         </button>
         <div className="top-right-info">
-          <div className="form-group">
+          <div className="form-group scrollable">
             <label className="info-label">User:</label>
             <span className="info-data">{user?.username || 'User Name'}</span>
           </div>
-          <div className="form-group">
+          <div className="form-group scrollable">
             <label className="info-label">Date:</label>
             <span className="info-data">{new Date().toLocaleDateString('en-GB')}</span>
           </div>
@@ -774,7 +766,7 @@ const NewDonation = () => {
       <div className="main-content">
         <div className="donor-section">
           <div className="details-card donor-details">
-            {/* First row with Name, Phone, Mantra Diksha */}
+            <h2>Donor Details</h2>
             <div className="form-row">
               <div className="form-group">
                 <label>Name of Donor</label>
@@ -799,7 +791,6 @@ const NewDonation = () => {
                     placeholder="John Doe"
                     value={donorDetails.name}
                     onChange={(e) => {
-                      // Only allow letters and spaces
                       const newName = e.target.value.replace(/[^a-zA-Z\s]/g, '');
                       setDonorDetails({...donorDetails, name: newName});
                       setSearchTerm(newName);
@@ -851,7 +842,6 @@ const NewDonation = () => {
                     placeholder="9212341902"
                     value={donorDetails.phone}
                     onChange={(e) => {
-                      // Only allow numbers
                       const newPhone = e.target.value.replace(/\D/g, '');
                       setDonorDetails({...donorDetails, phone: newPhone});
                       const phoneError = validatePhone(newPhone);
@@ -892,7 +882,6 @@ const NewDonation = () => {
               </div>
             </div>
 
-            {/* Second row with Email, Identity Proof, Room No */}
             <div className="form-row">
               <div className="form-group">
                 <label>Email ID</label>
@@ -903,7 +892,6 @@ const NewDonation = () => {
                   onChange={(e) => {
                     const newEmail = e.target.value;
                     setDonorDetails({...donorDetails, email: newEmail});
-                    // Validate email on change
                     const emailError = validateEmail(newEmail);
                     setValidationErrors(prev => ({
                       ...prev,
@@ -925,7 +913,7 @@ const NewDonation = () => {
                       setDonorDetails({
                         ...donorDetails, 
                         identityType: e.target.value,
-                        identityNumber: '' // Reset number when type changes
+                        identityNumber: ''
                       });
                       setValidationErrors(prev => ({
                         ...prev,
@@ -950,7 +938,6 @@ const NewDonation = () => {
                     onChange={(e) => {
                       let value = e.target.value;
                       
-                      // Apply specific formatting based on ID type
                       switch (donorDetails.identityType) {
                         case 'Aadhaar':
                           value = value.replace(/\D/g, '').slice(0, 12);
@@ -965,7 +952,6 @@ const NewDonation = () => {
                       
                       setDonorDetails({...donorDetails, identityNumber: value});
                       
-                      // Validate based on ID type
                       let error = '';
                       switch (donorDetails.identityType) {
                         case 'Aadhaar':
@@ -1003,7 +989,6 @@ const NewDonation = () => {
               </div>
             </div>
 
-            {/* Third row with Pincode, State, District */}
             <div className="form-row">
               <div className="form-group">
                 <label>Pincode <span className="required">*</span></label>
@@ -1042,7 +1027,6 @@ const NewDonation = () => {
               </div>
             </div>
 
-            {/* Fourth row with House Number and Street Name */}
             <div className="form-row">
               <div className="form-group">
                 <label>House Number</label>
@@ -1066,7 +1050,6 @@ const NewDonation = () => {
             </div>
           </div>
 
-          {/* Transaction Details Card - Modified condition */}
           {showTransactionDetails && (
             <div className="details-card transaction-details">
               <div className="card-header">
@@ -1180,7 +1163,6 @@ const NewDonation = () => {
                 value={currentReceipt?.donationDetails?.amount || ''}
                 onChange={(e) => {
                   const value = e.target.value;
-                  // Only allow numbers and one decimal point
                   if (/^\d*\.?\d*$/.test(value)) {
                     const updatedDonationDetails = {
                       ...currentReceipt?.donationDetails,

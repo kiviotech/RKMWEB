@@ -106,7 +106,12 @@ export const useDonationStore = create((set) => ({
               ...receipt, 
               donationDetails: {
                 ...receipt.donationDetails,
-                ...details
+                ...details,
+                // Preserve transaction details if they exist
+                transactionDetails: {
+                  ...(receipt.donationDetails?.transactionDetails || {}),
+                  ...(details.transactionDetails || {})
+                }
               }
             }
           : receipt

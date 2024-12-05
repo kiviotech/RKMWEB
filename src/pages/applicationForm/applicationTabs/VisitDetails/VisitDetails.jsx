@@ -291,11 +291,12 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
                 </label>
                 <input
                   type="time"
-                  name="visitTime"
-                  value={formData.visitTime}
+                  name="arrivalTime"
+                  value={formData.arrivalTime}
                   onChange={handleInputChange}
+                  placeholder="00:00"
                 />
-                {errors.visitTime && <span className="error">{errors.visitTime}</span>}
+                {errors.arrivalTime && <span className="error">{errors.arrivalTime}</span>}
               </div>
 
               <div className="form-group">
@@ -307,8 +308,25 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
                   name="departureTime"
                   value={formData.departureTime}
                   onChange={handleInputChange}
+                  placeholder="00:00"
                 />
                 {errors.departureTime && <span className="error">{errors.departureTime}</span>}
+              </div>
+
+              <div className="form-group">
+                <label>
+                  State reason for more than 3 nights stay? <span className="required"> *</span>
+                </label>
+                <textarea
+                  rows={3}
+                  name="extendedStayReason"
+                  value={formData.extendedStayReason}
+                  onChange={handleInputChange}
+                  placeholder="State your reason"
+                />
+                {errors.extendedStayReason && (
+                  <span className="error">{errors.extendedStayReason}</span>
+                )}
               </div>
             </div>
           </div>

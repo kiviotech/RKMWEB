@@ -1,0 +1,437 @@
+// *{
+//   margin: 0;
+//   padding: 0;
+//   box-sizing: border-box;
+// }
+
+
+
+
+
+
+// @media (max-width: 480px) {
+  
+//   .application-form {
+  
+//    padding: 0;
+//     margin: 0 auto;
+//    width: 100%;
+
+//     h2 {
+//       color: #000;
+//       white-space: nowrap;
+//     }
+
+//     form {
+//       // border: 1px solid red;
+//       display: flex;
+//       flex-direction: column; 
+//       align-items: center;
+//       justify-content: center;
+//       width: 100%; 
+     
+//       margin-left: 0; 
+//       gap: 20px;
+
+//       .form-section {
+//         display: flex;
+//         flex-direction: column; 
+//         gap: 20px; 
+//       }
+
+//       .form-left-section,
+//       .form-right-section {
+//         width: 100%; 
+//         margin: 0;
+//       }
+
+//       .form-group {
+//         // border: 1px solid orange;
+//         display: flex;
+//         flex-direction: column; 
+//         width: 100%; 
+//         margin-bottom: 20px; 
+
+//         label {
+//           margin-bottom: 5px; 
+//           font-size: 14px; 
+//         }
+
+//         input,
+//         select,
+//         textarea {
+//           width: 351px; 
+//           // width: 100%;
+//           padding: 10px; 
+//            font-size: 14px;
+//           border: 1px solid #ccc; 
+//           border-radius: 5px; 
+//           box-sizing: border-box; 
+//         }
+//       }
+
+//       .file-upload-section {
+//         width: 100% !important; 
+//         .upload-container {
+//           // border: 1px solid red;
+//           display: flex;
+//           flex-direction: column; 
+//           align-items: center; 
+//           gap: 10px;
+//           height: auto;
+//         }
+
+//         .upload-label {
+//           display: block; /* Ensure label takes full width */
+//           text-align: center;
+//           padding: 10px;
+         
+//           border: 1px dashed #ccc; /* Dashed border for upload area */
+//           border-radius: 5px; /* Rounded corners */
+//           cursor: pointer;
+//         }
+
+//         .upload-icon {
+//           font-size: 24px; /* Larger upload icon */
+//         }
+//       }
+
+//       .previously-visited-section {
+//         display: flex;
+//         flex-direction: column; /* Stack elements */
+//         // gap: 20px; /* Add spacing between sections */
+
+//         .form-group {
+//           border: 1px solid red;
+//           display: flex;
+         
+//           gap: 5px; 
+//           border: none; 
+//           background: none; 
+//           // border: 1px solid red;
+         
+//           flex-direction: column;
+         
+
+//           label {
+//             display: inline-flex; /* Ensure labels stay inline */
+//             align-items: center; /* Vertically align the label and radio button */
+//             font-size: 14px; /* Adjust font size */
+//             cursor: pointer; /* Show pointer on hover */
+//           }
+
+//           input[type="radio"] {
+//             margin-right: 5px; /* Space between radio button and label */
+//             appearance: none; /* Remove default browser styling */
+//             border: 1px solid #ccc; /* Border for custom radio button */
+//             border-radius: 50%; /* Make the radio button round */
+//             width: 18px; /* Set a fixed size for the radio button */
+//             height: 18px; /* Set a fixed size for the radio button */
+           
+//           }
+
+//           input[type="radio"]:checked {
+//             background-color: #4CAF50; /* Green color when checked */
+//           }
+//         }
+//       }
+
+//       .submit-button {
+//         display: flex;
+//         flex-direction: row; /* Stack buttons */
+//         justify-content: space-between;
+//         gap: 30px; /* Adjust gap to ensure buttons fit within screen */
+//         text-align: center; /* Center-align buttons */
+
+//         button {
+//           width: 48%; 
+//           padding: 10px 20px; 
+//         }
+//       }
+//     }
+//   }
+// }
+
+
+// @media (min-width: 481px) and (max-width: 767px) {
+//   .application-form {
+   
+//     margin: 0 auto;
+//     padding: 15px;
+
+//     h2 {
+//       color: #000;
+//       white-space: nowrap;
+//     }
+
+//     form {
+     
+//       display: flex;
+//       flex-direction: column; /* Stack all form sections */
+//       align-items: center;
+//       justify-content: center;
+//       width: 100%; /* Use full screen width */
+    
+//       margin-left: 0; /* Remove negative margin */
+//       gap: 20px;
+
+//       .form-section {
+       
+//         display: flex;
+//         flex-direction: column; /* Stack left and right sections */
+//         gap: 20px; /* Add spacing between sections */
+//         width: 500px;
+//       }
+
+//       .form-left-section,
+//       .form-right-section {
+//         width: 100%; /* Full width for both sections */
+//         margin: 0; /* Remove unnecessary margins */
+//       }
+
+//       .form-group {
+//         display: flex;
+//         flex-direction: column; /* Stack labels and inputs */
+//         width: 100%; /* Full width for inputs */
+//         margin-bottom: 20px; /* Add spacing between inputs */
+
+//         label {
+//           margin-bottom: 5px; /* Space between label and input */
+//           font-size: 14px; /* Adjust label font size */
+//         }
+
+//         input,
+//         select,
+//         textarea {
+          
+//           width: 100%;
+//           padding: 10px; /* Add padding for better usability */
+//           font-size: 14px; /* Adjust input font size */
+//           border: 1px solid #ccc; /* Consistent border */
+//           border-radius: 5px; /* Rounded corners */
+//           box-sizing: border-box; /* Include padding in width */
+//         }
+//       }
+
+//       .file-upload-section {
+//         width: 100% !important ;/* Ensure file upload section also uses 100% width */
+//         .upload-container {
+//           display: flex;
+//           flex-direction: column; /* Stack icon and text */
+//           align-items: center; /* Center-align content */
+//           gap: 10px; /* Add spacing */
+//           height: auto;
+//         }
+
+//         .upload-label {
+//           display: block; /* Ensure label takes full width */
+//           text-align: center;
+//           padding: 10px;
+//           border: 1px dashed #ccc; /* Dashed border for upload area */
+//           border-radius: 5px; /* Rounded corners */
+//           cursor: pointer;
+//         }
+
+//         .upload-icon {
+//           font-size: 24px; /* Larger upload icon */
+//         }
+//       }
+
+//       .previously-visited-section {
+//         display: flex;
+//         flex-direction: column; /* Stack elements */
+//         gap: 20px; /* Add spacing between sections */
+//         width: 500px;
+
+//         .form-group {
+//           display: flex;
+//           flex-direction: column; /* Align radio buttons side by side */
+//           gap: 10px; /* Add spacing between radio buttons */
+//           border: none; /* Remove any unwanted borders */
+//           background: none; /* Remove any background color */
+
+//           label {
+//             display: inline-flex; /* Ensure labels stay inline */
+//             align-items: center; /* Vertically align the label and radio button */
+//             font-size: 14px; /* Adjust font size */
+//             cursor: pointer; /* Show pointer on hover */
+//           }
+
+//           input[type="radio"] {
+//             margin-right: 5px; /* Space between radio button and label */
+//             appearance: none; /* Remove default browser styling */
+//             border: 1px solid #ccc; /* Border for custom radio button */
+//             border-radius: 50%; /* Make the radio button round */
+//             width: 20px; /* Set a fixed size for the radio button */
+//             height: 20px; /* Set a fixed size for the radio button */
+//             background-color: white; /* Set background to white */
+//           }
+
+//           input[type="radio"]:checked {
+//             background-color: #4CAF50; /* Green color when checked */
+//           }
+//         }
+//       }
+
+//       .submit-button {
+//         display: flex;
+//         flex-direction: row; /* Stack buttons */
+//         justify-content: space-between;
+//         gap: 40px; /* Adjust gap to ensure buttons fit within screen */
+//         text-align: center; /* Center-align buttons */
+
+//         button {
+//           width: 48%; 
+//           padding: 10px 25px; 
+//         }
+//       }
+//     }
+//   }
+
+// }
+
+
+
+// @media (min-width: 768px) and (max-width: 1024px){
+//   .application-form {
+   
+   
+//     margin: 0 auto;
+//     padding: 15px;
+
+//     h2 {
+//       color: #000;
+//       white-space: nowrap;
+//     }
+
+//     form {
+  
+   
+//       display: flex;
+//       flex-direction: column; /* Stack all form sections */
+//       align-items: center;
+//       justify-content: center;
+//       width: 100%; /* Use full screen width */
+//       // max-width: 400px; /* Limit form width */
+//       margin-left: 0; /* Remove negative margin */
+//       gap: 20px;
+
+//       .form-section {
+       
+//         // width: 100%;
+//         width: 600px;
+//         display: flex;
+//         flex-direction: column;
+//         gap: 20px; 
+//       }
+
+//       .form-left-section,
+//       .form-right-section {
+//         width: 100%; /* Full width for both sections */
+//         margin: 0; /* Remove unnecessary margins */
+//       }
+
+//       .form-group {
+//         display: flex;
+//         flex-direction: column; /* Stack labels and inputs */
+//         width: 100%; /* Full width for inputs */
+//         margin-bottom: 20px; /* Add spacing between inputs */
+
+//         label {
+//           margin-bottom: 5px; /* Space between label and input */
+//           font-size: 14px; /* Adjust label font size */
+//         }
+
+//         input,
+//         select,
+//         textarea {
+//          width: 100%;
+//         // width: 352px;
+//           padding: 10px; 
+//           font-size: 14px; 
+//           border: 1px solid #ccc;
+//           border-radius: 5px; /* Rounded corners */
+//           box-sizing: border-box;
+//         }
+//       }
+
+//       .file-upload-section {
+//         width: 100%; /* Ensure file upload section also uses 100% width */
+//         .upload-container {
+//           display: flex;
+//           flex-direction: column; /* Stack icon and text */
+//           align-items: center; /* Center-align content */
+//           gap: 10px; /* Add spacing */
+//           height: auto;
+//         }
+
+//         .upload-label {
+//           display: block; /* Ensure label takes full width */
+//           text-align: center;
+//           padding: 10px;
+//           border: 1px dashed #ccc; /* Dashed border for upload area */
+//           border-radius: 5px; /* Rounded corners */
+//           cursor: pointer;
+//         }
+
+//         .upload-icon {
+//           font-size: 24px; /* Larger upload icon */
+//         }
+//       }
+
+//       .previously-visited-section {
+//         display: flex;
+//         flex-direction: column; /* Stack elements */
+//         gap: 20px; /* Add spacing between sections */
+//         width: 600px;
+
+//         .form-group {
+//           display: flex;
+//           flex-direction: column; /* Align radio buttons side by side */
+//           gap: 10px; /* Add spacing between radio buttons */
+//           border: none; /* Remove any unwanted borders */
+//           background: none; /* Remove any background color */
+         
+
+//           label {
+//             display: inline-flex; /* Ensure labels stay inline */
+//             align-items: center; /* Vertically align the label and radio button */
+//             font-size: 14px; /* Adjust font size */
+//             cursor: pointer; /* Show pointer on hover */
+          
+//             margin-top: -9px;
+           
+//           }
+
+//           input[type="radio"] {
+//             margin-right: 5px; /* Space between radio button and label */
+//             appearance: none; /* Remove default browser styling */
+//             border: 1px solid #ccc; /* Border for custom radio button */
+//             border-radius: 50%; /* Make the radio button round */
+//             width: 20px; /* Set a fixed size for the radio button */
+//             height: 20px; /* Set a fixed size for the radio button */
+//             background-color: white; /* Set background to white */
+//           }
+
+//           input[type="radio"]:checked {
+//             background-color: #333; /* Green color when checked */
+//           }
+//         }
+//       }
+
+//       .submit-button {
+//         display: flex;
+//         flex-direction: row; /* Stack buttons */
+//         justify-content: space-between;
+//         gap: 60px; /* Adjust gap to ensure buttons fit within screen */
+//         text-align: center; /* Center-align buttons */
+
+//         button {
+//           width: 48%; /* Ensure buttons take up appropriate space */
+//          padding: 10px 25px;
+//         }
+//       }
+//     }
+//   }
+
+// }

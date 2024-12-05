@@ -628,58 +628,65 @@ input::placeholder {
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.5);
   display: flex;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
   z-index: 1000;
 
   .dialog-content {
-    background-color: white;
-    padding: 24px;
-    border-radius: 8px;
-    width: 400px;
-    max-width: 90%;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    width: 700px;
+    height: 300px;
+    background: white;
+    border-radius: 12px;
+    padding: 40px 24px; // Adjusted padding
+    text-align: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+
+    svg {
+      margin-bottom: 24px; // Space between icon and title
+    }
 
     h3 {
-      margin: 0 0 16px;
-      color: #333;
+      margin: 0 0 12px 0;
+      font-size: 24px;
+      color: #111827;
+      font-weight: 500;
     }
 
     p {
-      margin: 0 0 24px;
-      color: #666;
+      color: #6B7280;
+      font-size: 16px;
+      margin: 0 0 32px 0;
     }
 
     .dialog-buttons {
       display: flex;
-      justify-content: flex-end;
       gap: 12px;
+      justify-content: center;
+      align-items: center;
 
       button {
-        padding: 8px 24px;
+        width: 100px;
+        height: 36px;
         border-radius: 4px;
-        border: none;
+        font-size: 16px;
+        font-weight: 400;
         cursor: pointer;
-        font-weight: 500;
+        border: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
 
-        &:first-child {
-          background-color: #f5f5f5;
-          color: #333;
-
-          &:hover {
-            background-color: #eee;
-          }
+        &.cancel-button {
+          background: #F9FAFB;
+          color: #374151;
+          box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
         }
 
-        &.confirm-btn {
-          background-color: #dc3545;
+        &.confirm-button {
+          background: #8B5CF6;
           color: white;
-
-          &:hover {
-            background-color: #c82333;
-          }
         }
       }
     }
@@ -1627,4 +1634,148 @@ input, select {
 
 .info-row {
   padding: 5px;
+}
+
+.circular-cross {
+  width: 80px;
+  height: 80px;
+  border: 2px solid #FF4D4F;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 50px;
+  color: #FF4D4F;
+  margin: 0 auto 20px;
+  line-height: 1;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: white;
+  border-radius: 12px;
+  padding: 32px;
+  width: 500px;
+  max-width: 90%;
+  position: relative;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+
+  .close-button {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: #666;
+    cursor: pointer;
+    padding: 4px;
+    line-height: 1;
+
+    &:hover {
+      color: #333;
+    }
+  }
+
+  h2 {
+    font-size: 24px;
+    font-weight: 500;
+    color: #333;
+    margin-bottom: 24px;
+    text-align: center;
+  }
+
+  .receipt-content {
+    background: #f8f9fa;
+    padding: 24px;
+    border-radius: 8px;
+    margin-bottom: 24px;
+
+    .receipt-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      
+      .receipt-info {
+        span {
+          display: block;
+          margin-bottom: 4px;
+          color: #666;
+          
+          strong {
+            color: #333;
+          }
+        }
+      }
+    }
+
+    .receipt-body {
+      border-top: 1px dashed #ddd;
+      border-bottom: 1px dashed #ddd;
+      padding: 20px 0;
+      margin-bottom: 20px;
+
+      p {
+        margin-bottom: 12px;
+        line-height: 1.5;
+        
+        &:last-child {
+          margin-bottom: 0;
+        }
+      }
+    }
+
+    .receipt-amount {
+      text-align: right;
+      font-size: 18px;
+      font-weight: 500;
+    }
+  }
+
+  .modal-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+
+    button {
+      padding: 10px 24px;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+
+      &.cancel-btn {
+        background: #f3f4f6;
+        border: none;
+        color: #374151;
+
+        &:hover {
+          background: #e5e7eb;
+        }
+      }
+
+      &.confirm-btn {
+        background: #8c52ff;
+        border: none;
+        color: white;
+
+        &:hover {
+          background: #7c3aed;
+        }
+      }
+    }
+  }
 }

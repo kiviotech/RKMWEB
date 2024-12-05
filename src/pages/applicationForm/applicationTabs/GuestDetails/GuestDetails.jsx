@@ -3,6 +3,9 @@ import CommonButton from "../../../../components/ui/Button";
 import useApplicationStore from "../../../../../useApplicationStore";
 import "./GuestDetails.scss";
 
+// Define colors for each guest
+const guestColors = ["#f0f8ff", "#faebd7", "#ffebcd", "#e6e6fa", "#f5f5dc"];
+
 const GuestDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
   const { formData, errors, setErrors, setGuestData, setFormData } =
     useApplicationStore();
@@ -524,7 +527,10 @@ const GuestDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
           <div
             key={index}
             className={`tab ${activeTab === tab ? "active" : ""}`}
-            style={{ padding: "18px 30px" }}
+            style={{
+              padding: "18px 30px",
+              backgroundColor: guestColors[index % guestColors.length],
+            }}
             onClick={() => setActiveTab(tab)}
           >
             <span>{tab}</span>
@@ -563,7 +569,15 @@ const GuestDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
       {guestTabs.map(
         (tab, index) =>
           activeTab === tab && formData.guests?.[index] && (
-            <div key={index} className="tab-content">
+            <div
+              key={index}
+              className="tab-content"
+              style={{
+                backgroundColor: guestColors[index % guestColors.length],
+                padding: "20px",
+                borderRadius: "0px 8px 8px 8px",
+              }}
+            >
               <div
                 style={{ display: "flex", flexDirection: "row", gap: "30px" }}
               >
@@ -617,7 +631,7 @@ const GuestDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
                         name="guestAge"
                         value={formData.guests[index].guestAge || ""}
                         onChange={(e) => handleGuestInputChange(e, index)}
-                        placeholder="add your age"
+                        placeholder="34"
                       />
                       {errors[`guestAge${index}`] && (
                         <span className="error">

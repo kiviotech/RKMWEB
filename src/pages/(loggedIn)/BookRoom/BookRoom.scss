@@ -696,29 +696,21 @@
   }
 
   .room-list-item {
+    padding: 15px;
     border: 1px solid #e0e0e0;
     border-radius: 8px;
-    padding: 12px;
-    text-align: center;
-    background: white;
-    cursor: pointer;
-    transition: all 0.2s ease;
-
-    &:hover {
-      border-color: #9867E9;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    }
-
+    margin: 8px;
+    
     .room-number {
-      font-size: 14px;
-      color: #666;
-      margin-bottom: 8px;
+      font-weight: bold;
+      font-size: 1.1em;
+      margin-bottom: 5px;
     }
 
     .available-count {
-      font-size: 24px;
-      font-weight: bold;
-      color: #000;
+      color: #666;
+      font-size: 1.2em;
+      text-align: center;
     }
   }
 }

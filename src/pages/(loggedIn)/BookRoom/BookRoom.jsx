@@ -194,7 +194,7 @@ const BedDetailsPanel = ({ bedData }) => {
 };
 
 // Add this new component for the list view
-const RoomListView = ({ rooms, activeTab }) => {
+const RoomListView = ({ rooms, activeTab, onRoomSelect }) => {
   const getCategoryDetails = () => {
     switch (activeTab) {
       case "Guest house":
@@ -229,9 +229,22 @@ const RoomListView = ({ rooms, activeTab }) => {
       </div>
       <div className="room-list-grid">
         {rooms.map((room, index) => (
-          <div key={index} className="room-list-item">
+          <div 
+            key={index} 
+            className="room-list-item"
+            onClick={() => {
+              if (room.availableBeds <= 0) {
+                alert("This room has no available beds");
+                return;
+              }
+              onRoomSelect(room);
+            }}
+            style={{ cursor: room.availableBeds <= 0 ? 'not-allowed' : 'pointer' }}
+          >
             <div className="room-number">{room.name}</div>
-            <div className="available-count">{room.availableBeds}</div>
+            <div className="available-count">
+              {room.availableBeds}
+            </div>
           </div>
         ))}
       </div>
@@ -804,12 +817,70 @@ const BookRoom = () => {
       id: room.id
     }));
 
-  // Update the renderDateGrid function to include the list view toggle
+  const handleRoomSelection = (room) => {
+    // Get currently unallocated guests
+    const unallocatedGuests = guestData.additionalGuests.filter(guest => 
+      !allocatedGuestsList.some(allocated => allocated.name === guest.name)
+    );
+
+    // Find the first selected unallocated guest
+    const selectedUnallocatedGuest = unallocatedGuests.find((guest, index) => {
+      const originalIndex = guestData.additionalGuests.findIndex(g => g.name === guest.name);
+      return selectedGuests[originalIndex];
+    });
+
+    if (!selectedUnallocatedGuest) {
+      alert("Please select a guest to allocate first");
+      return;
+    }
+
+    const originalGuestIndex = guestData.additionalGuests.findIndex(
+      g => g.name === selectedUnallocatedGuest.name
+    );
+
+    // Create new allocated guest
+    const newAllocatedGuest = {
+      ...selectedUnallocatedGuest,
+      roomNo: room.name
+    };
+
+    // Update allocated guests list
+    setAllocatedGuestsList(prev => [...prev, newAllocatedGuest]);
+
+    // Update selected guests state - only uncheck the allocated guest
+    setSelectedGuests(prev => {
+      const newSelectedGuests = [...prev];
+      newSelectedGuests[originalGuestIndex] = false;
+      return newSelectedGuests;
+    });
+
+    // Update room's available beds in the UI
+    setRoomsData(prevRooms => 
+      prevRooms.map(r => {
+        if (r.attributes.room_number === room.name) {
+          return {
+            ...r,
+            attributes: {
+              ...r.attributes,
+              available_beds: parseInt(r.attributes.available_beds) - 1
+            }
+          };
+        }
+        return r;
+      })
+    );
+  };
+
+  // Update the renderDateGrid function to use the new handleRoomSelection
   const renderDateGrid = () => {
     return (
       <div className="grid-container" onScroll={handleScroll}>
         {isToggled ? (
-          <RoomListView rooms={filteredRooms} activeTab={activeTab} />
+          <RoomListView 
+            rooms={filteredRooms} 
+            activeTab={activeTab} 
+            onRoomSelect={handleRoomSelection}
+          />
         ) : (
           <>
             <div className="grid-header">

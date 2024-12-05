@@ -738,11 +738,11 @@ const NewDonation = () => {
           + Add Donation
         </button></div>
         <div style={{display: 'flex', flexDirection: 'column'}}>
-            <div>
+            <div className="info-row">
               <label className="info-label">User: </label>
               <span className="info-data">{user?.username || 'User Name'}</span>
             </div>
-            <div>
+            <div className="info-row">
               <label className="info-label">Date: </label>
               <span className="info-data">{new Date().toLocaleDateString('en-GB')}</span>
             </div>
@@ -767,13 +767,30 @@ const NewDonation = () => {
           >
             Mission
           </button>
-          <div className="receipt-number">
-            Receipt No: <span>{receiptNumber}</span>
+        </div>
+      <div style={{display: 'flex', justifyContent: 'space-between', paddingLeft: "20px" }}>
+          <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', paddingRight: '20px', gap: '20px' }}>
+            <div style={{ fontWeight: 'bold', fontSize: '14px', color: '#333' }}>
+              Receipt Number: <span style={{ color: '#6B7280', fontWeight: 'normal' }}>CJ2077</span>
+            </div>
+            <button
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '5px',
+                background: 'transparent',
+                border: 'none',
+                color: '#8C52FF',
+                cursor: 'pointer',
+                fontSize: '14px',
+                fontWeight: 'bold',
+              }}
+              onClick={handleReset}
+            >
+              <span style={{ fontSize: '16px' }}>↻</span> Reset
+            </button>
           </div>
         </div>
-        <button className="reset-btn" onClick={handleReset}>
-          <span className="reset-icon">↻</span> Reset
-        </button>
       </div>
 
       <div className="main-content">

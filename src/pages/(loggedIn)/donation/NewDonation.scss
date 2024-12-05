@@ -63,10 +63,6 @@
     .close {
       margin-left: 8px;
       cursor: pointer;
-      
-      &:hover {
-        opacity: 0.8;
-      }
     }
   }
 
@@ -99,39 +95,33 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 20px;
-  max-width: 70%;
+  max-width: 100%;
 
   .tabs {
     display: flex;
     align-items: center;
-    gap: 20px;
-
+    background: #F3F4F6;
+    padding: 4px;
+    border-radius: 8px;
+    
     .tab {
-      padding: 10px 35px;
+      padding: 8px 24px;
       border-radius: 6px;
       border: none;
       font-size: 14px;
-      background: #f0f0f0;
+      background: transparent;
       color: #666;
       cursor: pointer;
+      transition: all 0.2s ease;
 
       &.active {
-        background: #8c52ff;
+        background: #8C52FF;
         color: white;
+        box-shadow: 0 2px 4px rgba(140, 82, 255, 0.2);
       }
-    }
 
-    .receipt-number {
-      margin-left: 20px;
-      padding: 10px 15px;
-      border-radius: 6px;
-      font-size: 14px;
-      color: #666;
-
-      span {
-        font-weight: 500;
-        color: #333;
-        margin-left: 5px;
+      &:not(.active):hover {
+        background: rgba(0, 0, 0, 0.05);
       }
     }
   }
@@ -1635,3 +1625,6 @@ input, select {
   white-space: nowrap;
 }
 
+.info-row {
+  padding: 5px;
+}

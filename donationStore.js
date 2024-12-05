@@ -1,7 +1,7 @@
 import { create } from "zustand";
 
 const initialDonorDetails = {
-  title: 'Sri',
+  title: '',
   name: '',
   phoneCode: '+91',
   phone: '',

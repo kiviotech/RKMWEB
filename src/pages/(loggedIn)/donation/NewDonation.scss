@@ -51,10 +51,34 @@
       margin-top: 15px;
       margin-left: auto;
 
+      .info-scroll-container {
+        height: 60px;
+        overflow-y: auto;
+        padding-right: 10px;
+        
+        &::-webkit-scrollbar {
+          width: 6px;
+        }
+        
+        &::-webkit-scrollbar-track {
+          background: #f1f1f1;
+          border-radius: 3px;
+        }
+        
+        &::-webkit-scrollbar-thumb {
+          background: #888;
+          border-radius: 3px;
+        }
+        
+        &::-webkit-scrollbar-thumb:hover {
+          background: #555;
+        }
+      }
+
       .form-group {
         display: flex;
         align-items: center;
-        gap: 5px;
+        margin-bottom: 5px;
         white-space: nowrap;
       }
 

@@ -247,11 +247,24 @@ const NewDonation = () => {
 
   // Handle guest selection
   const handleGuestSelect = (guest) => {
+    console.log('Selected Guest Data:', {
+      guestId: guest.id,
+      attributes: guest.attributes,
+      fullData: guest
+    });
+    
     const guestData = guest.attributes;
     
+    // Extract address components
+    const addressParts = guestData.address?.split(', ') || [];
+    const pincode = addressParts[addressParts.length - 1]?.match(/\d{6}/)?.[0] || '';
+    const state = addressParts[addressParts.length - 2] || '';
+    const district = addressParts[addressParts.length - 3] || '';
+    const streetAddress = addressParts.slice(0, addressParts.length - 3).join(', ') || '';
+
     const donorDetailsData = {
-      title: 'Sri',
-      name: guestData.name || '',
+      title: guestData.title || 'Sri', // Set the title from guest data
+      name: guestData.name.replace(guestData.title, '').trim() || '', // Remove title from name
       phoneCode: '+91',
       phone: guestData.phone_number?.replace('+91', '') || '',
       email: guestData.email || '',
@@ -259,11 +272,12 @@ const NewDonation = () => {
       identityType: 'Aadhaar',
       identityNumber: guestData.aadhaar_number || '',
       roomNumber: '',
-      pincode: '',
-      houseNumber: '',
-      streetName: '',
-      district: '',
-      state: ''
+      pincode: pincode,
+      houseNumber: '', // Could be extracted from streetAddress if needed
+      streetName: streetAddress,
+      district: district,
+      state: state,
+      guestId: guest.id
     };
 
     handleDonorDetailsUpdate(donorDetailsData);
@@ -769,10 +783,16 @@ const NewDonation = () => {
                     value={donorDetails.title}
                     onChange={(e) => setDonorDetails({...donorDetails, title: e.target.value})}
                   >
+                    <option value="">Title</option>
                     <option value="Sri">Sri</option>
                     <option value="Smt">Smt.</option>
                     <option value="Mr">Mr.</option>
                     <option value="Mrs">Mrs.</option>
+                    <option value="Swami">Swami</option>
+                    <option value="Dr">Dr.</option>
+                    <option value="Prof">Prof.</option>
+                    <option value="Kumari">Kumari</option>
+                    <option value="Ms">Ms.</option>
                   </select>
                   <input 
                     type="text" 
@@ -1103,33 +1123,40 @@ const NewDonation = () => {
               <thead>
                 <tr>
                   <th>Date</th>
-                  <th>Room No.</th>
                   <th>Donation for</th>
                   <th>Transaction Mode</th>
                   <th>Amount</th>
+                  <th>Status</th>
                 </tr>
               </thead>
               <tbody>
-                {donationHistory.length > 0 ? (
-                  donationHistory.map((donation) => {
-                    const attributes = donation.attributes;
-                    return (
-                      <tr key={donation.id}>
-                        <td>{new Date(attributes.createdAt).toLocaleDateString()}</td>
-                        <td>{attributes.receipt_detail?.data?.attributes?.room_number || 'N/A'}</td>
-                        <td>{attributes.donationFor}</td>
-                        <td>
-                          <span className={attributes.transactionType?.toLowerCase()}>
-                            {attributes.transactionType}
-                          </span>
-                        </td>
-                        <td>₹{parseFloat(attributes.donationAmount).toLocaleString('en-IN', {
-                          minimumFractionDigits: 2, 
-                          maximumFractionDigits: 2
-                        })}</td>
-                      </tr>
-                    );
-                  })
+                {guestDetails?.data?.find(g => g.id === donorDetails.guestId)?.attributes?.donations?.data?.length > 0 ? (
+                  guestDetails.data
+                    .find(g => g.id === donorDetails.guestId)
+                    ?.attributes?.donations?.data
+                    .map((donation) => {
+                      const attributes = donation.attributes;
+                      return (
+                        <tr key={donation.id}>
+                          <td>{new Date(attributes.createdAt).toLocaleDateString()}</td>
+                          <td>{attributes.donationFor}</td>
+                          <td>
+                            <span className={attributes.transactionType?.toLowerCase()}>
+                              {attributes.transactionType}
+                            </span>
+                          </td>
+                          <td>₹{parseFloat(attributes.donationAmount || 0).toLocaleString('en-IN', {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2
+                          })}</td>
+                          <td>
+                            <span className={`status ${attributes.status?.toLowerCase()}`}>
+                              {attributes.status}
+                            </span>
+                          </td>
+                        </tr>
+                      );
+                    })
                 ) : (
                   <tr>
                     <td colSpan="5" className="no-history">

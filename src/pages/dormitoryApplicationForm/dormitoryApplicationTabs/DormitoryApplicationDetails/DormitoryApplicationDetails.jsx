@@ -403,7 +403,7 @@ const DormitoryApplicationDetails = ({ goToNextStep, tabName }) => {
                     name="age"
                     value={formData.age}
                     onChange={handleInputChange}
-                    placeholder="34"
+                    placeholder="add your age"
                   />
                   {errors.age && <span className="error">{errors.age}</span>}
                 </div>

@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import "./NewDonation.scss";
 import { useAuthStore } from "../../../../store/authStore";
 import { useDonationStore } from "../../../../donationStore";
-import { fetchGuestDetails } from "../../../../services/src/services/guestDetailsService";
+import { fetchGuestDetails, createNewGuestDetails } from "../../../../services/src/services/guestDetailsService";
 import { createNewReceiptDetail } from "../../../../services/src/services/receiptDetailsService";
 import { createNewDonation, fetchDonationsByField, updateDonationById } from "../../../../services/src/services/donationsService";
 import { useNavigate } from 'react-router-dom';
@@ -74,11 +74,33 @@ const NewDonation = () => {
   React.useEffect(() => {
     const loadGuestDetails = async () => {
       try {
+        console.log("Starting to fetch guest details...");
         const details = await fetchGuestDetails();
-        console.log("Fetched Guest Details:", details);
+        console.log("Raw Guest Details Response:", details);
+        
+        // Log the structure of the data
+        console.log("Guest Details Data Structure:", {
+          hasData: Boolean(details?.data),
+          dataLength: details?.data?.length,
+          firstRecord: details?.data?.[0],
+          meta: details?.meta
+        });
+
+        // Log individual guest records
+        if (details?.data?.length > 0) {
+          details.data.forEach((guest, index) => {
+            console.log(`Guest ${index + 1}:`, {
+              id: guest.id,
+              attributes: guest.attributes,
+              relationships: guest.relationships
+            });
+          });
+        }
+
         setGuestDetails(details);
       } catch (error) {
         console.error("Error loading guest details:", error);
+        console.error("Error stack:", error.stack);
       }
     };
 
@@ -381,6 +403,24 @@ const NewDonation = () => {
     }
 
     try {
+      let guestId = donorDetails.guestId;
+
+      // Check if guestId is present, if not create new guest details
+      if (!guestId) {
+        const guestPayload = {
+          name: `${donorDetails.title} ${donorDetails.name}`,
+          phone_number: `${donorDetails.phoneCode}${donorDetails.phone}`,
+          email: donorDetails.email,
+          address: `${donorDetails.houseNumber}, ${donorDetails.streetName}, ${donorDetails.district}, ${donorDetails.state}, ${donorDetails.pincode}`,
+          deeksha: donorDetails.mantraDiksha,
+          aadhaar_number: donorDetails.identityType === 'Aadhaar' ? donorDetails.identityNumber : null,
+          title: donorDetails.title
+        };
+
+        const guestResponse = await createNewGuestDetails(guestPayload);
+        guestId = guestResponse.data.id; // Access the ID from the correct path in the response
+      }
+
       // First create receipt details
       const receiptPayload = {
         Receipt_number: receiptNumber,
@@ -389,7 +429,7 @@ const NewDonation = () => {
       };
 
       const receiptResponse = await createNewReceiptDetail(receiptPayload);
-      
+
       if (receiptResponse?.data?.id) {
         const receiptId = receiptResponse.data.id;
         console.log('Receipt Details ID:', receiptId);
@@ -421,7 +461,7 @@ const NewDonation = () => {
 
         const donationPayload = {
           data: {
-            guest: donorDetails.guestId || null,
+            guest: guestId, // Use the guestId here
             InMemoryOf: "for Thakur Seva",
             donationAmount: currentReceipt?.donationDetails?.amount || "0",
             transactionType: transactionType,

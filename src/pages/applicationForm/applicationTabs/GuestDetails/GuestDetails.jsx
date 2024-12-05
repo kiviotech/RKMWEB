@@ -617,7 +617,7 @@ const GuestDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
                         name="guestAge"
                         value={formData.guests[index].guestAge || ""}
                         onChange={(e) => handleGuestInputChange(e, index)}
-                        placeholder="34"
+                        placeholder="add your age"
                       />
                       {errors[`guestAge${index}`] && (
                         <span className="error">

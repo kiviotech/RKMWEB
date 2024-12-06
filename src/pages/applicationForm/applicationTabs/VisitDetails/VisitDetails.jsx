@@ -33,7 +33,7 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    
+
     // Add validation for departure date
     if (name === 'departureDate') {
       if (formData.visitDate && new Date(value) < new Date(formData.visitDate)) {
@@ -41,7 +41,7 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
         return;
       }
     }
-    
+
     // Add validation for arrival date
     if (name === 'visitDate') {
       if (formData.departureDate && new Date(value) > new Date(formData.departureDate)) {
@@ -49,12 +49,12 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
         return;
       }
     }
-    
+
     // Clear error when valid input is provided
     if (errors[name]) {
       setErrors(name, '');
     }
-    
+
     setVisitFormData(name, value);
     console.log("Visit Input Change:", { field: name, value });
   };
@@ -63,7 +63,7 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
     const { value } = e.target;
     setVisited(value);
     setVisitFormData("visited", value);
-    console.log("Previous Visit Status Change:", { 
+    console.log("Previous Visit Status Change:", {
       value,
       requiresAdditionalInfo: value === "yes"
     });
@@ -102,7 +102,7 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
     const file = e.target.files[0];
     if (file) {
       handleFileUpload(file);
-      console.log("File Upload Initiated:", { 
+      console.log("File Upload Initiated:", {
         fileName: file?.name,
         fileType: file?.type,
         fileSize: file?.size
@@ -115,7 +115,7 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
     const file = e.dataTransfer.files[0];
     if (file) {
       handleFileUpload(file);
-      console.log("File Drop Upload Initiated:", { 
+      console.log("File Drop Upload Initiated:", {
         fileName: file?.name,
         fileType: file?.type,
         fileSize: file?.size
@@ -130,7 +130,7 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
     let hasErrors = false;
-    
+
     // Add date validation checks
     if (formData.visitDate && formData.departureDate) {
       if (new Date(formData.departureDate) < new Date(formData.visitDate)) {
@@ -170,8 +170,8 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
     }
 
     if (!hasErrors) {
-      navigate('/application-form', { 
-        state: { 
+      navigate('/application-form', {
+        state: {
           activeTab: '3'  // Pass as string to match the expected format
         }
       });
@@ -186,16 +186,16 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
       (state) => state,
       (newState, prevState) => {
         const visitFields = [
-          'visitDate', 
-          'visitTime', 
-          'departureDate', 
+          'visitDate',
+          'visitTime',
+          'departureDate',
           'departureTime',
           'visited',
           'previousVisitDate',
           'reason',
           'file'
         ];
-        
+
         const changes = visitFields.reduce((acc, field) => {
           if (newState.formData[field] !== prevState.formData[field]) {
             acc[field] = {
@@ -217,6 +217,23 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
 
     return () => unsubscribe();
   }, []);
+
+  const generate12HourTimeOptions = () => {
+    const times = [];
+    for (let hour = 0; hour < 24; hour++) {
+      for (let minute = 0; minute < 60; minute += 30) {
+        const isPM = hour >= 12;
+        const hour12 = hour % 12 || 12;
+        const minuteStr = minute.toString().padStart(2, "0");
+        const period = isPM ? "PM" : "AM";
+        const label = `${hour12}:${minuteStr} ${period}`;
+        const value = `${hour.toString().padStart(2, "0")}:${minuteStr}`;
+        times.push({ label, value });
+      }
+    }
+    return times;
+  };
+
 
   return (
     <div className="application-form">
@@ -281,13 +298,17 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
                 <label>
                   Arrival Time <span className="required"> *</span>
                 </label>
-                <input
-                  type="time"
+                <select
                   name="arrivalTime"
                   value={formData.arrivalTime}
-                  onChange={handleInputChange}
-                  placeholder="00:00"
-                />
+                  onChange={(e) => handleInputChange(e, "arrivalTime")}
+                >
+                  {generate12HourTimeOptions().map((time) => (
+                    <option key={time.value} value={time.value}>
+                      {time.label}
+                    </option>
+                  ))}
+                </select>
                 {errors.arrivalTime && <span className="error">{errors.arrivalTime}</span>}
               </div>
 
@@ -295,19 +316,24 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
                 <label>
                   Departure Time <span className="required"> *</span>
                 </label>
-                <input
-                  type="time"
+                <select
                   name="departureTime"
                   value={formData.departureTime}
-                  onChange={handleInputChange}
-                  placeholder="00:00"
-                />
+                  onChange={(e) => handleInputChange(e, "departureTime")}
+                >
+                  {generate12HourTimeOptions().map((time) => (
+                    <option key={time.value} value={time.value}>
+                      {time.label}
+                    </option>
+                  ))}
+                </select>
                 {errors.departureTime && <span className="error">{errors.departureTime}</span>}
               </div>
 
+
               <div className="form-group">
                 <label>
-                  State reason for more than 3 nights stay? <span className="required"> *</span>
+                  State reason for more than 3 nights stay?
                 </label>
                 <textarea
                   rows={3}
@@ -326,7 +352,7 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
 
         <div className="previously-visited-section">
           <h2>Previously Visited Detail</h2>
-          
+
           <div className="form-group" style={{ paddingTop: "10px" }}>
             <label>Previously Visited?</label>
             <div style={{ display: "flex", gap: 40, paddingTop: "10px" }}>

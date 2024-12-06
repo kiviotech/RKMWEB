@@ -4,8 +4,11 @@ import { MdEmail, MdPhone } from 'react-icons/md';
 import './ThankYouPage.scss';
 import ApplicationFormHeader from './ApplicationFormHeader';
 import ApplicationFormFooter from './ApplicationFormFooter';
+import { useLocation } from 'react-router-dom';
 
 const ThankYouPage = () => {
+  const location = useLocation()
+  const { bookingId } = location.state || {};
   return (
     <div style={{backgroundColor: "#fff2ea"}}>
         <ApplicationFormHeader/>
@@ -25,6 +28,8 @@ const ThankYouPage = () => {
             <p className="thank-you-sub-message">
             We will send a confirmation to your email shortly.
             </p>
+
+            <p>Your Booking Id: {bookingId}</p>
 
             <div className="thank-you-contact-section">
             <p className="thank-you-contact-text">Need help? Contact us at:</p>
@@ -47,9 +52,9 @@ const ThankYouPage = () => {
             </div>
             </div>
 
-            <p className="thank-you-footer">
+            {/* <p className="thank-you-footer">
             Thank you for choosing us
-            </p>
+            </p> */}
         </div>
         </div>
         <ApplicationFormFooter/>

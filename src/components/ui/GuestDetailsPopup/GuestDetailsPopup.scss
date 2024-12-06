@@ -833,65 +833,93 @@
 
 .confirmation-popup {
     background: white;
-    padding: 24px;
-    border-radius: 8px;
-    text-align: center;
-    max-width: 400px;
-    width: 90%;
+    border-radius: 12px;
+    padding: 32px;
+    width: 700px;
+    position: relative;
 
-    .warning-icon {
-        color: #FF4D6D;
-        margin-bottom: 16px;
+    .close-btn {
+        position: absolute;
+        right: 16px;
+        top: 16px;
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 8px;
         
-        svg {
-            width: 48px;
-            height: 48px;
+        img {
+            width: 16px;
+            height: 16px;
         }
     }
 
-    h3 {
-        margin: 0 0 8px;
+    h2 {
         font-size: 18px;
-        color: #333;
+        margin-bottom: 32px;
+        color: #000;
+        font-weight: 500;
     }
 
-    p {
-        margin: 0 0 24px;
-        color: #666;
-        font-size: 14px;
+    .reasons-list {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+        margin-bottom: 48px;
+    }
+
+    .reason-option {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        cursor: pointer;
+        
+        input[type="radio"] {
+            width: 20px;
+            height: 20px;
+            accent-color: #9867E9;
+            cursor: pointer;
+        }
+
+        span {
+            font-size: 16px;
+            color: #9867E9;
+            font-weight: 500;
+        }
     }
 
     .confirmation-buttons {
         display: flex;
-        justify-content: center;
+        justify-content: flex-end;
         gap: 16px;
 
         button {
             padding: 8px 24px;
             border-radius: 4px;
-            border: 1px solid;
-            cursor: pointer;
+            font-size: 14px;
             font-weight: 500;
-            min-width: 80px;
+            cursor: pointer;
+        }
 
-            &.cancel-btn {
-                background: white;
-                color: #666;
-                border-color: #E0E0E0;
-                
-                &:hover {
-                    background: #f5f5f5;
-                }
+        .send-mail-btn {
+            background: #F37A20;
+            color: white;
+            border: none;
+
+            &:disabled {
+                background: #E5E5E5;
+                color: #999;
+                cursor: not-allowed;
             }
+        }
 
-            &.reject-confirm-btn {
-                background: #FFE5E5;
-                color: #F24A4A;
-                border-color: #F24A4A;
-                
-                &:hover {
-                    background: #FFD6D6;
-                }
+        .cancel-btn {
+            background: white;
+            border: 1px solid #E5E5E5;
+            color: #666;
+
+            &:hover {
+                border-color: #999;
+                color: #333;
             }
         }
     }

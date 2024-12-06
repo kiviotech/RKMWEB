@@ -27,7 +27,7 @@
         border: 1px solid #000;
         font-size: 15px;
         color: black;
-        font-weight: 500;
+        font-weight: 200;
         white-space: nowrap;
       }
 
@@ -36,7 +36,7 @@
         border: 1px solid #000;
         font-size: 15px;
         color: black;
-        font-weight: 200;
+        font-weight: 500;
       }
     }
   }
@@ -319,4 +319,18 @@
       }
     }
   }
+  .time-select {
+    font-size: 16px; /* Regular font size for options */
+    padding: 8px;
+  }
+  
+  .time-select option {
+    font-size: 16px;
+  }
+  
+  .time-select option[value=""] {
+    font-size: 12px; /* Smaller font size for the placeholder */
+    color: #aaa; /* Optional: lighter color for placeholder */
+  }
+  
 }

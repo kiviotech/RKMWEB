@@ -414,7 +414,7 @@ const DeekshaContactForm = () => {
       </form>
 
 
-      <div className="footer">
+      <div className="footer" style={{backgroundColor: '#fff'}}>
         <span  onClick={handleSubmit}>Skip & Submit</span>
 
         <div className="button-group">

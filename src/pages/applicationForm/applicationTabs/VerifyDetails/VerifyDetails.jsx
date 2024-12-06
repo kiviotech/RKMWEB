@@ -9,6 +9,7 @@ import { useNavigate } from "react-router-dom";
 const VerifyDetails = () => {
   const { formData } = useApplicationStore();
   const navigate = useNavigate();
+  // console.log("dfghj",formData.title)
 
   // Format date and time
   const formatDateTime = (date, time) => {
@@ -31,6 +32,7 @@ const VerifyDetails = () => {
   useEffect(() => {
     console.log("VerifyDetails - Current Zustand Store State:", {
       applicantDetails: {
+        title:formData.title,
         name: formData.name,
         address: formData.address,
         contact: formData.phoneNumber
@@ -60,16 +62,16 @@ const VerifyDetails = () => {
         email: formData.email,
         relationship: "booker",
         arrival_date: formData.visitDate,
-        departure_date: formData.departureDate
+        departure_date: formData.departureDate,
       };
-
+  
       // Create main applicant guest record
       const mainGuestResponse = await createNewGuestDetails(applicantData);
       const mainGuestId = mainGuestResponse.data.id;
-
+  
       // Create guest details for additional guests
       const guestResponses = await Promise.all(
-        formData.guests.map(guest => {
+        formData.guests.map((guest) => {
           const guestData = {
             name: `${guest.guestTitle} ${guest.guestName}`.trim(),
             phone_number: `+${guest.countryCode}${guest.guestNumber}`,
@@ -83,15 +85,15 @@ const VerifyDetails = () => {
             email: guest.guestEmail,
             relationship: guest.guestRelation || "guest",
             arrival_date: formData.visitDate,
-            departure_date: formData.departureDate
+            departure_date: formData.departureDate,
           };
           return createNewGuestDetails(guestData);
         })
       );
-
+  
       // Collect all guest IDs from the correct response path
-      const guestIds = guestResponses.map(response => response.data.id);
-
+      const guestIds = guestResponses.map((response) => response.data.id);
+  
       // Create booking request with updated schema
       const bookingData = {
         status: "awaiting",
@@ -99,7 +101,7 @@ const VerifyDetails = () => {
         age: parseInt(formData.age),
         gender: formData.gender,
         email: formData.email,
-        phone_number: `+${formData.countryCode}${formData.phoneNumber}`,
+        phone_number:`+${formData.countryCode}${formData.phoneNumber}`,
         occupation: formData.occupation,
         aadhaar_number: formData.aadhaar,
         number_of_guest_members: formData.guests.length.toString(),
@@ -109,24 +111,24 @@ const VerifyDetails = () => {
         departure_date: formData.departureDate,
         deeksha: formData.deeksha,
         guests: [mainGuestId, ...guestIds],
-        // Add the file to accommodation_requirements if it exists
         accommodation_requirements: formData.file ? [formData.file] : [],
-        // Add default values for required fields
         number_of_male_devotees: "0",
-        number_of_female_devotees: "0"
+        number_of_female_devotees: "0",
       };
-
-      await createNewBookingRequest(bookingData);
-      
-      // Handle successful submission
-      alert("Application submitted successfully!");
-      navigate('/thank-you');
-      
+  
+      const bookingResponse = await createNewBookingRequest(bookingData);
+  
+      // Get booking ID from the response
+      const bookingId = bookingResponse.data.id;
+  
+      // Navigate to the thank-you page with the booking ID
+      navigate("/thank-you", { state: { bookingId } });
     } catch (error) {
       console.error("Error submitting application:", error);
       alert("Failed to submit application. Please try again.");
     }
   };
+  
 
   const handleEditClick = (section) => {
     switch(section) {
@@ -160,7 +162,7 @@ const VerifyDetails = () => {
             {/* Applicant Row */}
             <tr>
               <td>1</td>
-              <td>{formData.name}</td>
+              <td>{formData.title} {formData.name}</td>
               <td style={{ textAlign: "center" }}>{formData.age}</td>
               <td style={{ textAlign: "center" }}>{formData.gender}</td>
               <td>{formData.occupation}</td>
@@ -183,15 +185,15 @@ const VerifyDetails = () => {
 
       <div className="details-section">
         <p>
-          <strong>Arrival Date and Time :</strong>{" "}
-          <span> {formatDateTime(formData.visitDate, formData.visitTime)}</span>
+          <span>Arrival Date and Time :</span>{" "}
+          <strong> {formatDateTime(formData.visitDate, formData.visitTime)}</strong>
         </p>
         <p>
-          <strong>Departure Date and Time :</strong>{" "}
-          <span> {formatDateTime(formData.departureDate, formData.departureTime)}</span>
+          <span>Departure Date and Time :</span>{" "}
+          <strong> {formatDateTime(formData.departureDate, formData.departureTime)}</strong>
         </p>
         <p>
-          <span><strong>Total Days of Stay :</strong> {calculateStayDuration()}</span>
+          <span>Total Days of Stay :<strong> {calculateStayDuration()} </strong></span>
         </p>
         {formData.visited === "yes" && (
           <p>
@@ -218,18 +220,18 @@ const VerifyDetails = () => {
             />
           </h3>
           <p >
-            <div><strong >Name :</strong> <span>{formData.name}</span></div>
-           <div> <strong >Aadhaar Number :</strong> <span>{formData.aadhaar}</span></div>
-            <div><strong >Mobile Number :</strong> <span>+{formData.countryCode} {formData.phoneNumber}</span></div>
+            <div><span >Name :</span> <strong>{formData.name}</strong></div>
+           <div> <span >Aadhaar Number :</span> <strong>{formData.aadhaar}</strong></div>
+            <div><span >Mobile Number :</span> <strong>+{formData.countryCode} {formData.phoneNumber}</strong></div>
           </p>
           <p>
-            <strong>Address :</strong>{" "}
-           <span> {`${formData.address.houseNumber}, ${formData.address.streetName}`}</span>
+            <span>Address :</span>{" "}
+           <strong> {`${formData.address.houseNumber}, ${formData.address.streetName}`}</strong>
           </p>
           <p >
-            <div><strong>District :</strong> <span>{formData.address.district}{" "}</span></div>
-            <div><strong>Pincode :</strong><span> {formData.address.pinCode}{" "}</span></div>
-            <div><strong>State :</strong> <span>{formData.address.state}</span></div>
+            <div><span>District :</span> <strong>{formData.address.district}{" "}</strong></div>
+            <div><span>Pincode :</span><strong> {formData.address.pinCode}{" "}</strong></div>
+            <div><span>State :</span> <strong>{formData.address.state}</strong></div>
           </p>
           {/* <p>
             <strong>Mobile Number :</strong> +{formData.countryCode} {formData.phoneNumber}
@@ -250,18 +252,18 @@ const VerifyDetails = () => {
               />
             </h3>
             <p >
-              <div><strong>Name :</strong> {guest.guestName}</div>
-              <div><strong>Aadhar Number :</strong> {guest.guestAadhaar}</div>
-              <div><strong>Mobile Number :</strong> +{guest.countryCode} {guest.guestNumber}</div>
+              <div><span>Name :</span><strong>{guest.guestName}</strong></div>
+              <div><span>Aadhar Number :</span> <strong>{guest.guestAadhaar}</strong></div>
+              <div><span>Mobile Number :</span><strong> +{guest.countryCode} {guest.guestNumber}</strong></div>
             </p>
             <p>
-              <strong>Address :</strong>{" "}
-              <span>{`${guest.guestAddress.houseNumber}, ${guest.guestAddress.streetName}`}</span>
+              <span>Address :</span>{" "}
+              <strong>{`${guest.guestAddress.houseNumber}, ${guest.guestAddress.streetName}`}</strong>
             </p>
             <p style={{display:'flex',gap:'50px',}}>
-           <div>   <strong>District :</strong> {guest.guestAddress.district}{" "}</div>
-             <div> <strong>Pincode :</strong> {guest.guestAddress.pinCode}{" "}</div>
-              <div><strong>State :</strong> {guest.guestAddress.state}</div>
+           <div>   <span>District :</span> <strong>{guest.guestAddress.district}{" "}</strong></div>
+             <div> <span>Pincode :</span> <strong>{guest.guestAddress.pinCode}{" "}</strong></div>
+              <div><span>State :</span> <strong>{guest.guestAddress.state}</strong></div>
             </p>
            
           </div>

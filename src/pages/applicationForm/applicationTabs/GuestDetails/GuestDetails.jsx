@@ -372,10 +372,15 @@ const GuestDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
   };
 
   const handleProceed = () => {
-    console.log("Proceed Attempt - Current Guest State:", {
-      guests: formData.guests,
-      errors,
-      activeTab
+    console.log("Proceed Attempt - Current Form Status:", {
+      totalGuests: formData.guestMembers,
+      currentGuests: formData.guests,
+      currentTab: activeTab,
+      validationErrors: errors,
+      formValidation: {
+        hasErrors: Object.keys(errors).length > 0,
+        errorFields: Object.keys(errors)
+      }
     });
 
     // Find current guest index
@@ -392,6 +397,14 @@ const GuestDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
       "guestNumber",
       "guestRelation"
     ];
+
+    // Log validation status for current guest
+    console.log("Validating Current Guest:", {
+      guestIndex: currentGuestIndex,
+      guestName: formData.guests[currentGuestIndex].guestName,
+      missingFields: requiredFields.filter(field => !formData.guests[currentGuestIndex][field]),
+      currentErrors: Object.keys(errors).filter(key => key.includes(currentGuestIndex))
+    });
 
     requiredFields.forEach(field => {
       if (!formData.guests[currentGuestIndex][field]) {
@@ -476,9 +489,11 @@ const GuestDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
   };
 
   const handleRemoveGuest = (index) => {
-    console.log("Removing Guest:", {
+    console.log("Guest Removal:", {
       guestIndex: index,
-      guestDetails: formData.guests[index]
+      guestDetails: formData.guests[index],
+      remainingGuests: formData.guestMembers - 1,
+      currentErrors: Object.keys(errors).filter(key => key.includes(index))
     });
     useApplicationStore.getState().removeGuest(index);
   };

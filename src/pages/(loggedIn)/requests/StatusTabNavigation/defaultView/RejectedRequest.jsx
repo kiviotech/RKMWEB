@@ -86,6 +86,18 @@ const RejectedRequest = ({ selectedDate }) => {
     fetchBookingRequests();
   }, []);
 
+      const handleStatusChange = async (requestId, newStatus) => {
+        // Update the local state to reflect the status change
+        setRequests(prevRequests => 
+            prevRequests.filter(request => request.id !== requestId)
+        );
+        
+        // Also update the filtered requests
+        setFilteredRequests(prevRequests => 
+            prevRequests.filter(request => request.id !== requestId)
+        );
+    };
+
   // Filter requests by selected date
   useEffect(() => {
     if (selectedDate) {
@@ -220,6 +232,8 @@ const RejectedRequest = ({ selectedDate }) => {
           onClose={closeModal}
           guestDetails={selectedGuest}
           guests={selectedGuest?.guests || []}
+          // status="rejected"
+          onStatusChange={handleStatusChange}
         />
       )}
     </div>

@@ -58,7 +58,7 @@ const VerifyDetails = () => {
         status: "pending",
         deeksha: formData.deeksha,
         email: formData.email,
-        relationship: "booker",
+        relationship: "applicant",
         arrival_date: formData.visitDate,
         departure_date: formData.departureDate
       };
@@ -270,7 +270,7 @@ const VerifyDetails = () => {
       </div>
 
       <div className="button-container">
-        <button className="save">Save for later</button>
+        {/* <button className="save">Save for later</button> */}
         <button className="submit-button" onClick={handleSubmit}>Submit</button>
       </div>
     </div>

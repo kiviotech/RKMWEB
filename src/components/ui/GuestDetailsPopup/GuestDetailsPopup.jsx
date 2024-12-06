@@ -17,12 +17,17 @@ const icons = {
     Delete: "https://api.iconify.design/mdi:delete.svg"
 };
 
-const GuestDetailsPopup = ({ isOpen, onClose, guestDetails, guests, onStatusChange }) => {
+const formatDateTime = (dateString) => {
+    if (!dateString) return "Not specified";
+    const date = new Date(dateString);
+    return date.toLocaleDateString();
+};
+
+const GuestDetailsPopup = ({ isOpen, onClose, guestDetails, guests, onStatusChange, onAllocateRooms }) => {
     const [selectedRow, setSelectedRow] = useState(null);
     const [selectedVisitRow, setSelectedVisitRow] = useState(null);
     const [selectedGuestName, setSelectedGuestName] = useState(guestDetails?.userDetails?.name || "");
     const [showRejectConfirmation, setShowRejectConfirmation] = useState(false);
-    const [selectedReason, setSelectedReason] = useState(null);
 
     useEffect(() => {
         if (guestDetails?.guests?.length > 0) {
@@ -85,49 +90,87 @@ const GuestDetailsPopup = ({ isOpen, onClose, guestDetails, guests, onStatusChan
     };
 
     const RejectConfirmationPopup = ({ onCancel, onConfirm }) => {
-        const reasons = [
-            "Reason 1",
-            "Reason 2", 
-            "Reason 3",
-            "Reason 4",
-            "Reason 5"
-        ];
+        const [selectedReason, setSelectedReason] = useState('');
 
         return (
-            <div className="popup-overlay confirmation-overlay">
-                <div className="confirmation-popup">
-                    <button className="close-btn" onClick={onCancel}>
-                        <img src={icons.Close} alt="close" className="icon" />
-                    </button>
-                    
-                    <h2>Select the reason to add in the rejection email</h2>
-
-                    <div className="reasons-list">
-                        {reasons.map((reason, index) => (
-                            <label key={index} className="reason-option">
-                                <input
-                                    type="radio"
-                                    name="rejectionReason"
-                                    value={reason}
-                                    checked={selectedReason === reason}
-                                    onChange={() => setSelectedReason(reason)}
-                                />
-                                <span>{reason}</span>
-                            </label>
-                        ))}
+            <div className="popup-overlay">
+                <div className="rejection-popup">
+                    <div className="popup-header">
+                        <h3>Select the reason to add in the rejection email</h3>
+                        <button className="close-button" onClick={onCancel}>×</button>
                     </div>
-
-                    <div className="confirmation-buttons">
-                        <button className="send-mail-btn" onClick={onConfirm} disabled={!selectedReason}>
+                    
+                    <div className="reason-options">
+                        <label className="reason-option">
+                            <input 
+                                type="radio" 
+                                name="rejectReason" 
+                                value="reason1"
+                                onChange={(e) => setSelectedReason(e.target.value)}
+                            />
+                            <span style={{paddingLeft: "50px"}}>Reason 1</span>
+                        </label>
+                        <label className="reason-option">
+                            <input 
+                                type="radio" 
+                                name="rejectReason" 
+                                value="reason2"
+                                onChange={(e) => setSelectedReason(e.target.value)}
+                            />
+                            <span style={{paddingLeft: "50px"}}>Reason 2</span>
+                        </label>
+                        <label className="reason-option">
+                            <input 
+                                type="radio" 
+                                name="rejectReason" 
+                                value="reason3"
+                                onChange={(e) => setSelectedReason(e.target.value)}
+                            />
+                            <span style={{paddingLeft: "50px"}}>Reason 3</span>
+                        </label>
+                        <label className="reason-option">
+                            <input 
+                                type="radio" 
+                                name="rejectReason" 
+                                value="reason4"
+                                onChange={(e) => setSelectedReason(e.target.value)}
+                            />
+                            <span style={{paddingLeft: "50px"}}>Reason 4</span>
+                        </label>
+                        <label className="reason-option">
+                            <input 
+                                type="radio" 
+                                name="rejectReason" 
+                                value="reason5"
+                                onChange={(e) => setSelectedReason(e.target.value)}
+                            />
+                            <span style={{paddingLeft: "50px"}}>Reason 5</span>
+                        </label>
+                    </div>
+                    
+                    <div className="action-buttons">
+                        <button 
+                            className="send-mail-btn" 
+                            onClick={() => onConfirm(selectedReason)}
+                        >
                             Send Mail
                         </button>
-                        <button className="cancel-btn" onClick={onCancel}>
+                        <button 
+                            className="cancel-btn" 
+                            onClick={onCancel}
+                        >
                             Cancel
                         </button>
                     </div>
                 </div>
             </div>
         );
+    };
+
+    const handleButtonClick = (details) => {
+        if (onAllocateRooms) {
+            onAllocateRooms(details);
+        }
     };
 
     const renderActionButtons = () => {
@@ -274,14 +317,14 @@ const GuestDetailsPopup = ({ isOpen, onClose, guestDetails, guests, onStatusChan
                                         <img src={icons.Calendar} alt="calendar" />
                                         <span className="date-label">Arrival Date:</span>
                                         <span className="date-value">
-                                            {guestDetails?.userDetails?.arrivalDate || "N/A"}
+                                            {formatDateTime(guestDetails?.userDetails?.arrivalDate)}
                                         </span>
                                     </div>
                                     <div className="date-row">
                                         <img src={icons.Calendar} alt="calendar" />
                                         <span className="date-label">Departure Date:</span>
                                         <span className="date-value">
-                                            {guestDetails?.userDetails?.departureDate || "N/A"}
+                                            {formatDateTime(guestDetails?.userDetails?.departureDate)}
                                         </span>
                                     </div>
                                 </div>
@@ -381,7 +424,7 @@ const GuestDetailsPopup = ({ isOpen, onClose, guestDetails, guests, onStatusChan
                     </div>
 
                     {/* Alert and Action Buttons */}
-                    <div className="footer" style={{backgroundColor: '#fff'}}>
+                    <div style={{background: "#fff"}} className="footer">
                         <div className="alert">
                             There is a Revisit within 6 months of Guest name
                         </div>

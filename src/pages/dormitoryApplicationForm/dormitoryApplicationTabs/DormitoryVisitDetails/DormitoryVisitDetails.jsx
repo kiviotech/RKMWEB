@@ -300,9 +300,9 @@ const DormitoryVisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
               buttonName="Proceed"
               type="submit"
               style={{
-                backgroundColor: "#9867E9",
+                backgroundColor: "#ea7704",
                 color: "#FFFFFF",
-                borderColor: "#9867E9",
+                borderColor: "#ea7704",
                 fontSize: "18px",
                 borderRadius: "7px",
                 borderWidth: 1,

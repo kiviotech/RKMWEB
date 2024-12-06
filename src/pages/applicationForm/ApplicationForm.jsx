@@ -7,6 +7,8 @@ import VisitDetails from "./applicationTabs/VisitDetails/VisitDetails";
 import VerifyDetails from "./applicationTabs/VerifyDetails/VerifyDetails";
 import useApplicationStore from "../../../useApplicationStore";
 import { useLocation } from "react-router-dom";
+import ApplicationFormHeader from "./ApplicationFormHeader";
+import ApplicationFormFooter from "./ApplicationFormFooter";
 
 const ApplicationForm = () => {
   const { formData } = useApplicationStore();
@@ -183,22 +185,37 @@ const ApplicationForm = () => {
   };
 
   const goToNextStep = () => {
-    if (activeFormTab < tabs.length - 1) {
-      setActiveFormTab((prev) => prev + 1);
-    }
+    return new Promise((resolve) => {
+      if (activeFormTab < tabs.length - 1) {
+        setActiveFormTab(activeFormTab + 1);
+      }
+      resolve();
+    });
   };
 
   const location = useLocation();
 
   useEffect(() => {
-    const { state } = location;
-    if (state?.activeTab !== undefined) {
-      setActiveFormTab(state.activeTab);
+    if (location.state?.activeTab) {
+      const tabIndex = Number(location.state.activeTab);
+      console.log('Setting active tab to:', tabIndex);
+      setActiveFormTab(tabIndex);
     }
-  }, [location]);
+  }, [location.state]);
+
+  useEffect(() => {
+    if (location.state?.fromVisitDetails && activeFormTab === 3) {
+      const element = document.querySelector('.verify-details');
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+  }, [location.state, activeFormTab]);
 
   return (
-    <div className="application-form">
+    <div style={{backgroundColor: "#fff2ea"}}>
+      <ApplicationFormHeader />
+   <div className="application-form">
       <div className="progress-bar-container">
         <div className="progress-bar" style={{ width: `${progress}%` }}></div>
       </div>
@@ -233,12 +250,13 @@ const ApplicationForm = () => {
       {activeFormTab === 2 && (
         <VisitDetails
           tabName={"Visit Details"}
-          goToNextStep={goToNextStep}
           goToPrevStep={goToPrevStep}
         />
       )}
 
       {activeFormTab === 3 && <VerifyDetails tabName={"Verify Details"} />}
+    </div>
+    <ApplicationFormFooter />
     </div>
   );
 };

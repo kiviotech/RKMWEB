@@ -4,7 +4,7 @@ import useApplicationStore from "../../../../../useApplicationStore";
 import "./GuestDetails.scss";
 
 // Define colors for each guest
-const guestColors = ["#f0f8ff", "#faebd7", "#ffebcd", "#e6e6fa", "#f5f5dc"];
+const guestColors = ["#fef0c2", "#ffdfbf", "#ffcfb9"];
 
 const GuestDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
   const { formData, errors, setErrors, setGuestData, setFormData } =
@@ -520,7 +520,7 @@ const GuestDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
 
   return (
     <div className="guest-details" style={{ marginLeft: "50px" }}>
-      <h2 style={{ marginTop: "55px" }}>Additional Guest Details</h2>
+      <h2 style={{ marginTop: "55px" }}>Kamarpukur Guesthouse Booking</h2>
 
       <div className="form-tabs custom-form-tab">
         {guestTabs.map((tab, index) => (
@@ -631,7 +631,7 @@ const GuestDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
                         name="guestAge"
                         value={formData.guests[index].guestAge || ""}
                         onChange={(e) => handleGuestInputChange(e, index)}
-                        placeholder="34"
+                        placeholder="Add your age"
                       />
                       {errors[`guestAge${index}`] && (
                         <span className="error">
@@ -995,9 +995,9 @@ const GuestDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
             <CommonButton
               buttonName="Proceed"
               style={{
-                backgroundColor: "#9867E9",
+                backgroundColor: "#EA7704",
                 color: "#FFFFFF",
-                borderColor: "#9867E9",
+                borderColor: "#EA7704",
                 fontSize: "18px",
                 borderRadius: "7px",
                 padding: "15px 100px",

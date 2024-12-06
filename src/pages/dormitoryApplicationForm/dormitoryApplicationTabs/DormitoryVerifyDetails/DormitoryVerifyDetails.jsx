@@ -90,7 +90,7 @@ const DormitoryVerifyDetails = () => {
 
   return (
     <div className="verify-details">
-      <h1 className="verify-title">Verify Details</h1>
+      <h2 className="verify-title">Verify Details</h2>
 
       <div className="details-section">
         {/* Institution Details */}

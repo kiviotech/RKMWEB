@@ -3,10 +3,13 @@ import CommonButton from "../../../../components/ui/Button";
 import "./VisitDetails.scss";
 import useApplicationStore from "../../../../../useApplicationStore";
 import { BASE_URL } from "../../../../../services/apiClient";
+import { useNavigate } from "react-router-dom";
 
 const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
   const { formData, errors, setVisitFormData, setFile, setErrors } =
     useApplicationStore();
+
+  const navigate = useNavigate();
 
   const [visited, setVisited] = useState(formData.visited);
 
@@ -140,20 +143,6 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
       }
     }
 
-    console.log("Visit Details Submission Attempt:", {
-      currentData: {
-        visitDate: formData.visitDate,
-        visitTime: formData.visitTime,
-        departureDate: formData.departureDate,
-        departureTime: formData.departureTime,
-        visited: visited,
-        previousDetails: visited === "yes" ? {
-          previousVisitDate: formData.previousVisitDate,
-          reason: formData.reason
-        } : null
-      }
-    });
-
     // Validate required fields
     const fieldsToValidate = [
       "visitDate",
@@ -181,8 +170,11 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
     }
 
     if (!hasErrors) {
-      console.log("Visit Details Validation Successful - Proceeding to Next Step");
-      goToNextStep();
+      navigate('/application-form', { 
+        state: { 
+          activeTab: '3'  // Pass as string to match the expected format
+        }
+      });
     } else {
       console.log("Visit Details Validation Failed:", errors);
     }
@@ -230,7 +222,7 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
     <div className="application-form">
       <form onSubmit={handleSubmit}>
         <div className="div">
-          <h2>Visit Details</h2>
+          <h2>Kamarpukur Guesthouse Booking</h2>
           <div className="form-section">
             <div className="form-left-section">
               <div className="form-group">
@@ -420,9 +412,9 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
               buttonName="Proceed"
               type="submit"
               style={{
-                backgroundColor: "#9867E9",
+                backgroundColor: "#EA7704",
+                borderColor: "#EA7704",
                 color: "#FFFFFF",
-                borderColor: "#9867E9",
                 fontSize: "18px",
                 borderRadius: "7px",
                 borderWidth: 1,

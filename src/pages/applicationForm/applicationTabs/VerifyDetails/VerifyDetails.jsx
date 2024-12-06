@@ -120,6 +120,7 @@ const VerifyDetails = () => {
       
       // Handle successful submission
       alert("Application submitted successfully!");
+      navigate('/thank-you');
       
     } catch (error) {
       console.error("Error submitting application:", error);
@@ -142,7 +143,7 @@ const VerifyDetails = () => {
 
   return (
     <div className="verify-details" style={{marginLeft:'15px'}}>
-      <h1>Verify Details</h1>
+      <h2>Kamarpukur Guesthouse Booking</h2>
       <div className="table-container">
         <table>
           <thead>

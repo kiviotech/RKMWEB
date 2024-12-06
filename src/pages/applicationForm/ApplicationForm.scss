@@ -5,26 +5,25 @@
 .application-form {
   padding: 30px 50px;
   border-radius: 10px;
-  background: #fff;
+  background: #fff2ea !important;
 
   .progress-bar-container {
     width: 100%;
     padding: 0px !important;
-    background-color: #e0e0e0;
+    background-color: #fff !important;
     height: 10px;
     border-radius: 5px;
   }
 
   .progress-bar {
     height: 100%;
-    background-color: var(--primary-color);
+    background-color: #EA7704 !important;
     border-radius: 5px;
     transition: width 0.3s ease-in-out;
   }
 
   h2 {
-    color: var(--commonColor);
-    color: #9867e9;
+    color: #B34800 !important;
     font-family: var(--NunitoSansFontFamily);
     font-size: 30px;
     font-style: normal;
@@ -64,6 +63,7 @@
       cursor: pointer;
       font-size: 16px;
       border: none !important;
+      background-color: #fff2ea !important;
     }
 
     .tab-item .tabIndex {
@@ -79,12 +79,12 @@
     }
 
     .tab-item.active .tabIndex {
-      background-color: var(--primary-color);
+      background-color: #EA7704 !important;
       color: #fff;
     }
 
     .tab-item.active {
-      color: var(--primary-color);
+      color: #EA7704 !important;
       /* Green text for active tabName */
     }
   }

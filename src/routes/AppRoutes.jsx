@@ -35,6 +35,8 @@ import DormitoryApplicationForm from "../pages/dormitoryApplicationForm/Dormitor
 import NewDonation from "../pages/(loggedIn)/donation/NewDonation";
 import AllDonation from "../pages/(loggedIn)/donation/AllDonation";
 import AllDonationDetails from "../pages/(loggedIn)/donation/AllDonationDetails";
+import ThankYouPage from "../pages/applicationForm/ThankYouPage";
+import WelcomePage from "../pages/applicationForm/WelcomePage";
 
 const AppRoutes = () => {
   return (
@@ -243,6 +245,8 @@ const AppRoutes = () => {
       />
 
       <Route path="/application-form" element={<ApplicationForm />} />
+      <Route path="/welcome" element={<WelcomePage />} />
+      <Route path="/thank-you" element={<ThankYouPage />} />
       <Route path="/dormitory-application-form" element={<DormitoryApplicationForm />} />
       <Route
           path="/allDonation"

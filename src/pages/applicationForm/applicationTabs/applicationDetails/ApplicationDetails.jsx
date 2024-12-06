@@ -3,6 +3,7 @@ import "./ApplicationDetails.scss";
 import CommonButton from "../../../../components/ui/Button";
 import useApplicationStore from "../../../../../useApplicationStore";
 import {icons } from "../../../../constants"
+import ApplicationFormHeader from "../../ApplicationFormHeader";
 
 const ApplicationDetails = ({ goToNextStep, tabName }) => {
   const {
@@ -320,7 +321,7 @@ const ApplicationDetails = ({ goToNextStep, tabName }) => {
     <div className="application-form">
       <form onSubmit={handleSubmit}>
         <div className="div">
-          <h2>Applicant Details</h2>
+          <h2>Kamarpukur Guesthouse Booking</h2>
           <div className="form-section">
             <div className="form-left-section">
               {/* Name Field */}
@@ -366,7 +367,7 @@ const ApplicationDetails = ({ goToNextStep, tabName }) => {
                     name="age"
                     value={formData.age}
                     onChange={handleInputChange}
-                    placeholder="add your age"
+                    placeholder="Add your age"
                   />
                   {errors.age && <span className="error">{errors.age}</span>}
                 </div>
@@ -651,9 +652,9 @@ const ApplicationDetails = ({ goToNextStep, tabName }) => {
             <CommonButton
               buttonName="Add Guest"
               style={{
-                backgroundColor: "#9867E9",
+                backgroundColor: "#EA7704",
                 color: "#FFFFFF",
-                borderColor: "#9867E9",
+                borderColor: "#EA7704",
                 fontSize: "18px",
                 borderRadius: "7px",
                 borderWidth: 1,

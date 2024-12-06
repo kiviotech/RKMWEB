@@ -673,9 +673,9 @@ const DormitoryApplicationDetails = ({ goToNextStep, tabName }) => {
               buttonName="Next"
               type="submit"
               style={{
-                backgroundColor: "#9867E9",
+                backgroundColor: "#EA7704",
                 color: "#FFFFFF",
-                borderColor: "#9867E9",
+                borderColor: "#EA7704",
                 fontSize: "18px",
                 borderRadius: "7px",
                 borderWidth: 1,

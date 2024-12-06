@@ -22,6 +22,7 @@ const GuestDetailsPopup = ({ isOpen, onClose, guestDetails, guests, onStatusChan
     const [selectedVisitRow, setSelectedVisitRow] = useState(null);
     const [selectedGuestName, setSelectedGuestName] = useState(guestDetails?.userDetails?.name || "");
     const [showRejectConfirmation, setShowRejectConfirmation] = useState(false);
+    const [selectedReason, setSelectedReason] = useState(null);
 
     useEffect(() => {
         if (guestDetails?.guests?.length > 0) {
@@ -84,32 +85,44 @@ const GuestDetailsPopup = ({ isOpen, onClose, guestDetails, guests, onStatusChan
     };
 
     const RejectConfirmationPopup = ({ onCancel, onConfirm }) => {
+        const reasons = [
+            "Reason 1",
+            "Reason 2", 
+            "Reason 3",
+            "Reason 4",
+            "Reason 5"
+        ];
+
         return (
             <div className="popup-overlay confirmation-overlay">
-                <div className="confirmation-popup" style={{
-                    width: '400px',
-                    maxWidth: '90vw',
-                    padding: '40px 30px',
-                    height: '300px',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    justifyContent: 'space-between'
-                }}>
-                    <div className="warning-icon">
-                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="48" height="48">
-                            <path d="M12 3L22 21H2L12 3Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                            <path d="M12 9V13" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                            <path d="M12 17H12.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                        </svg>
+                <div className="confirmation-popup">
+                    <button className="close-btn" onClick={onCancel}>
+                        <img src={icons.Close} alt="close" className="icon" />
+                    </button>
+                    
+                    <h2>Select the reason to add in the rejection email</h2>
+
+                    <div className="reasons-list">
+                        {reasons.map((reason, index) => (
+                            <label key={index} className="reason-option">
+                                <input
+                                    type="radio"
+                                    name="rejectionReason"
+                                    value={reason}
+                                    checked={selectedReason === reason}
+                                    onChange={() => setSelectedReason(reason)}
+                                />
+                                <span>{reason}</span>
+                            </label>
+                        ))}
                     </div>
-                    <h3>Are you sure you want to reject this guest?</h3>
-                    <p>Once confirmed, the action will be final and cannot be undone.</p>
+
                     <div className="confirmation-buttons">
+                        <button className="send-mail-btn" onClick={onConfirm} disabled={!selectedReason}>
+                            Send Mail
+                        </button>
                         <button className="cancel-btn" onClick={onCancel}>
                             Cancel
-                        </button>
-                        <button className="reject-confirm-btn" onClick={onConfirm}>
-                            Reject
                         </button>
                     </div>
                 </div>

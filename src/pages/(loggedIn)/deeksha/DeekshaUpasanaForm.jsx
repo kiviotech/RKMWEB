@@ -306,7 +306,7 @@ const DeekshaUpasanaForm = () => {
         Email: contact.email,
         Aadhar_no: contact.aadhaar,
         PAN_no: contact.pan,
-        Education: education.educationLevel,
+        Education: education.educationLevel || null,
         Occupation: education.occupation,
         Languages_known: education.languages.join(', ') || null,
         Spouse_consent: Boolean(consent.spouseConsent),

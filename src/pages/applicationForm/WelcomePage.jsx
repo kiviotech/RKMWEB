@@ -18,7 +18,7 @@ const WelcomePage = () => {
             Experience spiritual tranquility at our peaceful guest house in Kamarpukur,
           </p>
           <p>the birthplace of Sri Ramakrishna</p>
-          <button className="book-button" onClick={() => navigate('/application-form')}>Book Your Stay</button>
+          <button className="book-button" onClick={() => navigate('/application-form')}>Request for Stay</button>
         </div>
       </div>
     </div>

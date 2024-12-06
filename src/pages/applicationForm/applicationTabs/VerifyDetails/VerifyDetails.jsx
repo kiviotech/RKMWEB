@@ -184,7 +184,8 @@ const VerifyDetails = () => {
       <div className="details-section">
         <p>
           <strong>Arrival Date and Time :</strong>{" "}
-          <span> {formatDateTime(formData.visitDate, formData.visitTime)}</span>
+          {/* <span> {formatDateTime(formData.visitDate, formData.visitTime)}</span> */}
+          {formatDateTime(formData.arrivalDate, formData.visitTime)}
         </p>
         <p>
           <strong>Departure Date and Time :</strong>{" "}

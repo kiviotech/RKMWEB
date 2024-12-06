@@ -48,7 +48,6 @@ const GuestDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
             state: "",
             houseNumber: "",
             district: "",
-            streetName: "",
             pinCode: "",
           },
           sameAsApplicant: false,
@@ -260,17 +259,6 @@ const GuestDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
         }
         break;
 
-      case "guestAddress.streetName":
-        if (!value) {
-          setErrors(
-            `guestAddressStreetName${index}`,
-            "Street Name is required"
-          );
-        } else {
-          setErrors(`guestAddressStreetName${index}`, "");
-        }
-        break;
-
       case "guestAddress.pinCode":
         if (!value) {
           setErrors(`guestAddressPinCode${index}`, "Pin Code is required");
@@ -414,6 +402,7 @@ const GuestDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
 
     if (currentGuestHasErrors) {
       console.log("Current Guest Validation Failed:", errors);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }
 
@@ -422,6 +411,7 @@ const GuestDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
       const nextGuestTab = guestTabs[currentGuestIndex + 1];
       setActiveTab(nextGuestTab);
       console.log("Moving to next guest tab:", nextGuestTab);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }
 
@@ -447,6 +437,7 @@ const GuestDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
       );
       if (firstErrorIndex !== -1) {
         setActiveTab(guestTabs[firstErrorIndex]);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
       }
     }
   };
@@ -469,7 +460,6 @@ const GuestDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
       const guestAddress = {
         state: formData.address.state,
         district: formData.address.district,
-        streetName: formData.address.streetName,
         pinCode: formData.address.pinCode,
         houseNumber: formData.address.houseNumber,
       };
@@ -516,6 +506,11 @@ const GuestDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
     );
 
     return () => unsubscribe();
+  }, []);
+
+  // Add this useEffect for scroll behavior
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }, []);
 
   return (
@@ -909,22 +904,6 @@ const GuestDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
                       {errors[`guestAddressDistrict${index}`] && (
                         <span className="error">
                           {errors[`guestAddressDistrict${index}`]}
-                        </span>
-                      )}
-                    </div>
-                    <div className="form-group">
-                      <label>Street Name</label>
-                      <input
-                        type="text"
-                        name="guestAddress.streetName"
-                        value={(formData.guests[index].guestAddress || {}).streetName || ""}
-                        onChange={(e) => handleGuestInputChange(e, index)}
-                        placeholder="Street Name"
-                        disabled={formData.guests[index].sameAsApplicant}
-                      />
-                      {errors[`guestAddressStreetName${index}`] && (
-                        <span className="error">
-                          {errors[`guestAddressStreetName${index}`]}
                         </span>
                       )}
                     </div>

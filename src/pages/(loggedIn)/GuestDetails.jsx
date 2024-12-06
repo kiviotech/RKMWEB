@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { icons } from "../../constants";
 
 const GuestDetails = ({ selectedUser, showQRSection, checkout }) => {
@@ -7,6 +7,10 @@ const GuestDetails = ({ selectedUser, showQRSection, checkout }) => {
   const beds = attributes.beds?.data || [];
   const [checkIns, setCheckIns] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   const openModal = () => {
     setIsModalOpen(true);

@@ -43,6 +43,9 @@ const ApplicationDetails = ({ goToNextStep, tabName }) => {
   }, []);
 
   useEffect(() => {
+    // Scroll to top when component mounts
+    window.scrollTo(0, 0);
+    
     // Set default country code
     setCountryCode("91");
 
@@ -199,14 +202,6 @@ const ApplicationDetails = ({ goToNextStep, tabName }) => {
         }
         break;
 
-      case "streetName":
-        if (!value) {
-          setErrors(name, "Street Name is required");
-        } else {
-          setErrors(name, "");
-        }
-        break;
-
       default:
         break;
     }
@@ -290,8 +285,7 @@ const ApplicationDetails = ({ goToNextStep, tabName }) => {
     const addressFieldsToValidate = [
       "state",
       "district",
-      "pinCode",
-      "streetName",
+      "pinCode"
     ];
 
     // Check if any required address field is empty
@@ -314,6 +308,7 @@ const ApplicationDetails = ({ goToNextStep, tabName }) => {
       goToNextStep();
     } else {
       console.log("Form Submission Failed - Validation Errors:", errors);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
 
@@ -609,19 +604,6 @@ const ApplicationDetails = ({ goToNextStep, tabName }) => {
                   />
                   {errors.state && (
                     <span className="error">{errors.state}</span>
-                  )}
-                </div>
-                <div className="form-group">
-                  <label>Street Name</label>
-                  <input
-                    type="text"
-                    name="streetName"
-                    value={formData.address.streetName}
-                    onChange={handleAddressInputChange}
-                    placeholder="Street name"
-                  />
-                  {errors.streetName && (
-                    <span className="error">{errors.streetName}</span>
                   )}
                 </div>
               </div>

@@ -12,6 +12,13 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
   const navigate = useNavigate();
 
   const [visited, setVisited] = useState(formData.visited);
+  const [showExtendedStayReason, setShowExtendedStayReason] = useState(false);
+
+  const handleNext = () => {
+    navigate('/application-form', { 
+      state: { activeTab: '3' }
+    });
+  };
 
   // Add console logging for store updates
   useEffect(() => {
@@ -31,31 +38,80 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
     });
   }, [formData, errors]);
 
+  // Add function to get max allowed departure date
+  const getMaxDepartureDate = (arrivalDate) => {
+    if (!arrivalDate) return null;
+    const date = new Date(arrivalDate);
+    date.setDate(date.getDate() + 3);
+    return date.toISOString().split('T')[0];
+  };
+
+  // Update handleInputChange to set next day as departure date
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     
-    // Add validation for departure date
-    if (name === 'departureDate') {
-      if (formData.visitDate && new Date(value) < new Date(formData.visitDate)) {
-        setErrors('departureDate', 'Departure date cannot be before arrival date');
-        return;
-      }
+    // Update form data first
+    setVisitFormData(name, value);
+
+    // Special handling for arrival time
+    if (name === 'arrivalTime') {
+      setVisitFormData('visitTime', value);
     }
-    
-    // Add validation for arrival date
+
+    // Set default departure date when arrival date is selected
     if (name === 'visitDate') {
-      if (formData.departureDate && new Date(value) > new Date(formData.departureDate)) {
-        setErrors('visitDate', 'Arrival date cannot be after departure date');
-        return;
+      const arrivalDate = new Date(value);
+      if (!isNaN(arrivalDate.getTime())) {
+        const nextDay = new Date(arrivalDate);
+        nextDay.setDate(nextDay.getDate() + 1);
+        const formattedNextDay = nextDay.toISOString().split('T')[0];
+        setVisitFormData('departureDate', formattedNextDay);
       }
     }
-    
+
+    // Check for date changes and calculate stay duration
+    if (name === 'visitDate' || name === 'departureDate') {
+      let visitDate = name === 'visitDate' ? value : formData.visitDate;
+      let departureDate = name === 'departureDate' ? value : formData.departureDate;
+
+      // Only calculate if both dates are present
+      if (visitDate && departureDate) {
+        // Ensure we're working with date strings in YYYY-MM-DD format
+        visitDate = visitDate.split('T')[0];
+        departureDate = departureDate.split('T')[0];
+
+        const start = new Date(visitDate);
+        const end = new Date(departureDate);
+        
+        // Ensure both dates are valid
+        if (!isNaN(start.getTime()) && !isNaN(end.getTime())) {
+          // Calculate the difference in days
+          const timeDiff = end - start;
+          const daysDiff = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
+          
+          console.log('Stay Duration Debug:', {
+            visitDate,
+            departureDate,
+            start: start.toISOString(),
+            end: end.toISOString(),
+            timeDiff,
+            daysDiff,
+            shouldShow: daysDiff > 3
+          });
+
+          // Force state update for extended stay
+          const shouldShowExtended = daysDiff > 3;
+          setShowExtendedStayReason(shouldShowExtended);
+          console.log('Setting extended stay visibility to:', shouldShowExtended);
+        }
+      }
+    }
+
     // Clear error when valid input is provided
     if (errors[name]) {
       setErrors(name, '');
     }
     
-    setVisitFormData(name, value);
     console.log("Visit Input Change:", { field: name, value });
   };
 
@@ -131,18 +187,6 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
     e.preventDefault();
     let hasErrors = false;
     
-    // Add date validation checks
-    if (formData.visitDate && formData.departureDate) {
-      if (new Date(formData.departureDate) < new Date(formData.visitDate)) {
-        setErrors('departureDate', 'Departure date cannot be before arrival date');
-        hasErrors = true;
-      }
-      if (new Date(formData.visitDate) > new Date(formData.departureDate)) {
-        setErrors('visitDate', 'Arrival date cannot be after departure date');
-        hasErrors = true;
-      }
-    }
-
     // Validate required fields
     const fieldsToValidate = [
       "visitDate",
@@ -232,7 +276,7 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
                 <input
                   type="date"
                   name="visitDate"
-                  value={formData.visitDate}
+                  value={formData.arrivalDate || formData.visitDate}
                   onChange={handleInputChange}
                 />
                 {errors.visitDate && <span className="error">{errors.visitDate}</span>}
@@ -247,6 +291,8 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
                   name="departureDate"
                   value={formData.departureDate}
                   onChange={handleInputChange}
+                  min={formData.visitDate || ''}
+                  max={formData.visitDate ? getMaxDepartureDate(formData.visitDate) : ''}
                 />
                 {errors.departureDate && <span className="error">{errors.departureDate}</span>}
               </div>
@@ -305,21 +351,23 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
                 {errors.departureTime && <span className="error">{errors.departureTime}</span>}
               </div>
 
-              <div className="form-group">
-                <label>
-                  State reason for more than 3 nights stay? <span className="required"> *</span>
-                </label>
-                <textarea
-                  rows={3}
-                  name="extendedStayReason"
-                  value={formData.extendedStayReason}
-                  onChange={handleInputChange}
-                  placeholder="State your reason"
-                />
-                {errors.extendedStayReason && (
-                  <span className="error">{errors.extendedStayReason}</span>
-                )}
-              </div>
+              {showExtendedStayReason && (
+                <div className="form-group">
+                  <label>
+                    State reason for more than 3 nights stay? <span className="required"> *</span>
+                  </label>
+                  <textarea
+                    rows={3}
+                    name="extendedStayReason"
+                    value={formData.extendedStayReason || ''}
+                    onChange={handleInputChange}
+                    placeholder="State your reason"
+                  />
+                  {errors.extendedStayReason && (
+                    <span className="error">{errors.extendedStayReason}</span>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -410,6 +458,7 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
             />
             <CommonButton
               buttonName="Proceed"
+              onClick={handleNext}
               type="submit"
               style={{
                 backgroundColor: "#EA7704",

@@ -37,14 +37,6 @@ const GuestDetailsPopup = ({ isOpen, onClose, guestDetails, guests, onStatusChan
         }
     }, [guestDetails]);
 
-    console.log('GuestDetailsPopup - Full guestDetails:', guestDetails);
-    console.log('GuestDetailsPopup - User Details:', guestDetails?.userDetails);
-    console.log('GuestDetailsPopup - Guests:', guestDetails?.guests);
-    console.log('GuestDetailsPopup - Stay Duration:', {
-        arrivalDate: guestDetails?.userDetails?.arrivalDate,
-        departureDate: guestDetails?.userDetails?.departureDate
-    });
-
     if (!isOpen) return null;
 
     const handleRowClick = (guestId) => {
@@ -89,8 +81,90 @@ const GuestDetailsPopup = ({ isOpen, onClose, guestDetails, guests, onStatusChan
         }
     };
 
+    const EmailTemplate = ({ onClose, guestData, onSend }) => {
+        const [emailContent, setEmailContent] = useState(`Dear Devotee,
+
+Namoskar,
+
+We regret to inform you that we are unable to accommodate your stay request for the following reason:
+[Selected rejection reason will be inserted here]
+
+We hope you understand and look forward to serving you in the future.
+
+May Sri Ramakrishna, Holy Mother Sri Sarada Devi and Swami Vivekananda bless you all!
+
+Pranam and namaskar again.
+
+Yours sincerely,
+
+Swami Lokahanananda
+Adhyaksha
+RAMAKRISHNA MATH & RAMAKRISHNA MISSION, KAMANKUNUR`);
+
+        return (
+            <div className="email-popup-overlay">
+                <div className="email-popup-content">
+                    <button className="close-button" onClick={onClose}>×</button>
+                    <div className="email-template">
+                        <div className="email-header">
+                            <div className="email-field">
+                                <div className="field-label">From:</div>
+                                <div className="field-value">emailaddress@gmail.com</div>
+                            </div>
+                            <div className="email-field">
+                                <div className="field-label">To:</div>
+                                <div className="recipient-list">
+                                    <div className="recipient-tag">
+                                        <span className="avatar">A</span>
+                                        <span className="name">Sri rock</span>
+                                    </div>
+                                    <div className="recipient-tag">
+                                        <span className="avatar">A</span>
+                                        <span className="name">Sri rock</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div className="email-content">
+                            <textarea
+                                value={emailContent}
+                                onChange={(e) => setEmailContent(e.target.value)}
+                                className="email-content-textarea"
+                            />
+                        </div>
+
+                        <div className="email-footer">
+                            <button onClick={onClose} className="cancel-btn">Cancel</button>
+                            <button onClick={onSend} className="send-btn">Send Mail</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    };
+
     const RejectConfirmationPopup = ({ onCancel, onConfirm }) => {
         const [selectedReason, setSelectedReason] = useState('');
+        const [showEmailTemplate, setShowEmailTemplate] = useState(false);
+
+        const handleSendMailClick = () => {
+            if (!selectedReason) {
+                alert('Please select a reason for rejection');
+                return;
+            }
+            setShowEmailTemplate(true);
+        };
+
+        if (showEmailTemplate) {
+            return (
+                <EmailTemplate 
+                    onClose={onCancel}
+                    guestData={guestDetails}
+                    onSend={() => onConfirm(selectedReason)}
+                />
+            );
+        }
 
         return (
             <div className="popup-overlay">
@@ -151,7 +225,8 @@ const GuestDetailsPopup = ({ isOpen, onClose, guestDetails, guests, onStatusChan
                     <div className="action-buttons">
                         <button 
                             className="send-mail-btn" 
-                            onClick={() => onConfirm(selectedReason)}
+                            onClick={handleSendMailClick}
+                            disabled={!selectedReason}
                         >
                             Send Mail
                         </button>
@@ -184,6 +259,7 @@ const GuestDetailsPopup = ({ isOpen, onClose, guestDetails, guests, onStatusChan
             handleStatusChange(guestDetails.id, 'rejected');
             setShowRejectConfirmation(false);
         };
+        console.log(status)
 
         if (status === 'awaiting') {
             return (

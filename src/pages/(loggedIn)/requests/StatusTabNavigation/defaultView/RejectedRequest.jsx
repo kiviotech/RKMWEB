@@ -232,7 +232,6 @@ const RejectedRequest = ({ selectedDate }) => {
           onClose={closeModal}
           guestDetails={selectedGuest}
           guests={selectedGuest?.guests || []}
-          // status="rejected"
           onStatusChange={handleStatusChange}
         />
       )}

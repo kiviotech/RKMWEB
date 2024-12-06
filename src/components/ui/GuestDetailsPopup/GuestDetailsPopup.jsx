@@ -368,7 +368,7 @@ const GuestDetailsPopup = ({ isOpen, onClose, guestDetails, guests, onStatusChan
                     </div>
 
                     {/* Alert and Action Buttons */}
-                    <div className="footer">
+                    <div className="footer" style={{backgroundColor: '#fff'}}>
                         <div className="alert">
                             There is a Revisit within 6 months of Guest name
                         </div>

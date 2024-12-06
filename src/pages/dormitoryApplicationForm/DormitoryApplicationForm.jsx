@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from "react";
 import "./DormitoryApplicationForm.scss";
-import useApplicationStore from "../../../useApplicationStore";
+import useDormitoryStore from "../../../dormitoryStore";
 import DormitoryAccommodationDetails from "./dormitoryApplicationTabs/DormitoryAccommodationDetails/DormitoryAccommodationDetails";
 import DormitoryApplicationDetails from "./dormitoryApplicationTabs/DormitoryApplicationDetails/DormitoryApplicationDetails";
 import DormitoryVerifyDetails from "./dormitoryApplicationTabs/DormitoryVerifyDetails/DormitoryVerifyDetails";
 import DormitoryVisitDetails from "./dormitoryApplicationTabs/DormitoryVisitDetails/DormitoryVisitDetails";
 
 const DormitoryApplicationForm = () => {
-  const { formData } = useApplicationStore();
+  const { formData } = useDormitoryStore();
   const tabs = [
     {
       id: 1,
@@ -36,66 +36,50 @@ const DormitoryApplicationForm = () => {
     let totalFields = 0;
     let filledFields = 0;
 
-    // Count main applicant fields
-    const mainFields = [
-      "name",
+    // Personal Details
+    const personalFields = [
+      "title",
+      "institutionName",
+      "contactPersonName",
+      "institutionType",
       "age",
       "gender",
       "email",
-      "occupation",
       "deeksha",
       "aadhaar",
       "phoneNumber",
     ];
-    totalFields += mainFields.length;
-
-    mainFields.forEach((field) => {
+    totalFields += personalFields.length;
+    personalFields.forEach((field) => {
       if (formData[field]) filledFields++;
     });
 
-    // Count address fields
-    const addressFields = ["state", "district", "streetName", "pinCode"];
+    // Address Fields
+    const addressFields = ["state", "district", "streetName", "pinCode", "houseNumber"];
     totalFields += addressFields.length;
-
     addressFields.forEach((field) => {
       if (formData.address?.[field]) filledFields++;
     });
 
-    // Count guest fields for each guest
-    const guestFields = [
-      "guestName",
-      "guestAadhaar",
-      "guestRelation",
-      "guestNumber",
-      "guestOccupation",
-    ];
-    const guestAddressFields = ["state", "district", "streetName", "pinCode"];
-
-    formData.guests.forEach((guest) => {
-      totalFields += guestFields.length + guestAddressFields.length;
-
-      guestFields.forEach((field) => {
-        if (guest[field]) filledFields++;
-      });
-
-      guestAddressFields.forEach((field) => {
-        if (guest.guestAddress?.[field]) filledFields++;
-      });
+    // Accommodation Details
+    const accommodationFields = ["totalPeople", "maleDevotees", "femaleDevotees"];
+    totalFields += accommodationFields.length;
+    accommodationFields.forEach((field) => {
+      if (formData.accommodation?.[field]) filledFields++;
     });
 
-    // Count visit details fields
-    const visitFields = ["visitDate", "departureDate", "visited"];
+    // Visit Details
+    const visitFields = ["visitDate", "visitTime", "departureDate", "departureTime", "visited"];
     totalFields += visitFields.length;
-
     visitFields.forEach((field) => {
-      if (formData[field]) filledFields++;
+      if (formData.visitDetails?.[field]) filledFields++;
     });
 
     // If previously visited, count reason and file
-    if (formData.visited === "yes") {
+    if (formData.visitDetails?.visited === "yes") {
       totalFields += 2; // reason and file
-      if (formData.reason) filledFields++;
-      if (formData.file) filledFields++;
+      if (formData.visitDetails.reason) filledFields++;
+      if (formData.visitDetails.file) filledFields++;
     }
 
     const progressPercentage = Math.round((filledFields / totalFields) * 100);

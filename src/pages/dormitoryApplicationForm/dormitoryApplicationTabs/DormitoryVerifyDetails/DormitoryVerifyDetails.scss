@@ -30,16 +30,12 @@
     }
 
     .edit-button {
-      background: #8B5CF6;
+      background: #ea7704;
       color: white;
       border: none;
       padding: 0.5rem 1rem;
       border-radius: 4px;
       cursor: pointer;
-
-      &:hover {
-        background: #7C3AED;
-      }
     }
   }
 
@@ -109,8 +105,8 @@
 
     .save-button {
       background: white;
-      border: 1px solid #8B5CF6;
-      color: #8B5CF6;
+      border: 1px solid #ea7704;
+      color: #ea7704;
 
       &:hover {
         background: #F3F4F6;

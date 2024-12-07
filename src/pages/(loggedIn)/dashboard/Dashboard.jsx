@@ -188,6 +188,7 @@ const Dashboard = () => {
           <div
             className="check-in cards"
             onClick={() => navigateToPage("/check-in")}
+            
           >
             <ProgressBar
               title="Check-ins"

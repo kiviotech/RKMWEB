@@ -63,6 +63,7 @@
       font-size: 12px;
       border-bottom: 1px solid #eaeaea;
       text-align: center;
+      background-color: #fff !important;
 
       .avatar {
         display: inline-block;
@@ -84,7 +85,7 @@
       .add-donation {
         text-align: center;
         color: #fff;
-        background-color: #9867e9;
+        background-color: #EA7704 !important;
         border: none;
         border-radius: 4px;
         padding: 10px 11px;
@@ -95,7 +96,7 @@
         gap: 10px;
       }
       .eye-donation {
-        background-color: #9867e9;
+        background-color: #EA7704 !important;
         border-radius: 4px;
         border: none;
         display: flex;

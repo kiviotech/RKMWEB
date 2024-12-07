@@ -4,6 +4,7 @@ import CommonButton from "../../../components/ui/Button";
 import { icons } from "../../../constants";
 import { signUpUser } from "../../../../services/auth"; // Adjust path if necessary
 import { useNavigate } from "react-router-dom";
+import RMK from "../../../assets/image/RMK_Logo.png"
 
 const Signup = () => {
   const navigate = useNavigate();
@@ -97,7 +98,9 @@ const Signup = () => {
   return (
     <div className="signup">
       <div className="signup-box">
-        <div className="logo">LOGO</div>
+      <div className="logo">
+          <img src={RMK} alt="RMK Logo" />
+        </div>
         <form onSubmit={handleSignup}>
           <div className="input-group">
             <label htmlFor="username">Username</label>
@@ -203,7 +206,7 @@ const Signup = () => {
             buttonName="Sign Up"
             buttonWidth="100%"
             style={{
-              backgroundColor: "#9866E9",
+              backgroundColor: "#EA7704",
               fontSize: "16px",
               borderRadius: "16px",
               borderWidth: 0,
@@ -220,7 +223,7 @@ const Signup = () => {
               onClick={() => navigate("/")}
               style={{
                 cursor: "pointer",
-                color: "#9866E9",
+                color: "#EA7704",
                 fontWeight: "bold",
               }}
             >

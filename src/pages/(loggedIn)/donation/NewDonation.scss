@@ -1847,7 +1847,7 @@
     transition: all 0.2s ease;
 
     &.selected {
-      background-color: #7c5cfc;
+      background-color: #EA7704 !important;
       color: white;
     }
 
@@ -1859,8 +1859,8 @@
 
   .add-donation-btn {
     background: transparent;
-    border: 1px solid #8c52ff;
-    color: #8c52ff;
+    border: 1px solid #EA7704 !important;
+    color: #EA7704 !important;
     padding: 6px 12px;
     border-radius: 6px;
     cursor: pointer;
@@ -1906,7 +1906,7 @@
       transition: all 0.2s ease;
 
       &.active {
-        background: #8C52FF;
+        background: #EA7704;
         color: white;
         box-shadow: 0 2px 4px rgba(140, 82, 255, 0.2);
       }
@@ -1923,12 +1923,13 @@
     gap: 5px;
     background: transparent;
     border: none;
-    color: #8c52ff;
+    color: #EA7704 !important;
     cursor: pointer;
     font-size: 15px;
 
     .reset-icon {
       font-size: 18px;
+      color: #EA7704 !important;
     }
   }
 }
@@ -1990,7 +1991,7 @@
             }
 
             .online {
-              color: #8C52FF;
+              color: #EA7704;
             }
           }
 
@@ -2039,7 +2040,7 @@
 
     .consent-btn {
       background: transparent;
-      color: #8c52ff;
+      color: #EA7704 !important;
       border: none;
       font-size: 14px;
       cursor: pointer;
@@ -2489,7 +2490,7 @@ input::placeholder {
         }
 
         &.confirm-btn {
-          background-color: #9867E9;
+          background-color: #EA7704 !important;
           color: white;
 
           // &:hover {
@@ -2497,7 +2498,7 @@ input::placeholder {
           // }
         }
         .confirm {
-          background-color: #9867E9;
+          background-color: #EA7704 !important;
           color: white;
         }
       }
@@ -2580,7 +2581,7 @@ input::placeholder {
         }
 
         .confirm {
-          background-color: #9867E9;
+          background-color: #EA7704 !important;
           color: white;
         }
       }
@@ -2659,7 +2660,7 @@ input::placeholder {
 
     &:focus {
       outline: none;
-      border-color: #7C5CFC;
+      border-color: #EA7704 !important;
     }
   }
 }
@@ -2937,7 +2938,7 @@ input::placeholder {
 
     &:focus {
       outline: none;
-      border-color: #7C5CFC;
+      border-color: #EA7704 !important;
     }
   }
 }
@@ -2963,7 +2964,7 @@ input::placeholder {
 input:focus,
 select:focus {
   outline: none;
-  border-color: #7C5CFC;
+  border-color: #EA7704 !important;
 }
 
 .form-group {
@@ -2993,7 +2994,7 @@ select:focus {
 
     &:focus {
       outline: none;
-      border-color: #7C5CFC;
+      border-color: #EA7704 !important;
     }
   }
 
@@ -3131,7 +3132,7 @@ input[type="email"].borderless-input {
     }
 
     .consent-btn {
-      color: #7C5CFC;
+      color: #EA7704 !important;
       background: none;
       border: none;
       font-size: 14px;
@@ -3170,7 +3171,7 @@ input[type="email"].borderless-input {
 
       &:focus {
         outline: none;
-        border-color: #7C5CFC;
+        border-color: #EA7704 !important;
       }
 
       // Calendar icon styling for date input
@@ -3369,7 +3370,7 @@ input[type="email"].borderless-input {
   }
 
   .print-receipt-btn {
-    background-color: #9867e9;
+    background-color: #EA7704 !important;
     color: white;
     border: none;
     padding: 10px 20px;
@@ -3428,7 +3429,7 @@ input[type="email"].borderless-input {
     }
 
     .print-receipt-btn {
-      background-color: #9867e9;
+      background-color: #EA7704 !important;
       color: white;
       border: none;
       padding: 10px 20px;
@@ -3460,7 +3461,7 @@ select {
 
   &:focus {
     outline: none;
-    border-color: #7C5CFC !important;
+    border-color: #EA7704 !important;
     box-shadow: none !important; // Remove box shadow on focus
   }
 }
@@ -3483,7 +3484,7 @@ select {
 
     &:focus {
       outline: none;
-      border-color: #7C5CFC !important;
+      border-color: #EA7704 !important;
       box-shadow: none !important; // Remove box shadow on focus
     }
   }
@@ -3496,13 +3497,13 @@ select {
   box-shadow: none !important; // Remove box shadow
 
   &:focus {
-    border-color: #7C5CFC !important;
+    border-color: #EA7704 !important;
     box-shadow: none !important; // Remove box shadow on focus
   }
 }
 
 .print-receipt-btn {
-  background-color: #9867e9;
+  background-color: #EA7704 !important;
   color: white;
   border: none;
   padding: 10px 20px;

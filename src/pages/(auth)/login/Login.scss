@@ -31,7 +31,7 @@ $background-color: #FFFFFF;
     justify-content: center;
     align-items: center;
     height: 100vh;
-    background-color: #f3eaf7;
+    background: #fff2ea !important;
 }
 
 .input-group {
@@ -74,10 +74,18 @@ $background-color: #FFFFFF;
     width: 450px;
 
     .logo {
+        display: flex;
+        justify-content: center;
+        align-items: center;
         margin-bottom: 20px;
-        font-size: 24px;
-        font-weight: bold;
-    }
+      
+        img {
+          max-width: 100%;
+          height: auto;
+          width: 130px; /* Adjust size as needed */
+        }
+      }
+      
 
     .or {
         font-size: 12px;

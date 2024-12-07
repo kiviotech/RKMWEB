@@ -1,28 +1,40 @@
 import React from "react";
 import "./WelcomePage.scss";
-import bgImage from "../../assets/image/Kamarpukur.jpg"; // Update this path as needed
 import ApplicationFormHeader from "./ApplicationFormHeader";
 import ApplicationFormFooter from "./ApplicationFormFooter";
 import { useNavigate } from "react-router-dom";
+import KRpic from "../../assets/image/KRpic.jpg";
 
 const WelcomePage = () => {
-    const navigate = useNavigate();
+  const navigate = useNavigate();
   return (
-    <div style={{ backgroundImage: `url(${bgImage})`, backgroundRepeat: "no-repeat", backgroundSize: "cover" }}>
-        <ApplicationFormHeader/>
-        <div className="ramakrishna-math" >
-      <div className="overlay">
-        <div className="content">
-          <h1 >Welcome To Ramakrishna Math Guest House Booking</h1>
-          <p>
-            Experience spiritual tranquility at our peaceful guest house in Kamarpukur,
-          </p>
-          <p>the birthplace of Sri Ramakrishna</p>
-          <button className="book-button" onClick={() => navigate('/application-form')}>Request for Stay</button>
+    <div>
+      <ApplicationFormHeader />
+      <div
+        style={{
+          backgroundImage: `url(${KRpic})`,
+          backgroundRepeat: "no-repeat",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          position: "relative",
+          // minHeight: "calc(100vh - 80px)", // Adjust based on the height of your header and footer
+          flex: 1
+        }}
+      >
+        <div className="ramakrishna-math">
+          <div className="overlay">
+            <div className="content">
+              <h1>Welcome To Ramakrishna Math Guest House Booking</h1>
+              <p>
+                Experience spiritual tranquility at our peaceful guest house in Kamarpukur,
+              </p>
+              <p>the birthplace of Sri Ramakrishna</p>
+              <button className="book-button" onClick={() => navigate('/application-form')}>Request for Stay</button>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
-    <ApplicationFormFooter/>
+      <ApplicationFormFooter />
     </div>
   );
 };

@@ -13,7 +13,7 @@
     }
 
     .add-donation-btn {
-      background: #8b5cf6;
+      background: #EA7704 !important;
       color: white;
       border: none;
       padding: 8px 16px;
@@ -24,7 +24,7 @@
       cursor: pointer;
 
       &:hover {
-        background: #7c3aed;
+        background: #EA7704 !important;
       }
     }
   }
@@ -68,7 +68,7 @@
             border-radius: 50%;
 
             &.math {
-              background: #8b5cf6;
+              background: #EA7704 !important;
             }
 
             &.mission {
@@ -341,7 +341,7 @@
   }
 
   .recent-donations-section {
-    background: white;
+    background: #fff2ea !important;
     border-radius: 16px;
     padding-left: 18px;
 
@@ -400,7 +400,7 @@
         }
 
         .view-all {
-          color: #8B5CF6;
+          color: #EA7704 !important;
           background: none;
           border: none;
           font-size: 14px;
@@ -480,7 +480,7 @@
           }
 
           .submit-btn {
-            background: #8B5CF6;
+            background: #EA7704 !important;
             color: white;
             
             &:hover {
@@ -490,7 +490,7 @@
 
           .print-btn {
             background: transparent;
-            color: #8B5CF6;
+            color: #EA7704 !important;
             
             &:hover {
               background: transparent;
@@ -566,19 +566,19 @@
     }
     
     &[data-icon="notifications"] {
-      color: #8B5CF6 !important;
+      color: #EA7704 !important;
     }
     
     &[data-icon="email"] {
-      color: #8B5CF6 !important;
+      color: #EA7704 !important;
     }
     
     &[data-icon="sms"] {
-      color: #8B5CF6 !important;
+      color: #EA7704 !important;
     }
     
     &[data-icon="phone"] {
-      color: #8B5CF6 !important;
+      color: #EA7704 !important;
     }
   }
 }
@@ -736,7 +736,7 @@
     }
 
     .apply-btn {
-      background: #8b5cf6;
+      background: #EA7704 !important;
       color: white;
       border: none;
     }
@@ -830,7 +830,7 @@
       }
 
       .apply-btn {
-        background: #8b5cf6;
+        background: #EA7704 !important;
         color: white;
         border: none;
 

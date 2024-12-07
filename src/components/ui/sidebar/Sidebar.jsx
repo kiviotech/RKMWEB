@@ -25,7 +25,7 @@ const Sidebar = () => {
       <NavLink to="/donation" activeclassname="active">
         <img src={icons.rupee} alt="donation" />
         <span className="label" style={{ paddingTop: "5px" }}>
-          Donations
+          Donationsw
         </span>
       </NavLink>
       <NavLink to="/deeksha" activeclassname="active">

@@ -1,6 +1,8 @@
 .dashboard-main-container {
     display: flex;
     gap: 20px;
+    
+    
 
     .cards {
         width: auto;
@@ -22,6 +24,7 @@
         width: 40%;
 
         .application-details {
+            background-color: #fff !important;
 
 
             .count {
@@ -68,6 +71,7 @@
 
         .Request,
         .allocate-rooms {
+            background-color: #fff !important;
 
             cursor: pointer;
 
@@ -109,16 +113,20 @@
         .check-in-check-out-main-section {
             display: flex;
             gap: 20px;
+            
 
             .check-in,
             .check-out {
                 width: 100%;
                 cursor: pointer;
+                background: #fff !important;
+                
             }
         }
 
         .room-seats {
             padding-bottom: 30px;
+            background: #fff !important;
 
             .room-status-main-section {
                 display: flex;

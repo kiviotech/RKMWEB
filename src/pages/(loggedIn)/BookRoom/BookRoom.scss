@@ -8,7 +8,7 @@
   display: flex;
   align-items: center;
   padding: 15px 30px;
-  background-color: #fff;
+  background: #fff2ea !important;
   width: 77%;
   justify-content: space-between;
   // border: 1px solid red;
@@ -19,6 +19,7 @@
   display: flex;
   align-items: center;
   gap: 24px;
+  
 }
 
 .booking-tab-group {
@@ -36,7 +37,7 @@
     cursor: pointer;
 
     &.active {
-      background-color: #9867e9;
+      background-color: #EA7704;
       color: #fff;
     }
   }
@@ -66,7 +67,7 @@
       min-height: 32px;
 
       &.active {
-        background-color: #8B5CF6;
+        background-color: #EA7704;
         svg {
           color: white;
         }
@@ -75,7 +76,7 @@
       svg {
         width: 18px;
         height: 18px;
-        color: #6B7280;
+        color: #EA7704;
       }
 
       // &:hover:not(.active) {
@@ -85,7 +86,7 @@
   }
 
   .filter-label {
-    color: #8b5cf6;
+    color: #EA7704;
     font-size: 14px;
     font-weight: 500;
   }
@@ -104,11 +105,11 @@
     }
 
     &:hover {
-      border-color: #9867e9;
+      border-color: #EA7704;
     }
 
     &:focus {
-      border-color: #9867e9;
+      border-color: #EA7704;
       box-shadow: 0 0 0 2px rgba(152, 103, 233, 0.1);
       outline: none;
     }
@@ -126,7 +127,7 @@
       height: 0;
 
       &:checked + .slider {
-        background-color: #9867e9;
+        background-color: #EA7704;
       }
 
       &:checked + .slider:before {
@@ -196,11 +197,11 @@
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
 
     &:hover {
-      border-color: #9867e9;
+      border-color: #EA7704;
     }
 
     &:focus {
-      border-color: #9867e9;
+      border-color: #EA7704;
       box-shadow: 0 0 0 2px rgba(152, 103, 233, 0.1);
     }
 
@@ -222,11 +223,11 @@
   }
 
   &:hover .date-label {
-    color: #9867e9;
+    color: #EA7704;
   }
 
   &:focus-within .date-label {
-    color: #9867e9;
+    color: #EA7704;
   }
 }
 
@@ -290,6 +291,7 @@
   height: calc(100% - 50px);
   scrollbar-width: none;
   -ms-overflow-style: none;
+  background: #fff !important;
  
   
   &::-webkit-scrollbar {
@@ -304,6 +306,7 @@
   align-items: center;
   min-height: 100px;
   width: max-content;
+  background: #fff !important;
 
 }
 
@@ -384,6 +387,7 @@
   width: 100%;
   height: 100%;
   min-height: 80px;
+  border: 1px solid #EA7704;
 
 
 
@@ -436,7 +440,7 @@
 
 .availability-box {
   background: white;
-  border: 1px solid #8b5cf6;
+  border: 1px solid #EA7704;
   border-radius: 8px;
   padding: 19px;
   display: flex;
@@ -449,7 +453,7 @@
   .count {
     font-size: 18px;
     font-weight: bold;
-    color: #8b5cf6;
+    color: #EA7704;
   }
   
   .status {
@@ -460,7 +464,7 @@
 
 // Add hover effect
 .availability-box:hover {
-  background: #8b5cf6;
+  background: #EA7704;
   
   .count, .status {
     color: white;
@@ -469,7 +473,7 @@
 
 // For selected state
 .availability-box.selected {
-  background: #8b5cf6;
+  background: #EA7704;
   
   .count, .status {
     color: white;
@@ -534,7 +538,7 @@
 
 .allocate-button {
   padding: 12px 24px;
-  background-color: #8b5cf6;
+  background-color: #EA7704;
   color: white;
   border: none;
   border-radius: 8px;
@@ -544,7 +548,7 @@
   width: 50%;
 
   &:hover {
-    background-color: #7c3aed;
+    background-color: #EA7704;
   }
 }
 
@@ -568,7 +572,7 @@
 .confirm-button {
   margin-top: 1rem;
   padding: 8px 16px;
-  background-color: #8b5cf6;
+  background-color: #EA7704;
   color: white;
   border: none;
   border-radius: 4px;
@@ -578,7 +582,7 @@
   line-height: 20px;
 
   &:hover {
-    background-color: #7c3aed;
+    background-color: #EA7704;
   }
 
   &:disabled {
@@ -613,7 +617,7 @@
       }
 
       .room-number {
-        color: #8B5CF6;
+        color: #EA7704;
         font-size: 14px;
         padding: 4px 8px;
         border-radius: 4px;
@@ -649,7 +653,7 @@
       .date-row {
         display: flex;
         gap: 8px;
-        color: #8B5CF6;
+        color: #EA7704;
         margin-bottom: 4px;
 
         &:last-child {
@@ -771,7 +775,7 @@
               gap: 4px;
               
               .avatar {
-                background: #6200ee;
+                background: #EA7704;
                 color: white;
                 width: 24px;
                 height: 24px;
@@ -835,14 +839,14 @@
         }
         
         &.send-button {
-          background: #8B5CF6;
+          background: #EA7704;
           color: white;
           border: none;
           width: 65px;
           font-weight: 500;
           
           &:hover {
-            background: #7C3AED;
+            background: #EA7704;
           }
         }
       }
@@ -938,7 +942,7 @@
             gap: 6px;
             
             .avatar {
-              background: #8b5cf6;
+              background: #EA7704;
               color: white;
               width: 20px;
               height: 20px;
@@ -1009,14 +1013,14 @@
       }
       
       &.send-button {
-        background: #8B5CF6;
+        background: #EA7704;
         color: white;
         border: none;
         width: 65px;
         font-weight: 500;
         
         &:hover {
-          background: #7C3AED;
+          background: #EA7704;
         }
       }
     }

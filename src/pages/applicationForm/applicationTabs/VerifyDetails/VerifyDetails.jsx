@@ -9,7 +9,7 @@ import { useNavigate } from "react-router-dom";
 const VerifyDetails = () => {
   const { formData } = useApplicationStore();
   const navigate = useNavigate();
-  // console.log("dfghj",formData.title)
+  
 
   // Format date and time
   const formatDateTime = (date, time) => {
@@ -38,6 +38,7 @@ const VerifyDetails = () => {
         contact: formData.phoneNumber
       },
       guestDetails: formData.guests,
+      guestDetails: formData.guests[0].sameAsApplicant,
       visitDetails: {
         arrival: formatDateTime(formData.visitDate, formData.visitTime),
         departure: formatDateTime(formData.departureDate, formData.departureTime),
@@ -45,7 +46,6 @@ const VerifyDetails = () => {
       }
     });
   }, [formData]);
-
   const handleSubmit = async () => {
     try {
       // Create main applicant guest details
@@ -141,6 +141,17 @@ const VerifyDetails = () => {
       default:
         break;
     }
+  };
+
+  const isSameAddressAsApplicant = (guest) => {
+    return (
+      guest.sameAsApplicant &&
+      guest.guestAddress.houseNumber === formData.address.houseNumber &&
+      guest.guestAddress.streetName === formData.address.streetName &&
+      guest.guestAddress.district === formData.address.district &&
+      guest.guestAddress.state === formData.address.state &&
+      guest.guestAddress.pinCode === formData.address.pinCode
+    );
   };
 
   return (
@@ -240,6 +251,7 @@ const VerifyDetails = () => {
 
         {/* Guest Addresses */}
         {formData.guests.map((guest, index) => (
+          !isSameAddressAsApplicant(guest) && (
           <div key={index} className="address-block">
             <h3>
               Member {index + 1}
@@ -256,17 +268,23 @@ const VerifyDetails = () => {
               <div><span>Aadhar Number :</span> <strong>{guest.guestAadhaar}</strong></div>
               <div><span>Mobile Number :</span><strong> +{guest.countryCode} {guest.guestNumber}</strong></div>
             </p>
-            <p>
-              <span>Address :</span>{" "}
-              <strong>{`${guest.guestAddress.houseNumber}, ${guest.guestAddress.streetName}`}</strong>
-            </p>
-            <p style={{display:'flex',gap:'50px',}}>
-           <div>   <span>District :</span> <strong>{guest.guestAddress.district}{" "}</strong></div>
-             <div> <span>Pincode :</span> <strong>{guest.guestAddress.pinCode}{" "}</strong></div>
-              <div><span>State :</span> <strong>{guest.guestAddress.state}</strong></div>
-            </p>
+            
+            {isSameAddressAsApplicant(guest) && (
+      <>
+        <p>
+          <span>Address :</span>{" "}
+          <strong>{`${guest.guestAddress.houseNumber}, ${guest.guestAddress.streetName}`}</strong>
+        </p>
+        <p style={{display: 'flex', gap: '50px'}}>
+          <div><span>District :</span> <strong>{guest.guestAddress.district}{" "}</strong></div>
+          <div><span>Pincode :</span> <strong>{guest.guestAddress.pinCode}{" "}</strong></div>
+          <div><span>State :</span> <strong>{guest.guestAddress.state}</strong></div>
+        </p>
+      </>
+    )}
            
           </div>
+          )
         ))}
       </div>
 

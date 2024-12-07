@@ -1,6 +1,6 @@
 .deeksha-container {
     padding: 24px;
-    background-color: #fff;
+    background: #fff2ea !important;
     display: flex;
     gap: 24px;
 
@@ -37,8 +37,8 @@
                 }
 
                 &.purple { 
-                    border-color: #8B5CF6;
-                    h2 { color: #8B5CF6; }
+                    border-color: #EA7704 !important;
+                    h2 { color: #EA7704 !important; }
                 }
                 &.orange { 
                     border-color: #F97316;
@@ -82,7 +82,7 @@
 
                 .reminder-btn {
                     margin-top: 16px;
-                    background: #8B5CF6;
+                    background:  #EA7704 !important;
                     color: white;
                     border: none;
                     padding: 8px 16px;
@@ -120,7 +120,7 @@
                     border: 1px solid #eee;
 
                     &:nth-child(1) .form-icon {
-                        color: #8B5CF6; // Purple
+                        color: #EA7704 !important; // Purple
                     }
                     &:nth-child(2) .form-icon {
                         color: #22C55E; // Green
@@ -202,7 +202,7 @@
                     background: #fff;
                     border: 1px solid #E5E7EB;
                     border-radius: 6px;
-                    color: #8B5CF6;
+                    color: #EA7704 !important;
                     cursor: pointer;
                     font-size: 14px;
                     transition: all 0.2s ease;
@@ -385,7 +385,7 @@
             }
             
             &.apply-btn {
-                background-color: #8b5cf6;
+                background-color: #EA7704 !important;
                 color: white;
                 border: none;
                 

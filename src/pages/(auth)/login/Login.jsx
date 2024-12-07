@@ -5,6 +5,7 @@ import CommonButton from "../../../components/ui/Button";
 import { useNavigate } from "react-router-dom";
 import { loginUser } from "../../../../services/auth";
 import { useAuthStore } from "../../../../store/authStore";
+import RMK from "../../../assets/image/RMK_Logo.png"
 
 const Login = () => {
   const [formValues, setFormValues] = useState({ username: "", password: "" });
@@ -80,7 +81,10 @@ const Login = () => {
   return (
     <div className="login">
       <div className="login-box">
-        <div className="logo">LOGO</div>
+        <div className="logo">
+          <img src={RMK} alt="RMK Logo" />
+        </div>
+
         <form onSubmit={handleSubmit}>
           <div className="input-group">
             <label htmlFor="username">Username</label>
@@ -127,7 +131,7 @@ const Login = () => {
             buttonWidth="100%"
             disabled={isLoading}
             style={{
-              backgroundColor: "#9866E9",
+              backgroundColor: "#EA7704",
               fontSize: "16px",
               borderRadius: "16px",
               borderWidth: 0,
@@ -143,7 +147,7 @@ const Login = () => {
             <span
               style={{
                 cursor: "pointer",
-                color: "#9866E9",
+                color: "#EA7704",
                 fontWeight: "bold",
               }}
               onClick={() => navigate("/signup")}

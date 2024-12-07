@@ -40,8 +40,6 @@ const GuestDetailsPopup = ({ isOpen, onClose, guestDetails, guests, onStatusChan
         departureDate: guestDetails?.userDetails?.departureDate
     });
 
-    if (!isOpen) return null;
-
     const handleRowClick = (guestId) => {
         setSelectedRow(guestId);
         const selectedGuest = guestDetails?.guests?.find(guest => guest.id === guestId);
@@ -93,6 +91,17 @@ const GuestDetailsPopup = ({ isOpen, onClose, guestDetails, guests, onStatusChan
         setShowRejectionEmail(false);
     };
 
+    if (showRejectionEmail) {
+        return (
+            <RejectionEmailPopup
+                onClose={() => setShowRejectionEmail(false)}
+                onSubmit={handleRejectionEmailSubmit}
+            />
+        );
+    }
+
+    if (!isOpen) return null;
+
     const renderActionButtons = () => {
         const status = guestDetails?.status || guestDetails?.attributes?.status || 'awaiting';
 
@@ -117,12 +126,6 @@ const GuestDetailsPopup = ({ isOpen, onClose, guestDetails, guests, onStatusChan
                     >
                         Reject
                     </button>
-                    {showRejectionEmail && (
-                        <RejectionEmailPopup
-                            onClose={() => setShowRejectionEmail(false)}
-                            onSubmit={handleRejectionEmailSubmit}
-                        />
-                    )}
                 </div>
             );
         } else if (label === 'approved') {
@@ -146,12 +149,6 @@ const GuestDetailsPopup = ({ isOpen, onClose, guestDetails, guests, onStatusChan
                     >
                         Allocate Rooms
                     </button>
-                    {showRejectionEmail && (
-                        <RejectionEmailPopup
-                            onClose={() => setShowRejectionEmail(false)}
-                            onSubmit={handleRejectionEmailSubmit}
-                        />
-                    )}
                 </div>
             );
         } 
@@ -170,203 +167,199 @@ const GuestDetailsPopup = ({ isOpen, onClose, guestDetails, guests, onStatusChan
                     >
                         Reject
                     </button>
-                    {showRejectionEmail && (
-                        <RejectionEmailPopup
-                            onClose={() => setShowRejectionEmail(false)}
-                            onSubmit={handleRejectionEmailSubmit}
-                        />
-                    )}
                 </div>
-            )
+            );
         }
         return null;
     };
 
     return (
-        <div className="popup-overlay">
-            <div className="popup-content">
-                <div className="header-section">
-                    <button className="close-btn" onClick={onClose}>
-                        <img src={icons.Close} alt="close" className="icon" />
-                    </button>
+        <>
+            <div className="popup-overlay">
+                <div className="popup-content">
+                    <div className="header-section">
+                        <button className="close-btn" onClick={onClose}>
+                            <img src={icons.Close} alt="close" className="icon" />
+                        </button>
 
-                    {/* Main Info Section */}
-                    <div className="main-info">
-                        <div className="left-section">
-                            <div className="avatar">
-                                <img src={guestDetails?.userImage || icons.DefaultAvatar} alt="profile" />
-                            </div>
-                            <div className="user-details">
-                                <h2>{guestDetails?.userDetails?.name || "N/A"}</h2>
-                                <div className="info-grid">
-                                    <div className="info-item">
-                                        <span className="label">Age</span>
-                                        <span className="value">{guestDetails?.userDetails?.age || "N/A"}</span>
+                        {/* Main Info Section */}
+                        <div className="main-info">
+                            <div className="left-section">
+                                <div className="avatar">
+                                    <img src={guestDetails?.userImage || icons.DefaultAvatar} alt="profile" />
+                                </div>
+                                <div className="user-details">
+                                    <h2>{guestDetails?.userDetails?.name || "N/A"}</h2>
+                                    <div className="info-grid">
+                                        <div className="info-item">
+                                            <span className="label">Age</span>
+                                            <span className="value">{guestDetails?.userDetails?.age || "N/A"}</span>
+                                        </div>
+                                        <div className="info-item">
+                                            <span className="label">Gender</span>
+                                            <span className="value">{guestDetails?.userDetails?.gender || "N/A"}</span>
+                                        </div>
+                                        <div className="info-item">
+                                            <img src={icons.Email} alt="email" className="icon" />
+                                            <span className="value">{guestDetails?.userDetails?.email || "N/A"}</span>
+                                        </div>
+                                        <div className="info-item">
+                                            <img src={icons.Contact} alt="phone" className="icon" />
+                                            <span className="value">{guestDetails?.userDetails?.mobile || "N/A"}</span>
+                                        </div>
                                     </div>
-                                    <div className="info-item">
-                                        <span className="label">Gender</span>
-                                        <span className="value">{guestDetails?.userDetails?.gender || "N/A"}</span>
-                                    </div>
-                                    <div className="info-item">
-                                        <img src={icons.Email} alt="email" className="icon" />
-                                        <span className="value">{guestDetails?.userDetails?.email || "N/A"}</span>
-                                    </div>
-                                    <div className="info-item">
-                                        <img src={icons.Contact} alt="phone" className="icon" />
-                                        <span className="value">{guestDetails?.userDetails?.mobile || "N/A"}</span>
+                                    <div className="info-grid">
+                                        <div className="info-item">
+                                            <span className="label">Occupation</span>
+                                            <span className="value">{guestDetails?.userDetails?.occupation || "N/A"}</span>
+                                        </div>
+                                        <div className="info-item">
+                                            <span className="label">Initiation by</span>
+                                            <span className="value">{guestDetails?.userDetails?.deeksha || "N/A"}</span>
+                                        </div>
+                                        {/* <div className="info-item">
+                                            <span className="label">Initiation by</span>
+                                            <span className="value">Gurudev Name</span>
+                                        </div> */}
                                     </div>
                                 </div>
-                                <div className="info-grid">
-                                    <div className="info-item">
-                                        <span className="label">Occupation</span>
-                                        <span className="value">{guestDetails?.userDetails?.occupation || "N/A"}</span>
-                                    </div>
-                                    <div className="info-item">
-                                        <span className="label">Initiation by</span>
-                                        <span className="value">{guestDetails?.userDetails?.deeksha || "N/A"}</span>
-                                    </div>
-                                    {/* <div className="info-item">
-                                        <span className="label">Initiation by</span>
-                                        <span className="value">Gurudev Name</span>
+                            </div>
+
+                            <div className="right-section">
+                                <div className="reminder-bar">
+                                    {/* <div className="reminder-content">
+                                        <img src={icons.Reminder} alt="reminder" />
+                                        <span>Reminder: 26th Aug is Janmasthami</span>
                                     </div> */}
                                 </div>
-                            </div>
-                        </div>
 
-                        <div className="right-section">
-                            <div className="reminder-bar">
-                                {/* <div className="reminder-content">
-                                    <img src={icons.Reminder} alt="reminder" />
-                                    <span>Reminder: 26th Aug is Janmasthami</span>
-                                </div> */}
-                            </div>
-
-                            <div className="stay-info">
-                                <div className="duration">
-                                    <span className="label">Stay Duration:- </span>
-                                    <span className="value">{stayDuration || "N/A"} days</span>
-                                </div>
-                                <div className="dates">
-                                    <div className="date-row">
-                                        <img src={icons.Calendar} alt="calendar" />
-                                        <span className="date-label">Arrival Date:</span>
-                                        <span className="date-value">
-                                            {guestDetails?.userDetails?.arrivalDate || "N/A"}
-                                        </span>
+                                <div className="stay-info">
+                                    <div className="duration">
+                                        <span className="label">Stay Duration:- </span>
+                                        <span className="value">{stayDuration || "N/A"} days</span>
                                     </div>
-                                    <div className="date-row">
-                                        <img src={icons.Calendar} alt="calendar" />
-                                        <span className="date-label">Departure Date:</span>
-                                        <span className="date-value">
-                                            {guestDetails?.userDetails?.departureDate || "N/A"}
-                                        </span>
+                                    <div className="dates">
+                                        <div className="date-row">
+                                            <img src={icons.Calendar} alt="calendar" />
+                                            <span className="date-label">Arrival Date:</span>
+                                            <span className="date-value">
+                                                {guestDetails?.userDetails?.arrivalDate || "N/A"}
+                                            </span>
+                                        </div>
+                                        <div className="date-row">
+                                            <img src={icons.Calendar} alt="calendar" />
+                                            <span className="date-label">Departure Date:</span>
+                                            <span className="date-value">
+                                                {guestDetails?.userDetails?.departureDate || "N/A"}
+                                            </span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
 
-                {/* Visit History Section */}
-                <div className="visit-history">
-                    <div className="history-header">
-                        <div className="left-title">Guests</div>
-                        <div className="center-title">Visit History of {selectedGuestName}</div>
-                        {/* <div className="right-link">
-                            <a href="#" className="check-availability">Check Availability</a>
-                        </div> */}
-                    </div>
-
-                    <div className="history-tables">
-                        {/* Guests Table */}
-                        <div className="guests-table-container">
-                            <div className="table-wrapper">
-                                <div className="table-scroll">
-                                    <table className="guests-table">
-                                        <thead>
-                                            <tr>
-                                                <th>Name</th>
-                                                <th>Age</th>
-                                                <th>Gender</th>
-                                                <th>Relation</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {guestDetails?.guests?.map((guest) => (
-                                                <tr
-                                                    key={guest.id}
-                                                    className={selectedRow === guest.id ? 'selected' : ''}
-                                                    onClick={() => handleRowClick(guest.id)}
-                                                >
-                                                    <td>{guest.name || "N/A"}</td>
-                                                    <td>{guest.age || "N/A"}</td>
-                                                    <td>{guest.gender || "N/A"}</td>
-                                                    <td>{guest.relation || "N/A"}</td>
-                                                </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
+                    {/* Visit History Section */}
+                    <div className="visit-history">
+                        <div className="history-header">
+                            <div className="left-title">Guests</div>
+                            <div className="center-title">Visit History of {selectedGuestName}</div>
+                            {/* <div className="right-link">
+                                <a href="#" className="check-availability">Check Availability</a>
+                            </div> */}
                         </div>
 
-                        {/* Visit Details Table */}
-                        <div className="visit-details-table">
-                            <table>
-                                <thead>
-                                    <tr>
-                                        <th>Last visited date</th>
-                                        <th>Number of days</th>
-                                        <th>Room Allocated</th>
-                                        <th>Donations</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {guestDetails?.visitHistory?.length > 0 ? (
-                                        guestDetails.visitHistory.map((visit, index) => {
-                                            // Calculate the difference in months between the visit date and the present date
-                                            const visitDate = new Date(visit.visitDate);
-                                            const currentDate = new Date();
-                                            const monthsDifference =
-                                                (currentDate.getFullYear() - visitDate.getFullYear()) * 12 +
-                                                (currentDate.getMonth() - visitDate.getMonth());
-
-                                            const isWithinSixMonths = monthsDifference < 6;
-
-                                            return (
-                                                <tr
-                                                    key={index}
-                                                    className={isWithinSixMonths ? 'highlighted' : ''}
-                                                    onClick={() => handleVisitRowClick(index)}
-                                                >
-                                                    <td>{visit.visitDate || 'N/A'}</td>
-                                                    <td>{visit.numberOfDays || 'N/A'}</td>
-                                                    <td>{visit.roomAllocated || 'N/A'}</td>
-                                                    <td>₹{visit.donations?.toFixed(2) || '0.00'}</td>
+                        <div className="history-tables">
+                            {/* Guests Table */}
+                            <div className="guests-table-container">
+                                <div className="table-wrapper">
+                                    <div className="table-scroll">
+                                        <table className="guests-table">
+                                            <thead>
+                                                <tr>
+                                                    <th>Name</th>
+                                                    <th>Age</th>
+                                                    <th>Gender</th>
+                                                    <th>Relation</th>
                                                 </tr>
-                                            );
-                                        })
-                                    ) : (
+                                            </thead>
+                                            <tbody>
+                                                {guestDetails?.guests?.map((guest) => (
+                                                    <tr
+                                                        key={guest.id}
+                                                        className={selectedRow === guest.id ? 'selected' : ''}
+                                                        onClick={() => handleRowClick(guest.id)}
+                                                    >
+                                                        <td>{guest.name || "N/A"}</td>
+                                                        <td>{guest.age || "N/A"}</td>
+                                                        <td>{guest.gender || "N/A"}</td>
+                                                        <td>{guest.relation || "N/A"}</td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Visit Details Table */}
+                            <div className="visit-details-table">
+                                <table>
+                                    <thead>
                                         <tr>
-                                            <td colSpan="4" className="no-data">No visit history available</td>
+                                            <th>Last visited date</th>
+                                            <th>Number of days</th>
+                                            <th>Room Allocated</th>
+                                            <th>Donations</th>
                                         </tr>
-                                    )}
-                                </tbody>
+                                    </thead>
+                                    <tbody>
+                                        {guestDetails?.visitHistory?.length > 0 ? (
+                                            guestDetails.visitHistory.map((visit, index) => {
+                                                // Calculate the difference in months between the visit date and the present date
+                                                const visitDate = new Date(visit.visitDate);
+                                                const currentDate = new Date();
+                                                const monthsDifference =
+                                                    (currentDate.getFullYear() - visitDate.getFullYear()) * 12 +
+                                                    (currentDate.getMonth() - visitDate.getMonth());
 
-                            </table>
-                        </div>
-                    </div>
+                                                const isWithinSixMonths = monthsDifference < 6;
 
-                    {/* Alert and Action Buttons */}
-                    <div className="footer">
-                        <div className="alert">
-                            There is a Revisit within 6 months of Guest name
+                                                return (
+                                                    <tr
+                                                        key={index}
+                                                        className={isWithinSixMonths ? 'highlighted' : ''}
+                                                        onClick={() => handleVisitRowClick(index)}
+                                                    >
+                                                        <td>{visit.visitDate || 'N/A'}</td>
+                                                        <td>{visit.numberOfDays || 'N/A'}</td>
+                                                        <td>{visit.roomAllocated || 'N/A'}</td>
+                                                        <td>₹{visit.donations?.toFixed(2) || '0.00'}</td>
+                                                    </tr>
+                                                );
+                                            })
+                                        ) : (
+                                            <tr>
+                                                <td colSpan="4" className="no-data">No visit history available</td>
+                                            </tr>
+                                        )}
+                                    </tbody>
+
+                                </table>
+                            </div>
                         </div>
-                        {renderActionButtons()}
+
+                        {/* Alert and Action Buttons */}
+                        <div className="footer">
+                            <div className="alert">
+                                There is a Revisit within 6 months of Guest name
+                            </div>
+                            {renderActionButtons()}
+                        </div>
                     </div>
                 </div>
             </div>
-        </div >
+        </>
     );
 };
 

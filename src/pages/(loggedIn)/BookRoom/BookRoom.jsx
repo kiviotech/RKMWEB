@@ -404,6 +404,7 @@ const BookRoom = () => {
   const [isLoadingLeft, setIsLoadingLeft] = useState(false);
   const [startDate, setStartDate] = useState(new Date());
   const [roomsData, setRoomsData] = useState([]);
+  const [originalRoomData, setOriginalRoomData] = useState([]);
   const [selectedGuests, setSelectedGuests] = useState([]);
   const [allocatedGuestsList, setAllocatedGuestsList] = useState([]); // Add this new state
   const [selectedBedData, setSelectedBedData] = useState(null);
@@ -539,21 +540,8 @@ const BookRoom = () => {
     setSelectedGuests(prev => prev.map((isSelected) => false));
   };
 
-  const handleBedClick = (bedIndex, bedId, isFilled, roomIndex, dateIndex) => {
-    if (isFilled) {
-      const currentRoom = roomsData[roomIndex];
-      const bedData = {
-        bed: {
-          index: bedIndex,
-          id: bedId,
-          status: 'occupied',
-          date: dates[dateIndex]
-        },
-        room: currentRoom
-      };
-      setSelectedBedData(bedData);
-      return;
-    }
+  const handleBedAllocation = (bedIndex, bedId, isFilled, roomIndex, dateIndex) => {
+    if (isFilled) return;
 
     const isCurrentlySelected = clickedBeds[activeTab]?.[bedId];
     const arrivalDateTime = new Date(arrivalDate);
@@ -671,7 +659,7 @@ const BookRoom = () => {
     const currentDate = dates[dateIndex];
 
     // Get all guests for this room
-    const roomGuests = originalRoomData?.attributes?.guests?.data|| [];
+    const roomGuests = originalRoomData?.attributes?.guests?.data || [];
     
     // Calculate occupied beds for the current date
     const occupiedBedsCount = roomGuests.reduce((count, guest) => {
@@ -679,19 +667,15 @@ const BookRoom = () => {
       const departureDate = new Date(guest.attributes.departure_date);
       const currentDateTime = new Date(currentDate);
       
-      // Check if the guest's stay overlaps with the current date
       if (currentDateTime >= arrivalDate && currentDateTime <= departureDate) {
         return count + 1;
       }
       return count;
     }, 0);
 
-    const totalBeds = currentRoom.beds;
-    const isF = currentRoom.category?.toLowerCase() === 'f';
-
     return (
-      <div className={`bed-grid beds-${totalBeds}`}>
-        {[...Array(totalBeds)].map((_, bedIndex) => {
+      <div className={`bed-grid beds-${beds}`}>
+        {[...Array(beds)].map((_, bedIndex) => {
           const bedId = `${roomIndex}-${dateIndex}-${bedIndex}`;
           const isClicked = clickedBeds[activeTab]?.[bedId];
           const isFilled = bedIndex < occupiedBedsCount;
@@ -707,15 +691,48 @@ const BookRoom = () => {
             bedImage = emptyBedImage;
           }
 
+          const handleBedClick = () => {
+            if (isFilled) {
+              // Only handle occupied beds
+              const roomData = {
+                roomNumber: currentRoom.name,
+                roomType: currentRoom.type,
+                roomCategory: currentRoom.category,
+                totalBeds: currentRoom.beds,
+                availableBeds: currentRoom.availableBeds,
+                bedIndex: bedIndex,
+                date: currentDate,
+                isOccupied: true,
+                rawAttributes: originalRoomData?.attributes || {},
+                guests: roomGuests
+              };
+              console.log('Occupied Bed Data:', roomData);
+
+              const bedData = {
+                bed: {
+                  index: bedIndex,
+                  id: bedId,
+                  status: 'occupied',
+                  date: currentDate
+                },
+                room: originalRoomData
+              };
+              setSelectedBedData(bedData);
+            } else {
+              // For unoccupied beds, call the original allocation logic
+              handleBedAllocation(bedIndex, bedId, isFilled, roomIndex, dateIndex);
+            }
+          };
+
           return (
             <div
               key={bedId}
-              className={`bed-icon ${isFilled ? 'filled' : 'empty'} ${isF ? 'f-category' : ''}`}
+              className={`bed-icon ${isFilled ? 'filled' : 'empty'}`}
               title={isFilled ? "Occupied" : "Available"}
-              onClick={() => handleBedClick(bedIndex, bedId, isFilled, roomIndex, dateIndex)}
-              onMouseEnter={() => handleMouseEnter(bedId)}
-              onMouseLeave={() => handleMouseLeave(bedId)}
-              style={{ cursor: isFilled ? 'not-allowed' : 'pointer' }}
+              onClick={handleBedClick}
+              onMouseEnter={() => !isFilled && handleMouseEnter(bedId)}
+              onMouseLeave={() => !isFilled && handleMouseLeave(bedId)}
+              style={{ cursor: 'pointer' }}
             >
               <img
                 src={bedImage}
@@ -814,8 +831,15 @@ const BookRoom = () => {
     const getRooms = async () => {
       try {
         const response = await fetchRooms();
-        console.log('Fetched rooms data:', response.data);
-        setRoomsData(response.data); // Store the fetched rooms data
+        const processedRooms = response.data.map(room => ({
+          ...room,
+          attributes: {
+            ...room.attributes,
+            original_available_beds: parseInt(room.attributes.available_beds)
+          }
+        }));
+        setRoomsData(processedRooms);
+        setOriginalRoomData(processedRooms); // Store original data
       } catch (error) {
         console.error("Error fetching rooms:", error);
       }
@@ -863,13 +887,11 @@ const BookRoom = () => {
     }));
 
   const handleRoomSelection = (room) => {
-    // Get currently unallocated guests that are selected
     const unallocatedGuests = guestData.additionalGuests.filter((guest, index) => 
       selectedGuests[index] && 
       !allocatedGuestsList.some(allocated => allocated.name === guest.name)
     );
 
-    // Find the first unallocated guest
     const selectedUnallocatedGuest = unallocatedGuests[0];
 
     if (!selectedUnallocatedGuest) {
@@ -877,20 +899,21 @@ const BookRoom = () => {
       return;
     }
 
-    // Create new allocated guest
     const newAllocatedGuest = {
       ...selectedUnallocatedGuest,
       roomNo: room.name
     };
 
-    // Update allocated guests list
     setAllocatedGuestsList(prev => [...prev, newAllocatedGuest]);
 
-    // Keep all guests checked
-    const newSelectedGuests = new Array(guestData.additionalGuests.length).fill(true);
+    const newSelectedGuests = [...selectedGuests];
+    const guestIndex = guestData.additionalGuests.findIndex(g => g.name === selectedUnallocatedGuest.name);
+    if (guestIndex !== -1) {
+      newSelectedGuests[guestIndex] = false;
+    }
     setSelectedGuests(newSelectedGuests);
 
-    // Update room's available beds in the UI
+    // Update room's available beds
     setRoomsData(prevRooms => 
       prevRooms.map(r => {
         if (r.attributes.room_number === room.name) {
@@ -988,6 +1011,10 @@ const BookRoom = () => {
   };
 
   const handleConfirmAllocation = (confirmedGuests) => {
+    if (confirmedGuests.length === 0) {
+      alert("No guests have been allocated");
+      return;
+    }
     setConfirmedGuestsForAllocation(confirmedGuests);
     setIsEmailModalOpen(true);
   };
@@ -1033,38 +1060,34 @@ const BookRoom = () => {
           }
         };
 
-        // Update the room
         await updateRoomById(room.id, updateData);
       }
 
-      // Update the booking request status to "confirmed"
+      // Update booking request status
       const bookingRequestId = guestData?.requestId;
       if (bookingRequestId) {
         const bookingUpdateData = {
           data: {
-            status: "confirmed",
-            // Add other fields as necessary
+            status: "confirmed"
           }
         };
         await updateBookingRequestById(bookingRequestId, bookingUpdateData);
       }
 
-      // Clear the allocation states
-      setAllocatedGuestsList([]);
-      setClickedBeds({
-        "Guest house": {},
-        "F": {},
-        "Yatri Niwas": {}
-      });
+      // Reset all states after successful confirmation
+      handleReset();
 
-      return true; // Return true to indicate success
+      return true;
     } catch (error) {
       console.error("Error updating rooms or booking request:", error);
-      throw error; // Rethrow the error to be handled by the modal
+      throw error;
     }
   };
 
   const handleReset = () => {
+    // Reset rooms to original state
+    setRoomsData(originalRoomData);
+    
     // Reset all allocations
     setAllocatedGuestsList([]);
     
@@ -1075,30 +1098,13 @@ const BookRoom = () => {
       "Yatri Niwas": {}
     });
     
-    // Reset all guests to selected (making them available for allocation)
+    // Reset all guests to selected
     if (guestData?.additionalGuests) {
       setSelectedGuests(new Array(guestData.additionalGuests.length).fill(true));
     }
     
     // Reset bed data
     setSelectedBedData(null);
-
-    // Reset room available beds count to original state
-    setRoomsData(prevRooms => 
-      prevRooms.map(room => {
-        const allocatedToThisRoom = allocatedGuestsList.filter(
-          guest => guest.roomNo === room.attributes.room_number
-        ).length;
-        
-        return {
-          ...room,
-          attributes: {
-            ...room.attributes,
-            available_beds: parseInt(room.attributes.available_beds) + allocatedToThisRoom
-          }
-        };
-      })
-    );
   };
 
   return (

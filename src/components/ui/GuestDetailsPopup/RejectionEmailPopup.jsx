@@ -23,7 +23,7 @@ const RejectionEmailPopup = ({ onClose, onSubmit }) => {
     <div className="attithi-rejection-overlay">
       <div className="attithi-rejection-content">
         <button className="attithi-rejection-close" onClick={onClose}>
-          X
+          x
         </button>
         <h3 className="attithi-rejection-title">
           Select the reason to add in the rejection email

@@ -8,7 +8,7 @@ import { useNavigate } from "react-router-dom";
 import { getBookingRequestsByStatus, updateBookingRequest } from "../../../../../../services/src/api/repositories/bookingRequestRepository"; // Add updateBookingRequest
 import { getToken } from "../../../../../../services/src/utils/storage";
 
-const RescheduledRequests = ({ selectedDate }) => {
+const RescheduledRequests = ({ selectedDate, label }) => {
     const navigate = useNavigate();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [requestId, setRequestId] = useState(null);
@@ -250,13 +250,15 @@ const RescheduledRequests = ({ selectedDate }) => {
                                         {request.reason}
                                     </p>
                                     <p>Number of guest members: {request.noOfGuest}</p>
+                                    <p>Arrival Date: {request.userDetails.arrivalDate}</p>
+                                    <p>Departure Date: {request.userDetails.departureDate}</p>
                                     {request.reason === "Has History" && (
                                         <p>Assigned Bed(s): {request.assignBed}</p>
                                     )}
                                 </div>
                             </div>
                         </div>
-                        <div className="buttons">
+                        {/* <div className="buttons">
                             <CommonButton
                                 onClick={(e) => handleStatusChange(e, request.id, "approved")}
                                 buttonName="Approve"
@@ -300,7 +302,7 @@ const RescheduledRequests = ({ selectedDate }) => {
                                     // padding: "8px 20px",
                                 }}
                             />
-                        </div>
+                        </div> */}
                     </div>
                 ))}
             </div>
@@ -310,6 +312,7 @@ const RescheduledRequests = ({ selectedDate }) => {
                     onClose={closeModal}
                     guestDetails={selectedGuest}
                     guests={selectedGuest?.guests || []}
+                    label={label}
                 />
             )}
         </div>

@@ -7,7 +7,7 @@ import { useNavigate } from "react-router-dom";
 import { getBookingRequestsByStatus, updateBookingRequest } from "../../../../../../services/src/api/repositories/bookingRequestRepository"; // Ensure updateBookingRequest is imported
 import { getToken } from "../../../../../../services/src/utils/storage"; // Ensure this utility fetches your token
 
-const OnHoldRequest = ({ selectedDate }) => {
+const OnHoldRequest = ({ selectedDate, label }) => {
   const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [requestId, setRequestId] = useState(null);
@@ -238,7 +238,7 @@ const OnHoldRequest = ({ selectedDate }) => {
               </div>
             </div>
 
-            <div className="buttons">
+            {/* <div className="buttons">
               <CommonButton
                 onClick={(e) => handleStatusChange(e, request.id, "approved")}
                 buttonName="Approve"
@@ -266,7 +266,7 @@ const OnHoldRequest = ({ selectedDate }) => {
                   borderWidth: 1,
                 }}
               />
-            </div>
+            </div> */}
           </div>
         ))}
       </div>
@@ -283,6 +283,7 @@ const OnHoldRequest = ({ selectedDate }) => {
           onClose={closeModal}
           guestDetails={selectedGuest}
           guests={selectedGuest?.guests || []} // Pass guests data here
+          label={label}
         />
       )}
     </div>

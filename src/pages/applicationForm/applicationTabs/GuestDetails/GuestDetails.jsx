@@ -4,7 +4,7 @@ import useApplicationStore from "../../../../../useApplicationStore";
 import "./GuestDetails.scss";
 
 // Define colors for each guest
-const guestColors = ["#fef0c2", "#ffdfbf", "#ffcfb9"];
+const guestColors = ["#C2F3D3", "#C2F3F2", "#ffcfb9"];
 
 const GuestDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
   const { formData, errors, setErrors, setGuestData, setFormData } =

@@ -26,6 +26,8 @@ const DeekshaRelationForm = () => {
   const [activeRelation, setActiveRelation] = useState(null);
   const [isBackClicked, setBackClicked] = useState(false);
   const navigate = useNavigate();
+  const [errors, setErrors] = useState({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Back button functionality
   const handleBack = () => {
@@ -35,32 +37,118 @@ const DeekshaRelationForm = () => {
     }, 200); // Navigate after a short delay to show color change
   };
 
-  // Update Zustand when Yes/No is selected
-  const handleYesNoSelection = (value) => {
-    // Change 1: Update the state logic to handle mutual exclusivity
-    if (value === true) {
-      setYesSelected(true); // Select Yes
-    } else {
-      setYesSelected(false); // Select No
+  // Update family member details with validation
+  const handleFamilyMemberDetails = (field, value) => {
+    updateRelation({ [field]: value });
+    
+    // Clear specific error when user starts typing/selecting
+    const newErrors = { ...errors };
+    if (field === "familyMemberName" && value.trim()) {
+      delete newErrors.name;
     }
-    updateRelation({ hasInitiatedFamily: value });
-    setYesSelected(value);
+    if (field === "familyMemberGuru" && value) {
+      delete newErrors.guru;
+    }
+    setErrors(newErrors);
+    
+    console.log('Current Store State:', useDeekshaFormStore.getState());
+  };
+
+  // Update relationship selection with validation
+  const handleRelationSelection = (relation) => {
+    setActiveRelation(relation);
+    updateRelation({ relationship: relation });
+    
+    // Clear relationship error when selected
+    const newErrors = { ...errors };
+    delete newErrors.relationship;
+    setErrors(newErrors);
+    
+    console.log('Current Store State:', useDeekshaFormStore.getState());
+  };
+
+  // Update Yes/No selection with validation
+  const handleYesNoSelection = (value) => {
+    if (value === true) {
+      setYesSelected(true);
+    } else {
+      setYesSelected(false);
+      // Clear all errors when "No" is selected
+      setErrors({});
+    }
     updateRelation({ hasInitiatedFamily: value });
     
     console.log('Current Store State:', useDeekshaFormStore.getState());
   };
 
-  // Update family member details
-  const handleFamilyMemberDetails = (field, value) => {
-    updateRelation({ [field]: value });
-    console.log('Current Store State:', useDeekshaFormStore.getState());
+  // Validate fields on blur
+  const handleBlur = (field) => {
+    const newErrors = { ...errors };
+    
+    if (isYesSelected) {
+      switch (field) {
+        case "name":
+          if (!relation.familyMemberName?.trim()) {
+            newErrors.name = "Name is required";
+          }
+          break;
+        case "guru":
+          if (!relation.familyMemberGuru) {
+            newErrors.guru = "Please select a Guru";
+          }
+          break;
+        case "relationship":
+          if (!relation.relationship) {
+            newErrors.relationship = "Please specify the relationship";
+          }
+          break;
+        default:
+          break;
+      }
+    }
+    
+    setErrors(newErrors);
   };
 
-  // Update relationship selection
-  const handleRelationSelection = (relation) => {
-    setActiveRelation(relation);
-    updateRelation({ relationship: relation });
-    console.log('Current Store State:', useDeekshaFormStore.getState());
+  // Validation function
+  const validateForm = () => {
+    const newErrors = {};
+    
+    if (isYesSelected) {
+      if (!relation.familyMemberName?.trim()) {
+        newErrors.name = "Name is required";
+      }
+      if (!relation.familyMemberGuru) {
+        newErrors.guru = "Please select a Guru";
+      }
+      if (!relation.relationship) {
+        newErrors.relationship = "Please specify the relationship";
+      }
+    }
+
+    setErrors(newErrors);
+    // Return true if there are no errors
+    return Object.keys(newErrors).length === 0;
+  };
+
+  // Handle next button click
+  const handleNext = (e) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+
+    // If "No" is selected, proceed directly
+    if (!isYesSelected) {
+      navigate("/deekshaDuration-form");
+      return;
+    }
+
+    // If "Yes" is selected, validate the form
+    const isValid = validateForm();
+    if (isValid) {
+      navigate("/deekshaDuration-form");
+    } else {
+      console.log("Form validation failed", errors);
+    }
   };
 
   return (
@@ -84,8 +172,8 @@ const DeekshaRelationForm = () => {
 
     {/* Yes/No Input */}
     
-      <div className="deekshaRelationForm-yesNoInput-column">
-       <button>
+      <div className="deekshaRelationForm-yesNoInput-column" style={{ flexDirection: 'row' }}>
+       <button style={{ display: 'inline-block', marginRight: '10px' }}>
        <img
           src={isYesSelected == true? YesIcon : Yes1Icon}
           alt="Yes"
@@ -93,7 +181,7 @@ const DeekshaRelationForm = () => {
           className="deeksharelationImageStyle"
         />
        </button>
-       <button>
+       <button style={{ display: 'inline-block' }}>
        <img
           src={!isYesSelected ==false ? NoIcon : No1Icon}
           alt="No"
@@ -113,34 +201,43 @@ const DeekshaRelationForm = () => {
           <div className="deekshaRelationForm-yesNoInput-conditionalFields-ifYes">
             <span style={{fontWeight:'bold'}}>If Yes :-</span>
 
-            {/* Name Field */}
-            <input
-              type="text"
-              placeholder="Enter their Name"
-              value={relation.familyMemberName}
-              onChange={(e) =>
-                handleFamilyMemberDetails("familyMemberName", e.target.value)
-              }
-            />
+            <div style={{ width: '100%' }}>
+              <input
+                type="text"
+                placeholder="Enter their Name"
+                value={relation.familyMemberName}
+                onChange={(e) =>
+                  handleFamilyMemberDetails("familyMemberName", e.target.value)
+                }
+                onBlur={() => handleBlur("name")}
+              />
+              {errors.name && <span className="error-message">{errors.name}</span>}
+            </div>
 
-            {/* Guru Dropdown */}
-            <select
-              value={relation.familyMemberGuru}
-              onChange={(e) =>
-                handleFamilyMemberDetails("familyMemberGuru", e.target.value)
-              }
-            >
-              <option value="">Select the Guru</option>
-              <option value="Guru1">Guru1</option>
-              <option value="Guru2">Guru2</option>
-              <option value="Guru3">Guru3</option>
-              <option value="Guru4">Guru4</option>
-              {/* Add Guru options dynamically */}
-            </select>
+            <div style={{ width: '100%' }}>
+              <select
+                value={relation.familyMemberGuru}
+                onChange={(e) =>
+                  handleFamilyMemberDetails("familyMemberGuru", e.target.value)
+                }
+                onBlur={() => handleBlur("guru")}
+              >
+                <option value="">Select the Guru</option>
+                <option value="Guru1">Guru1</option>
+                <option value="Guru2">Guru2</option>
+                <option value="Guru3">Guru3</option>
+                <option value="Guru4">Guru4</option>
+              </select>
+              {errors.guru && <span className="error-message">{errors.guru}</span>}
+            </div>
           </div>
 
-          {/* Specify the Relationship */}
           <h3>Please specify the relation:</h3>
+          {errors.relationship && (
+            <span className="error-message" style={{ textAlign: 'center' }}>
+              {errors.relationship}
+            </span>
+          )}
 
           <div className="deekshaRelationForm-yesNoInput-conditionalFields-relationship-icons">
             {[
@@ -180,7 +277,12 @@ const DeekshaRelationForm = () => {
       >
         Back
       </button>
-      <Link to="/deekshaDuration-form"   className="deekshaRelationform-next-button">Next</Link>
+      <button 
+        onClick={handleNext}
+        className="deekshaRelationform-next-button"
+      >
+        Next
+      </button>
     </div>
   </div>
   );

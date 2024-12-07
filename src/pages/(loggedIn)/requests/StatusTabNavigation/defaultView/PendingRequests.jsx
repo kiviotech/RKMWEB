@@ -8,7 +8,7 @@ import { useNavigate } from "react-router-dom";
 import { getBookingRequestsByStatus, updateBookingRequest } from "../../../../../../services/src/api/repositories/bookingRequestRepository"; // Add updateBookingRequest
 import { getToken } from "../../../../../../services/src/utils/storage";
 
-const PendingRequests = ({ selectedDate, searchQuery }) => {
+const PendingRequests = ({ selectedDate, searchQuery, label }) => {
     const navigate = useNavigate();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [requestId, setRequestId] = useState(null);
@@ -94,16 +94,16 @@ const PendingRequests = ({ selectedDate, searchQuery }) => {
 
         // Filter by date if selected
         if (selectedDate) {
-            filtered = filtered.filter(request => 
+            filtered = filtered.filter(request =>
                 new Date(request.createdAt).toDateString() === selectedDate.toDateString()
             );
         }
 
         // Filter by search query if present
         if (searchQuery) {
-            filtered = filtered.filter(request => 
+            filtered = filtered.filter(request =>
                 request.userDetails.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                request.guests.some(guest => 
+                request.guests.some(guest =>
                     guest.name.toLowerCase().includes(searchQuery.toLowerCase())
                 )
             );
@@ -119,12 +119,12 @@ const PendingRequests = ({ selectedDate, searchQuery }) => {
     // Function to update booking request status
     const handleStatusChange = async (requestId, newStatus) => {
         // Update the local state to reflect the status change
-        setRequests(prevRequests => 
+        setRequests(prevRequests =>
             prevRequests.filter(request => request.id !== requestId)
         );
-        
+
         // Also update the filtered requests
-        setFilteredRequests(prevRequests => 
+        setFilteredRequests(prevRequests =>
             prevRequests.filter(request => request.id !== requestId)
         );
     };
@@ -225,6 +225,8 @@ const PendingRequests = ({ selectedDate, searchQuery }) => {
                                         {request.reason}
                                     </p>
                                     <p>Number of guest members: {request.noOfGuest}</p>
+                                    <p>Arrival Date: {request.userDetails.arrivalDate}</p>
+                                    <p>Departure Date: {request.userDetails.departureDate}</p>
                                     {request.reason === "Has History" && (
                                         <p>Assigned Bed(s): {request.assignBed}</p>
                                     )}
@@ -293,6 +295,7 @@ const PendingRequests = ({ selectedDate, searchQuery }) => {
                     guestDetails={selectedGuest}
                     guests={selectedGuest?.guests || []}
                     onStatusChange={handleStatusChange}
+                    label={label}
                 />
             )}
         </div>

@@ -6,7 +6,7 @@ import GuestDetailsPopup from "../../../../../components/ui/GuestDetailsPopup/Gu
 import { useNavigate } from "react-router-dom";
 import { getBookingRequestsByStatus } from "../../../../../../services/src/api/repositories/bookingRequestRepository";
 
-const RejectedRequest = ({ selectedDate }) => {
+const RejectedRequest = ({ selectedDate, label }) => {
   const navigate = useNavigate(); // For routing
   const [isModalOpen, setIsModalOpen] = useState(false); // Manages the visibility of the modal for flagging a guest
   const [requestId, setRequestId] = useState(null); // Stores the ID of the current request being processed
@@ -85,18 +85,6 @@ const RejectedRequest = ({ selectedDate }) => {
 
     fetchBookingRequests();
   }, []);
-
-      const handleStatusChange = async (requestId, newStatus) => {
-        // Update the local state to reflect the status change
-        setRequests(prevRequests => 
-            prevRequests.filter(request => request.id !== requestId)
-        );
-        
-        // Also update the filtered requests
-        setFilteredRequests(prevRequests => 
-            prevRequests.filter(request => request.id !== requestId)
-        );
-    };
 
   // Filter requests by selected date
   useEffect(() => {
@@ -232,7 +220,7 @@ const RejectedRequest = ({ selectedDate }) => {
           onClose={closeModal}
           guestDetails={selectedGuest}
           guests={selectedGuest?.guests || []}
-          onStatusChange={handleStatusChange}
+          label={label}
         />
       )}
     </div>

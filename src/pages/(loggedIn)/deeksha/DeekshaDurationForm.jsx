@@ -19,6 +19,8 @@ const DeekshaDurationForm = () => {
   const [otherDuration, setOtherDuration] = useState(duration.otherDuration);
   const [isBackClicked, setBackClicked] = useState(false);
 const [noIsAcquainted,setNoIsAcquainted]=useState(false);
+  const [errors, setErrors] = useState({});
+
   // Update Zustand store whenever form values change
   useEffect(() => {
     updateDuration({
@@ -85,6 +87,45 @@ const [noIsAcquainted,setNoIsAcquainted]=useState(false);
     }, 200); // Navigate after a short delay to show color change
   };
 
+  // Validation function
+  const validateForm = () => {
+    const newErrors = {};
+    
+    if (yesIsAcquainted) {
+      if (!selectedSwami) {
+        newErrors.swami = "Please select a Swami";
+      }
+      if (!selectedCentre) {
+        newErrors.centre = "Please select a Centre";
+      }
+    }
+
+    if (!eagerDuration) {
+      newErrors.duration = "Please select a duration";
+    }
+
+    if (eagerDuration === "Others" && !otherDuration?.trim()) {
+      newErrors.otherDuration = "Please specify the duration";
+    }
+
+    if (yesIsAcquainted === null && noIsAcquainted === null) {
+      newErrors.acquainted = "Please select Yes or No";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  // Handle next button click
+  const handleNext = (e) => {
+    e.preventDefault();
+    
+    const isValid = validateForm();
+    if (isValid) {
+      navigate("/deekshaBooks-form");
+    }
+  };
+
   return (
     <div className="deekshadurationform">
       {/* Progress Bar */}
@@ -125,6 +166,10 @@ const [noIsAcquainted,setNoIsAcquainted]=useState(false);
         </button>
       </div>
 
+      {errors.acquainted && (
+        <span className="error-message">{errors.acquainted}</span>
+      )}
+
       {/* Conditional Dropdowns */}
       {yesIsAcquainted === true && (
         <div className="deekshadurationform-conditionalFields">
@@ -132,7 +177,12 @@ const [noIsAcquainted,setNoIsAcquainted]=useState(false);
           <div className="selectContainer">
             <select
               value={selectedSwami}
-              onChange={(e) => setSelectedSwami(e.target.value)}
+              onChange={(e) => {
+                setSelectedSwami(e.target.value);
+                if (e.target.value) {
+                  setErrors({ ...errors, swami: null });
+                }
+              }}
             >
               <option value="">Select the Swami</option>
               <option value="Guru 1">Guru 1</option>
@@ -140,16 +190,23 @@ const [noIsAcquainted,setNoIsAcquainted]=useState(false);
               <option value="Guru 3">Guru 3</option>
               <option value="Guru 4">Guru 4</option>
             </select>
+            {errors.swami && <span className="error-message">{errors.swami}</span>}
           </div>
           <div className="selectContainer">
             <select
               value={selectedCentre}
-              onChange={(e) => setSelectedCentre(e.target.value)}
+              onChange={(e) => {
+                setSelectedCentre(e.target.value);
+                if (e.target.value) {
+                  setErrors({ ...errors, centre: null });
+                }
+              }}
             >
               <option value="">Select the Centre</option>
               <option value="Centre1">Centre 1</option>
               <option value="Centre2">Centre 2</option>
             </select>
+            {errors.centre && <span className="error-message">{errors.centre}</span>}
           </div>
         </div>
       )}
@@ -166,12 +223,16 @@ const [noIsAcquainted,setNoIsAcquainted]=useState(false);
               name="eagerDuration"
               value={option}
               checked={eagerDuration === option}
-              onChange={() => setEagerDuration(option)}
+              onChange={() => {
+                setEagerDuration(option);
+                setErrors({ ...errors, duration: null });
+              }}
             />
             {option}
           </label>
         ))}
       </div>
+      {errors.duration && <span className="error-message">{errors.duration}</span>}
 
       {/* Other Duration Input */}
       {eagerDuration === "Others" && (
@@ -181,8 +242,16 @@ const [noIsAcquainted,setNoIsAcquainted]=useState(false);
             type="text"
             placeholder="Please enter specific time"
             value={otherDuration}
-            onChange={(e) => setOtherDuration(e.target.value)}
+            onChange={(e) => {
+              setOtherDuration(e.target.value);
+              if (e.target.value.trim()) {
+                setErrors({ ...errors, otherDuration: null });
+              }
+            }}
           />
+          {errors.otherDuration && (
+            <span className="error-message">{errors.otherDuration}</span>
+          )}
         </div>
       )}
 
@@ -191,10 +260,12 @@ const [noIsAcquainted,setNoIsAcquainted]=useState(false);
         <button onClick={handleBack} className="deekshadurationform-back-button">
           Back
         </button>
-
-        <Link to="/deekshaBooks-form" className="deekshadurationform-next-button">
+        <button 
+          onClick={handleNext}
+          className="deekshadurationform-next-button"
+        >
           Next
-        </Link>
+        </button>
       </div>
     </div>
   );

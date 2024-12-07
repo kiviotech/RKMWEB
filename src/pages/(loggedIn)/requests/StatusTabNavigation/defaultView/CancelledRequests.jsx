@@ -7,7 +7,7 @@ import { useNavigate } from "react-router-dom";
 import { getBookingRequestsByStatus, updateBookingRequest } from "../../../../../../services/src/api/repositories/bookingRequestRepository"; // Add updateBookingRequest
 import { getToken } from "../../../../../../services/src/utils/storage";
 
-const CancelledRequests = ({ selectedDate }) => {
+const CancelledRequests = ({ selectedDate, label }) => {
     const navigate = useNavigate();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [requestId, setRequestId] = useState(null);
@@ -249,6 +249,8 @@ const CancelledRequests = ({ selectedDate }) => {
                                         {request.reason}
                                     </p>
                                     <p>Number of guest members: {request.noOfGuest}</p>
+                                    <p>Arrival Date: {request.userDetails.arrivalDate}</p>
+                                    <p>Departure Date: {request.userDetails.departureDate}</p>
                                     {request.reason === "Has History" && (
                                         <p>Assigned Bed(s): {request.assignBed}</p>
                                     )}
@@ -316,6 +318,7 @@ const CancelledRequests = ({ selectedDate }) => {
                     onClose={closeModal}
                     guestDetails={selectedGuest}
                     guests={selectedGuest?.guests || []}
+                    label={label}
                 />
             )}
         </div>

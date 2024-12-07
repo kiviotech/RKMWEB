@@ -68,6 +68,16 @@ h3{
       font-size: 18px;
     }
   }
+
+  &-buttons {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    
+    img {
+      cursor: pointer;
+    }
+  }
 }
 
 .deekshaRelationForm-yesNoInput-column {

@@ -190,8 +190,8 @@
       .deekshaEducationform-language-select {
           max-width: 100%;
           width: 100%;
-          height: 56px;
-          padding: 10px 20px;
+          height: 41px;
+          padding: 8px 12px;
           border-radius: 5px;
           border: 1px solid #ccc;
           opacity: 0.9;
@@ -342,6 +342,16 @@
   .deekshaEducationform-languages-header p {
       font-size: 20px;
   }
+
+  .deekshaEducationform-occupation {
+      margin-top: 15px;
+      gap: 10px;
+  }
+
+  .deekshaEducationform-languages {
+      margin-top: 15px;
+      gap: 15px;
+  }
 }
 
 @media (max-width: 480px) {
@@ -363,4 +373,31 @@
       padding: 10px 20px;
       font-size: 16px;
   }
+
+  .deekshaEducationform-occupation {
+      margin-top: 12px;
+  }
+
+  .deekshaEducationform-languages {
+      margin-top: 12px;
+      gap: 12px;
+  }
+}
+
+.error-message {
+  color: #ff4444;
+  font-size: 14px;
+  margin-top: 5px;
+  display: block;
+}
+
+.deekshaEducationform-Next-button {
+  padding: 12px 25px;
+  border-radius: 5px;
+  border: none;
+  background: #9A4EFC;
+  color: #fff;
+  cursor: pointer;
+  font-size: 16px;
+  text-decoration: none;
 }

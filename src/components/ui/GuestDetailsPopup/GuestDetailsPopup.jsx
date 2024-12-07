@@ -6,7 +6,7 @@ import { getToken } from "../../../../services/src/utils/storage";
 
 const icons = {
     Reminder: "https://api.iconify.design/mdi:bell-ring-outline.svg",
-    Email: "https://api.iconify.design/mdi:email-outline.svg", 
+    Email: "https://api.iconify.design/mdi:email-outline.svg",
     Contact: "https://api.iconify.design/mdi:phone.svg",
     Calendar: "https://api.iconify.design/mdi:calendar.svg",
     DefaultAvatar: "https://api.iconify.design/mdi:account-circle.svg",
@@ -17,18 +17,11 @@ const icons = {
     Delete: "https://api.iconify.design/mdi:delete.svg"
 };
 
-const formatDateTime = (dateString) => {
-    if (!dateString) return "Not specified";
-    const date = new Date(dateString);
-    return date.toLocaleDateString();
-};
-
-const GuestDetailsPopup = ({ isOpen, onClose, guestDetails, guests, onStatusChange, onAllocateRooms }) => {
+const GuestDetailsPopup = ({ isOpen, onClose, guestDetails, guests, onStatusChange, label }) => {
     const [selectedRow, setSelectedRow] = useState(null);
     const [selectedVisitRow, setSelectedVisitRow] = useState(null);
     const [selectedGuestName, setSelectedGuestName] = useState(guestDetails?.userDetails?.name || "");
     const [showRejectConfirmation, setShowRejectConfirmation] = useState(false);
-    const [showEmailTemplate, setShowEmailTemplate] = useState(false);
 
     useEffect(() => {
         if (guestDetails?.guests?.length > 0) {
@@ -37,6 +30,14 @@ const GuestDetailsPopup = ({ isOpen, onClose, guestDetails, guests, onStatusChan
             setSelectedGuestName(firstGuest.name || guestDetails?.userDetails?.name || "");
         }
     }, [guestDetails]);
+
+    console.log('GuestDetailsPopup - Full guestDetails:', guestDetails);
+    console.log('GuestDetailsPopup - User Details:', guestDetails?.userDetails);
+    console.log('GuestDetailsPopup - Guests:', guestDetails?.guests);
+    console.log('GuestDetailsPopup - Stay Duration:', {
+        arrivalDate: guestDetails?.userDetails?.arrivalDate,
+        departureDate: guestDetails?.userDetails?.departureDate
+    });
 
     if (!isOpen) return null;
 
@@ -82,156 +83,38 @@ const GuestDetailsPopup = ({ isOpen, onClose, guestDetails, guests, onStatusChan
         }
     };
 
-    const EmailTemplate = ({ onClose, guestData, onSend }) => {
-        const [emailContent, setEmailContent] = useState(`Dear Devotee,
-
-Namoskar,
-
-We regret to inform you that we are unable to accommodate your stay request for the following reason:
-[Selected rejection reason will be inserted here]
-
-We hope you understand and look forward to serving you in the future.
-
-May Sri Ramakrishna, Holy Mother Sri Sarada Devi and Swami Vivekananda bless you all!
-
-Pranam and namaskar again.
-
-Yours sincerely,
-
-Swami Lokahanananda
-Adhyaksha
-RAMAKRISHNA MATH & RAMAKRISHNA MISSION, KAMANKUNUR`);
-
-        return (
-            <div className="email-popup-overlay">
-                <div className="email-popup-content">
-                    <div className="email-template">
-                        <div className="email-header">
-                            <span className="close-button" onClick={onClose}>×</span>
-                            <div className="email-fields">
-                                <div className="field">
-                                    <span>From:</span>
-                                    <span className="email-address">admin@ramakrishnamath.org</span>
-                                </div>
-                                <div className="field">
-                                    <span>To:</span>
-                                    <div className="recipient-tags">
-                                        {guestData?.userDetails?.email && (
-                                            <div className="recipient-chip">
-                                                <div className="avatar">
-                                                    {guestData.userDetails.name?.[0] || 'G'}
-                                                </div>
-                                                <span className="name">{guestData.userDetails.email}</span>
-                                            </div>
-                                        )}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div className="email-content">
-                            <textarea
-                                value={emailContent}
-                                onChange={(e) => setEmailContent(e.target.value)}
-                                className="email-content-textarea"
-                            />
-                        </div>
-
-                        <div className="email-footer">
-                            <button onClick={onClose} className="cancel-button">Cancel</button>
-                            <button onClick={onSend} className="send-button">Send</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        );
-    };
-
     const RejectConfirmationPopup = ({ onCancel, onConfirm }) => {
-        const [selectedReasons, setSelectedReasons] = useState([]);
-
-        const rejectionReasons = [
-            "No rooms available for the requested dates",
-            "Maximum stay duration exceeded",
-            "Previous visit within 6 months",
-            "Incomplete documentation",
-            "Other"
-        ];
-
-        const handleReasonChange = (reason) => {
-            setSelectedReasons(prev => {
-                if (prev.includes(reason)) {
-                    return prev.filter(r => r !== reason);
-                } else {
-                    return [...prev, reason];
-                }
-            });
-        };
-
-        const handleSendMailClick = () => {
-            if (selectedReasons.length === 0) {
-                alert('Please select at least one reason for rejection');
-                return;
-            }
-            setShowEmailTemplate(true);
-        };
-
-        if (showEmailTemplate) {
-            return (
-                <EmailTemplate 
-                    onClose={onCancel}
-                    guestData={guestDetails}
-                    onSend={() => onConfirm(selectedReasons.join(', '))}
-                />
-            );
-        }
-
         return (
-            <div className="popup-overlay">
-                <div className="rejection-popup">
-                    <div className="popup-header">
-                        <h3>Select the reason to add in the rejection email</h3>
-                        <button className="close-button" onClick={onCancel}>×</button>
+            <div className="popup-overlay confirmation-overlay">
+                <div className="confirmation-popup" style={{
+                    width: '400px',
+                    maxWidth: '90vw',
+                    padding: '40px 30px',
+                    height: '300px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'space-between'
+                }}>
+                    <div className="warning-icon">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="48" height="48">
+                            <path d="M12 3L22 21H2L12 3Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                            <path d="M12 9V13" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                            <path d="M12 17H12.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
                     </div>
-                    
-                    <div className="reason-options">
-                        {rejectionReasons.map((reason, index) => (
-                            <label key={index} className="reason-option">
-                                <input 
-                                    type="checkbox"
-                                    name="rejectReason"
-                                    checked={selectedReasons.includes(reason)}
-                                    onChange={() => handleReasonChange(reason)}
-                                />
-                                <span>{reason}</span>
-                            </label>
-                        ))}
-                    </div>
-                    
-                    <div className="action-buttons">
-                        <button 
-                            className="send-mail-btn" 
-                            onClick={handleSendMailClick}
-                            disabled={selectedReasons.length === 0}
-                        >
-                            Send Mail
-                        </button>
-                        <button 
-                            className="cancel-btn" 
-                            onClick={onCancel}
-                        >
+                    <h3>Are you sure you want to reject this guest?</h3>
+                    <p>Once confirmed, the action will be final and cannot be undone.</p>
+                    <div className="confirmation-buttons">
+                        <button className="cancel-btn" onClick={onCancel}>
                             Cancel
                         </button>
+                        <button className="reject-confirm-btn" onClick={onConfirm}>
+                            Reject
+                        </button>
                     </div>
                 </div>
             </div>
         );
-    };
-
-    const handleButtonClick = (details) => {
-        if (onAllocateRooms) {
-            onAllocateRooms(details);
-        }
     };
 
     const renderActionButtons = () => {
@@ -241,14 +124,12 @@ RAMAKRISHNA MATH & RAMAKRISHNA MISSION, KAMANKUNUR`);
             setShowRejectConfirmation(true);
         };
 
-        const handleRejectConfirm = (reasons) => {
+        const handleRejectConfirm = () => {
             handleStatusChange(guestDetails.id, 'rejected');
-            // Here you might want to also send the rejection reasons to your API
             setShowRejectConfirmation(false);
         };
-        console.log(status)
 
-        if (status === 'awaiting') {
+        if (label === 'pending' || label === 'rescheduled') {
             return (
                 <div className="action-buttons">
                     <button
@@ -277,7 +158,7 @@ RAMAKRISHNA MATH & RAMAKRISHNA MISSION, KAMANKUNUR`);
                     )}
                 </div>
             );
-        } else if (status === 'approved') {
+        } else if (label === 'approved') {
             return (
                 <div className="action-buttons">
                     <button
@@ -306,8 +187,31 @@ RAMAKRISHNA MATH & RAMAKRISHNA MISSION, KAMANKUNUR`);
                     )}
                 </div>
             );
+        } 
+        else if (label === 'onHold') {
+            return (
+                <div className="action-buttons">
+                    <button
+                        className="approve-btn"
+                        onClick={() => handleStatusChange(guestDetails.id, 'approved')}
+                    >
+                        Approve
+                    </button>
+                    <button
+                        className="reject-btn"
+                        onClick={handleRejectClick}
+                    >
+                        Reject
+                    </button>
+                    {showRejectConfirmation && (
+                        <RejectConfirmationPopup
+                            onCancel={() => setShowRejectConfirmation(false)}
+                            onConfirm={handleRejectConfirm}
+                        />
+                    )}
+                </div>
+            )
         }
-
         return null;
     };
 
@@ -354,12 +258,20 @@ RAMAKRISHNA MATH & RAMAKRISHNA MISSION, KAMANKUNUR`);
                                         <span className="label">Initiation by</span>
                                         <span className="value">{guestDetails?.userDetails?.deeksha || "N/A"}</span>
                                     </div>
+                                    {/* <div className="info-item">
+                                        <span className="label">Initiation by</span>
+                                        <span className="value">Gurudev Name</span>
+                                    </div> */}
                                 </div>
                             </div>
                         </div>
 
                         <div className="right-section">
                             <div className="reminder-bar">
+                                {/* <div className="reminder-content">
+                                    <img src={icons.Reminder} alt="reminder" />
+                                    <span>Reminder: 26th Aug is Janmasthami</span>
+                                </div> */}
                             </div>
 
                             <div className="stay-info">
@@ -372,14 +284,14 @@ RAMAKRISHNA MATH & RAMAKRISHNA MISSION, KAMANKUNUR`);
                                         <img src={icons.Calendar} alt="calendar" />
                                         <span className="date-label">Arrival Date:</span>
                                         <span className="date-value">
-                                            {formatDateTime(guestDetails?.userDetails?.arrivalDate)}
+                                            {guestDetails?.userDetails?.arrivalDate || "N/A"}
                                         </span>
                                     </div>
                                     <div className="date-row">
                                         <img src={icons.Calendar} alt="calendar" />
                                         <span className="date-label">Departure Date:</span>
                                         <span className="date-value">
-                                            {formatDateTime(guestDetails?.userDetails?.departureDate)}
+                                            {guestDetails?.userDetails?.departureDate || "N/A"}
                                         </span>
                                     </div>
                                 </div>
@@ -393,6 +305,9 @@ RAMAKRISHNA MATH & RAMAKRISHNA MISSION, KAMANKUNUR`);
                     <div className="history-header">
                         <div className="left-title">Guests</div>
                         <div className="center-title">Visit History of {selectedGuestName}</div>
+                        {/* <div className="right-link">
+                            <a href="#" className="check-availability">Check Availability</a>
+                        </div> */}
                     </div>
 
                     <div className="history-tables">
@@ -476,19 +391,10 @@ RAMAKRISHNA MATH & RAMAKRISHNA MISSION, KAMANKUNUR`);
                     </div>
 
                     {/* Alert and Action Buttons */}
-                    <div style={{background: "#fff"}} className="footer">
-                        {guestDetails?.visitHistory?.some(visit => {
-                            const visitDate = new Date(visit.visitDate);
-                            const currentDate = new Date();
-                            const monthsDifference = 
-                                (currentDate.getFullYear() - visitDate.getFullYear()) * 12 +
-                                (currentDate.getMonth() - visitDate.getMonth());
-                            return monthsDifference < 6;
-                        }) && (
-                            <div className="alert">
-                                There is a revisit within 6 months for {selectedGuestName}
-                            </div>
-                        )}
+                    <div className="footer">
+                        <div className="alert">
+                            There is a Revisit within 6 months of Guest name
+                        </div>
                         {renderActionButtons()}
                     </div>
                 </div>

@@ -11,7 +11,7 @@ const DeekshaAddressForm = () => {
   const navigate = useNavigate();
 
  // Change 2: Dynamic required fields
-  const requiredFields = ["pincode", "country", "state", "district", "houseNumber", "streetName"];
+  const requiredFields = ["pincode", "country", "state", "district"];
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -163,7 +163,7 @@ const DeekshaAddressForm = () => {
       <div className="deekshaAddressform-house-street-grid">
         <div className="deekshaAddressform-input-wrapper">
           <label className="deekshaAddressform-label">
-            House Number <span className="required">*</span>
+            House Number
             <input
               type="text"
               name="houseNumber"
@@ -176,7 +176,7 @@ const DeekshaAddressForm = () => {
         </div>
         <div className="deekshaAddressform-input-wrapper">
           <label className="deekshaAddressform-label">
-            Street Name <span className="required">*</span>
+            Street Name
             <input
               type="text"
               name="streetName"

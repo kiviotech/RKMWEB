@@ -79,39 +79,39 @@ const Requests = () => {
   const renderTabContent = () => {
     if (activeTab === "pending") {
       return isGuestsGridViewVisible ? (
-        <TabPendingGridView selectedDate={startDate} searchQuery={searchQuery} />
+        <TabPendingGridView selectedDate={startDate} searchQuery={searchQuery} label={activeTab} />
       ) : (
-        <PendingRequests selectedDate={startDate} searchQuery={searchQuery} />
+        <PendingRequests selectedDate={startDate} searchQuery={searchQuery} label={activeTab} />
       );
     } else if (activeTab === "approved") {
       return isGuestsGridViewVisible ? (
-        <ApprovedGuestsGridView selectedDate={startDate} />
+        <ApprovedGuestsGridView selectedDate={startDate} label={activeTab} />
       ) : (
-        <AppreovedGuests selectedDate={startDate} />
+        <AppreovedGuests selectedDate={startDate} label={activeTab} />
       );
     } else if (activeTab === "onHold") {
       return isGuestsGridViewVisible ? (
-        <TabOnHoldGridView selectedDate={startDate} />
+        <TabOnHoldGridView selectedDate={startDate} label={activeTab} />
       ) : (
-        <OnHoldRequest selectedDate={startDate} />
+        <OnHoldRequest selectedDate={startDate} label={activeTab} />
       );
     } else if (activeTab === "rejected") {
       return isGuestsGridViewVisible ? (
-        <TabRejectedGridView selectedDate={startDate} />
+        <TabRejectedGridView selectedDate={startDate} label={activeTab} />
       ) : (
-        <RejectedRequest selectedDate={startDate} />
+        <RejectedRequest selectedDate={startDate} label={activeTab} />
       );
     } else if (activeTab === "cancelled") {
       return isGuestsGridViewVisible ? (
-        <TabCancelledGridView selectedDate={startDate} />
+        <TabCancelledGridView selectedDate={startDate} label={activeTab} />
       ) : (
-        <CancelledRequests selectedDate={startDate} />
+        <CancelledRequests selectedDate={startDate} label={activeTab} />
       );
     } else if (activeTab === "rescheduled") {
       return isGuestsGridViewVisible ? (
-        <TabRescheduledGridView selectedDate={startDate} />
+        <TabRescheduledGridView selectedDate={startDate} label={activeTab} />
       ) : (
-        <RescheduledRequests selectedDate={startDate} />
+        <RescheduledRequests selectedDate={startDate} label={activeTab} />
       );
     } else {
       return (

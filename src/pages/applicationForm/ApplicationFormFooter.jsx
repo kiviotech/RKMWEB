@@ -5,7 +5,7 @@ import { MdLocationOn, MdEmail, MdPhone } from 'react-icons/md';
 
 const ApplicationFormFooter = () => {
   return (
-    <footer className="footer">
+    <footer className="footer" style={{ backgroundColor: '#EA7704' }}>
       <div className="footer-container">
         <div className="logo-section">
           <img

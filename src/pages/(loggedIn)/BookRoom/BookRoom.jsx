@@ -669,27 +669,44 @@ const BookRoom = () => {
   const getBeds = (beds, roomIndex, dateIndex) => {
     const currentRoom = filteredRooms[roomIndex];
     const originalRoomData = roomsData[roomIndex];
+    const currentDate = dates[dateIndex];
 
     const totalBeds = currentRoom.beds;
     const availableBeds = currentRoom.availableBeds;
-    const occupiedBeds = totalBeds - availableBeds;
+
+    // Get all guests for this room
+    const roomGuests = originalRoomData?.attributes?.guests?.data || [];
+    
+    // Check if the current date falls within any guest's stay period
+    const occupiedBedsCount = roomGuests.reduce((count, guest) => {
+      const arrivalDate = guest.attributes.arrival_date;
+      const departureDate = guest.attributes.departure_date;
+      
+      // Check if the current date is within the guest's stay period
+      if (currentDate >= arrivalDate && currentDate <= departureDate) {
+        return count + 1;
+      }
+      return count;
+    }, 0);
 
     return (
       <div className={`bed-grid beds-${totalBeds}`}>
         {[...Array(totalBeds)].map((_, bedIndex) => {
           const bedId = `${roomIndex}-${dateIndex}-${bedIndex}`;
           const isClicked = clickedBeds[activeTab]?.[bedId];
+          
+          // A bed is filled if its index is less than the number of occupied beds for this date
+          const isFilled = bedIndex < occupiedBedsCount;
 
-          // Correct the logic to determine if a bed is filled
-          const isFilled = bedIndex < occupiedBeds;
-
-          let bedImage = emptyBedImage;
+          let bedImage;
           if (isFilled) {
             bedImage = filledBedImage;
           } else if (isClicked) {
             bedImage = selectedImage;
           } else if (hoveredBeds[bedId]) {
             bedImage = hoverImage;
+          } else {
+            bedImage = emptyBedImage;
           }
 
           return (

@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { getBookingRequests } from "../../../../../../services/src/api/repositories/bookingRequestRepository";
 import { getBookingRequestsByStatus } from "../../../../../../services/src/api/repositories/bookingRequestRepository";
 
-const ApprovedGuests = ({ selectedDate }) => {
+const ApprovedGuests = ({ selectedDate, label }) => {
   const navigate = useNavigate();
   const [selectedGuest, setSelectedGuest] = useState(null);
   const [isGuestDetailsPopupOpen, setIsGuestDetailsPopupOpen] = useState(false);
@@ -219,6 +219,8 @@ const ApprovedGuests = ({ selectedDate }) => {
                     {request.reason}
                   </p>
                   <p>Number of guest members: {request.noOfGuest}</p>
+                  <p>Arrival Date: {request.userDetails.arrivalDate}</p>
+                  <p>Departure Date: {request.userDetails.departureDate}</p>
                   {request.reason === "Has History" && (
                     <p>Assigned Bed(s): {request.assignBed}</p>
                   )}
@@ -271,6 +273,7 @@ const ApprovedGuests = ({ selectedDate }) => {
           guestDetails={selectedGuest}
           guests={selectedGuest?.guests || []}
           onStatusChange={handleStatusChange}
+          label={label}
         />
       )}
     </div>

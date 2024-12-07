@@ -4,8 +4,8 @@ import { useAuthStore } from "../../../../store/authStore";
 import { useDonationStore } from "../../../../donationStore";
 import { fetchGuestDetails, createNewGuestDetails } from "../../../../services/src/services/guestDetailsService";
 import { createNewReceiptDetail } from "../../../../services/src/services/receiptDetailsService";
-import { createNewDonation, fetchDonationsByField, updateDonationById } from "../../../../services/src/services/donationsService";
-import { useNavigate } from 'react-router-dom';
+import { createNewDonation, fetchDonationsByField, updateDonationById, fetchDonationById } from "../../../../services/src/services/donationsService";
+import { useNavigate, useLocation } from 'react-router-dom';
 
 const NewDonation = () => {
   const [selectedTab, setSelectedTab] = useState("Math");
@@ -68,11 +68,86 @@ const NewDonation = () => {
   const searchInputRef = useRef(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [showPendingConfirm, setShowPendingConfirm] = useState(false);
+  const location = useLocation();
+  const donationData = location.state?.donationData;
+  const donationId = location.state?.donationData?.id;
 
   console.log("Zustand Store Data:", {
     // auth: { user },
     donations
   });
+
+  console.log('Received donation data:', donationData);
+
+  useEffect(() => {
+    const fetchDonation = async () => {
+        if (!donationId) return;
+
+        try {
+            const response = await fetchDonationById(donationId);
+            const donationData = response.data;
+            const guestData = donationData.attributes.guest.data.attributes;
+            const receiptData = donationData.attributes.receipt_detail.data.attributes;
+
+            // Update donor details
+            setDonorDetails({
+                title: guestData.name.split(' ')[0] || 'Sri', // Extract title from name
+                name: guestData.name.split(' ').slice(1).join(' '), // Extract name without title
+                phoneCode: '+91',
+                phone: guestData.phone_number.replace('+91', ''),
+                email: guestData.email,
+                mantraDiksha: guestData.deeksha,
+                identityType: 'Aadhaar',
+                identityNumber: guestData.aadhaar_number,
+                roomNumber: '',
+                // Parse address components
+                ...parseAddress(guestData.address),
+                guestId: donationData.attributes.guest.data.id
+            });
+
+            // Set selected tab based on donationFor
+            setSelectedTab(donationData.attributes.donationFor);
+
+            // Update receipt number
+            setReceiptNumber(receiptData.Receipt_number);
+
+            // Update current receipt with donation details
+            setCurrentReceipt({
+                receiptNumber: receiptData.Receipt_number,
+                donationDetails: {
+                    donationType: '', // Set appropriate donation type if available
+                    amount: donationData.attributes.donationAmount,
+                    transactionType: donationData.attributes.transactionType.toLowerCase(),
+                    inMemoryOf: donationData.attributes.InMemoryOf,
+                    transactionDetails: {
+                        ddNumber: donationData.attributes.ddch_number || '',
+                        ddDate: donationData.attributes.ddch_date || '',
+                        bankName: donationData.attributes.bankName || ''
+                    }
+                }
+            });
+
+        } catch (err) {
+            console.error('Error fetching donation:', err);
+        }
+    };
+
+    fetchDonation();
+}, [donationId]);
+
+  // Add this helper function to parse address string
+  const parseAddress = (addressString) => {
+    const [houseNumber = '', streetName = '', district = '', state = '', pincode = ''] = 
+        addressString.split(',').map(item => item.trim());
+    
+    return {
+        houseNumber,
+        streetName,
+        district,
+        state,
+        pincode: pincode.replace(/\D/g, '') // Remove non-digit characters
+    };
+  };
 
   React.useEffect(() => {
     const loadGuestDetails = async () => {
@@ -92,11 +167,11 @@ const NewDonation = () => {
         // Log individual guest records
         if (details?.data?.length > 0) {
           details.data.forEach((guest, index) => {
-            console.log(`Guest ${index + 1}:`, {
-              id: guest.id,
-              attributes: guest.attributes,
-              relationships: guest.relationships
-            });
+            // console.log(`Guest ${index + 1}:`, {
+            //   id: guest.id,
+            //   attributes: guest.attributes,
+            //   relationships: guest.relationships
+            // });
           });
         }
 
@@ -425,7 +500,7 @@ const NewDonation = () => {
   const handlePrintReceipt = async () => {
     // Check donation amount first
     if (validateDonationAmount(currentReceipt?.donationDetails?.amount)) {
-      alert("Enter the a");
+      alert("Enter the amount");
       return;
     }
 
@@ -452,85 +527,92 @@ const NewDonation = () => {
   // Move the API calls to handleConfirmPrint
   const handleConfirmPrint = async () => {
     try {
-      let guestId = donorDetails.guestId;
-
-      // Check if guestId is present, if not create new guest details
-      if (!guestId) {
-        const guestPayload = {
-          name: `${donorDetails.title} ${donorDetails.name}`,
-          phone_number: `${donorDetails.phoneCode}${donorDetails.phone}`,
-          email: donorDetails.email,
-          address: `${donorDetails.houseNumber}, ${donorDetails.streetName}, ${donorDetails.district}, ${donorDetails.state}, ${donorDetails.pincode}`,
-          deeksha: donorDetails.mantraDiksha,
-          aadhaar_number: donorDetails.identityType === 'Aadhaar' ? donorDetails.identityNumber : null,
-          title: donorDetails.title
-        };
-
-        const guestResponse = await createNewGuestDetails(guestPayload);
-        guestId = guestResponse.data.id;
-      }
-
-      // Create receipt details
-      const receiptPayload = {
-        Receipt_number: receiptNumber,
-        donation_date: new Date().toISOString().split('T')[0],
-        createdby: user?.id || 2
-      };
-
-      const receiptResponse = await createNewReceiptDetail(receiptPayload);
-
-      if (receiptResponse?.data?.id) {
-        const receiptId = receiptResponse.data.id;
-
-        // Get the correct transaction type
-        let transactionType = "Cash";
-        switch(currentReceipt?.donationDetails?.transactionType?.toLowerCase()) {
-          case 'cheque': transactionType = "Cheque"; break;
-          case 'bank transfer': transactionType = "Bank Transfer"; break;
-          case 'dd': transactionType = "DD"; break;
-          case 'm.o': transactionType = "M.O"; break;
-          case 'kind': transactionType = "Kind"; break;
-          case 'electronic modes': transactionType = "Electronic Modes"; break;
-          default: transactionType = "Cash";
-        }
-
-        const donationPayload = {
+      if (donationId) {
+        // Update existing donation
+        console.log("Updating existing donation with ID:", donationId);
+        const updatePayload = {
           data: {
-            guest: guestId,
-            InMemoryOf: "for Thakur Seva",
-            donationAmount: currentReceipt?.donationDetails?.amount || "0",
-            transactionType: transactionType,
+            InMemoryOf: currentReceipt?.donationDetails?.inMemoryOf || "for Thakur Seva",
+            donationAmount: currentReceipt?.donationDetails?.amount,
+            transactionType: currentReceipt?.donationDetails?.transactionType?.charAt(0).toUpperCase() + 
+                            currentReceipt?.donationDetails?.transactionType?.slice(1) || "Cash",
             donationFor: selectedTab,
-            receipt_detail: receiptId,
-            status: "completed"
+            status: "completed",
+            donationDate: getCurrentFormattedDate(),
+            ...(currentReceipt?.donationDetails?.transactionType?.toLowerCase() !== 'cash' && {
+              ddch_number: currentReceipt?.donationDetails?.transactionDetails?.ddNumber || "",
+              ddch_date: currentReceipt?.donationDetails?.transactionDetails?.ddDate || "",
+              bankName: currentReceipt?.donationDetails?.transactionDetails?.bankName || ""
+            })
           }
         };
 
-        if (transactionType !== 'Cash') {
-          donationPayload.data = {
-            ...donationPayload.data,
-            ddch_number: currentReceipt?.donationDetails?.transactionDetails?.ddNumber || "",
-            ddch_date: currentReceipt?.donationDetails?.transactionDetails?.ddDate || "",
-            bankName: currentReceipt?.donationDetails?.transactionDetails?.bankName || ""
+        await updateDonationById(donationId, updatePayload);
+        console.log("Successfully updated donation");
+      } else {
+        console.log("Creating new donation");
+        // Create new guest if needed
+        let guestId = donorDetails.guestId;
+        if (!guestId) {
+          console.log("Creating new guest");
+          const guestPayload = {
+            data: {
+              name: `${donorDetails.title} ${donorDetails.name}`,
+              phone_number: `${donorDetails.phoneCode}${donorDetails.phone}`,
+              email: donorDetails.email,
+              deeksha: donorDetails.mantraDiksha,
+              aadhaar_number: donorDetails.identityNumber,
+              address: `${donorDetails.houseNumber}, ${donorDetails.streetName}, ${donorDetails.district}, ${donorDetails.state}, ${donorDetails.pincode}`
+            }
           };
+          const guestResponse = await createNewGuestDetails(guestPayload);
+          guestId = guestResponse.data.id;
+          console.log("Created new guest with ID:", guestId);
         }
 
-        const donationResponse = await createNewDonation(donationPayload);
-        console.log('Donation created successfully:', donationResponse);
-        
-        // Reset form and close modal
-        resetFormData();
-        setIsModalOpen(false);
-        
-        // Navigate to donation page
-        navigate('/donation');
-        
-      } else {
-        throw new Error('Invalid receipt response format');
+        // Create receipt details
+        console.log("Creating new receipt");
+        const receiptPayload = {
+          Receipt_number: receiptNumber,
+          status: "completed",
+          amount: currentReceipt?.donationDetails?.amount
+        };
+        const receiptResponse = await createNewReceiptDetail(receiptPayload);
+        console.log("Created new receipt:", receiptResponse);
+
+        // Create donation
+        console.log("Creating new donation record");
+        const donationPayload = {
+          data: {
+            InMemoryOf: currentReceipt?.donationDetails?.inMemoryOf || "for Thakur Seva",
+            donationAmount: currentReceipt?.donationDetails?.amount,
+            transactionType: currentReceipt?.donationDetails?.transactionType?.charAt(0).toUpperCase() + 
+                            currentReceipt?.donationDetails?.transactionType?.slice(1) || "Cash",
+            donationFor: selectedTab,
+            status: "completed",
+            donationDate: getCurrentFormattedDate(),
+            guest: guestId,
+            receipt_detail: receiptResponse.data.id,
+            ...(currentReceipt?.donationDetails?.transactionType?.toLowerCase() !== 'cash' && {
+              ddch_number: currentReceipt?.donationDetails?.transactionDetails?.ddNumber || "",
+              ddch_date: currentReceipt?.donationDetails?.transactionDetails?.ddDate || "",
+              bankName: currentReceipt?.donationDetails?.transactionDetails?.bankName || ""
+            })
+          }
+        };
+
+        await createNewDonation(donationPayload);
+        console.log("Successfully created new donation");
       }
-      
+
+      // Reset form and close modal
+      resetFormData();
+      setIsModalOpen(false);
+      navigate('/donation');
+
     } catch (error) {
-      console.error('Error in donation process:', error);
+      console.error('Error processing donation:', error);
+      console.error('Error details:', error.response?.data || error.message);
       alert('Error processing donation. Please try again.');
     }
   };
@@ -539,7 +621,7 @@ const NewDonation = () => {
   const handlePending = async () => {
     // Check donation amount first
     if (validateDonationAmount(currentReceipt?.donationDetails?.amount)) {
-      alert("Enter the a");
+      alert("Enter the amount");
       return;
     }
 
@@ -564,86 +646,92 @@ const NewDonation = () => {
 
   const confirmPending = async () => {
     try {
-      let guestId = donorDetails.guestId;
-
-      // Create new guest details if not exists
-      if (!guestId) {
-        const guestPayload = {
-          name: `${donorDetails.title} ${donorDetails.name}`,
-          phone_number: `${donorDetails.phoneCode}${donorDetails.phone}`,
-          email: donorDetails.email,
-          address: `${donorDetails.houseNumber}, ${donorDetails.streetName}, ${donorDetails.district}, ${donorDetails.state}, ${donorDetails.pincode}`,
-          deeksha: donorDetails.mantraDiksha,
-          aadhaar_number: donorDetails.identityType === 'Aadhaar' ? donorDetails.identityNumber : null,
-          title: donorDetails.title
-        };
-
-        const guestResponse = await createNewGuestDetails(guestPayload);
-        guestId = guestResponse.data.id;
-      }
-
-      // Create receipt details
-      const receiptPayload = {
-        Receipt_number: receiptNumber,
-        donation_date: new Date().toISOString().split('T')[0],
-        createdby: user?.id || 2
-      };
-
-      const receiptResponse = await createNewReceiptDetail(receiptPayload);
-
-      if (receiptResponse?.data?.id) {
-        const receiptId = receiptResponse.data.id;
-
-        // Get the correct transaction type
-        let transactionType = "Cash";
-        switch(currentReceipt?.donationDetails?.transactionType?.toLowerCase()) {
-          case 'cheque': transactionType = "Cheque"; break;
-          case 'bank transfer': transactionType = "Bank Transfer"; break;
-          case 'dd': transactionType = "DD"; break;
-          case 'm.o': transactionType = "M.O"; break;
-          case 'kind': transactionType = "Kind"; break;
-          case 'electronic modes': transactionType = "Electronic Modes"; break;
-          default: transactionType = "Cash";
-        }
-
-        const donationPayload = {
+      if (donationId) {
+        // Update existing donation
+        console.log("Updating existing donation with ID:", donationId);
+        const updatePayload = {
           data: {
-            guest: guestId,
             InMemoryOf: currentReceipt?.donationDetails?.inMemoryOf || "for Thakur Seva",
-            donationAmount: currentReceipt?.donationDetails?.amount || "0",
-            transactionType: transactionType,
+            donationAmount: currentReceipt?.donationDetails?.amount,
+            transactionType: currentReceipt?.donationDetails?.transactionType?.charAt(0).toUpperCase() + 
+                            currentReceipt?.donationDetails?.transactionType?.slice(1) || "Cash",
             donationFor: selectedTab,
-            receipt_detail: receiptId,
-            status: "pending" // Set status as pending
+            status: "pending",
+            donationDate: getCurrentFormattedDate(),
+            ...(currentReceipt?.donationDetails?.transactionType?.toLowerCase() !== 'cash' && {
+              ddch_number: currentReceipt?.donationDetails?.transactionDetails?.ddNumber || "",
+              ddch_date: currentReceipt?.donationDetails?.transactionDetails?.ddDate || "",
+              bankName: currentReceipt?.donationDetails?.transactionDetails?.bankName || ""
+            })
           }
         };
 
-        // Add transaction details if not cash
-        if (transactionType !== 'Cash') {
-          donationPayload.data = {
-            ...donationPayload.data,
-            ddch_number: currentReceipt?.donationDetails?.transactionDetails?.ddNumber || "",
-            ddch_date: currentReceipt?.donationDetails?.transactionDetails?.ddDate || "",
-            bankName: currentReceipt?.donationDetails?.transactionDetails?.bankName || ""
+        await updateDonationById(donationId, updatePayload);
+        console.log("Successfully updated donation to pending status");
+      } else {
+        console.log("Creating new pending donation");
+        // Create new guest if needed
+        let guestId = donorDetails.guestId;
+        if (!guestId) {
+          console.log("Creating new guest");
+          const guestPayload = {
+            data: {
+              name: `${donorDetails.title} ${donorDetails.name}`,
+              phone_number: `${donorDetails.phoneCode}${donorDetails.phone}`,
+              email: donorDetails.email,
+              deeksha: donorDetails.mantraDiksha,
+              aadhaar_number: donorDetails.identityNumber,
+              address: `${donorDetails.houseNumber}, ${donorDetails.streetName}, ${donorDetails.district}, ${donorDetails.state}, ${donorDetails.pincode}`
+            }
           };
+          const guestResponse = await createNewGuestDetails(guestPayload);
+          guestId = guestResponse.data.id;
+          console.log("Created new guest with ID:", guestId);
         }
 
-        const donationResponse = await createNewDonation(donationPayload);
-        console.log('Pending donation created successfully:', donationResponse);
-        
-        // Reset form and close modal
-        resetFormData();
-        setShowPendingConfirm(false);
-        
-        // Navigate to donation page
-        navigate('/donation');
-        
-      } else {
-        throw new Error('Invalid receipt response format');
+        // Create receipt details
+        console.log("Creating new receipt with pending status");
+        const receiptPayload = {
+          Receipt_number: receiptNumber,
+          status: "pending",
+          amount: currentReceipt?.donationDetails?.amount
+        };
+        const receiptResponse = await createNewReceiptDetail(receiptPayload);
+        console.log("Created new receipt:", receiptResponse);
+
+        // Create donation
+        console.log("Creating new donation record with pending status");
+        const donationPayload = {
+          data: {
+            InMemoryOf: currentReceipt?.donationDetails?.inMemoryOf || "for Thakur Seva",
+            donationAmount: currentReceipt?.donationDetails?.amount,
+            transactionType: currentReceipt?.donationDetails?.transactionType?.charAt(0).toUpperCase() + 
+                            currentReceipt?.donationDetails?.transactionType?.slice(1) || "Cash",
+            donationFor: selectedTab,
+            status: "pending",
+            donationDate: getCurrentFormattedDate(),
+            guest: guestId,
+            receipt_detail: receiptResponse.data.id,
+            ...(currentReceipt?.donationDetails?.transactionType?.toLowerCase() !== 'cash' && {
+              ddch_number: currentReceipt?.donationDetails?.transactionDetails?.ddNumber || "",
+              ddch_date: currentReceipt?.donationDetails?.transactionDetails?.ddDate || "",
+              bankName: currentReceipt?.donationDetails?.transactionDetails?.bankName || ""
+            })
+          }
+        };
+
+        await createNewDonation(donationPayload);
+        console.log("Successfully created new pending donation");
       }
-      
+
+      // Reset form and close modal
+      resetFormData();
+      setShowPendingConfirm(false);
+      navigate('/donation');
+
     } catch (error) {
-      console.error('Error in pending donation process:', error);
+      console.error('Error processing pending donation:', error);
+      console.error('Error details:', error.response?.data || error.message);
       alert('Error processing pending donation. Please try again.');
     }
   };
@@ -661,87 +749,93 @@ const NewDonation = () => {
 
   const confirmCancel = async () => {
     try {
-      let guestId = donorDetails.guestId;
-
-      // Create new guest details if not exists
-      if (!guestId) {
-        const guestPayload = {
-          name: `${donorDetails.title} ${donorDetails.name}`,
-          phone_number: `${donorDetails.phoneCode}${donorDetails.phone}`,
-          email: donorDetails.email,
-          address: `${donorDetails.houseNumber}, ${donorDetails.streetName}, ${donorDetails.district}, ${donorDetails.state}, ${donorDetails.pincode}`,
-          deeksha: donorDetails.mantraDiksha,
-          aadhaar_number: donorDetails.identityType === 'Aadhaar' ? donorDetails.identityNumber : null,
-          title: donorDetails.title
-        };
-
-        const guestResponse = await createNewGuestDetails(guestPayload);
-        guestId = guestResponse.data.id;
-      }
-
-      // Create receipt details
-      const receiptPayload = {
-        Receipt_number: receiptNumber,
-        donation_date: new Date().toISOString().split('T')[0],
-        createdby: user?.id || 2
-      };
-
-      const receiptResponse = await createNewReceiptDetail(receiptPayload);
-
-      if (receiptResponse?.data?.id) {
-        const receiptId = receiptResponse.data.id;
-
-        // Get the correct transaction type
-        let transactionType = "Cash";
-        switch(currentReceipt?.donationDetails?.transactionType?.toLowerCase()) {
-          case 'cheque': transactionType = "Cheque"; break;
-          case 'bank transfer': transactionType = "Bank Transfer"; break;
-          case 'dd': transactionType = "DD"; break;
-          case 'm.o': transactionType = "M.O"; break;
-          case 'kind': transactionType = "Kind"; break;
-          case 'electronic modes': transactionType = "Electronic Modes"; break;
-          default: transactionType = "Cash";
-        }
-
-        const donationPayload = {
+      if (donationId) {
+        // Update existing donation
+        console.log("Updating existing donation with ID:", donationId);
+        const updatePayload = {
           data: {
-            guest: guestId,
             InMemoryOf: currentReceipt?.donationDetails?.inMemoryOf || "for Thakur Seva",
-            donationAmount: currentReceipt?.donationDetails?.amount || "0",
-            transactionType: transactionType,
+            donationAmount: currentReceipt?.donationDetails?.amount,
+            transactionType: currentReceipt?.donationDetails?.transactionType?.charAt(0).toUpperCase() + 
+                            currentReceipt?.donationDetails?.transactionType?.slice(1) || "Cash",
             donationFor: selectedTab,
-            receipt_detail: receiptId,
-            status: "cancelled" // Set status as cancelled
+            status: "cancelled",
+            donationDate: getCurrentFormattedDate(),
+            ...(currentReceipt?.donationDetails?.transactionType?.toLowerCase() !== 'cash' && {
+              ddch_number: currentReceipt?.donationDetails?.transactionDetails?.ddNumber || "",
+              ddch_date: currentReceipt?.donationDetails?.transactionDetails?.ddDate || "",
+              bankName: currentReceipt?.donationDetails?.transactionDetails?.bankName || ""
+            })
           }
         };
 
-        // Add transaction details if not cash
-        if (transactionType !== 'Cash') {
-          donationPayload.data = {
-            ...donationPayload.data,
-            ddch_number: currentReceipt?.donationDetails?.transactionDetails?.ddNumber || "",
-            ddch_date: currentReceipt?.donationDetails?.transactionDetails?.ddDate || "",
-            bankName: currentReceipt?.donationDetails?.transactionDetails?.bankName || ""
+        await updateDonationById(donationId, updatePayload);
+        console.log("Successfully updated donation to cancelled status");
+      } else {
+        console.log("Creating new cancelled donation");
+        // Create new guest if needed
+        let guestId = donorDetails.guestId;
+        if (!guestId) {
+          console.log("Creating new guest");
+          const guestPayload = {
+            data: {
+              name: `${donorDetails.title} ${donorDetails.name}`,
+              phone_number: `${donorDetails.phoneCode}${donorDetails.phone}`,
+              email: donorDetails.email,
+              deeksha: donorDetails.mantraDiksha,
+              aadhaar_number: donorDetails.identityNumber,
+              address: `${donorDetails.houseNumber}, ${donorDetails.streetName}, ${donorDetails.district}, ${donorDetails.state}, ${donorDetails.pincode}`
+            }
           };
+          const guestResponse = await createNewGuestDetails(guestPayload);
+          guestId = guestResponse.data.id;
+          console.log("Created new guest with ID:", guestId);
         }
 
-        const donationResponse = await createNewDonation(donationPayload);
-        console.log('Cancelled donation created successfully:', donationResponse);
-        
-        // Reset form and close modal
-        resetFormData();
-        setShowCancelConfirm(false);
-        
-        // Navigate to donation page
-        navigate('/donation');
-        
-      } else {
-        throw new Error('Invalid receipt response format');
+        // Create receipt details
+        console.log("Creating new receipt with cancelled status");
+        const receiptPayload = {
+          Receipt_number: receiptNumber,
+          status: "cancelled",
+          amount: currentReceipt?.donationDetails?.amount
+        };
+        const receiptResponse = await createNewReceiptDetail(receiptPayload);
+        console.log("Created new receipt:", receiptResponse);
+
+        // Create donation
+        console.log("Creating new donation record with cancelled status");
+        const donationPayload = {
+          data: {
+            InMemoryOf: currentReceipt?.donationDetails?.inMemoryOf || "for Thakur Seva",
+            donationAmount: currentReceipt?.donationDetails?.amount,
+            transactionType: currentReceipt?.donationDetails?.transactionType?.charAt(0).toUpperCase() + 
+                            currentReceipt?.donationDetails?.transactionType?.slice(1) || "Cash",
+            donationFor: selectedTab,
+            status: "cancelled",
+            donationDate: getCurrentFormattedDate(),
+            guest: guestId,
+            receipt_detail: receiptResponse.data.id,
+            ...(currentReceipt?.donationDetails?.transactionType?.toLowerCase() !== 'cash' && {
+              ddch_number: currentReceipt?.donationDetails?.transactionDetails?.ddNumber || "",
+              ddch_date: currentReceipt?.donationDetails?.transactionDetails?.ddDate || "",
+              bankName: currentReceipt?.donationDetails?.transactionDetails?.bankName || ""
+            })
+          }
+        };
+
+        await createNewDonation(donationPayload);
+        console.log("Successfully created new cancelled donation");
       }
-      
+
+      // Reset form and close modal
+      resetFormData();
+      setShowCancelConfirm(false);
+      navigate('/donation');
+
     } catch (error) {
-      console.error('Error in cancelling donation:', error);
-      alert('Error cancelling donation. Please try again.');
+      console.error('Error processing cancelled donation:', error);
+      console.error('Error details:', error.response?.data || error.message);
+      alert('Error processing cancelled donation. Please try again.');
     }
   };
 
@@ -764,34 +858,30 @@ const NewDonation = () => {
   const handleReset = () => {
     if (!selectedDonor || !currentReceipt) return;
 
-    // Find the donor's receipts group
-    const donorReceiptsIndex = donations.receipts.findIndex(group => 
-      Array.isArray(group) && 
-      group.length > 0 && 
-      (group[0].donorId === selectedDonor || group[0].donorDetails?.guestId === selectedDonor)
-    );
+    // Keep the existing receipt number
+    const existingReceiptNumber = currentReceipt.receiptNumber;
 
-    if (donorReceiptsIndex === -1) return;
-
-    // Create new receipts array without the current tab's receipt
-    const updatedReceipts = donations.receipts.map((group, index) => {
-      if (index === donorReceiptsIndex) {
-        return group.filter(receipt => receipt.type !== selectedTab);
+    // Reset current receipt while preserving the receipt number
+    setCurrentReceipt({
+      receiptNumber: existingReceiptNumber,
+      donationDetails: {
+        donationType: '',
+        amount: '',
+        transactionType: 'cash',
+        inMemoryOf: '',
+        transactionDetails: {
+          ddNumber: '',
+          ddDate: '',
+          bankName: ''
+        }
       }
-      return group;
     });
 
-    // Update the store with new receipts
-    donations.receipts = updatedReceipts;
-
-    // Reset current receipt and receipt number
-    setCurrentReceipt(null);
-    setReceiptNumber('');
-
-    // Reset donation details in the form
-    handleDonationDetailsUpdate({
+    // Update the store with the reset donation details
+    updateDonationDetails(existingReceiptNumber, {
+      donationType: '',
       amount: '',
-      transactionType: '',
+      transactionType: 'cash',
       inMemoryOf: '',
       transactionDetails: {
         ddNumber: '',
@@ -987,6 +1077,12 @@ const NewDonation = () => {
     }
     
     return result;
+  };
+
+  // Add this helper function at the top level
+  const getCurrentFormattedDate = () => {
+    const today = new Date();
+    return today.toISOString().split('T')[0]; // Returns date in YYYY-MM-DD format
   };
 
   return (

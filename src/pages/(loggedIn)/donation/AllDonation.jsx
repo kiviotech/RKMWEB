@@ -32,11 +32,12 @@ const AllDonation = ({
         const loadDonations = async () => {
             try {
                 const response = await fetchDonations();
-                console.log('API Response:', response);
+                console.log('Raw API Response:', response);
+                console.log('Donations Data:', response.data);
                 setDonations(response.data || []);
             } catch (err) {
+                console.error('API Error:', err);
                 setError("Failed to load donations");
-                console.error(err);
             } finally {
                 setLoading(false);
             }
@@ -83,14 +84,30 @@ const AllDonation = ({
         }
     }, [filteredDonations, itemsPerPage, setTotalPages]);
 
+    // Add logging for filtered donations
+    useEffect(() => {
+        console.log('Current Filters:', {
+            searchTerm,
+            dateRange,
+            selectedStatus,
+            donatedFor,
+            currentPage,
+            itemsPerPage
+        });
+        console.log('Filtered Donations:', filteredDonations);
+    }, [filteredDonations, searchTerm, dateRange, selectedStatus, donatedFor, currentPage, itemsPerPage]);
+
     // Get current page data
     const getCurrentPageData = () => {
         const startIndex = (currentPage - 1) * itemsPerPage;
         const endIndex = startIndex + itemsPerPage;
-        return filteredDonations.slice(startIndex, endIndex);
+        const currentData = filteredDonations.slice(startIndex, endIndex);
+        console.log('Current Page Data:', currentData);
+        return currentData;
     };
 
     const handleCancelDonation = async (donationId) => {
+        console.log('Cancelling donation:', donationId);
         try {
             await updateDonationById(donationId, {
                 data: {
@@ -105,12 +122,13 @@ const AllDonation = ({
                     : donation
             ));
         } catch (error) {
-            console.error('Error cancelling donation:', error);
+            console.error('Cancel Donation Error:', error);
             // Optionally add error handling UI feedback here
         }
     };
 
     const handlePrintReceipt = (donation) => {
+        console.log('Printing receipt for donation:', donation);
         // Create data object
         const donationData = {
             'Receipt Number': donation.attributes.receipt_detail?.data?.attributes?.Receipt_number,
@@ -136,8 +154,25 @@ const AllDonation = ({
         XLSX.writeFile(wb, fileName);
     };
 
-    const handleSubmit = () => {
-        navigate('/newDonation');
+    const handleSubmit = (donation) => {
+        console.log('Submitting donation:', donation);
+        console.log('Donation data being passed:', donation);
+        navigate('/newDonation', { 
+            state: { 
+                donationData: {
+                    id: donation.id,
+                    receiptNumber: donation.attributes.receipt_detail?.data?.attributes?.Receipt_number,
+                    donorName: donation.attributes.guest?.data?.attributes?.name,
+                    donationDate: donation.attributes.receipt_detail?.data?.attributes?.donation_date,
+                    phoneNumber: donation.attributes.guest?.data?.attributes?.phone_number,
+                    donatedFor: donation.attributes.donationFor,
+                    status: donation.attributes.status,
+                    amount: donation.attributes.donationAmount,
+                    createdBy: donation.attributes.receipt_detail?.data?.attributes?.createdBy?.data?.id || 
+                              donation.attributes.createdBy?.data?.id
+                }
+            }
+        });
     };
 
     if (loading) return <div>Loading...</div>;
@@ -171,7 +206,17 @@ const AllDonation = ({
                                     {filterOptions.donorName && 
                                         <td>{donation.attributes.guest?.data?.attributes?.name}</td>}
                                     {filterOptions.donationDate && 
-                                        <td>{donation.attributes.receipt_detail?.data?.attributes?.donation_date}</td>}
+                                        <td>
+                                            {new Date(
+                                                donation.attributes.receipt_detail?.data?.attributes?.donation_date || 
+                                                donation.attributes.updatedAt
+                                            ).toLocaleDateString('en-US', {
+                                                weekday: 'short', // Mon, Tue, etc.
+                                                day: 'numeric',   // 1-31
+                                                month: 'short',   // Jan, Feb, etc.
+                                                year: 'numeric'   // 2024
+                                            })}
+                                        </td>}
                                     {filterOptions.phoneNumber && 
                                         <td>{donation.attributes.guest?.data?.attributes?.phone_number}</td>}
                                     {filterOptions.donatedFor && 
@@ -199,7 +244,7 @@ const AllDonation = ({
                                                         <>
                                                             <button 
                                                                 className="submit-btn"
-                                                                onClick={handleSubmit}
+                                                                onClick={() => handleSubmit(donation)}
                                                             >
                                                                 Submit
                                                             </button>

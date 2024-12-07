@@ -665,37 +665,35 @@ const BookRoom = () => {
     setSelectedBedData(bedData);
   };
 
-  // Update the getBeds function to pass the correct parameters
   const getBeds = (beds, roomIndex, dateIndex) => {
     const currentRoom = filteredRooms[roomIndex];
-    const originalRoomData = roomsData[roomIndex];
+    const originalRoomData = roomsData.find(r => r.id === currentRoom.id);
     const currentDate = dates[dateIndex];
 
-    const totalBeds = currentRoom.beds;
-    const availableBeds = currentRoom.availableBeds;
-
     // Get all guests for this room
-    const roomGuests = originalRoomData?.attributes?.guests?.data || [];
+    const roomGuests = originalRoomData?.attributes?.guests?.data|| [];
     
-    // Check if the current date falls within any guest's stay period
+    // Calculate occupied beds for the current date
     const occupiedBedsCount = roomGuests.reduce((count, guest) => {
-      const arrivalDate = guest.attributes.arrival_date;
-      const departureDate = guest.attributes.departure_date;
+      const arrivalDate = new Date(guest.attributes.arrival_date);
+      const departureDate = new Date(guest.attributes.departure_date);
+      const currentDateTime = new Date(currentDate);
       
-      // Check if the current date is within the guest's stay period
-      if (currentDate >= arrivalDate && currentDate <= departureDate) {
+      // Check if the guest's stay overlaps with the current date
+      if (currentDateTime >= arrivalDate && currentDateTime <= departureDate) {
         return count + 1;
       }
       return count;
     }, 0);
+
+    const totalBeds = currentRoom.beds;
+    const isF = currentRoom.category?.toLowerCase() === 'f';
 
     return (
       <div className={`bed-grid beds-${totalBeds}`}>
         {[...Array(totalBeds)].map((_, bedIndex) => {
           const bedId = `${roomIndex}-${dateIndex}-${bedIndex}`;
           const isClicked = clickedBeds[activeTab]?.[bedId];
-          
-          // A bed is filled if its index is less than the number of occupied beds for this date
           const isFilled = bedIndex < occupiedBedsCount;
 
           let bedImage;
@@ -712,7 +710,7 @@ const BookRoom = () => {
           return (
             <div
               key={bedId}
-              className={`bed-icon ${isFilled ? 'filled' : 'empty'}`}
+              className={`bed-icon ${isFilled ? 'filled' : 'empty'} ${isF ? 'f-category' : ''}`}
               title={isFilled ? "Occupied" : "Available"}
               onClick={() => handleBedClick(bedIndex, bedId, isFilled, roomIndex, dateIndex)}
               onMouseEnter={() => handleMouseEnter(bedId)}
@@ -826,35 +824,28 @@ const BookRoom = () => {
     getRooms();
   }, []);
 
+  // Update the filteredRooms logic
   const filteredRooms = roomsData
     .filter((room) => {
-      // Ensure room category exists and convert to lowercase for comparison
+      // Normalize room category for comparison
       const roomCategory = (room.attributes?.room_category || '').trim().toLowerCase();
       const activeTabLower = activeTab.toLowerCase();
-      
-      switch (activeTabLower) {
-        case 'f':
-          // Strictly match F category
-          return roomCategory === 'f';
-        
-        case 'guest house':
-          // Only match guest house variations, explicitly exclude 'f'
-          return (roomCategory === 'guesthouse' || 
-                  roomCategory === 'guest house' || 
-                  roomCategory === 'guest-house') && 
-                  roomCategory !== 'f';
-        
-        case 'yatri niwas':
-          // Only match yatri niwas variations, explicitly exclude 'f'
-          return (roomCategory === 'yatriniwas' || 
-                  roomCategory === 'yatri niwas' || 
-                  roomCategory === 'yatri-niwas' ||
-                  roomCategory === 'yatri') && 
-                  roomCategory !== 'f';
-        
-        default:
-          return false;
+
+      // Special handling for F category
+      if (activeTabLower === 'f') {
+        return roomCategory === 'f';
       }
+
+      // Handle other categories
+      if (activeTabLower === 'guest house') {
+        return ['guesthouse', 'guest house', 'guest-house'].includes(roomCategory);
+      }
+
+      if (activeTabLower === 'yatri niwas') {
+        return ['yatriniwas', 'yatri niwas', 'yatri-niwas', 'yatri'].includes(roomCategory);
+      }
+
+      return false;
     })
     .filter((room) => {
       if (!sortType) return true;
@@ -866,7 +857,9 @@ const BookRoom = () => {
       availableBeds: parseInt(room.attributes.available_beds) || 0,
       type: room.attributes.room_type,
       category: room.attributes.room_category,
-      id: room.id
+      id: room.id,
+      // Add raw attributes for reference
+      rawAttributes: room.attributes
     }));
 
   const handleRoomSelection = (room) => {

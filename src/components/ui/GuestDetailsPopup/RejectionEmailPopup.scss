@@ -1,0 +1,104 @@
+.attithi-rejection-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.attithi-rejection-content {
+  background: white;
+  padding: 45px 80px;
+  border-radius: 8px;
+  width: 700px;
+  position: relative;
+}
+
+.attithi-rejection-close {
+  position: absolute;
+  right: 16px;
+  top: 16px;
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #666;
+  border: none !important;
+}
+
+.attithi-rejection-title {
+  font-size: 16px;
+  margin-bottom: 24px;
+  color: #333;
+  font-weight: 500;
+  text-align: left;
+}
+
+.attithi-rejection-reasons {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 24px;
+  padding-left: 40px;
+}
+
+.attithi-rejection-option {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  color: #333;
+}
+
+.attithi-rejection-checkbox {
+  width: 18px;
+  height: 18px;
+  accent-color: #8B5CF6;
+  cursor: pointer;
+}
+
+.attithi-rejection-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.attithi-rejection-send {
+  background: #8B5CF6;
+  color: white;
+  border: none;
+  padding: 8px 24px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  &:hover {
+    background: #7c4ef3;
+  }
+}
+
+.attithi-rejection-cancel {
+  background: white;
+  color: #666;
+  border: 1px solid #E5E7EB;
+  padding: 8px 24px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+
+  &:hover {
+    background: #f9fafb;
+  }
+}

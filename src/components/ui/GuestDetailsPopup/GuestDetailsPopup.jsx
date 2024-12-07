@@ -3,6 +3,7 @@ import CommonButton from "../../../components/ui/Button";
 import './GuestDetailsPopup.scss';
 import { updateBookingRequest } from "../../../../services/src/api/repositories/bookingRequestRepository";
 import { getToken } from "../../../../services/src/utils/storage";
+import RejectionEmailPopup from "./RejectionEmailPopup";
 
 const icons = {
     Reminder: "https://api.iconify.design/mdi:bell-ring-outline.svg",
@@ -21,7 +22,7 @@ const GuestDetailsPopup = ({ isOpen, onClose, guestDetails, guests, onStatusChan
     const [selectedRow, setSelectedRow] = useState(null);
     const [selectedVisitRow, setSelectedVisitRow] = useState(null);
     const [selectedGuestName, setSelectedGuestName] = useState(guestDetails?.userDetails?.name || "");
-    const [showRejectConfirmation, setShowRejectConfirmation] = useState(false);
+    const [showRejectionEmail, setShowRejectionEmail] = useState(false);
 
     useEffect(() => {
         if (guestDetails?.guests?.length > 0) {
@@ -83,51 +84,17 @@ const GuestDetailsPopup = ({ isOpen, onClose, guestDetails, guests, onStatusChan
         }
     };
 
-    const RejectConfirmationPopup = ({ onCancel, onConfirm }) => {
-        return (
-            <div className="popup-overlay confirmation-overlay">
-                <div className="confirmation-popup" style={{
-                    width: '400px',
-                    maxWidth: '90vw',
-                    padding: '40px 30px',
-                    height: '300px',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    justifyContent: 'space-between'
-                }}>
-                    <div className="warning-icon">
-                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="48" height="48">
-                            <path d="M12 3L22 21H2L12 3Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                            <path d="M12 9V13" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                            <path d="M12 17H12.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                        </svg>
-                    </div>
-                    <h3>Are you sure you want to reject this guest?</h3>
-                    <p>Once confirmed, the action will be final and cannot be undone.</p>
-                    <div className="confirmation-buttons">
-                        <button className="cancel-btn" onClick={onCancel}>
-                            Cancel
-                        </button>
-                        <button className="reject-confirm-btn" onClick={onConfirm}>
-                            Reject
-                        </button>
-                    </div>
-                </div>
-            </div>
-        );
+    const handleRejectClick = () => {
+        setShowRejectionEmail(true);
+    };
+
+    const handleRejectionEmailSubmit = (reasons) => {
+        handleStatusChange(guestDetails.id, 'rejected');
+        setShowRejectionEmail(false);
     };
 
     const renderActionButtons = () => {
         const status = guestDetails?.status || guestDetails?.attributes?.status || 'awaiting';
-
-        const handleRejectClick = () => {
-            setShowRejectConfirmation(true);
-        };
-
-        const handleRejectConfirm = () => {
-            handleStatusChange(guestDetails.id, 'rejected');
-            setShowRejectConfirmation(false);
-        };
 
         if (label === 'pending' || label === 'rescheduled') {
             return (
@@ -150,10 +117,10 @@ const GuestDetailsPopup = ({ isOpen, onClose, guestDetails, guests, onStatusChan
                     >
                         Reject
                     </button>
-                    {showRejectConfirmation && (
-                        <RejectConfirmationPopup
-                            onCancel={() => setShowRejectConfirmation(false)}
-                            onConfirm={handleRejectConfirm}
+                    {showRejectionEmail && (
+                        <RejectionEmailPopup
+                            onClose={() => setShowRejectionEmail(false)}
+                            onSubmit={handleRejectionEmailSubmit}
                         />
                     )}
                 </div>
@@ -179,10 +146,10 @@ const GuestDetailsPopup = ({ isOpen, onClose, guestDetails, guests, onStatusChan
                     >
                         Allocate Rooms
                     </button>
-                    {showRejectConfirmation && (
-                        <RejectConfirmationPopup
-                            onCancel={() => setShowRejectConfirmation(false)}
-                            onConfirm={handleRejectConfirm}
+                    {showRejectionEmail && (
+                        <RejectionEmailPopup
+                            onClose={() => setShowRejectionEmail(false)}
+                            onSubmit={handleRejectionEmailSubmit}
                         />
                     )}
                 </div>
@@ -203,10 +170,10 @@ const GuestDetailsPopup = ({ isOpen, onClose, guestDetails, guests, onStatusChan
                     >
                         Reject
                     </button>
-                    {showRejectConfirmation && (
-                        <RejectConfirmationPopup
-                            onCancel={() => setShowRejectConfirmation(false)}
-                            onConfirm={handleRejectConfirm}
+                    {showRejectionEmail && (
+                        <RejectionEmailPopup
+                            onClose={() => setShowRejectionEmail(false)}
+                            onSubmit={handleRejectionEmailSubmit}
                         />
                     )}
                 </div>

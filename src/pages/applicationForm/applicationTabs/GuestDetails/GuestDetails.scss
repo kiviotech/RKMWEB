@@ -1,3 +1,403 @@
+// .toggle-switch {
+//   position: relative;
+//   display: inline-block;
+//   width: 40px;
+//   height: 24px;
+
+//   input {
+//     opacity: 0;
+//     width: 0;
+//     height: 0;
+
+//     &:checked + .slider {
+//       background-color: #9867e9;
+//     }
+
+//     &:checked + .slider:before {
+//       transform: translateX(16px);
+//     }
+//   }
+
+//   .slider {
+//     position: absolute;
+//     cursor: pointer;
+//     top: 0;
+//     left: 0;
+//     right: 0;
+//     bottom: 0;
+//     background-color: #ccc;
+//     transition: 0.4s;
+//     border-radius: 34px;
+
+//     &:before {
+//       position: absolute;
+//       content: "";
+//       height: 16px;
+//       width: 16px;
+//       left: 4px;
+//       bottom: 4px;
+//       background-color: white;
+//       transition: 0.4s;
+//       border-radius: 50%;
+//     }
+//   }
+// }
+
+// .address-toggle-container {
+//   display: flex;
+//   align-items: center;
+//   gap: 12px;
+//   margin-bottom: 20px;
+
+//   .form-label {
+//     font-size: 16px;
+//     font-weight: 500;
+//     color: #333333;
+//     font-family: inherit;
+//   }
+// }
+
+// .form-tabs {
+//   display: flex;
+//   flex-wrap: wrap;
+//   gap: 10px;
+//   align-items: center;
+
+//   .tab {
+//     position: relative;
+//     display: flex;
+//     align-items: center;
+//     gap: 8px;
+//     padding: 8px 16px;
+//     cursor: pointer;
+
+//     .remove-guest {
+//       font-size: 20px;
+//       font-weight: bold;
+//       color: #666;
+//       padding: 0 4px;
+//       border-radius: 50%;
+//     }
+//   }
+
+//   .add-guest-tab {
+//     background-color: #f5f5f5;
+//     border-radius: 4px;
+//     transition: all 0.3s ease;
+//     border: 1px dashed #ea7704 !important;
+//     color: #ea7704 !important;
+
+//     &:hover:not(.disabled) {
+//       background-color: #f0e6ff;
+//     }
+
+//     &.disabled {
+//       border-color: #ccc;
+//       color: #999;
+//       pointer-events: none;
+//     }
+
+//     .plus-icon {
+//       font-size: 18px;
+//       font-weight: bold;
+//     }
+//   }
+// }
+
+// .unified-input {
+//   display: flex;
+//   gap: 10px;
+//   width: 100%;
+//   flex-wrap: nowrap !important;
+
+//   .custom-select {
+//     position: relative;
+//     min-width: 100px;
+//     max-width: 120px;
+//     width: 30%;
+//     flex: 0 0 auto;
+    
+//     select {
+//       width: 100%;
+//       height: 100%;
+//       padding: 8px;
+//       border: 1px solid #515151;
+//       border-radius: 5px;
+//       background-color: white;
+//     }
+//   }
+
+//   input[type="text"] {
+//     flex: 1;
+//     width: auto;
+//     min-width: 0;
+//   }
+// }
+
+// // Media query for responsive layout
+// @media (max-width: 768px) {
+//   .unified-input {
+//     display: flex !important;
+//     flex-direction: row !important;
+//     flex-wrap: nowrap !important;
+//     gap: 8px;
+    
+//     .custom-select {
+//       min-width: 80px;
+//       max-width: 100px;
+//       width: 25%;
+//     }
+    
+//     input[type="text"] {
+//       flex: 1;
+//       width: auto;
+//     }
+//   }
+
+//   // Override any conflicting styles
+//   .form-group .unified-input {
+//     flex-direction: row !important;
+//   }
+// }
+
+// // .scanned-qr-main-section {
+// //   border: 1px solid red;
+// //   padding: 10px;
+// //   font-family: Arial, sans-serif;
+// // }
+
+// // .scanned-qr-sub-section {
+// //   margin-bottom: 20px;
+// // }
+
+// // .qr-code-alert {
+// //   display: flex;
+// //   align-items: center;
+// //   font-size: 14px;
+// //   margin-bottom: 10px;
+
+// //   img {
+// //     margin-right: 8px;
+// //     width: 20px;
+// //     height: 20px;
+// //   }
+// // }
+
+// // .scan-qr-button {
+// //   padding: 8px 16px;
+ 
+// //   color: white;
+// //   border: none;
+// //   border-radius: 4px;
+// //   cursor: pointer;
+// //   font-size: 14px;
+// //   width: 100%;
+// //   margin-top: 10px;
+// // }
+
+// // .details-section {
+// //   margin-top: 20px;
+
+// //   h5 {
+// //     font-size: 16px;
+// //     margin-bottom: 10px;
+// //   }
+
+// //   .details {
+// //     display: flex;
+// //     flex-direction: column;
+// //     gap: 10px;
+// //   }
+
+// //   .detail {
+// //     display: flex;
+// //     flex-direction: column;
+
+// //     span {
+// //       font-size: 14px;
+// //     }
+
+// //     span:first-child {
+// //       font-weight: 600;
+// //     }
+
+// //     .donation-statuss {
+// //       color: #e74c3c;
+// //     }
+// //   }
+// // }
+
+// // .guests-section {
+// //   margin-top: 20px;
+
+// //   h5 {
+// //     font-size: 16px;
+// //     margin-bottom: 10px;
+// //   }
+
+// //   .tableCont {
+// //     display: flex;
+// //     flex-direction: column;
+// //     gap: 10px;
+// //     width: 100%;
+// //     margin-top: 10px;
+// //   }
+
+// //   .tableContHeader {
+// //     display: none; /* Hide headers for mobile */
+// //   }
+
+// //   .tableContBody {
+// //     display: flex;
+// //     flex-direction: column;
+// //     gap: 10px;
+
+// //     .tableContBodyEachRow {
+// //       display: flex;
+// //       flex-direction: column;
+// //       gap: 5px;
+// //       padding: 8px;
+// //       border: 1px solid #ccc;
+// //       border-radius: 4px;
+// //     }
+
+// //     .tbalebody {
+// //       display: flex;
+// //       justify-content: space-between;
+// //       font-size: 14px;
+
+// //       img {
+// //         width: 20px;
+// //         height: 20px;
+// //       }
+// //     }
+// //   }
+// // }
+
+// // .checkout-guest-button,
+// // .validate-guest-button {
+// //   background-color: #3498db;
+// //   color: white;
+// //   padding: 10px 20px;
+// //   border: none;
+// //   border-radius: 4px;
+// //   cursor: pointer;
+// //   font-size: 14px;
+// //   width: 100%;
+// //   margin-top: 10px;
+// // }
+
+
+// // @media (max-width: 480px) {
+// //   .application-form {
+// //     // border: 1px solid black;
+// //     // width: 790px !important; /* Full-width for small screens */
+// //     padding: 10px; 
+// //     box-sizing: border-box; 
+// //   }
+
+// //   .details-section{
+   
+// //   }
+// //   .guests-section {
+// //     border: 1px solid red;
+// //     width: 100%; 
+// //     margin: 0 auto; 
+// //   }
+
+// //   .details-section .details .detail {
+// //     display: flex;
+// //     flex-direction: column; /* Stack inputs vertically */
+// //     margin-bottom: 10px; /* Add spacing between inputs */
+// //   }
+
+// //   .details-section .detail span {
+// //     display: block; /* Ensure spans are on separate lines */
+// //     margin-bottom: 5px; /* Add spacing between label and value */
+// //   }
+
+// //   .guests-section .tableCont {
+// //     width: 100%; /* Full-width table */
+// //     overflow-x: auto; /* Allow horizontal scrolling if needed */
+// //   }
+
+// //   .guests-section .tableContHeader,
+// //   .guests-section .tableContBodyEachRow {
+// //     display: grid;
+// //     grid-template-columns: 1fr; /* Single-column layout */
+// //     gap: 10px; /* Add spacing between grid items */
+// //   }
+
+// //   .guests-section .tableheader,
+// //   .guests-section .tbalebody {
+// //     text-align: left; /* Align text to the left */
+// //     padding: 10px; /* Add padding for better readability */
+// //   }
+
+// //   .guests-section button {
+// //     width: 100%; /* Full-width buttons */
+// //     margin: 10px 0; /* Add spacing around buttons */
+// //   }
+
+// //   .checkout-guest-button,
+// //   .validate-guest-button {
+// //     font-size: 14px; /* Adjust font size for readability */
+// //     padding: 8px 12px; /* Adjust padding for smaller screens */
+// //   }
+// // }
+
+// // Add these new responsive styles
+
+// // Base styles for the form sections
+// .form-left-section,
+// .form-right-section {
+//   width: 50%;
+// }
+
+// // Media query for responsive layout
+// @media (max-width: 768px) {
+//   .guest-details {
+//     margin-left: 0px !important; // Remove left margin
+//     padding: 10px !important; // Add small padding instead
+//   }
+
+//   .tab-content {
+//     > div:first-child {
+//       flex-direction: column !important;
+//       gap: 15px !important;
+//       padding: 10px !important; // Reduce padding
+//     }
+
+//     .form-left-section,
+//     .form-right-section {
+//       width: 100% !important;
+//       padding: 0 !important; // Remove padding
+//     }
+//   }
+
+//   .submit-button {
+//     padding: 10px !important; // Reduce padding
+//   }
+
+//   .unified-input {
+//     flex-direction: column !important;
+    
+//     .custom-select {
+//       width: 100% !important;
+//     }
+//   }
+
+//   .addressInputBox {
+//     flex-direction: column !important;
+    
+//     .form-group {
+//       width: 100% !important;
+//     }
+//   }
+// }
+
+
+
 .toggle-switch {
   position: relative;
   display: inline-block;
@@ -84,8 +484,8 @@
     background-color: #f5f5f5;
     border-radius: 4px;
     transition: all 0.3s ease;
-    border: 1px dashed #ea7704 !important;
-    color: #ea7704 !important;
+    border: 1px dashed #9867e9;
+    color: #9867e9;
 
     &:hover:not(.disabled) {
       background-color: #f0e6ff;
@@ -160,195 +560,8 @@
   }
 }
 
-// .scanned-qr-main-section {
-//   border: 1px solid red;
-//   padding: 10px;
-//   font-family: Arial, sans-serif;
-// }
-
-// .scanned-qr-sub-section {
-//   margin-bottom: 20px;
-// }
-
-// .qr-code-alert {
-//   display: flex;
-//   align-items: center;
-//   font-size: 14px;
-//   margin-bottom: 10px;
-
-//   img {
-//     margin-right: 8px;
-//     width: 20px;
-//     height: 20px;
-//   }
-// }
-
-// .scan-qr-button {
-//   padding: 8px 16px;
- 
-//   color: white;
-//   border: none;
-//   border-radius: 4px;
-//   cursor: pointer;
-//   font-size: 14px;
-//   width: 100%;
-//   margin-top: 10px;
-// }
-
-// .details-section {
-//   margin-top: 20px;
-
-//   h5 {
-//     font-size: 16px;
-//     margin-bottom: 10px;
-//   }
-
-//   .details {
-//     display: flex;
-//     flex-direction: column;
-//     gap: 10px;
-//   }
-
-//   .detail {
-//     display: flex;
-//     flex-direction: column;
-
-//     span {
-//       font-size: 14px;
-//     }
-
-//     span:first-child {
-//       font-weight: 600;
-//     }
-
-//     .donation-statuss {
-//       color: #e74c3c;
-//     }
-//   }
-// }
-
-// .guests-section {
-//   margin-top: 20px;
-
-//   h5 {
-//     font-size: 16px;
-//     margin-bottom: 10px;
-//   }
-
-//   .tableCont {
-//     display: flex;
-//     flex-direction: column;
-//     gap: 10px;
-//     width: 100%;
-//     margin-top: 10px;
-//   }
-
-//   .tableContHeader {
-//     display: none; /* Hide headers for mobile */
-//   }
-
-//   .tableContBody {
-//     display: flex;
-//     flex-direction: column;
-//     gap: 10px;
-
-//     .tableContBodyEachRow {
-//       display: flex;
-//       flex-direction: column;
-//       gap: 5px;
-//       padding: 8px;
-//       border: 1px solid #ccc;
-//       border-radius: 4px;
-//     }
-
-//     .tbalebody {
-//       display: flex;
-//       justify-content: space-between;
-//       font-size: 14px;
-
-//       img {
-//         width: 20px;
-//         height: 20px;
-//       }
-//     }
-//   }
-// }
-
-// .checkout-guest-button,
-// .validate-guest-button {
-//   background-color: #3498db;
-//   color: white;
-//   padding: 10px 20px;
-//   border: none;
-//   border-radius: 4px;
-//   cursor: pointer;
-//   font-size: 14px;
-//   width: 100%;
-//   margin-top: 10px;
-// }
 
 
-// @media (max-width: 480px) {
-//   .application-form {
-//     // border: 1px solid black;
-//     // width: 790px !important; /* Full-width for small screens */
-//     padding: 10px; 
-//     box-sizing: border-box; 
-//   }
-
-//   .details-section{
-   
-//   }
-//   .guests-section {
-//     border: 1px solid red;
-//     width: 100%; 
-//     margin: 0 auto; 
-//   }
-
-//   .details-section .details .detail {
-//     display: flex;
-//     flex-direction: column; /* Stack inputs vertically */
-//     margin-bottom: 10px; /* Add spacing between inputs */
-//   }
-
-//   .details-section .detail span {
-//     display: block; /* Ensure spans are on separate lines */
-//     margin-bottom: 5px; /* Add spacing between label and value */
-//   }
-
-//   .guests-section .tableCont {
-//     width: 100%; /* Full-width table */
-//     overflow-x: auto; /* Allow horizontal scrolling if needed */
-//   }
-
-//   .guests-section .tableContHeader,
-//   .guests-section .tableContBodyEachRow {
-//     display: grid;
-//     grid-template-columns: 1fr; /* Single-column layout */
-//     gap: 10px; /* Add spacing between grid items */
-//   }
-
-//   .guests-section .tableheader,
-//   .guests-section .tbalebody {
-//     text-align: left; /* Align text to the left */
-//     padding: 10px; /* Add padding for better readability */
-//   }
-
-//   .guests-section button {
-//     width: 100%; /* Full-width buttons */
-//     margin: 10px 0; /* Add spacing around buttons */
-//   }
-
-//   .checkout-guest-button,
-//   .validate-guest-button {
-//     font-size: 14px; /* Adjust font size for readability */
-//     padding: 8px 12px; /* Adjust padding for smaller screens */
-//   }
-// }
-
-// Add these new responsive styles
-
-// Base styles for the form sections
 .form-left-section,
 .form-right-section {
   width: 50%;
@@ -393,5 +606,81 @@
     .form-group {
       width: 100% !important;
     }
+  }
+  @media (max-width: 780px) {
+
+
+    
+    .submit-button {
+      display: flex;
+      flex-wrap: nowrap; 
+      justify-content: space-between; 
+      gap: 10px; 
+      width: 100%; 
+    }
+  
+    .submit-button button {
+      flex: 1; /* Ensures buttons take equal width */
+      max-width: 150px; /* Prevents buttons from becoming too wide */
+      padding: 8px 10px; /* Adjusts padding for consistent height */
+      text-align: center;
+      font-size: 14px; /* Scales down font size for smaller screens */
+    }
+  
+    .submit-button .back {
+      max-width: 200px; /* Slightly larger width for the Back button */
+      background-color: #fff;
+      color: #000;
+      border-color: #4b4b4b;
+    }
+  
+    .submit-button .proceed {
+      background-color: #9867e9;
+      color: #ffffff;
+      border-color: #9867e9;
+      max-width: 200px;
+     padding: 10px 30px !important;
+     
+    }
+  
+    .submit-button .delete {
+      background-color: #fff;
+      color: #ff4d4f;
+      border-color: #fff;
+    }
+  }
+  
+}
+
+@media (max-width: 480px) {
+  .submit-button {
+ 
+    display: flex;
+    flex-direction: column; 
+    align-items: center; 
+    gap: 15px; 
+    width: 100%; 
+  }
+
+ 
+
+  .submit-button .back {
+    width: 90%; 
+    max-width: 300px; 
+    text-align: center;
+  }
+
+  .submit-button .proceed, 
+  .submit-button .delete {
+    width: 90%; 
+    max-width: 300px; 
+  }
+
+  .submit-button .proceed {
+    background-color: #9867e9;
+    color: #ffffff;
+    border-color: #9867e9;
+    
+   
   }
 }

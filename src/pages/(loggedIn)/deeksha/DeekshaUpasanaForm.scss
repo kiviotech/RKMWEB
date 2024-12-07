@@ -1,8 +1,14 @@
 .deekshaupasanform-container {
     font-family: "Lexend", sans-serif;
-    padding: 40px;
-    width: 75%;
+    padding: 20px;
+    width: 90%;
+    max-width: 1200px;
     margin: 0 auto;
+
+    @media (max-width: 768px) {
+        width: 100%;
+        padding: 10px;
+    }
   }
   
   .deekshaupasanform-progress-bar {
@@ -22,22 +28,41 @@
   }
   
   .deekshaupasanform-heading {
-    width: 887px;
-    height: 40px;
-    margin: 40px auto;
+    width: 100%;
+    max-width: 887px;
+    height: auto;
+    margin: 30px auto;
     color: #9867e9;
     font-size: 32px;
     font-weight: 600;
-    line-height: 40px;
+    line-height: 1.3;
     text-align: center;
+
+    @media (max-width: 768px) {
+        font-size: 24px;
+        margin: 20px auto;
+    }
+
+    @media (max-width: 480px) {
+        font-size: 20px;
+    }
   }
   
   .deekshaupasanform-question {
     font-size: 24px;
     font-weight: 500;
-    line-height: 30px;
-    margin-top: 20px;
+    line-height: 1.4;
+    margin: 20px auto;
     text-align: center;
+    padding: 0 15px;
+
+    @media (max-width: 768px) {
+        font-size: 20px;
+    }
+
+    @media (max-width: 480px) {
+        font-size: 18px;
+    }
   }
 
 
@@ -46,24 +71,35 @@
   .deekshaupasanform-dropdown-container {
     text-align: center;
     margin: 20px auto;
-   
+    width: 100%;
   }
   
   .deekshaupasanform-dropdown {
-    width: 420px;
-    // height: 56px;
+    width: 100%;
+    max-width: 420px;
     padding: 12px;
     border-radius: 5px;
     border: 1px solid #ccc;
     font-size: 16px;
     color: #515151;
+
+    @media (max-width: 480px) {
+        font-size: 14px;
+        padding: 10px;
+    }
   }
   
   .deekshaupasanform-buttons-container {
     display: flex;
-    justify-content: flex-end;
+    justify-content: space-between;
     gap: 20px;
     margin-top: 40px;
+    flex-wrap: wrap;
+
+    @media (max-width: 480px) {
+        flex-direction: column;
+        gap: 15px;
+    }
 
     button,
     .link-button {
@@ -73,6 +109,17 @@
       cursor: pointer;
       font-size: 18px;
       text-decoration: none;
+      min-width: 120px;
+
+      @media (max-width: 768px) {
+        padding: 10px 25px;
+        font-size: 16px;
+      }
+
+      @media (max-width: 480px) {
+        width: 100%;
+        padding: 12px 20px;
+      }
     }
 
     .deekshaupasanform-back-button {
@@ -94,7 +141,7 @@
       border-radius: 5px;
 
       &:hover {
-        text-decoration: underline;
+        background: darken(#9A4EFC, 5%);
       }
     }
   }

@@ -86,150 +86,75 @@ margin-left: 0px;
     }
   }
   
-  // Responsive styles
+  // Updated responsive styles
   @media (max-width: 768px) {
-    .footer-container {
-      flex-direction: column;
-      text-align: center;
-  
-      .logo-section {
-        margin-bottom: 20px;
-      }
-  
-      .info-section,
-      .timing-section {
-        padding: 0;
-      }
-      .footer {
-        background-color: #ff8000; // Orange background
-        color: #fff;
-        padding: 10px 0; // Reduced padding for a smaller height
+    .footer {
+      padding: 20px 0;
       
-        .footer-container {
-          display: flex;
-          justify-content: space-between;
-          align-items: flex-start;
-          width: 90%;
-          max-width: 1200px;
-          margin: 0 auto;
+      .footer-container {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: 20px;
 
+        .logo-section {
+          margin-bottom: 10px;
           
-      
-          .logo-section {
-            flex: 1;
-      
-            .footer-logo {
-              margin-top: 20px;
-              max-width: 120px; // Adjusted logo size
-              height: auto;
-            }
-          }
-      
-          .info-section,
-          .timing-section {
-            flex: 2;
-            padding: 0 10px; // Reduced padding
-    
-            .office{
-    margin-left: 0px;
-            }
-      
-            h3 {
-              margin-bottom: 8px; // Adjusted margin for smaller spacing
-              font-size: 1.2rem; // Reduced font size for headings
-            }
-      
-            p {
-              display: flex;
-              align-items: center;
-              margin: 4px 0; // Reduced margin for smaller spacing
-              line-height: 1.4; // Slightly reduced line height
-              font-size: 0.9rem; // Reduced font size for general text
-      
-              .icons {
-                margin-right: 8px; // Adjusted icon margin
-                font-size: 1rem; // Reduced icon size
-                color: #fff; // Set the icon color to white
-              }
-      
-              a {
-                color: #fff;
-                text-decoration: underline;
-              }
-            }
-      
-            .location {
-              margin-left: 20px; 
-            }
-        
-          }
-      
-          .timing-section {
-            .social-icons {
-              margin-top: 10px; // Adjust the top margin for spacing below the "Follow us" text
-              margin-left: 15px; // Added left margin for alignment
-              display: flex;
-              gap: 10px; // Reduced gap between icons
-      
-              svg {
-                font-size: 1.2rem; // Reduced icon size for social icons
-                cursor: pointer;
-                transition: transform 0.3s;
-                color: #fff; // Set the icon color to white
-      
-                &:hover {
-                  transform: scale(1.1);
-                }
-              }
-            }
+          .footer-logo {
+            max-width: 100px;
           }
         }
-      
-        // Additional styles for icons specifically in the .info-section
-        .info-section .icon {
-          color: #fff; // Ensure icons are white in the info section as well
-        }
-      }
-      
-      // Responsive styles
-      @media (max-width: 768px) {
-        .footer-container {
-          flex-direction: column;
-          text-align: center;
-      
-          .logo-section {
-            margin-bottom: 20px;
-          }
-      
-          .info-section,
-          .timing-section {
-            padding: 0;
-          }
-        //   .social-media-icons {
-        //     display: flex;
-        //     justify-content: space-between; /* Ensures icons are spaced evenly */
-        //     gap: 30px; /* Space between icons */
-        //   }
-          
-        //   .icon_ss {
-        //     font-size: 1.2rem; // Adjust icon size as needed
-        //     cursor: pointer;
-        //     transition: transform 0.3s;
-        //     color: #fff; // Set the icon color to white
+
+        .info-section,
+        .timing-section {
+          width: 100%;
+          padding: 0 15px;
+
+          p {
+            justify-content: center;
+            text-align: center;
             
-          
-        //     &:hover {
-        //       transform: scale(1.1);
-        //     }
-        //   }
-          
-          
-       
+            .icons {
+              margin-right: 5px;
+            }
+          }
+
+          .location {
+            margin-left: 0;
+          }
+        }
+
+        .social-media-icons {
+          justify-content: center;
+          margin-top: 10px;
         }
       }
-      
-      
-      
-   
+    }
+  }
+
+  @media (max-width: 480px) {
+    .footer {
+      .footer-container {
+        width: 95%;
+        
+        .info-section,
+        .timing-section {
+          h3 {
+            font-size: 1.1rem;
+          }
+          
+          p {
+            font-size: 0.85rem;
+          }
+        }
+
+        .social-media-icons {
+          gap: 20px;
+          
+          .icon_ss {
+            font-size: 1.3rem;
+          }
+        }
+      }
     }
   }

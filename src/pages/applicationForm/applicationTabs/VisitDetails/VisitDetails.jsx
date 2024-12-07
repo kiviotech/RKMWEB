@@ -46,6 +46,22 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
     return date.toISOString().split('T')[0];
   };
 
+  // Generate time options in 12-hour format
+  const generate12HourTimeOptions = () => {
+    const options = [];
+    for (let hour = 0; hour < 24; hour++) {
+      for (let minute = 0; minute < 60; minute += 30) {
+        const period = hour < 12 ? 'AM' : 'PM';
+        const displayHour = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
+        const displayMinute = minute.toString().padStart(2, '0');
+        const value = `${hour.toString().padStart(2, '0')}:${displayMinute}`;
+        const label = `${displayHour}:${displayMinute} ${period}`;
+        options.push({ value, label });
+      }
+    }
+    return options;
+  };
+
   // Update handleInputChange to set next day as departure date
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -276,7 +292,7 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
                 <input
                   type="date"
                   name="visitDate"
-                  value={formData.arrivalDate || formData.visitDate}
+                  value={formData.arrivalDate || formData.visitDate || ''}
                   onChange={handleInputChange}
                 />
                 {errors.visitDate && <span className="error">{errors.visitDate}</span>}
@@ -289,7 +305,7 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
                 <input
                   type="date"
                   name="departureDate"
-                  value={formData.departureDate}
+                  value={formData.departureDate || ''}
                   onChange={handleInputChange}
                   min={formData.visitDate || ''}
                   max={formData.visitDate ? getMaxDepartureDate(formData.visitDate) : ''}
@@ -327,13 +343,18 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
                 <label>
                   Arrival Time <span className="required"> *</span>
                 </label>
-                <input
-                  type="time"
+                <select
                   name="arrivalTime"
-                  value={formData.arrivalTime}
+                  value={formData.arrivalTime || ''}
                   onChange={handleInputChange}
-                  placeholder="00:00"
-                />
+                >
+                  <option value="">Select Time</option>
+                  {generate12HourTimeOptions().map((time) => (
+                    <option key={time.value} value={time.value}>
+                      {time.label}
+                    </option>
+                  ))}
+                </select>
                 {errors.arrivalTime && <span className="error">{errors.arrivalTime}</span>}
               </div>
 
@@ -341,13 +362,18 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
                 <label>
                   Departure Time <span className="required"> *</span>
                 </label>
-                <input
-                  type="time"
+                <select
                   name="departureTime"
-                  value={formData.departureTime}
+                  value={formData.departureTime || ''}
                   onChange={handleInputChange}
-                  placeholder="00:00"
-                />
+                >
+                  <option value="">Select Time</option>
+                  {generate12HourTimeOptions().map((time) => (
+                    <option key={time.value} value={time.value}>
+                      {time.label}
+                    </option>
+                  ))}
+                </select>
                 {errors.departureTime && <span className="error">{errors.departureTime}</span>}
               </div>
 
@@ -411,7 +437,7 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
                 <input
                   type="date"
                   name="previousVisitDate"
-                  value={formData.previousVisitDate}
+                  value={formData.previousVisitDate || ''}
                   onChange={handleInputChange}
                 />
                 {errors.previousVisitDate && (

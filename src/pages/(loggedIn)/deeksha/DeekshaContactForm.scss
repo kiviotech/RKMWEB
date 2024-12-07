@@ -4,9 +4,13 @@
 
 .diksha-form-container {
   padding: 40px;
-  font-family: 'Lexend';
-  width: 75%;
+  max-width: 75%;
   margin: 0 auto;
+
+  @media (max-width: 768px) {
+    padding: 20px;
+    max-width: 100%;
+  }
 
   .progress-bar {
     height: 8px;
@@ -27,47 +31,58 @@
     text-align: center;
     color: #9867E9;
     font-size: 32px;
+    line-height: 40px;
     margin-bottom: 20px;
     margin-top: 40px;
+
+    @media (max-width: 768px) {
+      font-size: 24px;
+      line-height: 32px;
+    }
   }
 
   .form-group {
-    margin-bottom: 30px;
+    margin-bottom: 25px;
+
+    @media (max-width: 768px) {
+      margin-bottom: 20px;
+    }
 
     .form-label {
-      font-size: 24px;
+      font-size: 18px;
       font-weight: bold;
       color: #000;
+
+      @media (max-width: 768px) {
+        font-size: 16px;
+      }
     }
 
     .phone-input {
       display: flex;
-      align-items: center;
-      justify-content: center;
+      gap: 10px;
       border: none;
-      width: 50%;
-
+      align-items: center;
+      
       .phone-select {
         border-radius: 5px;
         border: 1px solid #ccc;
         font-size: 16px;
         margin-right: 10px;
         margin-top: 5px;
-        width: 15%;
+        width: 120px;
         box-shadow: none;
         padding: 9px;
       }
 
       .input-field {
         flex: 1;
-        padding: 23px;
+        padding: 12px;
         border-radius: 5px;
         border: 1px solid #ccc;
         font-size: 16px;
         box-shadow: none;
         color: #515151;
-        
-        
       }
     }
 
@@ -81,6 +96,11 @@
       font-size: 16px;
       box-shadow: none;
       color: #515151;
+
+      @media (max-width: 768px) {
+        font-size: 14px;
+        padding: 8px 12px;
+      }
     }
   }
 
@@ -117,74 +137,81 @@
       }
     }
   }
-}
 
-.switch-wrapper {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-top: 10px;
+  .switch-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 10px;
 
-  .switch {
-    position: relative;
-    display: inline-block;
-    width: 30px;
-    height: 15px;
-    margin-top: 5px;
+    @media (max-width: 480px) {
+      flex-direction: row;
+      align-items: center;
+      gap: 10px;
+    }
 
-    input {
-      opacity: 0;
-      width: 5px;
-      height: 5px;
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 30px;
+      height: 15px;
+      margin-top: 5px;
 
-      &:checked + .slider {
-        background-color: #9867E9;
+      input {
+        opacity: 0;
+        width: 5px;
+        height: 5px;
+
+        &:checked + .slider {
+          background-color: #9867E9;
+
+          &:before {
+            transform: translateX(14px);
+          }
+        }
+      }
+
+      .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0px;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ccc;
+        transition: 0.4s;
+        border-radius: 15px;
 
         &:before {
-          transform: translateX(14px);
+          position: absolute;
+          content: "";
+          height: 10px;
+          width: 10px;
+          left: 2px;
+          top: 2px;
+          background-color: white;
+          transition: 0.4s;
+          border-radius: 50%;
         }
       }
     }
 
-    .slider {
-      position: absolute;
-      cursor: pointer;
-      top: 0px;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background-color: #ccc;
-      transition: 0.4s;
-      border-radius: 15px;
-
-      &:before {
-        position: absolute;
-        content: "";
-        height: 10px;
-        width: 10px;
-        left: 2px;
-        top: 2px;
-        background-color: white;
-        transition: 0.4s;
-        border-radius: 50%;
-      }
+    .icon {
+      width: 25px;
+      height: 25px;
     }
-  }
 
-  .icon {
-    width: 25px;
-    height: 25px;
-  }
-
-  .label-text {
-    font-size: 14px;
-    color: #000;
-    font-family: 'Lexend', sans-serif;
+    .label-text {
+      font-size: 14px;
+      color: #000;
+      font-family: 'Lexend', sans-serif;
+    }
   }
 }
 
 .footer {
   display: flex;
+  background-color: #fff;
   justify-content: space-between;
 
   span {
@@ -192,6 +219,26 @@
     font-weight: bold;
     margin-left: -5%;
     cursor: pointer;
+  }
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .button-group {
+    @media (max-width: 480px) {
+      width: 100%;
+      
+      button, a {
+        padding: 10px 20px;
+        font-size: 16px;
+        text-align: center;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+    }
   }
 }
 

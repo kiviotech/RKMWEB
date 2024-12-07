@@ -10,6 +10,13 @@ const VerifyDetails = () => {
   const { formData } = useApplicationStore();
   const navigate = useNavigate();
 
+  useEffect(() => {
+    window.scrollTo({ 
+      top: 0, 
+      behavior: 'smooth' 
+    });
+  }, []);
+
   // Format date and time
   const formatDateTime = (date, time) => {
     if (!date || !time) return "Not specified";
@@ -75,7 +82,7 @@ const VerifyDetails = () => {
             phone_number: `+${guest.countryCode}${guest.guestNumber}`,
             aadhaar_number: guest.guestAadhaar,
             occupation: guest.guestOccupation,
-            address: `${guest.guestAddress.houseNumber}, ${guest.guestAddress.streetName}, ${guest.guestAddress.district}, ${guest.guestAddress.state}, ${guest.guestAddress.pinCode}`,
+            address: `${guest.guestAddress.houseNumber}, ${guest.guestAddress.district}, ${guest.guestAddress.state}, ${guest.guestAddress.pinCode}`,
             age: parseInt(guest.guestAge),
             gender: guest.guestGender,
             status: "pending",
@@ -104,7 +111,7 @@ const VerifyDetails = () => {
         aadhaar_number: formData.aadhaar,
         number_of_guest_members: formData.guests.length.toString(),
         reason_for_revisit: formData.reason || "",
-        address: `${formData.address.houseNumber}, ${formData.address.streetName}, ${formData.address.district}, ${formData.address.state}, ${formData.address.pinCode}`,
+        address: `${formData.address.houseNumber}, ${formData.address.district}, ${formData.address.state}, ${formData.address.pinCode}`,
         arrival_date: formData.visitDate,
         departure_date: formData.departureDate,
         deeksha: formData.deeksha,
@@ -142,7 +149,7 @@ const VerifyDetails = () => {
   };
 
   return (
-    <div className="verify-details" style={{marginLeft:'15px'}}>
+    <div className="verify-details">
       <h2>Kamarpukur Guesthouse Booking</h2>
       <div className="table-container">
         <table>
@@ -184,8 +191,7 @@ const VerifyDetails = () => {
       <div className="details-section">
         <p>
           <strong>Arrival Date and Time :</strong>{" "}
-          {/* <span> {formatDateTime(formData.visitDate, formData.visitTime)}</span> */}
-          {formatDateTime(formData.arrivalDate, formData.visitTime)}
+          {formatDateTime(formData.visitDate, formData.visitTime)}
         </p>
         <p>
           <strong>Departure Date and Time :</strong>{" "}
@@ -218,23 +224,20 @@ const VerifyDetails = () => {
               style={{ cursor: 'pointer' }}
             />
           </h3>
-          <p >
-            <div><strong >Name :</strong> <span>{formData.name}</span></div>
-           <div> <strong >Aadhaar Number :</strong> <span>{formData.aadhaar}</span></div>
-            <div><strong >Mobile Number :</strong> <span>+{formData.countryCode} {formData.phoneNumber}</span></div>
-          </p>
-          <p>
-            <strong>Address :</strong>{" "}
-           <span> {`${formData.address.houseNumber}, ${formData.address.streetName}`}</span>
-          </p>
-          <p >
-            <div><strong>District :</strong> <span>{formData.address.district}{" "}</span></div>
-            <div><strong>Pincode :</strong><span> {formData.address.pinCode}{" "}</span></div>
-            <div><strong>State :</strong> <span>{formData.address.state}</span></div>
-          </p>
-          {/* <p>
-            <strong>Mobile Number :</strong> +{formData.countryCode} {formData.phoneNumber}
-          </p> */}
+          <div className="details-row">
+            <div><strong>Name:</strong> <span>{formData.name}</span></div>
+            <div><strong>Aadhaar Number:</strong> <span>{formData.aadhaar}</span></div>
+            <div><strong>Mobile Number:</strong> <span>+{formData.countryCode} {formData.phoneNumber}</span></div>
+          </div>
+          <div className="details-row">
+            <strong>Address:</strong>{" "}
+            <span>{`${formData.address.houseNumber}`}</span>
+          </div>
+          <div className="details-row">
+            <div><strong>District:</strong> <span>{formData.address.district}</span></div>
+            <div><strong>Pincode:</strong><span> {formData.address.pinCode}</span></div>
+            <div><strong>State:</strong> <span>{formData.address.state}</span></div>
+          </div>
         </div>
 
         {/* Guest Addresses */}
@@ -250,21 +253,20 @@ const VerifyDetails = () => {
                 style={{ cursor: 'pointer' }}
               />
             </h3>
-            <p >
-              <div><strong>Name :</strong> {guest.guestName}</div>
-              <div><strong>Aadhar Number :</strong> {guest.guestAadhaar}</div>
-              <div><strong>Mobile Number :</strong> +{guest.countryCode} {guest.guestNumber}</div>
-            </p>
-            <p>
-              <strong>Address :</strong>{" "}
-              <span>{`${guest.guestAddress.houseNumber}, ${guest.guestAddress.streetName}`}</span>
-            </p>
-            <p style={{display:'flex',gap:'50px',}}>
-           <div>   <strong>District :</strong> {guest.guestAddress.district}{" "}</div>
-             <div> <strong>Pincode :</strong> {guest.guestAddress.pinCode}{" "}</div>
-              <div><strong>State :</strong> {guest.guestAddress.state}</div>
-            </p>
-           
+            <div className="details-row">
+              <div><strong>Name:</strong> {guest.guestName}</div>
+              <div><strong>Aadhar Number:</strong> {guest.guestAadhaar}</div>
+              <div><strong>Mobile Number:</strong> +{guest.countryCode} {guest.guestNumber}</div>
+            </div>
+            <div className="details-row">
+              <strong>Address:</strong>{" "}
+              <span>{`${guest.guestAddress.houseNumber}`}</span>
+            </div>
+            <div className="details-row">
+              <div><strong>District:</strong> {guest.guestAddress.district}</div>
+              <div><strong>Pincode:</strong> {guest.guestAddress.pinCode}</div>
+              <div><strong>State:</strong> {guest.guestAddress.state}</div>
+            </div>
           </div>
         ))}
       </div>

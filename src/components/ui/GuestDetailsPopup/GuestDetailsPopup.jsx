@@ -6,7 +6,7 @@ import { getToken } from "../../../../services/src/utils/storage";
 
 const icons = {
     Reminder: "https://api.iconify.design/mdi:bell-ring-outline.svg",
-    Email: "https://api.iconify.design/mdi:email-outline.svg",
+    Email: "https://api.iconify.design/mdi:email-outline.svg", 
     Contact: "https://api.iconify.design/mdi:phone.svg",
     Calendar: "https://api.iconify.design/mdi:calendar.svg",
     DefaultAvatar: "https://api.iconify.design/mdi:account-circle.svg",
@@ -28,6 +28,7 @@ const GuestDetailsPopup = ({ isOpen, onClose, guestDetails, guests, onStatusChan
     const [selectedVisitRow, setSelectedVisitRow] = useState(null);
     const [selectedGuestName, setSelectedGuestName] = useState(guestDetails?.userDetails?.name || "");
     const [showRejectConfirmation, setShowRejectConfirmation] = useState(false);
+    const [showEmailTemplate, setShowEmailTemplate] = useState(false);
 
     useEffect(() => {
         if (guestDetails?.guests?.length > 0) {
@@ -104,23 +105,25 @@ RAMAKRISHNA MATH & RAMAKRISHNA MISSION, KAMANKUNUR`);
         return (
             <div className="email-popup-overlay">
                 <div className="email-popup-content">
-                    <button className="close-button" onClick={onClose}>×</button>
                     <div className="email-template">
                         <div className="email-header">
-                            <div className="email-field">
-                                <div className="field-label">From:</div>
-                                <div className="field-value">emailaddress@gmail.com</div>
-                            </div>
-                            <div className="email-field">
-                                <div className="field-label">To:</div>
-                                <div className="recipient-list">
-                                    <div className="recipient-tag">
-                                        <span className="avatar">A</span>
-                                        <span className="name">Sri rock</span>
-                                    </div>
-                                    <div className="recipient-tag">
-                                        <span className="avatar">A</span>
-                                        <span className="name">Sri rock</span>
+                            <span className="close-button" onClick={onClose}>×</span>
+                            <div className="email-fields">
+                                <div className="field">
+                                    <span>From:</span>
+                                    <span className="email-address">admin@ramakrishnamath.org</span>
+                                </div>
+                                <div className="field">
+                                    <span>To:</span>
+                                    <div className="recipient-tags">
+                                        {guestData?.userDetails?.email && (
+                                            <div className="recipient-chip">
+                                                <div className="avatar">
+                                                    {guestData.userDetails.name?.[0] || 'G'}
+                                                </div>
+                                                <span className="name">{guestData.userDetails.email}</span>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                             </div>
@@ -135,8 +138,8 @@ RAMAKRISHNA MATH & RAMAKRISHNA MISSION, KAMANKUNUR`);
                         </div>
 
                         <div className="email-footer">
-                            <button onClick={onClose} className="cancel-btn">Cancel</button>
-                            <button onClick={onSend} className="send-btn">Send Mail</button>
+                            <button onClick={onClose} className="cancel-button">Cancel</button>
+                            <button onClick={onSend} className="send-button">Send</button>
                         </div>
                     </div>
                 </div>
@@ -145,12 +148,29 @@ RAMAKRISHNA MATH & RAMAKRISHNA MISSION, KAMANKUNUR`);
     };
 
     const RejectConfirmationPopup = ({ onCancel, onConfirm }) => {
-        const [selectedReason, setSelectedReason] = useState('');
-        const [showEmailTemplate, setShowEmailTemplate] = useState(false);
+        const [selectedReasons, setSelectedReasons] = useState([]);
+
+        const rejectionReasons = [
+            "No rooms available for the requested dates",
+            "Maximum stay duration exceeded",
+            "Previous visit within 6 months",
+            "Incomplete documentation",
+            "Other"
+        ];
+
+        const handleReasonChange = (reason) => {
+            setSelectedReasons(prev => {
+                if (prev.includes(reason)) {
+                    return prev.filter(r => r !== reason);
+                } else {
+                    return [...prev, reason];
+                }
+            });
+        };
 
         const handleSendMailClick = () => {
-            if (!selectedReason) {
-                alert('Please select a reason for rejection');
+            if (selectedReasons.length === 0) {
+                alert('Please select at least one reason for rejection');
                 return;
             }
             setShowEmailTemplate(true);
@@ -161,7 +181,7 @@ RAMAKRISHNA MATH & RAMAKRISHNA MISSION, KAMANKUNUR`);
                 <EmailTemplate 
                     onClose={onCancel}
                     guestData={guestDetails}
-                    onSend={() => onConfirm(selectedReason)}
+                    onSend={() => onConfirm(selectedReasons.join(', '))}
                 />
             );
         }
@@ -175,58 +195,24 @@ RAMAKRISHNA MATH & RAMAKRISHNA MISSION, KAMANKUNUR`);
                     </div>
                     
                     <div className="reason-options">
-                        <label className="reason-option">
-                            <input 
-                                type="radio" 
-                                name="rejectReason" 
-                                value="reason1"
-                                onChange={(e) => setSelectedReason(e.target.value)}
-                            />
-                            <span style={{paddingLeft: "50px"}}>Reason 1</span>
-                        </label>
-                        <label className="reason-option">
-                            <input 
-                                type="radio" 
-                                name="rejectReason" 
-                                value="reason2"
-                                onChange={(e) => setSelectedReason(e.target.value)}
-                            />
-                            <span style={{paddingLeft: "50px"}}>Reason 2</span>
-                        </label>
-                        <label className="reason-option">
-                            <input 
-                                type="radio" 
-                                name="rejectReason" 
-                                value="reason3"
-                                onChange={(e) => setSelectedReason(e.target.value)}
-                            />
-                            <span style={{paddingLeft: "50px"}}>Reason 3</span>
-                        </label>
-                        <label className="reason-option">
-                            <input 
-                                type="radio" 
-                                name="rejectReason" 
-                                value="reason4"
-                                onChange={(e) => setSelectedReason(e.target.value)}
-                            />
-                            <span style={{paddingLeft: "50px"}}>Reason 4</span>
-                        </label>
-                        <label className="reason-option">
-                            <input 
-                                type="radio" 
-                                name="rejectReason" 
-                                value="reason5"
-                                onChange={(e) => setSelectedReason(e.target.value)}
-                            />
-                            <span style={{paddingLeft: "50px"}}>Reason 5</span>
-                        </label>
+                        {rejectionReasons.map((reason, index) => (
+                            <label key={index} className="reason-option">
+                                <input 
+                                    type="checkbox"
+                                    name="rejectReason"
+                                    checked={selectedReasons.includes(reason)}
+                                    onChange={() => handleReasonChange(reason)}
+                                />
+                                <span>{reason}</span>
+                            </label>
+                        ))}
                     </div>
                     
                     <div className="action-buttons">
                         <button 
                             className="send-mail-btn" 
                             onClick={handleSendMailClick}
-                            disabled={!selectedReason}
+                            disabled={selectedReasons.length === 0}
                         >
                             Send Mail
                         </button>
@@ -255,8 +241,9 @@ RAMAKRISHNA MATH & RAMAKRISHNA MISSION, KAMANKUNUR`);
             setShowRejectConfirmation(true);
         };
 
-        const handleRejectConfirm = () => {
+        const handleRejectConfirm = (reasons) => {
             handleStatusChange(guestDetails.id, 'rejected');
+            // Here you might want to also send the rejection reasons to your API
             setShowRejectConfirmation(false);
         };
         console.log(status)
@@ -367,20 +354,12 @@ RAMAKRISHNA MATH & RAMAKRISHNA MISSION, KAMANKUNUR`);
                                         <span className="label">Initiation by</span>
                                         <span className="value">{guestDetails?.userDetails?.deeksha || "N/A"}</span>
                                     </div>
-                                    {/* <div className="info-item">
-                                        <span className="label">Initiation by</span>
-                                        <span className="value">Gurudev Name</span>
-                                    </div> */}
                                 </div>
                             </div>
                         </div>
 
                         <div className="right-section">
                             <div className="reminder-bar">
-                                {/* <div className="reminder-content">
-                                    <img src={icons.Reminder} alt="reminder" />
-                                    <span>Reminder: 26th Aug is Janmasthami</span>
-                                </div> */}
                             </div>
 
                             <div className="stay-info">
@@ -414,9 +393,6 @@ RAMAKRISHNA MATH & RAMAKRISHNA MISSION, KAMANKUNUR`);
                     <div className="history-header">
                         <div className="left-title">Guests</div>
                         <div className="center-title">Visit History of {selectedGuestName}</div>
-                        {/* <div className="right-link">
-                            <a href="#" className="check-availability">Check Availability</a>
-                        </div> */}
                     </div>
 
                     <div className="history-tables">
@@ -501,9 +477,18 @@ RAMAKRISHNA MATH & RAMAKRISHNA MISSION, KAMANKUNUR`);
 
                     {/* Alert and Action Buttons */}
                     <div style={{background: "#fff"}} className="footer">
-                        <div className="alert">
-                            There is a Revisit within 6 months of Guest name
-                        </div>
+                        {guestDetails?.visitHistory?.some(visit => {
+                            const visitDate = new Date(visit.visitDate);
+                            const currentDate = new Date();
+                            const monthsDifference = 
+                                (currentDate.getFullYear() - visitDate.getFullYear()) * 12 +
+                                (currentDate.getMonth() - visitDate.getMonth());
+                            return monthsDifference < 6;
+                        }) && (
+                            <div className="alert">
+                                There is a revisit within 6 months for {selectedGuestName}
+                            </div>
+                        )}
                         {renderActionButtons()}
                     </div>
                 </div>

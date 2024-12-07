@@ -578,28 +578,6 @@
 
 
 
-
-
-@media (max-width:480){
-  .application-form{
-   width: 780px;
-
-  
-   
-  }
-  .form-section{
-    border: 1px solid red;
-  }
-  .form-left-section{
-    border: 1px solid black;
-  }
-.form-group{
-  border: 1px solid purple;
-}
-
-}
-
-// Responsive Design
 @media (max-width: 1024px) {
   .application-form {
     padding: 20px;
@@ -673,6 +651,11 @@
     .country-dropdown {
       width: 100%;
       max-width: 320px;
+    }
+  }
+  .submit-button{
+    button{
+      white-space: nowrap;
     }
   }
 }
@@ -772,6 +755,20 @@
     .unified-input {
       gap: 5px !important;
     }
+  }
+
+  .submit-button{
+   
+    display: flex;
+    justify-content: center;
+    
+   
+button{
+  white-space: nowrap;
+  padding: 10px 30px !important;
+  // width: 30%;
+}
+
   }
 }
 

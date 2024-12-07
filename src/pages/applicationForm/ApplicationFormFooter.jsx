@@ -25,8 +25,14 @@ const ApplicationFormFooter = () => {
         </div>
         <div className="timing-section">
           <h3 className='office'>Office Timings</h3>
-          <p><strong>April to September:</strong> 8:30 - 11:30 a.m. & 4:00 - 6:00 p.m.</p>
-          <p><strong>October to March:</strong> 8:30 - 11:30 a.m. & 3:30 - 5:30 p.m.</p>
+          <p>
+            <strong>April to September:</strong>
+            8:30 - 11:30 a.m. & 4:00 - 6:00 p.m.
+          </p>
+          <p>
+            <strong>October to March:</strong>
+            8:30 - 11:30 a.m. & 3:30 - 5:30 p.m.
+          </p>
           <h3 className='office'>Follow us</h3>
           <div className="social-media-icons" style={{ display: 'flex', flexDirection: 'row', gap: '15px' }}>
   <FaFacebook className="icon_ss" style={{ fontSize: '1.5rem', color: '#fff', cursor: 'pointer' }} />

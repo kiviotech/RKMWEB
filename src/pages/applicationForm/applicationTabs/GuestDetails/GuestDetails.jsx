@@ -960,6 +960,7 @@ const GuestDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
           }}
         >
           <CommonButton
+          className="back"
             buttonName="Back"
             style={{
               backgroundColor: "#FFF",
@@ -976,9 +977,9 @@ const GuestDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
               <CommonButton
                 buttonName="Delete Guest"
                 style={{
-                  backgroundColor: "#FFF",
+                  backgroundColor: "#FFF2EA",
                   color: "#FF4D4F",
-                  borderColor: "#FFF",
+                  borderColor: "#FFF2EA",
                   fontSize: "18px",
                   borderRadius: "7px",
                   padding: "15px 20px",
@@ -987,6 +988,7 @@ const GuestDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
               />
             )}
             <CommonButton
+            className="proceed"
               buttonName="Proceed"
               style={{
                 backgroundColor: "#EA7704",

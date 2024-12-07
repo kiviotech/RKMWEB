@@ -59,18 +59,39 @@ const Donation = () => {
     const getGuestDetails = async () => {
       try {
         const response = await fetchGuestDetails();
-        // Transform the data to match the table structure
-        const formattedData = response.data.map(guest => ({
-          roomNumber: guest.attributes.room?.data?.attributes?.room_number || '-',
-          guestName: `Mr. ${guest.attributes.name}`,
-          arrivalDate: new Date(guest.attributes.createdAt).toLocaleDateString(),
-          noOfGuests: 1, // You might want to get this from somewhere specific
-          stayDuration: '3 days', // Calculate this based on your data
-          donation: guest.attributes.donations?.data?.length > 0 ? 'Donated' : 'Not yet donated',
-          donationAmount: guest.attributes.donations?.data?.length > 0 
-            ? `₹${guest.attributes.donations.data[0]?.attributes?.amount?.toLocaleString('en-IN') || 0}`
-            : null,
-        }));
+        
+        // Get tomorrow's date
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        tomorrow.setHours(0, 0, 0, 0);
+
+        // Transform and filter the data for tomorrow's departures
+        const formattedData = response.data
+          .filter(guest => {
+            const departureDate = new Date(guest.attributes.departure_date);
+            departureDate.setHours(0, 0, 0, 0);
+            return departureDate.getTime() === tomorrow.getTime();
+          })
+          .map(guest => {
+            // Calculate stay duration
+            const arrivalDate = new Date(guest.attributes.arrival_date);
+            const departureDate = new Date(guest.attributes.departure_date);
+            const diffTime = Math.abs(departureDate - arrivalDate);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            const stayDuration = `${diffDays} ${diffDays === 1 ? 'day' : 'days'}`;
+
+            return {
+              roomNumber: guest.attributes.room?.data?.attributes?.room_number || '-',
+              guestName: `Mr. ${guest.attributes.name}`,
+              arrivalDate: new Date(guest.attributes.arrival_date).toLocaleDateString(),
+              noOfGuests: 1,
+              stayDuration: stayDuration,
+              donation: guest.attributes.donations?.data?.length > 0 ? 'Donated' : 'Not yet donated',
+              donationAmount: guest.attributes.donations?.data?.length > 0 
+                ? `₹${guest.attributes.donations.data[0]?.attributes?.amount?.toLocaleString('en-IN') || 0}`
+                : null,
+            };
+          });
         
         console.log("Tomorrow's Leaving Guest Data:", formattedData);
         
@@ -635,89 +656,99 @@ const Donation = () => {
         </div>
 
         <div className="table-container">
-          <table>
-            <thead>
-              <tr>
-                {tomorrowFilterOptions.roomNumber && <th>Room number</th>}
-                {tomorrowFilterOptions.guestName && <th>Guest Name</th>}
-                {tomorrowFilterOptions.arrivalDate && <th>Arrival date</th>}
-                {tomorrowFilterOptions.stayDuration && <th>Stay Duration</th>}
-                {tomorrowFilterOptions.donation && <th>Donation</th>}
-                {tomorrowFilterOptions.donationAmount && <th>Donation Amount</th>}
-                {tomorrowFilterOptions.action && <th>Action</th>}
-              </tr>
-            </thead>
-            <tbody>
-              {getPaginatedGuestData().map((guest, index) => (
-                <tr key={index}>
-                  {tomorrowFilterOptions.roomNumber && <td>{guest.roomNumber}</td>}
-                  {tomorrowFilterOptions.guestName && <td>{guest.guestName}</td>}
-                  {tomorrowFilterOptions.arrivalDate && <td>{guest.arrivalDate}</td>}
-                  {tomorrowFilterOptions.stayDuration && <td>{guest.stayDuration}</td>}
-                  {tomorrowFilterOptions.donation && (
-                    <td>
-                      <span className={`donation-status ${guest.donation === 'Donated' ? 'donated' : 'not-donated'}`}>
-                        {guest.donation}
-                      </span>
-                    </td>
-                  )}
-                  {tomorrowFilterOptions.donationAmount && <td>{guest.donationAmount || '-'}</td>}
-                  {tomorrowFilterOptions.action && (
-                    <td className="action-cell">
-                      <button 
-                        className="action-btn"
-                        onClick={(e) => toggleDropdown(index, e)}
-                      >
-                        <span className="material-icons">more_vert</span>
-                      </button>
-                      
-                      {openActionId === index && (
-                        <div 
-                          className="action-dropdown"
-                          style={{
-                            top: `${dropdownPosition.top}px`,
-                            left: `${dropdownPosition.left}px`
-                          }}
-                        >
-                          <button onClick={() => handleActionClick('notification', guest)}>
-                            <span className="material-icons" style={{ color: '#8B5CF6' }}>notifications</span>
-                            <span>Send all notifications</span>
-                          </button>
-                          <button onClick={() => handleActionClick('whatsapp', guest)}>
-                            <span className="material-icons" style={{ color: '#25D366' }}>message</span>
-                            <span>Send Whatsapp</span>
-                          </button>
-                          <button onClick={() => handleActionClick('email', guest)}>
-                            <span className="material-icons" style={{ color: '#8B5CF6' }}>mail</span>
-                            <span>Send an E-mail</span>
-                          </button>
-                          <button onClick={() => handleActionClick('sms', guest)}>
-                            <span className="material-icons" style={{ color: '#8B5CF6' }}>chat</span>
-                            <span>Send SMS</span>
-                          </button>
-                          <button onClick={() => handleActionClick('call', guest)}>
-                            <span className="material-icons" style={{ color: '#8B5CF6' }}>phone</span>
-                            <span>Call the Guest</span>
-                          </button>
-                          <button onClick={() => handlePrintReceipt(guest)}>
-                            <span className="material-icons" style={{ color: '#8B5CF6' }}>print</span>
-                            <span>Print Receipt</span>
-                          </button>
-                        </div>
-                      )}
-                    </td>
-                  )}
+          {getPaginatedGuestData().length > 0 ? (
+            <table>
+              <thead>
+                <tr>
+                  {tomorrowFilterOptions.roomNumber && <th>Room number</th>}
+                  {tomorrowFilterOptions.guestName && <th>Guest Name</th>}
+                  {tomorrowFilterOptions.arrivalDate && <th>Arrival date</th>}
+                  {tomorrowFilterOptions.stayDuration && <th>Stay Duration</th>}
+                  {tomorrowFilterOptions.donation && <th>Donation</th>}
+                  {tomorrowFilterOptions.donationAmount && <th>Donation Amount</th>}
+                  {tomorrowFilterOptions.action && <th>Action</th>}
                 </tr>
-              ))}
-            </tbody>
-          </table>
-          <div className="pagination-wrapper">
-            <Pagination
-              currentPage={leavingGuestsPage}
-              totalPages={leavingGuestsTotalPages}
-              onPageChange={setLeavingGuestsPage}
-            />
-          </div>
+              </thead>
+              <tbody>
+                {getPaginatedGuestData().map((guest, index) => (
+                  <tr key={index}>
+                    {tomorrowFilterOptions.roomNumber && <td>{guest.roomNumber}</td>}
+                    {tomorrowFilterOptions.guestName && <td>{guest.guestName}</td>}
+                    {tomorrowFilterOptions.arrivalDate && <td>{guest.arrivalDate}</td>}
+                    {tomorrowFilterOptions.stayDuration && <td>{guest.stayDuration}</td>}
+                    {tomorrowFilterOptions.donation && (
+                      <td>
+                        <span className={`donation-status ${guest.donation === 'Donated' ? 'donated' : 'not-donated'}`}>
+                          {guest.donation}
+                        </span>
+                      </td>
+                    )}
+                    {tomorrowFilterOptions.donationAmount && <td>{guest.donationAmount || '-'}</td>}
+                    {tomorrowFilterOptions.action && (
+                      <td className="action-cell">
+                        <button 
+                          className="action-btn"
+                          onClick={(e) => toggleDropdown(index, e)}
+                        >
+                          <span className="material-icons">more_vert</span>
+                        </button>
+                        
+                        {openActionId === index && (
+                          <div 
+                            className="action-dropdown"
+                            style={{
+                              top: `${dropdownPosition.top}px`,
+                              left: `${dropdownPosition.left}px`
+                            }}
+                          >
+                            <button onClick={() => handleActionClick('notification', guest)}>
+                              <span className="material-icons" style={{ color: '#8B5CF6' }}>notifications</span>
+                              <span>Send all notifications</span>
+                            </button>
+                            <button onClick={() => handleActionClick('whatsapp', guest)}>
+                              <span className="material-icons" style={{ color: '#25D366' }}>message</span>
+                              <span>Send Whatsapp</span>
+                            </button>
+                            <button onClick={() => handleActionClick('email', guest)}>
+                              <span className="material-icons" style={{ color: '#8B5CF6' }}>mail</span>
+                              <span>Send an E-mail</span>
+                            </button>
+                            <button onClick={() => handleActionClick('sms', guest)}>
+                              <span className="material-icons" style={{ color: '#8B5CF6' }}>chat</span>
+                              <span>Send SMS</span>
+                            </button>
+                            <button onClick={() => handleActionClick('call', guest)}>
+                              <span className="material-icons" style={{ color: '#8B5CF6' }}>phone</span>
+                              <span>Call the Guest</span>
+                            </button>
+                            <button onClick={() => handlePrintReceipt(guest)}>
+                              <span className="material-icons" style={{ color: '#8B5CF6' }}>print</span>
+                              <span>Print Receipt</span>
+                            </button>
+                          </div>
+                        )}
+                      </td>
+                    )}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          ) : (
+            <div className="no-data-message">
+              <span className="material-icons">info</span>
+              <p>No guests are leaving tomorrow</p>
+            </div>
+          )}
+          
+          {getPaginatedGuestData().length > 0 && (
+            <div className="pagination-wrapper">
+              <Pagination
+                currentPage={leavingGuestsPage}
+                totalPages={leavingGuestsTotalPages}
+                onPageChange={setLeavingGuestsPage}
+              />
+            </div>
+          )}
         </div>
       </div>
 

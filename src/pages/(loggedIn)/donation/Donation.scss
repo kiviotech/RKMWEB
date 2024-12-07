@@ -1,11 +1,20 @@
+* {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+  
+  &::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera */
+  }
+}
+
 .donation-container {
-  padding: 24px;
+  padding: 16px;
 
   .header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 24px;
+    margin-bottom: 16px;
 
     h2 {
       font-size: 24px;
@@ -32,17 +41,17 @@
   .dashboard-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 24px;
+    gap: 12px;
 
     .card {
       background: white;
       border-radius: 16px;
-      padding: 24px;
+      padding: 16px;
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 
       h3 {
         font-size: 18px;
-        margin-bottom: 20px;
+        margin-bottom: 12px;
       }
     }
 
@@ -50,7 +59,7 @@
       .distribution-content {
         display: flex;
         justify-content: space-between;
-        gap: 24px;
+        gap: 16px;
       }
 
       .distribution-list {
@@ -59,8 +68,8 @@
         .distribution-item {
           display: flex;
           align-items: center;
-          margin-bottom: 16px;
-          gap: 12px;
+          margin-bottom: 12px;
+          gap: 8px;
 
           .item-dot {
             width: 12px;
@@ -165,16 +174,16 @@
   }
 
   .leaving-guests-section {
-    margin-top: 24px;
+    margin-top: 12px;
     background: white;
     border-radius: 16px;
-    padding: 24px;
+    padding: 16px;
 
     .section-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 24px;
+      margin-bottom: 16px;
 
       h3 {
         font-size: 20px;
@@ -341,9 +350,10 @@
   }
 
   .recent-donations-section {
+    margin-top: 12px;
     background: white;
     border-radius: 16px;
-    padding-left: 18px;
+    padding: 16px;
 
     .section-header {
       display: flex;
@@ -770,36 +780,42 @@
     position: absolute;
     top: 100%;
     right: 0;
-    margin-top: 8px;
+    margin-top: 6px;
     background: white;
     border-radius: 8px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     border: 1px solid #E5E7EB;
-    width: 250px;
+    width: 180px;
     z-index: 1000;
 
     .filter-options {
-      padding: 12px;
+      padding: 8px;
       display: flex;
       flex-direction: column;
-      gap: 12px;
-      max-height: 300px;
+      gap: 4px;
+      max-height: 250px;
       overflow-y: auto;
+      scrollbar-width: none; /* Firefox */
+      -ms-overflow-style: none; /* IE and Edge */
+      
+      &::-webkit-scrollbar {
+        display: none;
+      }
 
       .filter-option {
         display: flex;
         align-items: center;
-        gap: 8px;
+        gap: 6px;
         cursor: pointer;
-        padding: 4px 0;
+        padding: 2px 0;
 
         input[type="checkbox"] {
-          width: 16px;
-          height: 16px;
+          width: 14px;
+          height: 14px;
         }
 
         span {
-          font-size: 14px;
+          font-size: 13px;
           color: #374151;
         }
       }
@@ -808,14 +824,14 @@
     .filter-actions {
       display: flex;
       justify-content: flex-end;
-      gap: 8px;
-      padding: 12px;
+      gap: 6px;
+      padding: 8px;
       border-top: 1px solid #E5E7EB;
 
       button {
-        padding: 6px 12px;
+        padding: 4px 8px;
         border-radius: 4px;
-        font-size: 14px;
+        font-size: 13px;
         cursor: pointer;
       }
 
@@ -861,5 +877,58 @@
         color: #ef4444 !important;
       }
     }
+  }
+}
+
+.donation-input {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  
+  .rupee-symbol {
+    color: #6B7280;
+  }
+  
+  .donation-amount-input {
+    width: 100px;
+    padding: 4px 8px;
+    border: 1px solid #E5E7EB;
+    border-radius: 4px;
+    outline: none;
+    
+    &:focus {
+      border-color: #8B5CF6;
+      box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.1);
+    }
+    
+    &::-webkit-inner-spin-button,
+    &::-webkit-outer-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+  }
+}
+
+.no-data-message {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  text-align: center;
+  background: #f9fafb;
+  border-radius: 8px;
+  margin: 1rem 0;
+
+  .material-icons {
+    font-size: 48px;
+    color: #9ca3af;
+    margin-bottom: 1rem;
+  }
+
+  p {
+    color: #6b7280;
+    font-size: 1rem;
+    margin: 0;
   }
 }

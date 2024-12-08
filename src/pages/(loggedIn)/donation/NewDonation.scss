@@ -1,5 +1,5 @@
 .donations-container {
-  padding: 10px;
+  padding-left: 10px;
   font-family: Arial, sans-serif;
   position: relative;
 }
@@ -81,7 +81,6 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
 
   h1 {
     font-size: 24px;
@@ -94,7 +93,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
+  margin-bottom: 5px;
   max-width: 100%;
 
   .tabs {
@@ -150,12 +149,12 @@
     flex: 0.7;
     display: flex;
     flex-direction: column;
-    gap: 20px;
+
 
     .donor-details {
       width: 100%;
       height: fit-content;
-      max-height: 500px;
+      max-height: 430px;
     }
 
     .donation-history {
@@ -432,29 +431,30 @@ select {
 
     .form-row {
       display: flex;
-      gap: 20px;
+      gap: 12px;
       width: 100%;
-      margin-bottom: 16px;
+      margin-bottom: 0px !important;
 
       .form-group {
         flex: 1;
         min-width: 0;
+        margin-bottom: 4px !important;
+      }
+    }
+
+    .address-row {
+      .form-group {
+        flex: 1;
+      }
+    }
+
+    .street-row {
+      .house-number-field {
+        flex: 0.3;
       }
 
-      &.address-row {
-        .form-group {
-          flex: 1;
-        }
-      }
-
-      &.street-row {
-        .house-number-field {
-          flex: 0.3;
-        }
-
-        .street-name-field {
-          flex: 0.7;
-        }
+      .street-name-field {
+        flex: 0.7;
       }
     }
   }
@@ -545,7 +545,7 @@ select,
 }
 
 .form-group {
-  margin-bottom: 16px;
+  margin-bottom: 4px !important;
 }
 
 .error-message {
@@ -609,7 +609,7 @@ input::placeholder {
 }
 
 .form-group {
-  margin-bottom: 16px;
+  margin-bottom: 4px !important;
 }
 
 .confirmation-dialog {
@@ -842,7 +842,7 @@ input::placeholder {
 
 .form-row {
   display: flex;
-  gap: 20px;
+  gap: 12px;
   width: 100%;
 
   .form-group {
@@ -1060,7 +1060,7 @@ input::placeholder {
 
 .form-row {
   display: flex;
-  gap: 20px;
+  gap: 12px;
   width: 100%;
 
   .form-group {
@@ -1072,7 +1072,7 @@ input::placeholder {
 .form-grid {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 8px;
 }
 
 .donation-form {
@@ -1116,7 +1116,7 @@ input::placeholder {
 
 .form-row {
   display: flex;
-  gap: 20px;
+  gap: 12px;
   width: 100%;
 
   .form-group {
@@ -1136,13 +1136,13 @@ select:focus {
 }
 
 .form-group {
-  margin-bottom: 16px;
+  margin-bottom: 4px !important;
 
   label {
     display: block;
     font-size: 14px;
     color: #666;
-    margin-bottom: 8px;
+    margin-bottom: 4px;
     font-weight: 500;
   }
 
@@ -1273,7 +1273,7 @@ input[type="email"].borderless-input {
 .details-card.donation-details {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 5px;
 }
 
 .details-card.transaction-details {
@@ -1554,8 +1554,8 @@ input[type="email"].borderless-input {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-top: 20px;
-  padding: 20px;
+  width: 100%;
+  margin-bottom: 10px;
 
   .total-donation-amount {
     display: flex;

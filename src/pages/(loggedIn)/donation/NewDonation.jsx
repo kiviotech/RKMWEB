@@ -1179,22 +1179,20 @@ const NewDonation = () => {
 
   return (
     <div className="donations-container">
+
+
+      <div className="header">
+        
       <div className="donor-tags" style={{
         display: 'flex', 
         justifyContent: 'space-between',
-        overflowX: 'auto',
-        scrollbarWidth: 'none',
-        msOverflowStyle: 'none',
-        paddingBottom: '10px',
-        '&::-webkit-scrollbar': {
-          display: 'none'
-        }
       }}>
+        <h1>New Donation</h1>
         <div style={{
           display: 'flex',
           gap: '10px',
-          flexWrap: 'nowrap',
           alignItems: 'center',
+          flexWrap: 'wrap'
         }}>        
           {donorTags.map(tag => (
             <div 
@@ -1212,25 +1210,9 @@ const NewDonation = () => {
           <button className="add-donation-btn" onClick={handleAddDonation}>
             + Add Donation
           </button>
-          <button
-            className="link-button"
-            onClick={() => navigate('/donation#tomorrows-guests')}
-            style={{
-              background: 'none',
-              border: 'none',
-              color: '#8C52FF',
-              cursor: 'pointer',
-              fontSize: '18px',
-              fontWeight: '500',
-              padding: '8px 16px',
-              textDecoration: 'underline',
-              whiteSpace: 'nowrap',
-            }}
-          >
-            Tomorrow's Leaving Guest
-          </button>
         </div>
-        <div style={{display: 'flex', flexDirection: 'column'}}>
+      </div>
+      <div>        <div style={{display: 'flex', flexDirection: 'column'}}>
           <div className="info-row">
             <label className="info-label">User: </label>
             <span className="info-data">{user?.username || 'User Name'}</span>
@@ -1239,11 +1221,7 @@ const NewDonation = () => {
             <label className="info-label">Date: </label>
             <span className="info-data">{new Date().toLocaleDateString('en-GB')}</span>
           </div>
-        </div>
-      </div>
-
-      <div className="header">
-        <h1>New Donation</h1>
+        </div></div>
       </div>
 
       <div className="tab-section">
@@ -1269,7 +1247,24 @@ const NewDonation = () => {
             </div>
           </div>
 
-          <div>          
+          <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+            <button
+              className="link-button"
+              onClick={() => navigate('/donation#tomorrows-guests')}
+              style={{
+                background: 'none',
+                border: 'none',
+                color: '#8C52FF',
+                cursor: 'pointer',
+                fontSize: '14px',
+                fontWeight: '500',
+                padding: '8px 16px',
+                textDecoration: 'underline',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              Tomorrow's Leaving Guest
+            </button>          
             <button
               style={{
                 display: 'flex',
@@ -1587,6 +1582,42 @@ const NewDonation = () => {
             </div>
           </div>
 
+                <div className="donation-footer">
+        <div className="total-amount">
+          <span className="label">Total Donation Amount</span>
+          <span className="amount" style={{paddingLeft: '20px'}}> ₹ {calculateTotalDonations().toLocaleString('en-IN')}</span>
+        </div>
+        <div className="action-buttons">
+          <button 
+            className="cancel-btn" 
+            type="button" 
+            onClick={handleCancel}
+          >
+            Cancel
+          </button>
+          <button 
+            className="pending-btn" 
+            type="button"
+            onClick={handlePending}
+          >
+            Pending
+          </button>
+          <button 
+            className="print-receipt-btn" 
+            type="button"
+            onClick={handlePrintReceipt}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M7 17H17V22H7V17Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M17 3H7V8H17V3Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M17 8H19C20.1046 8 21 8.89543 21 10V16C21 17.1046 20.1046 18 19 18H17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M7 8H5C3.89543 8 3 8.89543 3 10V16C3 17.1046 3.89543 18 5 18H7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+            Print Receipt
+          </button>
+        </div>
+      </div>
+
           <div className="details-card donation-history">
             <h2>Donation History</h2>
             <table className="history-table">
@@ -1786,42 +1817,6 @@ const NewDonation = () => {
               </div>
             </div>
           )}
-        </div>
-      </div>
-
-      <div className="donation-footer">
-        <div className="total-amount">
-          <span className="label">Total Donation Amount</span>
-          <span className="amount" style={{paddingLeft: '20px'}}> ₹ {calculateTotalDonations().toLocaleString('en-IN')}</span>
-        </div>
-        <div className="action-buttons">
-          <button 
-            className="cancel-btn" 
-            type="button" 
-            onClick={handleCancel}
-          >
-            Cancel
-          </button>
-          <button 
-            className="pending-btn" 
-            type="button"
-            onClick={handlePending}
-          >
-            Pending
-          </button>
-          <button 
-            className="print-receipt-btn" 
-            type="button"
-            onClick={handlePrintReceipt}
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M7 17H17V22H7V17Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M17 3H7V8H17V3Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M17 8H19C20.1046 8 21 8.89543 21 10V16C21 17.1046 20.1046 18 19 18H17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M7 8H5C3.89543 8 3 8.89543 3 10V16C3 17.1046 3.89543 18 5 18H7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-            Print Receipt
-          </button>
         </div>
       </div>
 

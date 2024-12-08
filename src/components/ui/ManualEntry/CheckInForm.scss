@@ -1,0 +1,147 @@
+// Overlay styles
+.check-in-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.4); // Semi-transparent background
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 999;
+  }
+  
+  // Modal container
+  .check-in-modal {
+    background: #fff; // White background
+    border-radius: 8px;
+    width: 850px; // Increased width for a wider modal
+    height: 400px; // Reduced height for a shorter modal
+    padding: 20px; // Reduced padding
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    font-family: "Arial", sans-serif;
+    position: relative;
+  
+    // Header with title and close button
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 5px; // Reduced margin
+  
+      h3 {
+        font-size: 1rem; // Slightly smaller font size for title
+        font-weight: bold;
+        margin: 0;
+        color: #000;
+      }
+  
+      .close-btn {
+        background: none;
+        border: none;
+        font-size: 1.2rem; // Adjusted to be slightly smaller
+        font-weight: bold;
+        cursor: pointer;
+        color: #888;
+  
+        &:hover {
+          color: #ff4b4b;
+        }
+      }
+    }
+  
+    // Form styles
+    .check-in-form {
+      display: flex;
+      flex-direction: column;
+      gap: 8px; // Reduced gap between form elements
+  
+      .form-row {
+        display: flex;
+        gap: 8px; // Reduced gap between fields
+  
+        .form-group {
+          flex: 1;
+  
+          label {
+            font-size: 0.85rem; // Smaller label text
+            color: #333;
+            margin-bottom: 3px; // Adjusted margin
+            display: block;
+          }
+  
+          input,
+          select {
+            width: 100%;
+            padding: 5px; // Reduced padding for input fields
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 0.85rem; // Smaller font size for inputs
+            color: #333;
+  
+            &:focus {
+              outline: none;
+              border-color: #EA7704;
+            }
+          }
+  
+          // Adjust the width of the food category input
+          &:nth-child(3) select {
+            width: 50%; // Set to a smaller width (adjust as needed)
+          }
+        }
+      }
+  
+      .form-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 5px; // Reduced margin
+  
+        .scan-qr-btn {
+          background: none;
+          border: 1px solid #EA7704;
+          padding: 5px 10px; // Adjusted button size
+          border-radius: 4px;
+          font-size: 0.85rem; // Adjusted font size
+          color: #EA7704;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+  
+          .icon {
+            margin-right: 5px; // Spacing between the icon and text
+            display: flex;
+            align-items: center;
+          }
+  
+          svg {
+            width: 16px; // Icon size
+            height: 16px;
+            color: inherit; // Inherits button text color
+          }
+  
+          &:hover {
+            background: #ffe5b2;
+          }
+        }
+  
+        .confirm-btn {
+          background: #EA7704;
+          color: #fff;
+          border: none;
+          padding: 10px 20px; // Increased padding for greater height
+          border-radius: 4px;
+          font-size: 0.85rem; // Adjusted font size
+          font-weight: bold;
+          cursor: pointer;
+  
+          &:hover {
+            background: #d76d02; // Slightly darker for hover effect
+          }
+        }
+      }
+    }
+  }
+  

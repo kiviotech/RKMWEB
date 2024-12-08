@@ -558,6 +558,10 @@ select,
 .form-group {
   position: relative;
 
+  &:has(.error-message) {
+    margin-bottom: 20px !important;
+  }
+
   input.error {
     border-color: #dc3545;
 

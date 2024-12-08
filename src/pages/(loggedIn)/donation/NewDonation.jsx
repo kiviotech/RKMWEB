@@ -512,9 +512,9 @@ const NewDonation = () => {
     const phoneError = validatePhone(donorDetails.phone);
     const emailError = validateEmail(donorDetails.email);
     
-    // Add PAN validation for amounts over 10,000
+    // Add PAN validation for amounts over 9,999
     const amount = parseFloat(currentReceipt?.donationDetails?.amount) || 0;
-    const panError = amount > 10000 ? validatePAN(donorDetails.panNumber) : '';
+    const panError = amount > 9999 ? validatePAN(donorDetails.panNumber) : '';
 
     setValidationErrors({
       name: nameError,
@@ -523,7 +523,7 @@ const NewDonation = () => {
       pan: panError
     });
 
-    if (nameError || phoneError || (amount > 10000 && panError)) {
+    if (nameError || phoneError || (amount > 9999 && panError)) {
       alert("Please fill required fields");
       return;
     }
@@ -1158,8 +1158,8 @@ const NewDonation = () => {
     if (/^\d*\.?\d*$/.test(value)) {
       const amount = parseFloat(value) || 0;
       
-      // Check if amount exceeds 10,000
-      setShowPANField(amount > 10000);
+      // Check if amount exceeds 9,999
+      setShowPANField(amount > 9999);
 
       const updatedDonationDetails = {
         ...currentReceipt?.donationDetails,

@@ -56,7 +56,9 @@ const NewDonation = () => {
     name: '',
     phone: '',
     email: '',
-    identityNumber: ''
+    identityNumber: '',
+    purpose: '',
+    inMemoryOf: ''
   });
   const [isLoadingPincode, setIsLoadingPincode] = useState(false);
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
@@ -74,6 +76,9 @@ const NewDonation = () => {
 
   // Add this to your validation states
   const [showPANField, setShowPANField] = useState(false);
+
+  // Add new state for print options dropdown
+  const [showPrintOptions, setShowPrintOptions] = useState(false);
 
   console.log("Zustand Store Data:", {
     // auth: { user },
@@ -511,6 +516,8 @@ const NewDonation = () => {
     const nameError = validateName(donorDetails.name);
     const phoneError = validatePhone(donorDetails.phone);
     const emailError = validateEmail(donorDetails.email);
+    const purposeError = !currentReceipt?.donationDetails?.donationType ? 'Purpose is required' : '';
+    const inMemoryError = !currentReceipt?.donationDetails?.inMemoryOf ? 'In Memory of is required' : '';
     
     // Add PAN validation for amounts over 9,999
     const amount = parseFloat(currentReceipt?.donationDetails?.amount) || 0;
@@ -520,11 +527,13 @@ const NewDonation = () => {
       name: nameError,
       phone: phoneError,
       email: emailError,
-      pan: panError
+      pan: panError,
+      purpose: purposeError,
+      inMemoryOf: inMemoryError
     });
 
-    if (nameError || phoneError || (amount > 9999 && panError)) {
-      alert("Please fill required fields");
+    if (nameError || phoneError || purposeError || inMemoryError || (amount > 9999 && panError)) {
+      alert("Please fill all required fields");
       return;
     }
 
@@ -540,6 +549,11 @@ const NewDonation = () => {
 
   // Move the API calls to handleConfirmPrint
   const handleConfirmPrint = async () => {
+    setShowPrintOptions(true);
+  };
+
+  // Add new function to handle print selection
+  const handlePrintSelection = async (withStamp) => {
     try {
       if (donationId) {
         // Update existing donation
@@ -619,10 +633,14 @@ const NewDonation = () => {
         console.log("Successfully created new donation");
       }
 
-      // Reset form and close modal
+      // Reset form and close modals
       resetFormData();
       setIsModalOpen(false);
+      setShowPrintOptions(false);
       navigate('/donation');
+
+      // Here you can handle different print logic based on withStamp parameter
+      console.log(`Printing receipt ${withStamp ? 'with' : 'without'} stamp`);
 
     } catch (error) {
       console.error('Error processing donation:', error);
@@ -1292,7 +1310,7 @@ const NewDonation = () => {
             {/* First row with Name, Phone, Mantra Diksha */}
             <div className="form-row">
               <div className="form-group">
-                <label>Name of Donor</label>
+                <label>Name of Donor <span className="required">*</span></label>
                 <div className="donor-unified-input">
                   <select
                     value={donorDetails.title}
@@ -1353,7 +1371,7 @@ const NewDonation = () => {
               </div>
 
               <div className="form-group">
-                <label>Phone No.</label>
+                <label>Phone No. <span className="required">*</span></label>
                 <div className="phone-unified-input">
                   <select
                     value={donorDetails.phoneCode}
@@ -1384,7 +1402,7 @@ const NewDonation = () => {
               </div>
 
               <div className="form-group">
-                <label>Mantra Diksha</label>
+                <label>Mantra Diksha <span className="required">*</span></label>
                 <select
                   className="mantra-diksha-select"
                   value={donorDetails.mantraDiksha}
@@ -1433,7 +1451,7 @@ const NewDonation = () => {
               </div>
 
               <div className="form-group">
-                <label>Identity Proof</label>
+                <label>Identity Proof <span className="required">*</span></label>
                 <div className="identity-unified-input">
                   <select
                     value={donorDetails.identityType}
@@ -1674,7 +1692,7 @@ const NewDonation = () => {
           <div className="details-card donation-details">
             <h2>Donations Details</h2>
             <div className="form-group">
-              <label>Purpose</label>
+              <label>Purpose <span className="required">*</span></label>
               <input
                 type="text"
                 placeholder="Enter donation purpose"
@@ -1683,8 +1701,37 @@ const NewDonation = () => {
                   handleDonationDetailsUpdate({
                     donationType: e.target.value
                   });
+                  setValidationErrors(prev => ({
+                    ...prev,
+                    purpose: e.target.value ? '' : 'Purpose is required'
+                  }));
                 }}
+                className={validationErrors.purpose ? 'error' : ''}
               />
+              {validationErrors.purpose && (
+                <span className="error-message">{validationErrors.purpose}</span>
+              )}
+            </div>
+            <div className="form-group">
+              <label>In Memory of <span className="required">*</span></label>
+              <input
+                type="text"
+                placeholder="Enter in memory of"
+                value={currentReceipt?.donationDetails?.inMemoryOf || ''}
+                onChange={(e) => {
+                  handleDonationDetailsUpdate({
+                    inMemoryOf: e.target.value
+                  });
+                  setValidationErrors(prev => ({
+                    ...prev,
+                    inMemoryOf: e.target.value ? '' : 'In Memory of is required'
+                  }));
+                }}
+                className={validationErrors.inMemoryOf ? 'error' : ''}
+              />
+              {validationErrors.inMemoryOf && (
+                <span className="error-message">{validationErrors.inMemoryOf}</span>
+              )}
             </div>
             <div className="form-group">
               <label>Donation Amount</label>
@@ -1740,19 +1787,6 @@ const NewDonation = () => {
                 <option value="M.O">M.O</option>
                 <option value="Electronic Modes">Electronic Modes</option>
               </select>
-            </div>
-            <div className="form-group">
-              <label>In Memory of</label>
-              <input
-                type="text"
-                placeholder="Enter in memory of"
-                value={currentReceipt?.donationDetails?.inMemoryOf || ''}
-                onChange={(e) => {
-                  handleDonationDetailsUpdate({
-                    inMemoryOf: e.target.value
-                  });
-                }}
-              />
             </div>
           </div>
 
@@ -1896,10 +1930,35 @@ const NewDonation = () => {
               </div>
             </div>
             <div className="print">
-              <button className="cancel-button" onClick={() => setIsModalOpen(false)}>Cancel</button>
-              <button className="confirm-button" onClick={handleConfirmPrint}>
-                Confirm & Print
+              <button className="cancel-button" onClick={() => {
+                setIsModalOpen(false);
+                setShowPrintOptions(false);
+              }}>
+                Cancel
               </button>
+              {!showPrintOptions ? (
+                <button 
+                  className="confirm-button" 
+                  onClick={() => setShowPrintOptions(true)}
+                >
+                  Confirm & Print
+                </button>
+              ) : (
+                <div className="print-options-container">
+                  <button 
+                    className="print-option"
+                    onClick={() => handlePrintSelection(true)}
+                  >
+                    <span>Print with Stamp</span>
+                  </button>
+                  <button 
+                    className="print-option"
+                    onClick={() => handlePrintSelection(false)}
+                  >
+                    <span>Print without Stamp</span>
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </div>

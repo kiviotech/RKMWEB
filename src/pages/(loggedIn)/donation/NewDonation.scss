@@ -746,25 +746,57 @@ input::placeholder {
       justify-content: space-between;
       gap: 12px;
       padding: 20px;
+      position: relative;
 
-      button {
+      .print-options-container {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        max-width: 200px;
+        margin: 0 0 0 auto;
+        
+        .print-option {
+          width: 100%;
+          padding: 10px 20px;
+          background-color: #9867e9;
+          color: white;
+          border: none;
+          border-radius: 5px;
+          cursor: pointer;
+          font-weight: bold;
+          text-align: center;
+          transition: background-color 0.2s ease;
+
+          &:hover {
+            background-color: #8656d6;
+          }
+
+          span {
+            display: inline-block;
+            width: 100%;
+          }
+        }
+      }
+
+      .cancel-button {
+        padding: 8px 24px;
+        border-radius: 4px;
+        border: 1px solid #4B4B4B;
+        cursor: pointer;
+        font-weight: 500;
+        background-color: #fff;
+        color: #4B4B4B;
+      }
+
+      .confirm-button {
         padding: 8px 24px;
         border-radius: 4px;
         border: none;
         cursor: pointer;
         font-weight: 500;
-        width: 33%;
-
-        .cancel {
-          background-color: #fff;
-          color: #4B4B4B;
-          border: 1px solid #4B4B4B;
-        }
-
-        .confirm {
-          background-color: #9867E9;
-          color: white;
-        }
+        background-color: #9867E9;
+        color: white;
       }
     }
   }
@@ -1770,6 +1802,41 @@ select {
 
     &:not(:last-child) {
       border-bottom: 1px solid #e0e0e0;
+    }
+  }
+}
+
+.print-options-dropdown {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 180px;
+
+  .print-option {
+    padding: 8px 16px;
+    background-color: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: #333;
+    text-align: left;
+
+    &:hover {
+      background-color: #f5f5f5;
+      border-color: #8C52FF;
+      color: #8C52FF;
+    }
+
+    &:first-child {
+      border-bottom: none;
+      border-bottom-left-radius: 0;
+      border-bottom-right-radius: 0;
+    }
+
+    &:last-child {
+      border-top-left-radius: 0;
+      border-top-right-radius: 0;
     }
   }
 }

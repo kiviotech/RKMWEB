@@ -73,7 +73,7 @@ const DeekshaUpasanaForm = () => {
     const payload = {
       data: {
         Name: name,
-        Address: `${address.houseNumber} ${address.streetName}.trim()`,
+        Address: `${address.houseNumber} ${address.streetName}`,
         Pincode: address.pincode,
         District: address.district,
         State: address.state,

@@ -66,10 +66,8 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     
-    // Update form data first
     setVisitFormData(name, value);
 
-    // Special handling for arrival time
     if (name === 'arrivalTime') {
       setVisitFormData('visitTime', value);
     }
@@ -85,50 +83,36 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
       }
     }
 
-    // Check for date changes and calculate stay duration
+    // Modified stay duration calculation
     if (name === 'visitDate' || name === 'departureDate') {
       let visitDate = name === 'visitDate' ? value : formData.visitDate;
       let departureDate = name === 'departureDate' ? value : formData.departureDate;
 
-      // Only calculate if both dates are present
       if (visitDate && departureDate) {
-        // Ensure we're working with date strings in YYYY-MM-DD format
-        visitDate = visitDate.split('T')[0];
-        departureDate = departureDate.split('T')[0];
-
-        const start = new Date(visitDate);
-        const end = new Date(departureDate);
+        visitDate = new Date(visitDate);
+        departureDate = new Date(departureDate);
         
-        // Ensure both dates are valid
-        if (!isNaN(start.getTime()) && !isNaN(end.getTime())) {
+        if (!isNaN(visitDate.getTime()) && !isNaN(departureDate.getTime())) {
           // Calculate the difference in days
-          const timeDiff = end - start;
-          const daysDiff = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
+          const timeDiff = departureDate - visitDate;
+          const daysDiff = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
           
-          console.log('Stay Duration Debug:', {
-            visitDate,
-            departureDate,
-            start: start.toISOString(),
-            end: end.toISOString(),
-            timeDiff,
+          // Show extended stay reason if stay is more than 2 days (3 nights)
+          setShowExtendedStayReason(daysDiff > 2);
+          
+          console.log('Stay Duration:', {
+            visitDate: visitDate.toISOString(),
+            departureDate: departureDate.toISOString(),
             daysDiff,
-            shouldShow: daysDiff > 3
+            showExtendedStay: daysDiff > 2
           });
-
-          // Force state update for extended stay
-          const shouldShowExtended = daysDiff > 3;
-          setShowExtendedStayReason(shouldShowExtended);
-          console.log('Setting extended stay visibility to:', shouldShowExtended);
         }
       }
     }
 
-    // Clear error when valid input is provided
     if (errors[name]) {
       setErrors(name, '');
     }
-    
-    console.log("Visit Input Change:", { field: name, value });
   };
 
   const handleRadioChange = (e) => {

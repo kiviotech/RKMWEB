@@ -16,7 +16,7 @@ const DeekshaAddressForm = () => {
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     updateAddress({ [name]: value });
-    setErrors((prev) => ({ ...prev, [name]: !value.trim() })); // Change 1: Dynamically update errors state
+    setErrors((prev) => ({ ...prev, [name]: !value }));
   };
 
   const fetchAddressFromPincode = async (pincode) => {
@@ -58,10 +58,10 @@ const DeekshaAddressForm = () => {
   const handleNext = (e) => {
     e.preventDefault();
     
-    // Check all required fields
+    // Check all required fields - remove the .trim() from being stored
     const newErrors = {};
     requiredFields.forEach(field => {
-      if (!address[field]?.trim()) {
+      if (!address[field] || address[field].trim() === '') {
         newErrors[field] = true;
       }
     });
@@ -78,14 +78,14 @@ const DeekshaAddressForm = () => {
   // Add console.log to see store state
   console.log('DeekshaAddressForm Store State:', useDeekshaFormStore.getState());
 
-  // Add progress calculation function
+  // Update progress calculation to remove stored .trim()
   const calculateProgress = () => {
     const requiredFields = ['pincode', 'country', 'state', 'district', 'houseNumber', 'streetName'];
-    const filledFields = requiredFields.filter(field => address[field]?.trim());
-    return (filledFields.length / requiredFields.length) * 25; // 25% is the max for this form
+    const filledFields = requiredFields.filter(field => address[field] && address[field].trim() !== '');
+    return (filledFields.length / requiredFields.length) * 25;
   };
 
-  const isFormValid = requiredFields.every((field) => address[field]?.trim()); // Change 2: Validate form dynamically
+  const isFormValid = requiredFields.every((field) => address[field] && address[field].trim() !== '');
 
   return (
     <div className="deekshaAddressform-container">

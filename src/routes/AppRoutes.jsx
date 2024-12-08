@@ -37,6 +37,7 @@ import AllDonation from "../pages/(loggedIn)/donation/AllDonation";
 import AllDonationDetails from "../pages/(loggedIn)/donation/AllDonationDetails";
 import ThankYouPage from "../pages/applicationForm/ThankYouPage";
 import WelcomePage from "../pages/applicationForm/WelcomePage";
+import Coupons from "../pages/(loggedIn)/coupons/Coupons";
 
 const AppRoutes = () => {
   return (
@@ -68,6 +69,7 @@ const AppRoutes = () => {
             </AdminRoute>
           }
         />
+        <Route path="/coupons" element={<Coupons />} />
         <Route
           path="/check-in"
           element={

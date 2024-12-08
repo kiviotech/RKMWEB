@@ -5,6 +5,7 @@ import eyeIcon from "../assets/icons/Eye Open.png";
 import fieldTip from "../assets/icons/FieldTip.png";
 import notification from "../assets/icons/notification.png";
 import dummyUser from "../assets/icons/userDummy.png";
+import Frame from "../assets/icons/Frame.png";
 
 import house from "../assets/icons/House.png";
 import welcome from "../assets/icons/welcome.png";
@@ -55,6 +56,7 @@ export default {
   notification,
   dummyUser,
   welcome,
+  Frame,
   house,
   settings,
   rupee,

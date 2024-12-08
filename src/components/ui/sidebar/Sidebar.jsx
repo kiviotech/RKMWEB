@@ -32,6 +32,10 @@ const Sidebar = () => {
         <img src={icons.welcome} alt="welcome" />
         <span className="label">Deeksha</span>
       </NavLink>
+      <NavLink to="/coupons" activeclassname="active">
+        <img src={icons.Frame} alt="welcome" />
+        <span className="label">Meals</span>
+      </NavLink>
       <NavLink className="settings" onClick={handleLogout}>
         <img src={icons.settings} alt="settings" />
         <span className="label">Settings</span>

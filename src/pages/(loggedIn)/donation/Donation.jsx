@@ -412,6 +412,18 @@ const Donation = () => {
     console.log('Print Receipt for:', donation);
   };
 
+  // Add this at the top with other useEffects
+  useEffect(() => {
+    // Check if URL has the tomorrows-guests hash
+    if (window.location.hash === '#tomorrows-guests') {
+      // Find the element and scroll to it
+      const element = document.getElementById('tomorrows-guests');
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+  }, []);
+
   return (
     <div className="donation-container">
       <div className="header">
@@ -602,7 +614,7 @@ const Donation = () => {
         </div>
       </div>
 
-      <div className="leaving-guests-section">
+      <div id="tomorrows-guests" className="leaving-guests-section">
         <div className="section-header">
           <h3>Tomorrow's Leaving Guest</h3>
           <div className="header-actions">

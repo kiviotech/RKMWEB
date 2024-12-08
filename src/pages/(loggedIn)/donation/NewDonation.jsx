@@ -1183,21 +1183,18 @@ const NewDonation = () => {
         display: 'flex', 
         justifyContent: 'space-between',
         overflowX: 'auto',
-        scrollbarWidth: 'none',  // Firefox
-        msOverflowStyle: 'none', // IE and Edge
+        scrollbarWidth: 'none',
+        msOverflowStyle: 'none',
         paddingBottom: '10px',
-        '&::-webkit-scrollbar': {  // Chrome, Safari, newer versions of Opera
+        '&::-webkit-scrollbar': {
           display: 'none'
         }
       }}>
         <div style={{
           display: 'flex',
-          gap: '10px',  // Space between tags
-          flexWrap: 'nowrap',  // Prevent wrapping
-          msOverflowStyle: 'none',
-          '&::-webkit-scrollbar': {
-            display: 'none'
-          }
+          gap: '10px',
+          flexWrap: 'nowrap',
+          alignItems: 'center',
         }}>        
           {donorTags.map(tag => (
             <div 
@@ -1215,16 +1212,33 @@ const NewDonation = () => {
           <button className="add-donation-btn" onClick={handleAddDonation}>
             + Add Donation
           </button>
+          <button
+            className="link-button"
+            onClick={() => navigate('/donation#tomorrows-guests')}
+            style={{
+              background: 'none',
+              border: 'none',
+              color: '#8C52FF',
+              cursor: 'pointer',
+              fontSize: '18px',
+              fontWeight: '500',
+              padding: '8px 16px',
+              textDecoration: 'underline',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            Tomorrow's Leaving Guest
+          </button>
         </div>
         <div style={{display: 'flex', flexDirection: 'column'}}>
-            <div className="info-row">
-              <label className="info-label">User: </label>
-              <span className="info-data">{user?.username || 'User Name'}</span>
-            </div>
-            <div className="info-row">
-              <label className="info-label">Date: </label>
-              <span className="info-data">{new Date().toLocaleDateString('en-GB')}</span>
-            </div>
+          <div className="info-row">
+            <label className="info-label">User: </label>
+            <span className="info-data">{user?.username || 'User Name'}</span>
+          </div>
+          <div className="info-row">
+            <label className="info-label">Date: </label>
+            <span className="info-data">{new Date().toLocaleDateString('en-GB')}</span>
+          </div>
         </div>
       </div>
 
@@ -1713,7 +1727,7 @@ const NewDonation = () => {
 
           {showTransactionDetails && (
             <div className="details-card transaction-details">
-              <div className="card-header">
+              <div className="card-header" style={{ borderBottom: 'none' }}>
                 <h2>Transaction details</h2>
                 <button className="consent-btn">Get Consent</button>
               </div>

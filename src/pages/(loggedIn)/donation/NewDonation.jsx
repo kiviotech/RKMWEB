@@ -856,14 +856,29 @@ const NewDonation = () => {
   };
 
   const handleReset = () => {
-    if (!selectedDonor || !currentReceipt) return;
+    // Reset donor details to initial state
+    setDonorDetails({
+      title: 'Sri',
+      name: '',
+      phoneCode: '+91',
+      phone: '',
+      email: '',
+      mantraDiksha: '',
+      identityType: 'Aadhaar',
+      identityNumber: '',
+      roomNumber: '',
+      pincode: '',
+      houseNumber: '',
+      streetName: '',
+      district: '',
+      state: ''
+    });
 
-    // Keep the existing receipt number
-    const existingReceiptNumber = currentReceipt.receiptNumber;
-
-    // Reset current receipt while preserving the receipt number
+    // Reset current receipt and donation details
+    const newReceiptNumber = generateReceiptNumber(selectedTab);
+    setReceiptNumber(newReceiptNumber);
     setCurrentReceipt({
-      receiptNumber: existingReceiptNumber,
+      receiptNumber: newReceiptNumber,
       donationDetails: {
         donationType: '',
         amount: '',
@@ -877,17 +892,21 @@ const NewDonation = () => {
       }
     });
 
-    // Update the store with the reset donation details
-    updateDonationDetails(existingReceiptNumber, {
-      donationType: '',
-      amount: '',
-      transactionType: 'cash',
-      inMemoryOf: '',
-      transactionDetails: {
-        ddNumber: '',
-        ddDate: '',
-        bankName: ''
-      }
+    // Reset donor tags to only show "New Donor"
+    const newDonorId = Date.now();
+    setDonorTags([{
+      id: newDonorId,
+      name: "New Donor",
+      isNewDonor: true
+    }]);
+    setSelectedDonor(newDonorId);
+
+    // Reset validation errors
+    setValidationErrors({
+      name: '',
+      phone: '',
+      email: '',
+      identityNumber: ''
     });
   };
 
@@ -1663,7 +1682,7 @@ const NewDonation = () => {
       <div className="donation-footer">
         <div className="total-amount">
           <span className="label">Total Donation Amount</span>
-          <span className="amount">₹ {calculateTotalDonations().toLocaleString('en-IN')}</span>
+          <span className="amount" style={{paddingLeft: '20px'}}> ₹ {calculateTotalDonations().toLocaleString('en-IN')}</span>
         </div>
         <div className="action-buttons">
           <button 

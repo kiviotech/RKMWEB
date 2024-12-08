@@ -713,13 +713,13 @@
   .filter-options {
     display: flex;
     flex-direction: column;
-    gap: 12px;
-    margin-bottom: 24px;
+    gap: 4px;
+    margin-bottom: 20px;
 
     .filter-option {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
       cursor: pointer;
 
       input[type="checkbox"] {
@@ -789,10 +789,10 @@
     z-index: 1000;
 
     .filter-options {
-      padding: 8px;
+      padding: 6px;
       display: flex;
       flex-direction: column;
-      gap: 4px;
+      gap: 1px;
       max-height: 250px;
       overflow-y: auto;
       scrollbar-width: none; /* Firefox */

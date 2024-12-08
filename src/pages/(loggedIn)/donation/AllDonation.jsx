@@ -185,89 +185,96 @@ const AllDonation = ({
         <div className="all-donations-container">
             <div className="donations-section">
                 <div className="table-container">
-                    <table>
-                        <thead>
-                            <tr>
-                                {filterOptions.receiptNumber && <th>Receipt Number</th>}
-                                {filterOptions.donorName && <th>Donor Name</th>}
-                                {filterOptions.donationDate && <th>Donation Date</th>}
-                                {filterOptions.phoneNumber && <th>Phone Number</th>}
-                                {filterOptions.donatedFor && <th>Donated For</th>}
-                                {filterOptions.donationStatus && <th>Donation Status</th>}
-                                {filterOptions.donationAmount && <th>Donation Amount</th>}
-                                {filterOptions.action && <th>Action</th>}
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {currentDonations.map((donation) => (
-                                <tr key={donation.id}>
-                                    {filterOptions.receiptNumber && 
-                                        <td>{donation.attributes.receipt_detail?.data?.attributes?.Receipt_number}</td>}
-                                    {filterOptions.donorName && 
-                                        <td>{donation.attributes.guest?.data?.attributes?.name}</td>}
-                                    {filterOptions.donationDate && 
-                                        <td>
-                                            {new Date(
-                                                donation.attributes.receipt_detail?.data?.attributes?.donation_date || 
-                                                donation.attributes.updatedAt
-                                            ).toLocaleDateString('en-US', {
-                                                weekday: 'short', // Mon, Tue, etc.
-                                                day: 'numeric',   // 1-31
-                                                month: 'short',   // Jan, Feb, etc.
-                                                year: 'numeric'   // 2024
-                                            })}
-                                        </td>}
-                                    {filterOptions.phoneNumber && 
-                                        <td>{donation.attributes.guest?.data?.attributes?.phone_number}</td>}
-                                    {filterOptions.donatedFor && 
-                                        <td>{donation.attributes.donationFor}</td>}
-                                    {filterOptions.donationStatus && 
-                                        <td>
-                                            <span className={`status-badge ${donation.attributes.status.toLowerCase()}`}>
-                                                {donation.attributes.status}
-                                            </span>
-                                        </td>}
-                                    {filterOptions.donationAmount && 
-                                        <td>{donation.attributes.donationAmount}</td>}
-                                    {filterOptions.action && 
-                                        <td className="action-cell">
-                                            {(donation.attributes.status.toLowerCase() === 'pending' || 
-                                              donation.attributes.status.toLowerCase() === 'completed') && (
-                                                <>
-                                                    <button 
-                                                        className="cancel-btn"
-                                                        onClick={() => handleCancelDonation(donation.id)}
-                                                    >
-                                                        Cancel
-                                                    </button>
-                                                    {donation.attributes.status.toLowerCase() === 'pending' && (
-                                                        <>
-                                                            <button 
-                                                                className="submit-btn"
-                                                                onClick={() => handleSubmit(donation)}
-                                                            >
-                                                                Submit
-                                                            </button>
-                                                        </>
-                                                    )}
-                                                    
-                                                    {donation.attributes.status.toLowerCase() === 'completed' && (
-                                                        <>
-                                                            <button 
-                                                                className="print-btn"
-                                                                onClick={() => handlePrintReceipt(donation)}
-                                                            >
-                                                                Print Receipt
-                                                            </button>
-                                                        </>
-                                                    )}
-                                                </>
-                                            )}
-                                        </td>}
+                    {currentDonations.length > 0 ? (
+                        <table>
+                            <thead>
+                                <tr>
+                                    {filterOptions.receiptNumber && <th>Receipt Number</th>}
+                                    {filterOptions.donorName && <th>Donor Name</th>}
+                                    {filterOptions.donationDate && <th>Donation Date</th>}
+                                    {filterOptions.phoneNumber && <th>Phone Number</th>}
+                                    {filterOptions.donatedFor && <th>Donated For</th>}
+                                    {filterOptions.donationStatus && <th>Donation Status</th>}
+                                    {filterOptions.donationAmount && <th>Donation Amount</th>}
+                                    {filterOptions.action && <th>Action</th>}
                                 </tr>
-                            ))}
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody>
+                                {currentDonations.map((donation) => (
+                                    <tr key={donation.id}>
+                                        {filterOptions.receiptNumber && 
+                                            <td>{donation.attributes.receipt_detail?.data?.attributes?.Receipt_number}</td>}
+                                        {filterOptions.donorName && 
+                                            <td>{donation.attributes.guest?.data?.attributes?.name}</td>}
+                                        {filterOptions.donationDate && 
+                                            <td>
+                                                {new Date(
+                                                    donation.attributes.receipt_detail?.data?.attributes?.donation_date || 
+                                                    donation.attributes.updatedAt
+                                                ).toLocaleDateString('en-US', {
+                                                    weekday: 'short', // Mon, Tue, etc.
+                                                    day: 'numeric',   // 1-31
+                                                    month: 'short',   // Jan, Feb, etc.
+                                                    year: 'numeric'   // 2024
+                                                })}
+                                            </td>}
+                                        {filterOptions.phoneNumber && 
+                                            <td>{donation.attributes.guest?.data?.attributes?.phone_number}</td>}
+                                        {filterOptions.donatedFor && 
+                                            <td>{donation.attributes.donationFor}</td>}
+                                        {filterOptions.donationStatus && 
+                                            <td>
+                                                <span className={`status-badge ${donation.attributes.status.toLowerCase()}`}>
+                                                    {donation.attributes.status}
+                                                </span>
+                                            </td>}
+                                        {filterOptions.donationAmount && 
+                                            <td>{donation.attributes.donationAmount}</td>}
+                                        {filterOptions.action && 
+                                            <td className="action-cell">
+                                                {(donation.attributes.status.toLowerCase() === 'pending' || 
+                                                  donation.attributes.status.toLowerCase() === 'completed') && (
+                                                    <>
+                                                        <button 
+                                                            className="cancel-btn"
+                                                            onClick={() => handleCancelDonation(donation.id)}
+                                                        >
+                                                            Cancel
+                                                        </button>
+                                                        {donation.attributes.status.toLowerCase() === 'pending' && (
+                                                            <>
+                                                                <button 
+                                                                    className="submit-btn"
+                                                                    onClick={() => handleSubmit(donation)}
+                                                                >
+                                                                    Submit
+                                                                </button>
+                                                            </>
+                                                        )}
+                                                        
+                                                        {donation.attributes.status.toLowerCase() === 'completed' && (
+                                                            <>
+                                                                <button 
+                                                                    className="print-btn"
+                                                                    onClick={() => handlePrintReceipt(donation)}
+                                                                >
+                                                                    Print Receipt
+                                                                </button>
+                                                            </>
+                                                        )}
+                                                    </>
+                                                )}
+                                            </td>}
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    ) : (
+                        <div className="no-data-message">
+                            <span className="material-icons">info</span>
+                            <p>No donations found</p>
+                        </div>
+                    )}
                 </div>
             </div>
         </div>

@@ -158,7 +158,6 @@
       max-height: 500px;
     }
 
-    // Place donation history directly under donor details
     .donation-history {
       background: #FFFFFF;
       border-radius: 12px;
@@ -193,7 +192,6 @@
         td {
           color: #666;
 
-          // Style for transaction mode
           &:nth-child(4) {
             .cash {
               color: #00A3FF;
@@ -257,13 +255,9 @@
   }
 
   .form-grid {
-
-
     .full-width {
       max-width: 50%;
       grid-column: 1 / -1;
-
-
 
       select {
         border: 1px solid #e5e7eb;
@@ -279,7 +273,6 @@
 
       input {
         flex: 1;
-
         box-shadow: none;
       }
 
@@ -352,7 +345,6 @@
   }
 }
 
-// Additional styles for better input appearance
 input:-webkit-autofill,
 input:-webkit-autofill:hover,
 input:-webkit-autofill:focus,
@@ -360,7 +352,6 @@ input:-webkit-autofill:active {
   -webkit-box-shadow: 0 0 0 30px white inset !important;
 }
 
-// Specific styles for select dropdowns to match design
 select {
   cursor: pointer;
 
@@ -369,7 +360,6 @@ select {
   }
 }
 
-// Receipt Details Card - Keeping original styles
 .details-card.receipt-details {
   background: #FFFFFF;
   padding: 24px;
@@ -385,7 +375,6 @@ select {
   }
 
   .receipt-grid {
-    // border: 1px solid red;
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 20px;
@@ -429,7 +418,6 @@ select {
   }
 }
 
-// Donor Details Card - New styles matching the image
 .details-card.donor-details {
   flex: 1;
   height: fit-content;
@@ -442,7 +430,6 @@ select {
     flex-direction: column;
     gap: 16px;
 
-    // Update form-row to handle address fields
     .form-row {
       display: flex;
       gap: 20px;
@@ -451,17 +438,15 @@ select {
 
       .form-group {
         flex: 1;
-        min-width: 0; // Prevent overflow
+        min-width: 0;
       }
 
-      // For address fields in one row
       &.address-row {
         .form-group {
           flex: 1;
         }
       }
 
-      // For house and street fields
       &.street-row {
         .house-number-field {
           flex: 0.3;
@@ -587,9 +572,9 @@ select,
     margin-top: 0.25rem;
     display: block;
     position: absolute;
-    left: 0; // Align to the right
-    top: 100%; // Position below the input
-    transform: translateY(4px); // Add some spacing
+    left: 0;
+    top: 100%;
+    transform: translateY(4px);
   }
 }
 
@@ -601,7 +586,6 @@ select,
 }
 
 .form-group {
-
   .input-group input.error,
   input.error {
     border-color: #ff4d4f;
@@ -619,13 +603,11 @@ select,
   }
 }
 
-// Update input placeholder styles
 input::placeholder {
   color: #9CA3AF;
   font-size: 14px;
 }
 
-// Update spacing between form groups
 .form-group {
   margin-bottom: 16px;
 }
@@ -666,12 +648,10 @@ input::placeholder {
 
     h3 {
       margin: 0 0 16px;
-      // color: #333;
     }
 
     p {
       margin: 0 0 24px;
-      // color: #666;
     }
 
     .dialog-buttons {
@@ -692,27 +672,19 @@ input::placeholder {
           background-color: #fff;
           color: #4B4B4B;
           border: 1px solid #4B4B4B;
-
-          // &:hover {
-          //   background-color: #eee;
-          // }
         }
 
         &.confirm-btn {
           background-color: #9867E9;
           color: white;
-
-          // &:hover {
-          //   background-color: #c82333;
-          // }
         }
+
         .confirm {
           background-color: #9867E9;
           color: white;
         }
       }
     }
-    
   }
 
   .modal-content {
@@ -728,14 +700,11 @@ input::placeholder {
     }
 
     .receipt-content {
-      // background-color: red;
       width: 80%;
 
       .receipt-info {
-        // background-color: green;
         display: flex;
         justify-content: space-between;
-
       }
 
       .receipt-thanks {
@@ -755,33 +724,32 @@ input::placeholder {
           justify-content: flex-start;
         }
       }
+
       .receipt-amt {
         width: 70%;
         display: flex;
-        // justify-content: space-between;
       }
-    .receipt-amount {
-      display: flex;
-      justify-content: flex-start;
+
+      .receipt-amount {
+        display: flex;
+        justify-content: flex-start;
+      }
     }
-    // .modal-buttons {
-    //   background-color: red;
-    // }
-  }
-  .print {
-    display: flex;
+
+    .print {
+      display: flex;
       width: 80%;
       justify-content: space-between;
-      gap: 12px; 
+      gap: 12px;
       padding: 20px;
-      
+
       button {
         padding: 8px 24px;
         border-radius: 4px;
         border: none;
         cursor: pointer;
         font-weight: 500;
-        width: 33%; 
+        width: 33%;
 
         .cancel {
           background-color: #fff;
@@ -794,8 +762,8 @@ input::placeholder {
           color: white;
         }
       }
+    }
   }
-}
 }
 
 .receipt-placeholder {
@@ -811,7 +779,7 @@ input::placeholder {
   width: 100%;
 
   select {
-    width: 80px; // Fixed width for title select (Sri, Mr, etc.)
+    width: 80px;
     flex: none;
     height: 42px;
     border: 1px solid #E5E7EB;
@@ -823,7 +791,7 @@ input::placeholder {
 
   input {
     flex: 1;
-    min-width: 0; // Prevent input from overflowing
+    min-width: 0;
     height: 42px;
     padding: 8px 12px;
     border: 1px solid #E5E7EB;
@@ -843,20 +811,18 @@ input::placeholder {
   width: 100%;
 
   select {
-    width: 100px; // Fixed width for country code select
+    width: 100px;
     flex: none;
   }
 
   input {
     flex: 1;
-    min-width: 0; // Prevent input from overflowing
+    min-width: 0;
   }
 }
 
-// Common styles for both unified inputs
 .donor-unified-input,
 .phone-unified-input {
-
   select,
   input {
     height: 40px;
@@ -874,7 +840,6 @@ input::placeholder {
   }
 }
 
-// Adjust the form-row to handle the space better
 .form-row {
   display: flex;
   gap: 20px;
@@ -882,9 +847,8 @@ input::placeholder {
 
   .form-group {
     flex: 1;
-    min-width: 0; // Prevent overflow
+    min-width: 0;
 
-    // Give more space to phone number field
     &:nth-child(2) {
       flex: 1.2;
     }
@@ -1101,21 +1065,19 @@ input::placeholder {
 
   .form-group {
     flex: 1;
-    min-width: 0; // This prevents flex items from overflowing
+    min-width: 0;
   }
 }
 
-// Update existing form-grid styles if needed
 .form-grid {
   display: flex;
   flex-direction: column;
   gap: 20px;
 }
 
-// Ensure the parent container also has full width
 .donation-form {
   width: 100%;
-  max-width: 1400px; // Increased max-width
+  max-width: 1400px;
   margin: 0 auto;
 }
 
@@ -1126,13 +1088,13 @@ input::placeholder {
   width: 100%;
 
   select {
-    width: 120px; // Fixed width for select dropdown
-    flex: none; // Prevent select from growing
+    width: 120px;
+    flex: none;
   }
 
   input {
-    flex: 1; // Allow input to take remaining space
-    min-width: 0; // Prevent input from overflowing
+    flex: 1;
+    min-width: 0;
   }
 
   select,
@@ -1152,7 +1114,6 @@ input::placeholder {
   }
 }
 
-// Adjust the form-row to handle the space better
 .form-row {
   display: flex;
   gap: 20px;
@@ -1160,16 +1121,14 @@ input::placeholder {
 
   .form-group {
     flex: 1;
-    min-width: 0; // Prevent overflow
+    min-width: 0;
 
-    // Adjust the width for identity proof group
     &:nth-child(2) {
-      flex: 1.5; // Give more space to identity proof section
+      flex: 1.5;
     }
   }
 }
 
-// Common focus states
 input:focus,
 select:focus {
   outline: none;
@@ -1187,7 +1146,6 @@ select:focus {
     font-weight: 500;
   }
 
-  // Regular input styling
   input {
     width: 100%;
     height: 42px;
@@ -1207,7 +1165,6 @@ select:focus {
     }
   }
 
-  // Specific styling for email input
   .borderless-input {
     border: none;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
@@ -1233,7 +1190,6 @@ select:focus {
   }
 }
 
-// Additional specific email input styles
 input[type="email"].borderless-input {
   border: none;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
@@ -1273,7 +1229,6 @@ input[type="email"].borderless-input {
   }
 }
 
-// Update donation-details card specific styles
 .details-card.donation-details {
   width: 100%;
   height: fit-content;
@@ -1664,14 +1619,20 @@ select {
   padding: 8px 12px;
   border-radius: 8px;
   font-size: 14px;
-  color: #333;
+  color: #111827 !important;
+  font-weight: bolder !important;
   background: #fff;
-  box-shadow: none !important; // Remove box shadow
+  box-shadow: none !important;
+
+  &::placeholder {
+    color: #9CA3AF;
+    font-weight: normal;
+  }
 
   &:focus {
     outline: none;
     border-color: #7C5CFC !important;
-    box-shadow: none !important; // Remove box shadow on focus
+    box-shadow: none !important;
   }
 }
 
@@ -1687,14 +1648,20 @@ select {
     padding: 8px 12px;
     border-radius: 8px;
     font-size: 14px;
-    color: #333;
+    color: #111827 !important;
+    font-weight: 700 !important;
     background: #fff;
-    box-shadow: none !important; // Remove box shadow
+    box-shadow: none !important;
+
+    &::placeholder {
+      color: #9CA3AF;
+      font-weight: normal;
+    }
 
     &:focus {
       outline: none;
       border-color: #7C5CFC !important;
-      box-shadow: none !important; // Remove box shadow on focus
+      box-shadow: none !important;
     }
   }
 }
@@ -1703,11 +1670,18 @@ select {
 .borderless-input,
 .donor-email-field {
   border: 1px solid #98A2AF !important;
-  box-shadow: none !important; // Remove box shadow
+  box-shadow: none !important;
+  color: #111827 !important;
+  font-weight: 500 !important;
+
+  &::placeholder {
+    color: #9CA3AF;
+    font-weight: normal;
+  }
 
   &:focus {
     border-color: #7C5CFC !important;
-    box-shadow: none !important; // Remove box shadow on focus
+    box-shadow: none !important;
   }
 }
 
@@ -1748,4 +1722,12 @@ select {
 
 .info-row {
   padding: 5px;
+}
+
+.mantra-diksha-select {
+  font-size: 14px;
+  
+  option {
+    font-size: 14px;
+  }
 }

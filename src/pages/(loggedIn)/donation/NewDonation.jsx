@@ -72,6 +72,9 @@ const NewDonation = () => {
   const donationData = location.state?.donationData;
   const donationId = location.state?.donationData?.id;
 
+  // Add this to your validation states
+  const [showPANField, setShowPANField] = useState(false);
+
   console.log("Zustand Store Data:", {
     // auth: { user },
     donations
@@ -187,8 +190,8 @@ const NewDonation = () => {
 
   const generateReceiptNumber = (tab) => {
     const randomNum = Math.floor(1000 + Math.random() * 9000);
-    const prefix = tab === 'Mission' ? 'MT' : 'C';
-    return `${prefix}${randomNum}`;
+    const prefix = tab === 'Mission' ? 'MSN' : 'MT';
+    return `${prefix} ${randomNum}`;
   };
 
   React.useEffect(() => {
@@ -508,15 +511,26 @@ const NewDonation = () => {
     const nameError = validateName(donorDetails.name);
     const phoneError = validatePhone(donorDetails.phone);
     const emailError = validateEmail(donorDetails.email);
+    
+    // Add PAN validation for amounts over 10,000
+    const amount = parseFloat(currentReceipt?.donationDetails?.amount) || 0;
+    const panError = amount > 10000 ? validatePAN(donorDetails.panNumber) : '';
 
     setValidationErrors({
       name: nameError,
       phone: phoneError,
-      email: emailError
+      email: emailError,
+      pan: panError
     });
 
-    if (nameError || phoneError || emailError) {
+    if (nameError || phoneError || (amount > 10000 && panError)) {
       alert("Please fill required fields");
+      return;
+    }
+
+    // Validate transaction details if necessary
+    if (!validateTransactionDetails()) {
+      alert("Please fill all required transaction details");
       return;
     }
 
@@ -625,7 +639,7 @@ const NewDonation = () => {
       return;
     }
 
-    // Rest of the existing validation logic
+    // Validate form fields
     const nameError = validateName(donorDetails.name);
     const phoneError = validatePhone(donorDetails.phone);
     const emailError = validateEmail(donorDetails.email);
@@ -641,7 +655,13 @@ const NewDonation = () => {
       return;
     }
 
-    setShowPendingConfirm(true); // Show confirmation dialog instead of direct action
+    // Validate transaction details if necessary
+    if (!validateTransactionDetails()) {
+      alert("Please fill all required transaction details");
+      return;
+    }
+
+    setShowPendingConfirm(true);
   };
 
   const confirmPending = async () => {
@@ -948,7 +968,7 @@ const NewDonation = () => {
 
   const validateEmail = (email) => {
     if (!email.trim()) {
-      return 'Email is required'; // Changed to make email required
+      return ''; // Remove required validation
     }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       return 'Please enter a valid email address';
@@ -966,7 +986,9 @@ const NewDonation = () => {
   };
 
   const validatePAN = (number) => {
-    if (!number) return '';
+    if (!number) {
+      return 'PAN number is required for donations above ₹10,000';
+    }
     if (!/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/.test(number)) {
       return 'PAN must be in format: ABCDE1234F';
     }
@@ -1104,6 +1126,57 @@ const NewDonation = () => {
     return today.toISOString().split('T')[0]; // Returns date in YYYY-MM-DD format
   };
 
+  // Add this to your existing validation states
+  const [transactionValidationErrors, setTransactionValidationErrors] = useState({
+    ddDate: '',
+    ddNumber: '',
+    bankName: ''
+  });
+
+  // Add this validation function
+  const validateTransactionDetails = () => {
+    const transactionType = currentReceipt?.donationDetails?.transactionType?.toLowerCase();
+    const details = currentReceipt?.donationDetails?.transactionDetails;
+    
+    if (['cheque', 'bank transfer', 'dd', 'm.o', 'electronic modes'].includes(transactionType)) {
+      const errors = {
+        ddDate: !details?.ddDate ? 'Date is required' : '',
+        ddNumber: !details?.ddNumber ? 'Number is required' : '',
+        bankName: !details?.bankName ? 'Bank name is required' : ''
+      };
+      
+      setTransactionValidationErrors(errors);
+      return !Object.values(errors).some(error => error);
+    }
+    
+    return true;
+  };
+
+  // Modify the donation amount change handler
+  const handleDonationAmountChange = (value) => {
+    // Only allow numbers and one decimal point
+    if (/^\d*\.?\d*$/.test(value)) {
+      const amount = parseFloat(value) || 0;
+      
+      // Check if amount exceeds 10,000
+      setShowPANField(amount > 10000);
+
+      const updatedDonationDetails = {
+        ...currentReceipt?.donationDetails,
+        amount: value
+      };
+      
+      if (currentReceipt?.receiptNumber) {
+        const updatedReceipt = {
+          ...currentReceipt,
+          donationDetails: updatedDonationDetails
+        };
+        setCurrentReceipt(updatedReceipt);
+        updateDonationDetails(currentReceipt.receiptNumber, updatedDonationDetails);
+      }
+    }
+  };
+
   return (
     <div className="donations-container">
       <div className="donor-tags" style={{
@@ -1160,25 +1233,29 @@ const NewDonation = () => {
       </div>
 
       <div className="tab-section">
-        <div className="tabs">
-          <button 
-            className={`tab ${selectedTab === 'Math' ? 'active' : ''}`}
-            onClick={() => handleTabClick('Math')}
-          >
-            Math
-          </button>
-          <button 
-            className={`tab ${selectedTab === 'Mission' ? 'active' : ''}`}
-            onClick={() => handleTabClick('Mission')}
-          >
-            Mission
-          </button>
-        </div>
-      <div style={{display: 'flex', justifyContent: 'space-between', paddingLeft: "20px" }}>
-          <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', paddingRight: '20px', gap: '20px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '20px', flex: 1 }}>
+            <div className="tabs">
+              <button 
+                className={`tab ${selectedTab === 'Math' ? 'active' : ''}`}
+                onClick={() => handleTabClick('Math')}
+              >
+                Math
+              </button>
+              <button 
+                className={`tab ${selectedTab === 'Mission' ? 'active' : ''}`}
+                onClick={() => handleTabClick('Mission')}
+              >
+                Mission
+              </button>
+            </div>
+            
             <div style={{ fontWeight: 'bold', fontSize: '14px', color: '#333' }}>
               Receipt Number: <span style={{ color: '#6B7280', fontWeight: 'normal' }}>{receiptNumber}</span>
             </div>
+          </div>
+
+          <div>          
             <button
               style={{
                 display: 'flex',
@@ -1300,6 +1377,7 @@ const NewDonation = () => {
               <div className="form-group">
                 <label>Mantra Diksha</label>
                 <select
+                  className="mantra-diksha-select"
                   value={donorDetails.mantraDiksha}
                   onChange={(e) => setDonorDetails({...donorDetails, mantraDiksha: e.target.value})}
                 >
@@ -1425,7 +1503,7 @@ const NewDonation = () => {
                 <label>Guest House Room No.</label>
                 <input 
                   type="text" 
-                  placeholder="Enter Room No."
+                  placeholder="Enter Room No. (Optional)"
                   value={donorDetails.roomNumber}
                   onChange={(e) => setDonorDetails({...donorDetails, roomNumber: e.target.value})}
                 />
@@ -1551,22 +1629,17 @@ const NewDonation = () => {
           <div className="details-card donation-details">
             <h2>Donations Details</h2>
             <div className="form-group">
-              <label>Donation Type</label>
-              <select
+              <label>Purpose</label>
+              <input
+                type="text"
+                placeholder="Enter donation purpose"
                 value={currentReceipt?.donationDetails?.donationType || ''}
                 onChange={(e) => {
                   handleDonationDetailsUpdate({
                     donationType: e.target.value
                   });
                 }}
-              >
-                <option value="">Select your Reason</option>
-                <option value="general">General Donation</option>
-                <option value="puja">Puja</option>
-                <option value="prasad">Prasad</option>
-                <option value="maintenance">Maintenance</option>
-                <option value="education">Education</option>
-              </select>
+              />
             </div>
             <div className="form-group">
               <label>Donation Amount</label>
@@ -1574,31 +1647,39 @@ const NewDonation = () => {
                 type="text" 
                 placeholder="Enter the amount" 
                 value={currentReceipt?.donationDetails?.amount || ''}
-                onChange={(e) => {
-                  const value = e.target.value;
-                  // Only allow numbers and one decimal point
-                  if (/^\d*\.?\d*$/.test(value)) {
-                    const updatedDonationDetails = {
-                      ...currentReceipt?.donationDetails,
-                      amount: value
-                    };
-                    
-                    if (currentReceipt?.receiptNumber) {
-                      const updatedReceipt = {
-                        ...currentReceipt,
-                        donationDetails: updatedDonationDetails
-                      };
-                      setCurrentReceipt(updatedReceipt);
-                      updateDonationDetails(currentReceipt.receiptNumber, updatedDonationDetails);
-                    }
-                  }
-                }}
+                onChange={(e) => handleDonationAmountChange(e.target.value)}
               />
             </div>
+            {showPANField && (
+              <div className="form-group">
+                <label>PAN Number <span className="required">*</span></label>
+                <input 
+                  type="text" 
+                  placeholder="ABCDE1234F"
+                  value={donorDetails.panNumber || ''}
+                  onChange={(e) => {
+                    const value = e.target.value.toUpperCase();
+                    setDonorDetails({
+                      ...donorDetails,
+                      panNumber: value
+                    });
+                    const panError = validatePAN(value);
+                    setValidationErrors(prev => ({
+                      ...prev,
+                      pan: panError
+                    }));
+                  }}
+                  className={validationErrors.pan ? 'error' : ''}
+                />
+                {validationErrors.pan && (
+                  <span className="error-message">{validationErrors.pan}</span>
+                )}
+              </div>
+            )}
             <div className="form-group">
               <label>Transaction Type</label>
               <select
-                value={currentReceipt?.donationDetails?.transactionType || 'cash'}
+                value={currentReceipt?.donationDetails?.transactionType || 'Cash'}
                 onChange={(e) => {
                   const newType = e.target.value;
                   handleDonationDetailsUpdate({
@@ -1607,9 +1688,12 @@ const NewDonation = () => {
                   });
                 }}
               >
-                <option value="cash">Cash</option>
-                <option value="dd">DD</option>
-                <option value="cheque">Cheque</option>
+                <option value="Cash">Cash</option>
+                <option value="Cheque">Cheque</option>
+                <option value="Bank Transfer">Bank Transfer</option>
+                <option value="DD">DD</option>
+                <option value="M.O">M.O</option>
+                <option value="Electronic Modes">Electronic Modes</option>
               </select>
             </div>
             <div className="form-group">
@@ -1634,7 +1718,7 @@ const NewDonation = () => {
                 <button className="consent-btn">Get Consent</button>
               </div>
               <div className="form-group">
-                <label>DD/CH Date</label>
+                <label>DD/CH Date <span className="required">*</span></label>
                 <input 
                   type="date" 
                   value={currentReceipt?.donationDetails?.transactionDetails?.ddDate || ''}
@@ -1644,10 +1728,14 @@ const NewDonation = () => {
                       ddDate: e.target.value
                     }
                   })}
+                  className={transactionValidationErrors.ddDate ? 'error' : ''}
                 />
+                {transactionValidationErrors.ddDate && (
+                  <span className="error-message">{transactionValidationErrors.ddDate}</span>
+                )}
               </div>
               <div className="form-group">
-                <label>DD/CH Number</label>
+                <label>DD/CH Number <span className="required">*</span></label>
                 <input 
                   type="text" 
                   placeholder="DD/CH number"
@@ -1658,13 +1746,17 @@ const NewDonation = () => {
                       ddNumber: e.target.value
                     }
                   })}
+                  className={transactionValidationErrors.ddNumber ? 'error' : ''}
                 />
+                {transactionValidationErrors.ddNumber && (
+                  <span className="error-message">{transactionValidationErrors.ddNumber}</span>
+                )}
               </div>
               <div className="form-group">
-                <label>Bank Name</label>
+                <label>Bank Name <span className="required">*</span></label>
                 <input 
                   type="text" 
-                  placeholder="Enter the amount"
+                  placeholder="Enter bank name"
                   value={currentReceipt?.donationDetails?.transactionDetails?.bankName || ''}
                   onChange={(e) => handleDonationDetailsUpdate({ 
                     transactionDetails: {
@@ -1672,7 +1764,11 @@ const NewDonation = () => {
                       bankName: e.target.value
                     }
                   })}
+                  className={transactionValidationErrors.bankName ? 'error' : ''}
                 />
+                {transactionValidationErrors.bankName && (
+                  <span className="error-message">{transactionValidationErrors.bankName}</span>
+                )}
               </div>
             </div>
           )}
@@ -1744,43 +1840,6 @@ const NewDonation = () => {
           </div>
         </div>
       )}
-
-      {/* {isModalOpen && (
-        <div className="modal-overlay">
-          <div className="modal-content">
-            <button className="close-button" onClick={() => setIsModalOpen(false)}>×</button>
-            <h2>Receipt Preview</h2>
-            <div className="receipt-content">
-              <div className="receipt-header">
-                <div className="receipt-info">
-                  <span>Receipt No: <strong>{receiptNumber}</strong></span>
-                  <span>Date: <strong>{new Date().toLocaleDateString()}</strong></span>
-                </div>
-              </div>
-              <div className="receipt-body">
-                <p>Received with thanks from <strong>{donorDetails.title} {donorDetails.name}</strong></p>
-                <p>Ramakrishna Math, Kamarpukur, PO: Kamarpukur, Dist: Hoogly, State: West Bengal, Pin: 712612</p>
-                <p>The sum of Rupees <strong>{numberToWords(parseFloat(currentReceipt?.donationDetails?.amount || 0))} Only</strong></p>
-                <p>By {currentReceipt?.donationDetails?.transactionType || 'Cash'}</p>
-                <p>As Donation for {selectedTab}</p>
-              </div>
-              <div className="receipt-amount">
-                <strong>₹ {parseFloat(currentReceipt?.donationDetails?.amount || 0).toLocaleString('en-IN', {
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 2
-                })}</strong>
-              </div>
-            </div>
-            <div className="modal-buttons">
-              <button className="cancel-btn" onClick={() => setIsModalOpen(false)}>Cancel</button>
-              <button className="confirm-btn" onClick={handleConfirmPrint}>
-                Confirm & Print
-              </button>
-            </div>
-          </div>
-        </div>
-      )} */}
-
 
       {isModalOpen && (
         <div className="confirmation-dialog">

@@ -1443,7 +1443,12 @@ const NewDonation = () => {
         </div>
         <div>
           {" "}
-          <div style={{ display: "flex", flexDirection: "column" }}>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+            }}
+          >
             <div className="infor-row">
               <label className="info-label">Counter: </label>
               <span className="info-data">{user?.counter}</span>
@@ -1920,13 +1925,13 @@ const NewDonation = () => {
               </span>
             </div>
             <div className="action-buttons">
-              <button
+              {/* <button
                 className="cancel-btn"
                 type="button"
                 onClick={handleCancel}
               >
                 Cancel
-              </button>
+              </button> */}
               <button
                 className="pending-btn"
                 type="button"

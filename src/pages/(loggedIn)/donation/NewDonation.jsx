@@ -16,6 +16,48 @@ import {
 import { useNavigate, useLocation } from "react-router-dom";
 
 const NewDonation = () => {
+  // Add this useEffect at the top of your component, after all the state declarations
+  useEffect(() => {
+    // Delay the scroll slightly to ensure the DOM is ready
+    const timeoutId = setTimeout(() => {
+      window.scrollTo({
+        top: 0,
+        left: 0,
+        behavior: "instant", // Force immediate scroll
+      });
+
+      // Backup scroll
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+    }, 0);
+
+    // Add a second timeout as a fallback
+    const backupTimeoutId = setTimeout(() => {
+      if (window.pageYOffset > 0) {
+        window.scrollTo(0, 0);
+        document.documentElement.scrollTop = 0;
+        document.body.scrollTop = 0;
+      }
+    }, 100);
+
+    return () => {
+      clearTimeout(timeoutId);
+      clearTimeout(backupTimeoutId);
+    };
+  }, []); // Empty dependency array for mount only
+
+  // Also add this to handle route changes
+  useEffect(() => {
+    const handleRouteChange = () => {
+      window.scrollTo(0, 0);
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+    };
+
+    window.addEventListener("popstate", handleRouteChange);
+    return () => window.removeEventListener("popstate", handleRouteChange);
+  }, []);
+
   const [selectedTab, setSelectedTab] = useState("Math");
   const [receiptNumber, setReceiptNumber] = useState("");
   const { user } = useAuthStore();
@@ -52,7 +94,7 @@ const NewDonation = () => {
       donationType: "",
       amount: "",
       transactionType: "cash",
-      inMemoryOf: "",
+      inMemoryOf: "", // Remove default value
       transactionDetails: {
         ddNumber: "",
         ddDate: "",
@@ -147,7 +189,8 @@ const NewDonation = () => {
             amount: donationData.attributes.donationAmount,
             transactionType:
               donationData.attributes.transactionType.toLowerCase(),
-            inMemoryOf: donationData.attributes.InMemoryOf,
+            inMemoryOf:
+              donationData.attributes.InMemoryOf || "Others (Revenue)", // Set default value here
             transactionDetails: {
               ddNumber: donationData.attributes.ddch_number || "",
               ddDate: donationData.attributes.ddch_date || "",
@@ -244,7 +287,7 @@ const NewDonation = () => {
       donationDetails: {
         amount: "",
         transactionType: "cash",
-        inMemoryOf: "",
+        inMemoryOf: "", // Remove default value
         transactionDetails: {
           ddNumber: "",
           ddDate: "",
@@ -531,7 +574,7 @@ const NewDonation = () => {
     handleDonationDetailsUpdate({
       amount: "",
       transactionType: "",
-      inMemoryOf: "",
+      inMemoryOf: "Others (Revenue)", // Set default value here
       transactionDetails: {
         ddNumber: "",
         ddDate: "",
@@ -1283,7 +1326,7 @@ const NewDonation = () => {
         donationType: "",
         amount: "",
         transactionType: "cash",
-        inMemoryOf: "",
+        inMemoryOf: "Others (Revenue)", // Set default value here
         transactionDetails: {
           ddNumber: "",
           ddDate: "",
@@ -1680,18 +1723,20 @@ const NewDonation = () => {
               + Add Donation
             </button>
             <button
-              className="link-button"
               onClick={() => navigate("/donation#tomorrows-guests")}
+              className="tomorrows-guest-btn"
               style={{
-                background: "none",
+                backgroundColor: "#8C52FF",
+                color: "white",
                 border: "none",
-                color: "#8C52FF",
-                cursor: "pointer",
-                fontSize: "18px",
-                fontWeight: "500",
+                borderRadius: "4px",
                 padding: "8px 16px",
-                textDecoration: "underline",
-                whiteSpace: "nowrap",
+                cursor: "pointer",
+                fontSize: "14px",
+                fontWeight: "500",
+                display: "flex",
+                alignItems: "center",
+                gap: "8px",
               }}
             >
               Tomorrow's Leaving Guest
@@ -1791,7 +1836,17 @@ const NewDonation = () => {
 
       <div className="main-content">
         <div className="donor-section">
-          <div className="details-card donor-details">
+          <div
+            className="details-card donor-details"
+            style={{
+              backgroundColor:
+                selectedTab === "Math"
+                  ? "#ffb888"
+                  : selectedTab === "Mission"
+                  ? "#99fb98"
+                  : "white",
+            }}
+          >
             <h2>Donor Details</h2>
             {/* First row with Name, Phone, Mantra Diksha */}
             <div className="form-row">
@@ -2130,7 +2185,7 @@ const NewDonation = () => {
             {/* Fourth row with House Number and Street Name */}
             <div className="form-row">
               <div className="form-group">
-                <label>House Number</label>
+                <label>Flat/House No</label>
                 <input
                   type="text"
                   placeholder="Enter house number"
@@ -2170,13 +2225,77 @@ const NewDonation = () => {
               </span>
             </div>
             <div className="action-buttons">
-              {/* <button
-                className="cancel-btn"
+              {/* Add these two new buttons */}
+              <button
+                className="letter-btn consent-letter"
                 type="button"
-                onClick={handleCancel}
+                onClick={() => window.open("/consent-letter", "_blank")}
               >
-                Cancel
-              </button> */}
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M19 3H5C3.89543 3 3 3.89543 3 5V19C3 20.1046 3.89543 21 5 21H19C20.1046 21 21 20.1046 21 19V5C21 3.89543 20.1046 3 19 3Z"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  />
+                  <path
+                    d="M7 7H17"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                  />
+                  <path
+                    d="M7 12H17"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                  />
+                  <path
+                    d="M7 17H13"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                  />
+                </svg>
+                Consent Letter
+              </button>
+
+              <button
+                className="letter-btn thank-letter"
+                type="button"
+                onClick={() => window.open("/thank-letter", "_blank")}
+              >
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M21 5L12 12L3 5"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                  <path
+                    d="M3 5H21V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V5Z"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+                Thank Letter
+              </button>
+
+              {/* Existing buttons */}
               <button
                 className="pending-btn"
                 type="button"
@@ -2296,7 +2415,17 @@ const NewDonation = () => {
         </div>
 
         <div className="donation-section">
-          <div className="details-card donation-details">
+          <div
+            className="details-card donation-details"
+            style={{
+              backgroundColor:
+                selectedTab === "Math"
+                  ? "#ffb888"
+                  : selectedTab === "Mission"
+                  ? "#99fb98"
+                  : "white",
+            }}
+          >
             <h2>Donations Details</h2>
             <div className="form-group">
               <label>
@@ -2322,6 +2451,20 @@ const NewDonation = () => {
                   {validationErrors.purpose}
                 </span>
               )}
+            </div>
+            <div className="form-group">
+              <label>Donations Type</label>
+              <select
+                value={currentReceipt?.donationDetails?.inMemoryOf || ""}
+                onChange={(e) => {
+                  handleDonationDetailsUpdate({
+                    inMemoryOf: e.target.value,
+                  });
+                }}
+              >
+                <option value="Others (Revenue)">Others (Revenue)</option>
+                <option value="CORPUS">CORPUS</option>
+              </select>
             </div>
             <div className="form-group">
               <label>
@@ -2381,32 +2524,40 @@ const NewDonation = () => {
                 }}
               >
                 <option value="Cash">Cash</option>
+                <option value="M.O">M.O</option>
                 <option value="Cheque">Cheque</option>
                 <option value="Bank Transfer">Bank Transfer</option>
                 <option value="DD">DD</option>
-                <option value="M.O">M.O</option>
                 <option value="Electronic Modes">Electronic Modes</option>
               </select>
             </div>
             <div className="form-group">
-              <label>Donations Type</label>
-              <select
+              <label>In Memory of</label>
+              <input
+                type="text"
+                placeholder="Enter in memory of"
                 value={currentReceipt?.donationDetails?.inMemoryOf || ""}
                 onChange={(e) => {
                   handleDonationDetailsUpdate({
                     inMemoryOf: e.target.value,
                   });
                 }}
-              >
-                <option value="">Select option</option>
-                <option value="Others (Revenue)">Others (Revenue)</option>
-                <option value="CORPUS">CORPUS</option>
-              </select>
+              />
             </div>
           </div>
 
           {showTransactionDetails && (
-            <div className="details-card transaction-details">
+            <div
+              className="details-card transaction-details"
+              style={{
+                backgroundColor:
+                  selectedTab === "Math"
+                    ? "#ffb888"
+                    : selectedTab === "Mission"
+                    ? "#99fb98"
+                    : "white",
+              }}
+            >
               <div className="card-header" style={{ margin: "0px" }}>
                 <h2>Transaction details</h2>
                 <button className="consent-btn">Get Consent</button>

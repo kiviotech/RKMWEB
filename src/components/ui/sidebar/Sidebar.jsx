@@ -22,7 +22,7 @@ const Sidebar = () => {
         <img src={icons.house} alt="home" />
         <span className="label">Guest House</span>
       </NavLink>
-      <NavLink to="/donation" activeclassname="active">
+      <NavLink to="/newDonation" activeclassname="active">
         <img src={icons.rupee} alt="donation" />
         <span className="label" style={{ paddingTop: "5px" }}>
           Donations

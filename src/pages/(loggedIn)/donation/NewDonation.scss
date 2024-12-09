@@ -25,7 +25,7 @@
 
     label {
       font-size: 14px;
-      color: #333;
+      color: #000;
       font-weight: bold;
     }
 
@@ -45,7 +45,7 @@
   height: 60px;
 
   .tag {
-    background-color: #f0f0f0;
+    background-color: #e4e4e4;
     color: #333;
     padding: 8px 16px;
     border-radius: 20px;
@@ -99,7 +99,7 @@
   .tabs {
     display: flex;
     align-items: center;
-    background: #f3f4f6;
+    background: #e4e4e4;
     padding: 4px;
     border-radius: 8px;
 
@@ -115,12 +115,12 @@
 
       &.active {
         &[data-tab="Mission"] {
-          background: #00cc88;
-          color: white;
+          background: #99fb98;
+          color: #000;
         }
         &[data-tab="Math"] {
-          background: #8c52ff;
-          color: white;
+          background: #ffb888;
+          color: #000;
         }
       }
 
@@ -386,7 +386,7 @@ select {
       label {
         display: block;
         font-size: 14px;
-        color: #666666;
+        color: #000 !important;
         margin-bottom: 8px;
         margin-left: 0px;
       }
@@ -491,7 +491,7 @@ select {
       label {
         display: block;
         font-size: 14px;
-        color: #666666;
+        color: #000 !important;
         margin-bottom: 8px;
       }
 
@@ -590,6 +590,43 @@ select,
   button:disabled {
     opacity: 0.6;
     cursor: not-allowed;
+  }
+
+  .letter-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+
+    svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    &.consent-letter {
+      background-color: #e5edff;
+      color: #2563eb;
+      border: 1px solid #2563eb;
+
+      &:hover {
+        background-color: #d1e0ff;
+      }
+    }
+
+    &.thank-letter {
+      background-color: #ecf8f3;
+      color: #059669;
+      border: 1px solid #059669;
+
+      &:hover {
+        background-color: #d1f2e3;
+      }
+    }
   }
 }
 
@@ -1088,7 +1125,7 @@ input::placeholder {
 
     label {
       font-weight: bold;
-      color: #333;
+      color: #000;
       font-size: 14px;
     }
 
@@ -1182,7 +1219,7 @@ select:focus {
   label {
     display: block;
     font-size: 14px;
-    color: #666;
+    color: #000;
     margin-bottom: 4px;
     font-weight: 500;
   }
@@ -1292,7 +1329,7 @@ input[type="email"].borderless-input {
     label {
       display: block;
       font-size: 14px;
-      color: #666666;
+      color: #000;
       margin-bottom: 8px;
     }
 
@@ -1355,7 +1392,7 @@ input[type="email"].borderless-input {
     label {
       display: block;
       font-size: 14px;
-      color: #666;
+      color: #000;
       margin-bottom: 8px;
     }
 
@@ -1837,4 +1874,17 @@ select {
 
 .form-row {
   overflow: visible;
+}
+
+.tomorrows-guest-btn {
+  &:hover {
+    background-color: #7340d3 !important;
+    transform: translateY(-1px);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+
+  transition: all 0.2s ease;
 }

@@ -90,6 +90,14 @@ const NewDonation = () => {
   // Add new state for print options dropdown
   const [showPrintOptions, setShowPrintOptions] = useState(false);
 
+  // Add this near the top with other state declarations
+  const [stampImageUrl, setStampImageUrl] = useState({
+    withStamp:
+      "http://localhost:1337/uploads/large_Whats_App_Image_2024_12_08_at_10_25_43_PM_336d2cb2f0.jpeg",
+    withoutStamp:
+      "http://localhost:1337/uploads/medium_Whats_App_Image_2024_12_09_at_10_31_00_AM_d828ff9d49.jpeg",
+  });
+
   console.log("Zustand Store Data:", {
     // auth: { user },
     donations,
@@ -698,14 +706,28 @@ const NewDonation = () => {
         console.log("Successfully created new donation");
       }
 
+      // Download the appropriate image based on selection
+      const imageUrl = withStamp
+        ? stampImageUrl.withStamp
+        : stampImageUrl.withoutStamp;
+      const response = await fetch(imageUrl);
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+
+      // Create temporary link and trigger download
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = withStamp ? "stamp.jpeg" : "without-stamp.jpeg";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+
       // Reset form and close modals
       resetFormData();
       setIsModalOpen(false);
       setShowPrintOptions(false);
       navigate("/donation");
-
-      // Here you can handle different print logic based on withStamp parameter
-      console.log(`Printing receipt ${withStamp ? "with" : "without"} stamp`);
     } catch (error) {
       console.error("Error processing donation:", error);
       console.error("Error details:", error.response?.data || error.message);

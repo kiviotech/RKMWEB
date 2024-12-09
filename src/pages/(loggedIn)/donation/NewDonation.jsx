@@ -2678,15 +2678,7 @@ const NewDonation = () => {
                 <div className="receipt-amt">
                   <p>As Donation for: </p>
                   <p style={{ paddingLeft: "20px" }}>
-                    {currentReceipt?.donationDetails?.donationType ||
-                      "General Donation"}
-                    {currentReceipt?.donationDetails?.inMemoryOf && (
-                      <span>
-                        {" "}
-                        ({currentReceipt.donationDetails.inMemoryOf})
-                      </span>
-                    )}
-                    {" for "}
+                    {currentReceipt?.donationDetails?.donationType || ""}
                     {selectedTab}
                   </p>
                 </div>

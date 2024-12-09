@@ -30,7 +30,7 @@
     }
 
     span {
-      color: #6B7280;
+      color: #6b7280;
       font-size: 14px;
     }
   }
@@ -99,7 +99,7 @@
   .tabs {
     display: flex;
     align-items: center;
-    background: #F3F4F6;
+    background: #f3f4f6;
     padding: 4px;
     border-radius: 8px;
 
@@ -114,9 +114,14 @@
       transition: all 0.2s ease;
 
       &.active {
-        background: #8C52FF;
-        color: white;
-        box-shadow: 0 2px 4px rgba(140, 82, 255, 0.2);
+        &[data-tab="Mission"] {
+          background: #00cc88;
+          color: white;
+        }
+        &[data-tab="Math"] {
+          background: #8c52ff;
+          color: white;
+        }
       }
 
       &:not(.active):hover {
@@ -150,15 +155,14 @@
     display: flex;
     flex-direction: column;
 
-
     .donor-details {
       width: 100%;
       height: fit-content;
-      max-height: 430px;
+      max-height: 400px;
     }
 
     .donation-history {
-      background: #FFFFFF;
+      background: #ffffff;
       border-radius: 12px;
       padding: 20px;
       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
@@ -178,14 +182,14 @@
         td {
           padding: 12px 16px;
           text-align: left;
-          border-bottom: 1px solid #EAECF0;
+          border-bottom: 1px solid #eaecf0;
           font-size: 14px;
         }
 
         th {
           font-weight: 500;
           color: #333;
-          background-color: #FFFFFF;
+          background-color: #ffffff;
         }
 
         td {
@@ -193,11 +197,11 @@
 
           &:nth-child(4) {
             .cash {
-              color: #00A3FF;
+              color: #00a3ff;
             }
 
             .online {
-              color: #8C52FF;
+              color: #8c52ff;
             }
           }
 
@@ -232,10 +236,10 @@
 }
 
 .details-card {
-  background: #FFFFFF;
+  background: #ffffff;
   padding: 24px;
   border-radius: 12px;
-  border: 1px solid #CACACA;
+  border: 1px solid #cacaca;
   margin-bottom: 20px;
 
   .card-header {
@@ -360,7 +364,7 @@ select {
 }
 
 .details-card.receipt-details {
-  background: #FFFFFF;
+  background: #ffffff;
   padding: 24px;
   border-radius: 12px;
   margin-bottom: 20px;
@@ -384,7 +388,7 @@ select {
         font-size: 14px;
         color: #666666;
         margin-bottom: 8px;
-        margin-left: 0px
+        margin-left: 0px;
       }
 
       input {
@@ -405,7 +409,7 @@ select {
         }
 
         &::placeholder {
-          color: #9CA3AF;
+          color: #9ca3af;
         }
 
         &:focus {
@@ -495,7 +499,7 @@ select {
       select {
         width: 100%;
         padding: 8px 12px;
-        border: 1px solid #E5E7EB;
+        border: 1px solid #e5e7eb;
         border-radius: 8px;
         font-size: 14px;
         color: #333333;
@@ -503,7 +507,7 @@ select {
         height: 40px;
 
         &::placeholder {
-          color: #9CA3AF;
+          color: #9ca3af;
         }
       }
     }
@@ -608,7 +612,7 @@ select,
 }
 
 input::placeholder {
-  color: #9CA3AF;
+  color: #9ca3af;
   font-size: 14px;
 }
 
@@ -674,17 +678,17 @@ input::placeholder {
 
         &:first-child {
           background-color: #fff;
-          color: #4B4B4B;
-          border: 1px solid #4B4B4B;
+          color: #4b4b4b;
+          border: 1px solid #4b4b4b;
         }
 
         &.confirm-btn {
-          background-color: #9867E9;
+          background-color: #9867e9;
           color: white;
         }
 
         .confirm {
-          background-color: #9867E9;
+          background-color: #9867e9;
           color: white;
         }
       }
@@ -696,6 +700,7 @@ input::placeholder {
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    background-image: url();
 
     .model-header {
       display: flex;
@@ -755,7 +760,7 @@ input::placeholder {
         gap: 8px;
         max-width: 200px;
         margin: 0 0 0 auto;
-        
+
         .print-option {
           width: 100%;
           padding: 10px 20px;
@@ -782,11 +787,11 @@ input::placeholder {
       .cancel-button {
         padding: 8px 24px;
         border-radius: 4px;
-        border: 1px solid #4B4B4B;
+        border: 1px solid #4b4b4b;
         cursor: pointer;
         font-weight: 500;
         background-color: #fff;
-        color: #4B4B4B;
+        color: #4b4b4b;
       }
 
       .confirm-button {
@@ -795,7 +800,7 @@ input::placeholder {
         border: none;
         cursor: pointer;
         font-weight: 500;
-        background-color: #9867E9;
+        background-color: #9867e9;
         color: white;
       }
     }
@@ -818,7 +823,7 @@ input::placeholder {
     width: 80px;
     flex: none;
     height: 42px;
-    border: 1px solid #E5E7EB;
+    border: 1px solid #e5e7eb;
     border-radius: 8px;
     padding: 8px 12px;
     font-size: 14px;
@@ -830,13 +835,13 @@ input::placeholder {
     min-width: 0;
     height: 42px;
     padding: 8px 12px;
-    border: 1px solid #E5E7EB;
+    border: 1px solid #e5e7eb;
     border-radius: 8px;
     font-size: 14px;
     background: #fff;
 
     &::placeholder {
-      color: #9CA3AF;
+      color: #9ca3af;
     }
   }
 }
@@ -862,7 +867,7 @@ input::placeholder {
   select,
   input {
     height: 40px;
-    border: 1px solid #E5E7EB;
+    border: 1px solid #e5e7eb;
     border-radius: 8px;
     padding: 8px 12px;
     font-size: 14px;
@@ -871,7 +876,7 @@ input::placeholder {
 
     &:focus {
       outline: none;
-      border-color: #7C5CFC;
+      border-color: #7c5cfc;
     }
   }
 }
@@ -1136,7 +1141,7 @@ input::placeholder {
   select,
   input {
     height: 40px;
-    border: 1px solid #E5E7EB;
+    border: 1px solid #e5e7eb;
     border-radius: 8px;
     padding: 8px 12px;
     font-size: 14px;
@@ -1145,7 +1150,7 @@ input::placeholder {
 
     &:focus {
       outline: none;
-      border-color: #7C5CFC;
+      border-color: #7c5cfc;
     }
   }
 }
@@ -1168,7 +1173,7 @@ input::placeholder {
 input:focus,
 select:focus {
   outline: none;
-  border-color: #7C5CFC;
+  border-color: #7c5cfc;
 }
 
 .form-group {
@@ -1186,18 +1191,18 @@ select:focus {
     width: 100%;
     height: 42px;
     padding: 8px 12px;
-    border: 1px solid #E5E7EB;
+    border: 1px solid #e5e7eb;
     border-radius: 8px;
     font-size: 14px;
     background: #fff;
 
     &::placeholder {
-      color: #9CA3AF;
+      color: #9ca3af;
     }
 
     &:focus {
       outline: none;
-      border-color: #7C5CFC;
+      border-color: #7c5cfc;
     }
   }
 
@@ -1257,7 +1262,7 @@ input[type="email"].borderless-input {
   }
 
   &::placeholder {
-    color: #9CA3AF;
+    color: #9ca3af;
   }
 
   &:-webkit-autofill {
@@ -1268,7 +1273,7 @@ input[type="email"].borderless-input {
 .details-card.donation-details {
   width: 100%;
   height: fit-content;
-  background: #FFFFFF;
+  background: #ffffff;
   padding: 24px;
   border-radius: 12px;
   margin-bottom: 20px;
@@ -1296,7 +1301,7 @@ input[type="email"].borderless-input {
       width: 100%;
       height: 40px;
       padding: 8px 12px;
-      border: 1px solid #E5E7EB;
+      border: 1px solid #e5e7eb;
       border-radius: 8px;
       font-size: 14px;
       background: #fff;
@@ -1313,7 +1318,7 @@ input[type="email"].borderless-input {
 }
 
 .details-card.transaction-details {
-  background: #FFFFFF;
+  background: #ffffff;
   padding: 24px;
   border-radius: 12px;
   margin-bottom: 20px;
@@ -1331,7 +1336,7 @@ input[type="email"].borderless-input {
     }
 
     .consent-btn {
-      color: #7C5CFC;
+      color: #7c5cfc;
       background: none;
       border: none;
       font-size: 14px;
@@ -1358,19 +1363,19 @@ input[type="email"].borderless-input {
       width: 100%;
       height: 42px;
       padding: 12px;
-      border: 1px solid #E5E7EB;
+      border: 1px solid #e5e7eb;
       border-radius: 8px;
       font-size: 14px;
       color: #333;
       background: #fff;
 
       &::placeholder {
-        color: #9CA3AF;
+        color: #9ca3af;
       }
 
       &:focus {
         outline: none;
-        border-color: #7C5CFC;
+        border-color: #7c5cfc;
       }
 
       // Calendar icon styling for date input
@@ -1481,25 +1486,21 @@ input[type="email"].borderless-input {
     left: 0;
     right: 0;
     background: white;
-    border: 1px solid #E5E7EB;
+    border: 1px solid #e5e7eb;
     border-radius: 8px;
     max-height: 300px;
     overflow-y: auto;
-    z-index: 1000;
+    z-index: 9999;
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 
     .dropdown-item {
       padding: 12px 16px;
       cursor: pointer;
-      border-bottom: 1px solid #F3F4F6;
+      border-bottom: 1px solid #f3f4f6;
       transition: background-color 0.2s ease;
 
-      &:last-child {
-        border-bottom: none;
-      }
-
       &:hover {
-        background-color: #F9FAFB;
+        background-color: #f9fafb;
       }
 
       .guest-info {
@@ -1511,26 +1512,18 @@ input[type="email"].borderless-input {
         .guest-name {
           font-weight: 500;
           color: #111827;
-          font-size: 14px;
         }
 
         .guest-phone {
-          color: #6B7280;
-          font-size: 13px;
+          color: #6b7280;
+          font-size: 0.9em;
         }
       }
 
       .guest-details {
-        font-size: 13px;
-        color: #6B7280;
+        color: #6b7280;
+        font-size: 0.9em;
       }
-    }
-
-    .no-results {
-      padding: 16px;
-      text-align: center;
-      color: #6B7280;
-      font-size: 14px;
     }
   }
 }
@@ -1549,9 +1542,9 @@ input[type="email"].borderless-input {
   gap: 10px;
 
   .cancel-btn {
-    background-color: #FFBDCB;
-    color: #FD7490;
-    border: 1px solid #FD7490;
+    background-color: #ffbdcb;
+    color: #fd7490;
+    border: 1px solid #fd7490;
     padding: 10px 20px;
     border-radius: 5px;
     cursor: pointer;
@@ -1608,9 +1601,9 @@ input[type="email"].borderless-input {
     margin-left: auto;
 
     .cancel-btn {
-      background-color: #FFBDCB;
-      color: #FD7490;
-      border: 1px solid #FD7490;
+      background-color: #ffbdcb;
+      color: #fd7490;
+      border: 1px solid #fd7490;
       padding: 10px 20px;
       border-radius: 5px;
       cursor: pointer;
@@ -1649,7 +1642,7 @@ input[type="email"].borderless-input {
 // Update common input styles
 input,
 select {
-  border: 1px solid #98A2AF !important;
+  border: 1px solid #98a2af !important;
   height: 40px;
   padding: 8px 12px;
   border-radius: 8px;
@@ -1660,13 +1653,13 @@ select {
   box-shadow: none !important;
 
   &::placeholder {
-    color: #9CA3AF;
+    color: #9ca3af;
     font-weight: normal;
   }
 
   &:focus {
     outline: none;
-    border-color: #7C5CFC !important;
+    border-color: #7c5cfc !important;
     box-shadow: none !important;
   }
 }
@@ -1675,10 +1668,9 @@ select {
 .donor-unified-input,
 .phone-unified-input,
 .identity-unified-input {
-
   select,
   input {
-    border: 1px solid #98A2AF !important;
+    border: 1px solid #98a2af !important;
     height: 40px;
     padding: 8px 12px;
     border-radius: 8px;
@@ -1689,13 +1681,13 @@ select {
     box-shadow: none !important;
 
     &::placeholder {
-      color: #9CA3AF;
+      color: #9ca3af;
       font-weight: normal;
     }
 
     &:focus {
       outline: none;
-      border-color: #7C5CFC !important;
+      border-color: #7c5cfc !important;
       box-shadow: none !important;
     }
   }
@@ -1704,18 +1696,18 @@ select {
 // Update borderless input styles to match
 .borderless-input,
 .donor-email-field {
-  border: 1px solid #98A2AF !important;
+  border: 1px solid #98a2af !important;
   box-shadow: none !important;
   color: #111827 !important;
   font-weight: 500 !important;
 
   &::placeholder {
-    color: #9CA3AF;
+    color: #9ca3af;
     font-weight: normal;
   }
 
   &:focus {
-    border-color: #7C5CFC !important;
+    border-color: #7c5cfc !important;
     box-shadow: none !important;
   }
 }
@@ -1761,7 +1753,7 @@ select {
 
 .mantra-diksha-select {
   font-size: 14px;
-  
+
   option {
     font-size: 14px;
   }
@@ -1770,73 +1762,79 @@ select {
 .print-dropdown-container {
   position: relative;
   display: inline-block;
-}
 
-.print-options-dropdown {
-  position: absolute;
-  top: 100%;
-  right: 0;
-  background: white;
-  border: 1px solid #e0e0e0;
-  border-radius: 4px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-  z-index: 1000;
-  margin-top: 4px;
-  overflow: hidden;
+  .print-options-dropdown {
+    position: absolute;
+    bottom: 100%;
+    right: 0;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
+    margin-bottom: 4px;
+    z-index: 1000;
+    min-width: 180px;
 
-  button {
-    display: block;
-    width: 100%;
-    padding: 8px 16px;
-    border: none;
-    background: none;
-    text-align: left;
-    cursor: pointer;
-    white-space: nowrap;
-    color: #333;
-    font-size: 14px;
+    button {
+      width: 100%;
+      padding: 10px 15px;
+      border: none;
+      background: none;
+      text-align: left;
+      cursor: pointer;
+      color: #333;
+      font-size: 14px;
 
-    &:hover {
-      background-color: #f5f5f5;
-    }
+      &:hover {
+        background-color: #f5f5f5;
+      }
 
-    &:not(:last-child) {
-      border-bottom: 1px solid #e0e0e0;
+      &:first-child {
+        border-radius: 4px 4px 0 0;
+      }
+
+      &:last-child {
+        border-radius: 0 0 4px 4px;
+      }
     }
   }
-}
 
-.print-options-dropdown {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  min-width: 180px;
-
-  .print-option {
-    padding: 8px 16px;
-    background-color: #fff;
-    border: 1px solid #e0e0e0;
+  .confirm-print-button {
+    background-color: #8c52ff;
+    color: white;
+    padding: 10px 20px;
+    border: none;
     border-radius: 4px;
     cursor: pointer;
-    transition: all 0.2s ease;
-    color: #333;
-    text-align: left;
+    display: flex;
+    align-items: center;
+    gap: 8px;
 
-    &:hover {
-      background-color: #f5f5f5;
-      border-color: #8C52FF;
-      color: #8C52FF;
-    }
-
-    &:first-child {
-      border-bottom: none;
-      border-bottom-left-radius: 0;
-      border-bottom-right-radius: 0;
-    }
-
-    &:last-child {
-      border-top-left-radius: 0;
-      border-top-right-radius: 0;
+    .dropdown-arrow {
+      font-size: 12px;
+      margin-left: 5px;
+      transform: rotate(180deg);
     }
   }
+}
+
+.print {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 20px;
+  border-top: 1px solid #eee;
+}
+
+// Add styles to ensure parent containers don't clip the dropdown
+.details-card.donor-details {
+  overflow: visible;
+}
+
+.form-group {
+  overflow: visible;
+}
+
+.form-row {
+  overflow: visible;
 }

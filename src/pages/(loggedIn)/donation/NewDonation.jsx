@@ -57,6 +57,7 @@ const NewDonation = () => {
         ddNumber: "",
         ddDate: "",
         bankName: "",
+        branchName: "",
       },
     },
   });
@@ -68,7 +69,7 @@ const NewDonation = () => {
     email: "",
     identityNumber: "",
     purpose: "",
-    inMemoryOf: "",
+    amount: "",
   });
   const [isLoadingPincode, setIsLoadingPincode] = useState(false);
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
@@ -151,6 +152,7 @@ const NewDonation = () => {
               ddNumber: donationData.attributes.ddch_number || "",
               ddDate: donationData.attributes.ddch_date || "",
               bankName: donationData.attributes.bankName || "",
+              branchName: donationData.attributes.branchName || "",
             },
           },
         });
@@ -247,6 +249,7 @@ const NewDonation = () => {
           ddNumber: "",
           ddDate: "",
           bankName: "",
+          branchName: "",
         },
       },
     };
@@ -533,21 +536,28 @@ const NewDonation = () => {
         ddNumber: "",
         ddDate: "",
         bankName: "",
+        branchName: "",
       },
     });
   };
 
   // Add this validation function
   const validateDonationAmount = (amount) => {
+    if (!amount) return "Amount is required";
     const numAmount = parseFloat(amount);
-    return !amount || isNaN(numAmount) || numAmount <= 0;
+    if (isNaN(numAmount) || numAmount <= 0)
+      return "Amount must be greater than 0";
+    return "";
   };
 
   // Modify handlePrintReceipt to only show the modal
   const handlePrintReceipt = async () => {
     // Check donation amount first
-    if (validateDonationAmount(currentReceipt?.donationDetails?.amount)) {
-      alert("Enter the amount");
+    if (!currentReceipt?.donationDetails?.amount) {
+      setValidationErrors((prev) => ({
+        ...prev,
+        amount: "Amount is required",
+      }));
       return;
     }
 
@@ -558,30 +568,19 @@ const NewDonation = () => {
     const purposeError = !currentReceipt?.donationDetails?.donationType
       ? "Purpose is required"
       : "";
-    const inMemoryError = !currentReceipt?.donationDetails?.inMemoryOf
-      ? "In Memory of is required"
-      : "";
-
-    // Add PAN validation for amounts over 9,999
-    const amount = parseFloat(currentReceipt?.donationDetails?.amount) || 0;
-    const panError = amount > 9999 ? validatePAN(donorDetails.panNumber) : "";
+    const amountError = validateDonationAmount(
+      currentReceipt?.donationDetails?.amount
+    );
 
     setValidationErrors({
       name: nameError,
       phone: phoneError,
       email: emailError,
-      pan: panError,
       purpose: purposeError,
-      inMemoryOf: inMemoryError,
+      amount: amountError,
     });
 
-    if (
-      nameError ||
-      phoneError ||
-      purposeError ||
-      inMemoryError ||
-      (amount > 9999 && panError)
-    ) {
+    if (nameError || phoneError || purposeError || amountError) {
       alert("Please fill all required fields");
       return;
     }
@@ -632,6 +631,9 @@ const NewDonation = () => {
               bankName:
                 currentReceipt?.donationDetails?.transactionDetails?.bankName ||
                 "",
+              branchName:
+                currentReceipt?.donationDetails?.transactionDetails
+                  ?.branchName || "",
             }),
           },
         };
@@ -698,6 +700,9 @@ const NewDonation = () => {
               bankName:
                 currentReceipt?.donationDetails?.transactionDetails?.bankName ||
                 "",
+              branchName:
+                currentReceipt?.donationDetails?.transactionDetails
+                  ?.branchName || "",
             }),
           },
         };
@@ -706,22 +711,266 @@ const NewDonation = () => {
         console.log("Successfully created new donation");
       }
 
-      // Download the appropriate image based on selection
-      const imageUrl = withStamp
-        ? stampImageUrl.withStamp
-        : stampImageUrl.withoutStamp;
-      const response = await fetch(imageUrl);
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
+      // Create a new window for printing
+      const printWindow = window.open("", "_blank");
 
-      // Create temporary link and trigger download
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = withStamp ? "stamp.jpeg" : "without-stamp.jpeg";
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
+      // Format the date in DD-MM-YYYY format
+      const today = new Date();
+      const formattedDate = today.toLocaleDateString("en-GB", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+      });
+
+      // Create the receipt HTML content
+      const receiptContent = `
+        <!DOCTYPE html>
+        <html lang="en">
+          <head>
+            <meta charset="UTF-8" />
+            <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+            <title>Ramakrishna Math Letterhead</title>
+            <style>
+              body {
+                margin: 0;
+                padding: 20px;
+                background-color: #fff;
+                font-family: Arial, sans-serif;
+              }
+
+              .letterhead {
+                width: 19.3cm;
+                height: 15.1cm;
+                margin: 0 auto;
+                padding: 30px 50px;
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+              }
+
+              .header {
+                display: flex;
+                align-items: flex-start;
+                gap: 20px;
+                margin-bottom: 40px;
+              }
+
+              .logo {
+                width: 100px;
+                height: auto;
+              }
+
+              .title-section {
+                flex: 1;
+              }
+
+              h1 {
+                margin: 0;
+                color: #4b3968;
+                font-size: 24px;
+                text-align: center;
+              }
+
+              .subtitle {
+                margin: 5px 0;
+                font-size: 14px;
+                text-align: center;
+                color: #4b3968;
+              }
+
+              .address {
+                margin: 5px 0;
+                font-size: 14px;
+                text-align: center;
+                color: #4b3968;
+              }
+
+              .contact {
+                margin: 5px 0;
+                font-size: 12px;
+                text-align: center;
+                color: #4b3968;
+              }
+
+              .signature-section {
+                display: flex;
+                flex-direction: row;
+                justify-content: center;
+                align-items: flex-start;
+                margin-bottom: 20px;
+                position: relative;
+              }
+
+              .received {
+                margin: 0 0 5px 0;
+                color: #4b3968;
+                font-size: 14px;
+              }
+
+              .adhyaksha {
+                position: absolute;
+                right: 0;
+                margin: 0;
+                padding-top: 5px;
+                min-width: 150px;
+                text-align: center;
+                color: #4b3968;
+                font-size: 14px;
+              }
+
+              .donation-text {
+                font-size: 14px;
+                color: #4b3968;
+                line-height: 1.6;
+                margin: 20px 0 0 0;
+                padding: 5px 0 0 0;
+                font-weight: 600;
+                letter-spacing: 0.2px;
+                border-top: 1px solid #4b3968;
+              }
+
+              .receipt-details {
+                margin-top: 35px;
+                line-height: 1.8;
+                font-size: 14px;
+              }
+
+              .receipt-row {
+                display: flex;
+                justify-content: space-between;
+                margin-bottom: 20px;
+                font-size: 14px;
+              }
+
+              .donor-details {
+                margin-bottom: 25px;
+              }
+
+              .donor-details p {
+                margin: 0;
+                line-height: 1.8;
+                font-size: 14px;
+              }
+
+              .donor-details p:not(:first-child) {
+                margin-left: 160px;
+              }
+
+              .payment-details {
+                margin-top: 25px;
+              }
+
+              .payment-details p {
+                margin: 0;
+                line-height: 1.8;
+                font-size: 14px;
+              }
+
+              .amount {
+                margin-top: 5px;
+                font-size: 14px;
+                font-weight: normal;
+              }
+            </style>
+          </head>
+          <body>
+            <div class="letterhead">
+              <div class="header">
+                <img
+                  style="position: absolute"
+                  src="https://i0.wp.com/rkmvc.ac.in/wp-content/uploads/2019/02/logo.png?w=300&ssl=1"
+                  alt="Ramakrishna Math Logo"
+                  class="logo"
+                />
+                <div class="title-section">
+                  <h1>RAMAKRISHNA MATH</h1>
+                  <p class="subtitle">
+                    (A Branch Centre of Ramakrishna Math, Belur Math, Howrah-711 202)
+                  </p>
+                  <p class="address">
+                    P.O. KAMARPUKUR, DIST. HOOGHLY, PIN - 712 612, WEST BENGAL
+                  </p>
+                  <p class="contact">
+                    Phone : 7872800844 / 03211-244221, E-mail : kamarpukur@rkmm.org,
+                    Website : kamarpukur.rkmm.org
+                  </p>
+                </div>
+              </div>
+              <div class="receipt-details">
+                <div class="receipt-row">
+                  <span>Receipt <b>No. ${receiptNumber}</b></span>
+                  <span class="date">Date: <b>${formattedDate}</b></span>
+                </div>
+                <div class="donor-details">
+                  <p>
+                    Received with thanks from
+                    <b>${donorDetails.title} ${donorDetails.name}</b>
+                  </p>
+                  ${
+                    donorDetails.houseNumber || donorDetails.streetName
+                      ? `<p><b>${donorDetails.houseNumber}${
+                          donorDetails.streetName
+                            ? `, ${donorDetails.streetName}`
+                            : ""
+                        }</b></p>`
+                      : ""
+                  }
+                  <p><b>PO: ${donorDetails.district || ""}, Dist: ${
+        donorDetails.district || ""
+      }</b></p>
+                  <p><b>State: ${donorDetails.state || ""}, Pin: ${
+        donorDetails.pincode || ""
+      }</b></p>
+                  ${
+                    donorDetails.identityType === "PAN"
+                      ? `<p><b>PAN: ${donorDetails.identityNumber}</b></p>`
+                      : ""
+                  }
+                </div>
+                <div class="payment-details">
+                  <p>The sum of Rupees <b>${numberToWords(
+                    parseFloat(currentReceipt?.donationDetails?.amount || 0)
+                  )} Only</b></p>
+                  <p>By ${
+                    currentReceipt?.donationDetails?.transactionType || "Cash"
+                  }</p>
+                  <p>As Donation for ${selectedTab} for Thakur Seva</p>
+                  <p class="amount"><b>Rs. ${parseFloat(
+                    currentReceipt?.donationDetails?.amount || 0
+                  ).toLocaleString("en-IN", {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  })}</b></p>
+                </div>
+              </div>
+              <div class="footer">
+                <div class="signature-section">
+                  <p class="received">Received by ${user?.counter || "N/A"}</p>
+                  <p class="adhyaksha">Adhyaksha</p>
+                </div>
+                <p class="donation-text">
+                  Donations may be given by cheque drawn in favour of "RAMAKRISHNA MATH,
+                  KAMARPUKUR" or by Bank transfer through NEET / RTGS to A/C. No.
+                  11830794268, STATE BANK OF INDIA, Maheshpur Branch, IFSC :
+                  SBIN0009729. In all cases please mention the following details clearly
+                  : Name, Full Address with PIN Code, Phone No., e-mail ID (if
+                  available), PAN / Aadhaar number. Our Income Tax PAN is AAATR3497G.
+                </p>
+              </div>
+            </div>
+            <script>
+              window.onload = function() {
+                window.print();
+                window.onafterprint = function() {
+                  window.close();
+                };
+              }
+            </script>
+          </body>
+        </html>
+      `;
+
+      // Write the content to the new window and trigger print
+      printWindow.document.write(receiptContent);
+      printWindow.document.close();
 
       // Reset form and close modals
       resetFormData();
@@ -730,7 +979,6 @@ const NewDonation = () => {
       navigate("/donation");
     } catch (error) {
       console.error("Error processing donation:", error);
-      console.error("Error details:", error.response?.data || error.message);
       alert("Error processing donation. Please try again.");
     }
   };
@@ -798,6 +1046,9 @@ const NewDonation = () => {
               bankName:
                 currentReceipt?.donationDetails?.transactionDetails?.bankName ||
                 "",
+              branchName:
+                currentReceipt?.donationDetails?.transactionDetails
+                  ?.branchName || "",
             }),
           },
         };
@@ -864,6 +1115,9 @@ const NewDonation = () => {
               bankName:
                 currentReceipt?.donationDetails?.transactionDetails?.bankName ||
                 "",
+              branchName:
+                currentReceipt?.donationDetails?.transactionDetails
+                  ?.branchName || "",
             }),
           },
         };
@@ -924,6 +1178,9 @@ const NewDonation = () => {
               bankName:
                 currentReceipt?.donationDetails?.transactionDetails?.bankName ||
                 "",
+              branchName:
+                currentReceipt?.donationDetails?.transactionDetails
+                  ?.branchName || "",
             }),
           },
         };
@@ -990,6 +1247,9 @@ const NewDonation = () => {
               bankName:
                 currentReceipt?.donationDetails?.transactionDetails?.bankName ||
                 "",
+              branchName:
+                currentReceipt?.donationDetails?.transactionDetails
+                  ?.branchName || "",
             }),
           },
         };
@@ -1061,6 +1321,7 @@ const NewDonation = () => {
           ddNumber: "",
           ddDate: "",
           bankName: "",
+          branchName: "",
         },
       },
     });
@@ -1345,6 +1606,7 @@ const NewDonation = () => {
       ddDate: "",
       ddNumber: "",
       bankName: "",
+      branchName: "",
     });
 
   // Add this validation function
@@ -1362,6 +1624,7 @@ const NewDonation = () => {
         ddDate: !details?.ddDate ? "Date is required" : "",
         ddNumber: !details?.ddNumber ? "Number is required" : "",
         bankName: !details?.bankName ? "Bank name is required" : "",
+        branchName: !details?.branchName ? "Branch name is required" : "",
       };
 
       setTransactionValidationErrors(errors);
@@ -1396,6 +1659,16 @@ const NewDonation = () => {
           updatedDonationDetails
         );
       }
+
+      // Add amount validation
+      setValidationErrors((prev) => ({
+        ...prev,
+        amount: !value
+          ? "Amount is required"
+          : amount <= 0
+          ? "Amount must be greater than 0"
+          : "",
+      }));
     }
   };
 
@@ -1438,6 +1711,23 @@ const NewDonation = () => {
             ))}
             <button className="add-donation-btn" onClick={handleAddDonation}>
               + Add Donation
+            </button>
+            <button
+              className="link-button"
+              onClick={() => navigate("/donation#tomorrows-guests")}
+              style={{
+                background: "none",
+                border: "none",
+                color: "#8C52FF",
+                cursor: "pointer",
+                fontSize: "18px",
+                fontWeight: "500",
+                padding: "8px 16px",
+                textDecoration: "underline",
+                whiteSpace: "nowrap",
+              }}
+            >
+              Tomorrow's Leaving Guest
             </button>
           </div>
         </div>
@@ -1488,12 +1778,14 @@ const NewDonation = () => {
               <button
                 className={`tab ${selectedTab === "Math" ? "active" : ""}`}
                 onClick={() => handleTabClick("Math")}
+                data-tab="Math"
               >
                 Math
               </button>
               <button
                 className={`tab ${selectedTab === "Mission" ? "active" : ""}`}
                 onClick={() => handleTabClick("Mission")}
+                data-tab="Mission"
               >
                 Mission
               </button>
@@ -1510,23 +1802,6 @@ const NewDonation = () => {
           </div>
 
           <div style={{ display: "flex", alignItems: "center", gap: "20px" }}>
-            <button
-              className="link-button"
-              onClick={() => navigate("/donation#tomorrows-guests")}
-              style={{
-                background: "none",
-                border: "none",
-                color: "#8C52FF",
-                cursor: "pointer",
-                fontSize: "14px",
-                fontWeight: "500",
-                padding: "8px 16px",
-                textDecoration: "underline",
-                whiteSpace: "nowrap",
-              }}
-            >
-              Tomorrow's Leaving Guest
-            </button>
             <button
               style={{
                 display: "flex",
@@ -1651,8 +1926,10 @@ const NewDonation = () => {
                     placeholder="9212341902"
                     value={donorDetails.phone}
                     onChange={(e) => {
-                      // Only allow numbers
-                      const newPhone = e.target.value.replace(/\D/g, "");
+                      // Only allow numbers and limit to 10 digits
+                      const newPhone = e.target.value
+                        .replace(/\D/g, "")
+                        .slice(0, 10);
                       setDonorDetails({ ...donorDetails, phone: newPhone });
                       const phoneError = validatePhone(newPhone);
                       setValidationErrors((prev) => ({
@@ -1660,6 +1937,7 @@ const NewDonation = () => {
                         phone: phoneError,
                       }));
                     }}
+                    maxLength={10} // Add maxLength attribute
                     className={validationErrors.phone ? "error" : ""}
                   />
                   {validationErrors.phone && (
@@ -2080,39 +2358,18 @@ const NewDonation = () => {
             </div>
             <div className="form-group">
               <label>
-                In Memory of <span className="required">*</span>
+                Donation Amount <span className="required">*</span>
               </label>
-              <input
-                type="text"
-                placeholder="Enter in memory of"
-                value={currentReceipt?.donationDetails?.inMemoryOf || ""}
-                onChange={(e) => {
-                  handleDonationDetailsUpdate({
-                    inMemoryOf: e.target.value,
-                  });
-                  setValidationErrors((prev) => ({
-                    ...prev,
-                    inMemoryOf: e.target.value
-                      ? ""
-                      : "In Memory of is required",
-                  }));
-                }}
-                className={validationErrors.inMemoryOf ? "error" : ""}
-              />
-              {validationErrors.inMemoryOf && (
-                <span className="error-message">
-                  {validationErrors.inMemoryOf}
-                </span>
-              )}
-            </div>
-            <div className="form-group">
-              <label>Donation Amount</label>
               <input
                 type="text"
                 placeholder="Enter the amount"
                 value={currentReceipt?.donationDetails?.amount || ""}
                 onChange={(e) => handleDonationAmountChange(e.target.value)}
+                className={validationErrors.amount ? "error" : ""}
               />
+              {validationErrors.amount && (
+                <span className="error-message">{validationErrors.amount}</span>
+              )}
             </div>
             {showPANField && (
               <div className="form-group">
@@ -2164,11 +2421,26 @@ const NewDonation = () => {
                 <option value="Electronic Modes">Electronic Modes</option>
               </select>
             </div>
+            <div className="form-group">
+              <label>Donations Type</label>
+              <select
+                value={currentReceipt?.donationDetails?.inMemoryOf || ""}
+                onChange={(e) => {
+                  handleDonationDetailsUpdate({
+                    inMemoryOf: e.target.value,
+                  });
+                }}
+              >
+                <option value="">Select option</option>
+                <option value="Others (Revenue)">Others (Revenue)</option>
+                <option value="CORPUS">CORPUS</option>
+              </select>
+            </div>
           </div>
 
           {showTransactionDetails && (
             <div className="details-card transaction-details">
-              <div className="card-header" style={{ borderBottom: "none" }}>
+              <div className="card-header" style={{ margin: "0px" }}>
                 <h2>Transaction details</h2>
                 <button className="consent-btn">Get Consent</button>
               </div>
@@ -2253,6 +2525,35 @@ const NewDonation = () => {
                 {transactionValidationErrors.bankName && (
                   <span className="error-message">
                     {transactionValidationErrors.bankName}
+                  </span>
+                )}
+              </div>
+              <div className="form-group">
+                <label>
+                  Branch Name <span className="required">*</span>
+                </label>
+                <input
+                  type="text"
+                  placeholder="Enter branch name"
+                  value={
+                    currentReceipt?.donationDetails?.transactionDetails
+                      ?.branchName || ""
+                  }
+                  onChange={(e) =>
+                    handleDonationDetailsUpdate({
+                      transactionDetails: {
+                        ...currentReceipt?.donationDetails?.transactionDetails,
+                        branchName: e.target.value,
+                      },
+                    })
+                  }
+                  className={
+                    transactionValidationErrors.branchName ? "error" : ""
+                  }
+                />
+                {transactionValidationErrors.branchName && (
+                  <span className="error-message">
+                    {transactionValidationErrors.branchName}
                   </span>
                 )}
               </div>
@@ -2390,29 +2691,25 @@ const NewDonation = () => {
               >
                 Cancel
               </button>
-              {!showPrintOptions ? (
+              <div className="print-dropdown-container">
                 <button
-                  className="confirm-button"
-                  onClick={() => setShowPrintOptions(true)}
+                  className="confirm-print-button"
+                  onClick={() => setShowPrintOptions(!showPrintOptions)}
                 >
                   Confirm & Print
+                  <span className="dropdown-arrow">▼</span>
                 </button>
-              ) : (
-                <div className="print-options-container">
-                  <button
-                    className="print-option"
-                    onClick={() => handlePrintSelection(true)}
-                  >
-                    <span>Print with Stamp</span>
-                  </button>
-                  <button
-                    className="print-option"
-                    onClick={() => handlePrintSelection(false)}
-                  >
-                    <span>Print without Stamp</span>
-                  </button>
-                </div>
-              )}
+                {showPrintOptions && (
+                  <div className="print-options-dropdown">
+                    <button onClick={() => handlePrintSelection(true)}>
+                      Print with Stamp
+                    </button>
+                    <button onClick={() => handlePrintSelection(false)}>
+                      Print without Stamp
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>

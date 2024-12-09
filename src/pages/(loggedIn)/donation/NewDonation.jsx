@@ -411,12 +411,12 @@ const NewDonation = () => {
 
     // Extract address components
     const addressParts = guestData.address?.split(", ") || [];
+    const houseNumber = addressParts[0] || ""; // Extract house number
+    const streetAddress = addressParts.slice(1, -3).join(", ") || "";
+    const district = addressParts[addressParts.length - 3] || "";
+    const state = addressParts[addressParts.length - 2] || "";
     const pincode =
       addressParts[addressParts.length - 1]?.match(/\d{6}/)?.[0] || "";
-    const state = addressParts[addressParts.length - 2] || "";
-    const district = addressParts[addressParts.length - 3] || "";
-    const streetAddress =
-      addressParts.slice(0, addressParts.length - 3).join(", ") || "";
 
     // Remove the title from the name if it exists at the beginning
     const titleRegex =
@@ -434,7 +434,7 @@ const NewDonation = () => {
       identityNumber: guestData.aadhaar_number || "",
       roomNumber: "",
       pincode: pincode,
-      houseNumber: "",
+      houseNumber: houseNumber, // Set house number
       streetName: streetAddress,
       district: district,
       state: state,
@@ -2677,10 +2677,7 @@ const NewDonation = () => {
                 </div>
                 <div className="receipt-amt">
                   <p>As Donation for: </p>
-                  <p style={{ paddingLeft: "20px" }}>
-                    {currentReceipt?.donationDetails?.donationType || ""}
-                    {selectedTab}
-                  </p>
+                  <p style={{ paddingLeft: "20px" }}>{selectedTab}</p>
                 </div>
               </div>
               <div className="receipt-amount">

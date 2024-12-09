@@ -2606,11 +2606,33 @@ const NewDonation = () => {
                   <p>Received with thanks from </p>
                   <div className="receipt-address">
                     <p>
-                      Devotees for Daily Prasad
-                      <p>
-                        Ramakrishna Math, Kamarpukur, PO: Kamarpukur, Dist:
-                        Hoogly, State: West Bengal, Pin: 712612
-                      </p>
+                      <strong>{`${donorDetails.title} ${donorDetails.name}`}</strong>
+                      {(donorDetails.houseNumber ||
+                        donorDetails.streetName) && (
+                        <p>
+                          {donorDetails.houseNumber}
+                          {donorDetails.streetName &&
+                            `, ${donorDetails.streetName}`}
+                        </p>
+                      )}
+                      {(donorDetails.district ||
+                        donorDetails.state ||
+                        donorDetails.pincode) && (
+                        <p>
+                          {donorDetails.district &&
+                            `PO: ${donorDetails.district}, `}
+                          {donorDetails.district &&
+                            `Dist: ${donorDetails.district}, `}
+                          {donorDetails.state &&
+                            `State: ${donorDetails.state}, `}
+                          {donorDetails.pincode &&
+                            `Pin: ${donorDetails.pincode}`}
+                        </p>
+                      )}
+                      {donorDetails.identityType === "PAN" &&
+                        donorDetails.identityNumber && (
+                          <p>PAN: {donorDetails.identityNumber}</p>
+                        )}
                     </p>
                   </div>
                 </div>
@@ -2629,11 +2651,44 @@ const NewDonation = () => {
                   <p>By transaction type: </p>
                   <p style={{ paddingLeft: "20px" }}>
                     {currentReceipt?.donationDetails?.transactionType || "Cash"}
+                    {currentReceipt?.donationDetails?.transactionType?.toLowerCase() !==
+                      "cash" && (
+                      <span>
+                        {" "}
+                        (
+                        {currentReceipt?.donationDetails?.transactionDetails
+                          ?.ddNumber &&
+                          `No: ${currentReceipt.donationDetails.transactionDetails.ddNumber}, `}
+                        {currentReceipt?.donationDetails?.transactionDetails
+                          ?.ddDate &&
+                          `Date: ${new Date(
+                            currentReceipt.donationDetails.transactionDetails.ddDate
+                          ).toLocaleDateString()}, `}
+                        {currentReceipt?.donationDetails?.transactionDetails
+                          ?.bankName &&
+                          `Bank: ${currentReceipt.donationDetails.transactionDetails.bankName}, `}
+                        {currentReceipt?.donationDetails?.transactionDetails
+                          ?.branchName &&
+                          `Branch: ${currentReceipt.donationDetails.transactionDetails.branchName}`}
+                        )
+                      </span>
+                    )}
                   </p>
                 </div>
                 <div className="receipt-amt">
                   <p>As Donation for: </p>
-                  <p style={{ paddingLeft: "20px" }}>{selectedTab}</p>
+                  <p style={{ paddingLeft: "20px" }}>
+                    {currentReceipt?.donationDetails?.donationType ||
+                      "General Donation"}
+                    {currentReceipt?.donationDetails?.inMemoryOf && (
+                      <span>
+                        {" "}
+                        ({currentReceipt.donationDetails.inMemoryOf})
+                      </span>
+                    )}
+                    {" for "}
+                    {selectedTab}
+                  </p>
                 </div>
               </div>
               <div className="receipt-amount">

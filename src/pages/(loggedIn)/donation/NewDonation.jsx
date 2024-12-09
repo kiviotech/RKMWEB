@@ -739,11 +739,8 @@ const NewDonation = () => {
               }
 
               .letterhead {
-                width: 19.3cm;
-                height: 15.1cm;
+                width: 672 px;
                 margin: 0 auto;
-                padding: 30px 50px;
-                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
               }
 
               .header {
@@ -828,16 +825,16 @@ const NewDonation = () => {
               }
 
               .receipt-details {
-                margin-top: 35px;
-                line-height: 1.8;
-                font-size: 14px;
+                margin: 100px 0px;
+                line-height: 2;
+                font-size: 16px;  /* Increased from 14px */
               }
 
               .receipt-row {
                 display: flex;
                 justify-content: space-between;
                 margin-bottom: 20px;
-                font-size: 14px;
+                font-size: 16px;  /* Increased from 14px */
               }
 
               .donor-details {
@@ -846,12 +843,12 @@ const NewDonation = () => {
 
               .donor-details p {
                 margin: 0;
-                line-height: 1.8;
-                font-size: 14px;
+                line-height: 2;
+                font-size: 16px;  /* Increased from 14px */
               }
 
               .donor-details p:not(:first-child) {
-                margin-left: 160px;
+                margin-left: 150px;  /* Reduced from 160px to 40px */
               }
 
               .payment-details {
@@ -860,40 +857,24 @@ const NewDonation = () => {
 
               .payment-details p {
                 margin: 0;
-                line-height: 1.8;
-                font-size: 14px;
+                line-height: 2;
+                font-size: 16px;  /* Increased from 14px */
               }
 
               .amount {
                 margin-top: 5px;
-                font-size: 14px;
-                font-weight: normal;
+                font-size: 18px;  /* Increased from 14px */
+                font-weight: bold;  /* Changed from normal */
+              }
+
+              /* Add styles for emphasized text */
+              b {
+                font-size: 18px;  /* Make bold text slightly larger */
               }
             </style>
           </head>
           <body>
             <div class="letterhead">
-              <div class="header">
-                <img
-                  style="position: absolute"
-                  src="https://i0.wp.com/rkmvc.ac.in/wp-content/uploads/2019/02/logo.png?w=300&ssl=1"
-                  alt="Ramakrishna Math Logo"
-                  class="logo"
-                />
-                <div class="title-section">
-                  <h1>RAMAKRISHNA MATH</h1>
-                  <p class="subtitle">
-                    (A Branch Centre of Ramakrishna Math, Belur Math, Howrah-711 202)
-                  </p>
-                  <p class="address">
-                    P.O. KAMARPUKUR, DIST. HOOGHLY, PIN - 712 612, WEST BENGAL
-                  </p>
-                  <p class="contact">
-                    Phone : 7872800844 / 03211-244221, E-mail : kamarpukur@rkmm.org,
-                    Website : kamarpukur.rkmm.org
-                  </p>
-                </div>
-              </div>
               <div class="receipt-details">
                 <div class="receipt-row">
                   <span>Receipt <b>No. ${receiptNumber}</b></span>
@@ -940,20 +921,6 @@ const NewDonation = () => {
                     maximumFractionDigits: 2,
                   })}</b></p>
                 </div>
-              </div>
-              <div class="footer">
-                <div class="signature-section">
-                  <p class="received">Received by ${user?.counter || "N/A"}</p>
-                  <p class="adhyaksha">Adhyaksha</p>
-                </div>
-                <p class="donation-text">
-                  Donations may be given by cheque drawn in favour of "RAMAKRISHNA MATH,
-                  KAMARPUKUR" or by Bank transfer through NEET / RTGS to A/C. No.
-                  11830794268, STATE BANK OF INDIA, Maheshpur Branch, IFSC :
-                  SBIN0009729. In all cases please mention the following details clearly
-                  : Name, Full Address with PIN Code, Phone No., e-mail ID (if
-                  available), PAN / Aadhaar number. Our Income Tax PAN is AAATR3497G.
-                </p>
               </div>
             </div>
             <script>

@@ -1,0 +1,160 @@
+.receipt-print {
+  display: block;
+  padding: 10px;
+  color: #4b3968;
+  font-family: Arial, sans-serif;
+
+  .letterhead {
+    width: 100%;
+    max-width: 21cm; // A4 width
+    margin: 0;
+    position: relative;
+    padding-left: 0;
+  }
+
+  .receipt-details {
+    margin-top: 20px;
+    margin-left: 0;
+    line-height: 2;
+    text-align: left;
+
+    .receipt-row {
+      display: flex;
+      justify-content: flex-start;
+      gap: 20px;
+      margin-left: 0;
+      margin-bottom: 30px;
+      font-size: 14px;
+
+      .receipt-number,
+      .date {
+        text-align: left;
+      }
+
+      .receipt-number {
+        font-weight: normal;
+        &::before {
+          content: "No. ";
+          font-weight: normal;
+        }
+      }
+
+      .date {
+        font-weight: normal;
+        &::before {
+          content: "Date: ";
+          font-weight: normal;
+        }
+      }
+    }
+
+    .donor-details,
+    .payment-details {
+      text-align: left;
+    }
+  }
+
+  .donor-details {
+    margin-bottom: 30px;
+    line-height: 2.5;
+
+    p {
+      margin: 0;
+      font-size: 14px;
+      font-weight: normal;
+
+      &.received-from {
+        &::before {
+          content: "Received with thanks from ";
+          font-weight: normal;
+        }
+      }
+
+      &.address-line {
+        &::before {
+          content: "PO: ";
+          font-weight: normal;
+        }
+      }
+
+      &.state-line {
+        &::before {
+          content: "State: ";
+          font-weight: normal;
+        }
+      }
+
+      &.pan-line {
+        &::before {
+          content: "PAN: ";
+          font-weight: normal;
+        }
+      }
+    }
+  }
+
+  .payment-details {
+    margin-top: 30px;
+    line-height: 2.5;
+
+    p {
+      margin: 0;
+      font-size: 14px;
+      font-weight: normal;
+
+      &.rupees-line {
+        &::before {
+          content: "The sum of Rupees ";
+          font-weight: normal;
+        }
+      }
+
+      &.payment-mode {
+        &::before {
+          content: "By ";
+          font-weight: normal;
+        }
+      }
+
+      &.purpose-line {
+        &::before {
+          content: "As Donation for ";
+          font-weight: normal;
+        }
+      }
+
+      &.amount {
+        margin-top: 10px;
+        &::before {
+          content: "Rs. ";
+          font-weight: normal;
+        }
+      }
+    }
+  }
+}
+
+@media print {
+  @page {
+    size: A4;
+    margin: 20mm;
+  }
+
+  body * {
+    visibility: hidden;
+  }
+
+  .receipt-print,
+  .receipt-print * {
+    visibility: visible;
+  }
+
+  .receipt-print {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    padding: 10px;
+    margin: 0;
+  }
+}

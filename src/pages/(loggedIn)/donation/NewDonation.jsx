@@ -749,8 +749,10 @@ const NewDonation = () => {
         console.log("Successfully created new donation");
       }
 
-      // Create a new window for printing
-      const printWindow = window.open("", "_blank");
+      // Create a hidden iframe for printing
+      const printFrame = document.createElement("iframe");
+      printFrame.style.display = "none";
+      document.body.appendChild(printFrame);
 
       // Format the date in DD-MM-YYYY format
       const today = new Date();
@@ -973,9 +975,18 @@ const NewDonation = () => {
         </html>
       `;
 
-      // Write the content to the new window and trigger print
-      printWindow.document.write(receiptContent);
-      printWindow.document.close();
+      // Write content to iframe and print
+      printFrame.contentDocument.write(receiptContent);
+      printFrame.contentDocument.close();
+
+      // Wait for content to load then print
+      printFrame.onload = () => {
+        printFrame.contentWindow.print();
+        // Remove iframe after printing
+        setTimeout(() => {
+          document.body.removeChild(printFrame);
+        }, 1000);
+      };
 
       // Reset form and close modal
       resetFormData();

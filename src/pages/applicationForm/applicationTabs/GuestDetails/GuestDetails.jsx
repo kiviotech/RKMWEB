@@ -11,11 +11,11 @@ const GuestDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
     useApplicationStore();
   const validRelations = [
     "mother",
-    "father", 
+    "father",
     "son",
     "daughter",
     "wife",
-    "aunt", 
+    "aunt",
     "friend",
     "other",
   ];
@@ -47,6 +47,8 @@ const GuestDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
           guestAddress: {
             state: "",
             houseNumber: "",
+            streetName: "",
+            landmark: "",
             district: "",
             pinCode: "",
           },
@@ -76,7 +78,9 @@ const GuestDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
         const codes = data
           .filter((country) => country.idd.root)
           .map((country) => ({
-            code: (country.idd.root + (country.idd.suffixes?.[0] || "")).replace(/[^0-9]/g, ""),
+            code: (
+              country.idd.root + (country.idd.suffixes?.[0] || "")
+            ).replace(/[^0-9]/g, ""),
             flagUrl: country.flags.svg,
             id: country.cca2,
             name: country.name.common,
@@ -129,13 +133,13 @@ const GuestDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setIsDropdownOpen(false);
-        setSearchQuery('');
+        setSearchQuery("");
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
 
@@ -290,7 +294,7 @@ const GuestDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
 
   const handleGuestInputChange = async (e, index) => {
     const { name, value } = e.target;
-    
+
     // Ensure guests array exists
     const guests = formData.guests || [];
     if (!guests[index]) {
@@ -299,11 +303,11 @@ const GuestDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
 
     if (name === "guestTitle") {
       setGuestData(index, name, value);
-      console.log("Guest Input Change:", { 
-        guestIndex: index, 
-        field: name, 
+      console.log("Guest Input Change:", {
+        guestIndex: index,
+        field: name,
         value,
-        currentGuest: formData.guests[index]
+        currentGuest: formData.guests[index],
       });
       validateGuestField(index, name, value);
     } else if (name.includes(".")) {
@@ -313,11 +317,11 @@ const GuestDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
         [child]: value,
       };
       setGuestData(index, parent, updatedAddress);
-      console.log("Guest Input Change:", { 
-        guestIndex: index, 
-        field: name, 
+      console.log("Guest Input Change:", {
+        guestIndex: index,
+        field: name,
         value,
-        currentGuest: formData.guests[index]
+        currentGuest: formData.guests[index],
       });
       validateGuestField(index, name, value);
 
@@ -353,11 +357,11 @@ const GuestDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
       }
     } else {
       setGuestData(index, name, value);
-      console.log("Guest Input Change:", { 
-        guestIndex: index, 
-        field: name, 
+      console.log("Guest Input Change:", {
+        guestIndex: index,
+        field: name,
         value,
-        currentGuest: formData.guests[index]
+        currentGuest: formData.guests[index],
       });
       validateGuestField(index, name, value);
 
@@ -379,13 +383,13 @@ const GuestDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
       validationErrors: errors,
       formValidation: {
         hasErrors: Object.keys(errors).length > 0,
-        errorFields: Object.keys(errors)
-      }
+        errorFields: Object.keys(errors),
+      },
     });
 
     // Find current guest index
     const currentGuestIndex = guestTabs.indexOf(activeTab);
-    
+
     // Validate current guest's required fields
     let currentGuestHasErrors = false;
     const requiredFields = [
@@ -395,27 +399,34 @@ const GuestDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
       "guestGender",
       "guestEmail",
       "guestNumber",
-      "guestRelation"
+      "guestRelation",
     ];
 
     // Log validation status for current guest
     console.log("Validating Current Guest:", {
       guestIndex: currentGuestIndex,
       guestName: formData.guests[currentGuestIndex].guestName,
-      missingFields: requiredFields.filter(field => !formData.guests[currentGuestIndex][field]),
-      currentErrors: Object.keys(errors).filter(key => key.includes(currentGuestIndex))
+      missingFields: requiredFields.filter(
+        (field) => !formData.guests[currentGuestIndex][field]
+      ),
+      currentErrors: Object.keys(errors).filter((key) =>
+        key.includes(currentGuestIndex)
+      ),
     });
 
-    requiredFields.forEach(field => {
+    requiredFields.forEach((field) => {
       if (!formData.guests[currentGuestIndex][field]) {
-        setErrors(`${field}${currentGuestIndex}`, `${field.replace('guest', '')} is required`);
+        setErrors(
+          `${field}${currentGuestIndex}`,
+          `${field.replace("guest", "")} is required`
+        );
         currentGuestHasErrors = true;
       }
     });
 
     if (currentGuestHasErrors) {
       console.log("Current Guest Validation Failed:", errors);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      window.scrollTo({ top: 0, behavior: "smooth" });
       return;
     }
 
@@ -424,16 +435,19 @@ const GuestDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
       const nextGuestTab = guestTabs[currentGuestIndex + 1];
       setActiveTab(nextGuestTab);
       console.log("Moving to next guest tab:", nextGuestTab);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      window.scrollTo({ top: 0, behavior: "smooth" });
       return;
     }
 
     // If we're on the last guest and all validations pass, proceed to next step
     let hasErrors = false;
     formData.guests.forEach((guest, index) => {
-      requiredFields.forEach(field => {
+      requiredFields.forEach((field) => {
         if (!guest[field]) {
-          setErrors(`${field}${index}`, `${field.replace('guest', '')} is required`);
+          setErrors(
+            `${field}${index}`,
+            `${field.replace("guest", "")} is required`
+          );
           hasErrors = true;
         }
       });
@@ -445,12 +459,12 @@ const GuestDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
     } else {
       console.log("Guest Details Validation Failed:", errors);
       // Move to the first guest with errors
-      const firstErrorIndex = formData.guests.findIndex((guest) => 
-        requiredFields.some(field => !guest[field])
+      const firstErrorIndex = formData.guests.findIndex((guest) =>
+        requiredFields.some((field) => !guest[field])
       );
       if (firstErrorIndex !== -1) {
         setActiveTab(guestTabs[firstErrorIndex]);
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        window.scrollTo({ top: 0, behavior: "smooth" });
       }
     }
   };
@@ -458,11 +472,11 @@ const GuestDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
   const handleAddressToggle = (index) => {
     const currentGuest = formData.guests[index];
     const newSameAsApplicant = !currentGuest.sameAsApplicant;
-    
+
     console.log("Address Toggle:", {
       guestIndex: index,
       sameAsApplicant: newSameAsApplicant,
-      applicantAddress: formData.address
+      applicantAddress: formData.address,
     });
 
     // Update the sameAsApplicant flag for this guest
@@ -476,14 +490,14 @@ const GuestDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
         pinCode: formData.address.pinCode,
         houseNumber: formData.address.houseNumber,
       };
-      
+
       Object.entries(guestAddress).forEach(([key, value]) => {
         setGuestData(index, `guestAddress.${key}`, value);
       });
-      
+
       console.log("Copied Address to Guest:", {
         guestIndex: index,
-        copiedAddress: guestAddress
+        copiedAddress: guestAddress,
       });
     }
   };
@@ -493,7 +507,7 @@ const GuestDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
       guestIndex: index,
       guestDetails: formData.guests[index],
       remainingGuests: formData.guestMembers - 1,
-      currentErrors: Object.keys(errors).filter(key => key.includes(index))
+      currentErrors: Object.keys(errors).filter((key) => key.includes(index)),
     });
     useApplicationStore.getState().removeGuest(index);
   };
@@ -503,19 +517,23 @@ const GuestDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
     const unsubscribe = useApplicationStore.subscribe(
       (state) => state,
       (newState, prevState) => {
-        console.log('GuestDetails - Store Update:', {
+        console.log("GuestDetails - Store Update:", {
           previous: {
             guestCount: prevState.formData.guestMembers,
-            guests: prevState.formData.guests
+            guests: prevState.formData.guests,
           },
           current: {
             guestCount: newState.formData.guestMembers,
-            guests: newState.formData.guests
+            guests: newState.formData.guests,
           },
           changes: {
-            guestMembers: newState.formData.guestMembers !== prevState.formData.guestMembers,
-            guests: JSON.stringify(newState.formData.guests) !== JSON.stringify(prevState.formData.guests)
-          }
+            guestMembers:
+              newState.formData.guestMembers !==
+              prevState.formData.guestMembers,
+            guests:
+              JSON.stringify(newState.formData.guests) !==
+              JSON.stringify(prevState.formData.guests),
+          },
         });
       }
     );
@@ -525,7 +543,7 @@ const GuestDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
 
   // Add this useEffect for scroll behavior
   useEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({ top: 0, behavior: "smooth" });
   }, []);
 
   return (
@@ -578,7 +596,8 @@ const GuestDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
 
       {guestTabs.map(
         (tab, index) =>
-          activeTab === tab && formData.guests?.[index] && (
+          activeTab === tab &&
+          formData.guests?.[index] && (
             <div
               key={index}
               className="tab-content"
@@ -689,8 +708,8 @@ const GuestDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
                     <label>Phone Number</label>
                     <div className="unified-input">
                       <div className="custom-select" ref={dropdownRef}>
-                        <div 
-                          className="selected-country" 
+                        <div
+                          className="selected-country"
                           onClick={(e) => {
                             e.stopPropagation();
                             setIsDropdownOpen(!isDropdownOpen);
@@ -698,10 +717,16 @@ const GuestDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
                         >
                           {formData.guests[index].countryCode && (
                             <>
-                              <img 
-                                src={countryCodes.find(c => c.code === formData.guests[index].countryCode)?.flagUrl} 
-                                alt="" 
-                                className="flag-icon" 
+                              <img
+                                src={
+                                  countryCodes.find(
+                                    (c) =>
+                                      c.code ===
+                                      formData.guests[index].countryCode
+                                  )?.flagUrl
+                                }
+                                alt=""
+                                className="flag-icon"
                               />
                               +{formData.guests[index].countryCode}
                             </>
@@ -723,14 +748,24 @@ const GuestDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
                                   key={country.id}
                                   className="country-option"
                                   onClick={() => {
-                                    setGuestData(index, "countryCode", country.code);
+                                    setGuestData(
+                                      index,
+                                      "countryCode",
+                                      country.code
+                                    );
                                     setIsDropdownOpen(false);
                                     setSearchQuery("");
                                   }}
                                 >
-                                  <img src={country.flagUrl} alt="" className="flag-icon" />
+                                  <img
+                                    src={country.flagUrl}
+                                    alt=""
+                                    className="flag-icon"
+                                  />
                                   <span>+{country.code}</span>
-                                  <span className="country-name">{country.name}</span>
+                                  <span className="country-name">
+                                    {country.name}
+                                  </span>
                                 </div>
                               ))}
                             </div>
@@ -746,7 +781,9 @@ const GuestDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
                       />
                     </div>
                     {errors[`guestNumber${index}`] && (
-                      <span className="error">{errors[`guestNumber${index}`]}</span>
+                      <span className="error">
+                        {errors[`guestNumber${index}`]}
+                      </span>
                     )}
                   </div>
                 </div>
@@ -880,7 +917,10 @@ const GuestDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
                       <input
                         type="text"
                         name="guestAddress.pinCode"
-                        value={(formData.guests[index].guestAddress || {}).pinCode || ""}
+                        value={
+                          (formData.guests[index].guestAddress || {}).pinCode ||
+                          ""
+                        }
                         onChange={(e) => handleGuestInputChange(e, index)}
                         placeholder="Enter Pincode"
                         disabled={formData.guests[index].sameAsApplicant}
@@ -892,11 +932,14 @@ const GuestDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
                       )}
                     </div>
                     <div className="form-group">
-                      <label>House Number</label>
+                      <label>Flat/House No</label>
                       <input
                         type="text"
                         name="guestAddress.houseNumber"
-                        value={(formData.guests[index].guestAddress || {}).houseNumber || ""}
+                        value={
+                          (formData.guests[index].guestAddress || {})
+                            .houseNumber || ""
+                        }
                         onChange={(e) => handleGuestInputChange(e, index)}
                         placeholder="House Number"
                         disabled={formData.guests[index].sameAsApplicant}
@@ -910,7 +953,10 @@ const GuestDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
                       <input
                         type="text"
                         name="guestAddress.district"
-                        value={(formData.guests[index].guestAddress || {}).district || ""}
+                        value={
+                          (formData.guests[index].guestAddress || {})
+                            .district || ""
+                        }
                         onChange={(e) => handleGuestInputChange(e, index)}
                         placeholder="Enter your district"
                         readOnly
@@ -922,6 +968,20 @@ const GuestDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
                         </span>
                       )}
                     </div>
+                    <div className="form-group">
+                      <label>Street Name</label>
+                      <input
+                        type="text"
+                        name="guestAddress.streetName"
+                        value={
+                          (formData.guests[index].guestAddress || {})
+                            .streetName || ""
+                        }
+                        onChange={(e) => handleGuestInputChange(e, index)}
+                        placeholder="Enter street name"
+                        disabled={formData.guests[index].sameAsApplicant}
+                      />
+                    </div>
                   </div>
 
                   <div className="addressInputBox">
@@ -930,7 +990,10 @@ const GuestDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
                       <input
                         type="text"
                         name="guestAddress.state"
-                        value={(formData.guests[index].guestAddress || {}).state || ""}
+                        value={
+                          (formData.guests[index].guestAddress || {}).state ||
+                          ""
+                        }
                         onChange={(e) => handleGuestInputChange(e, index)}
                         placeholder="Enter your state"
                         readOnly
@@ -941,6 +1004,20 @@ const GuestDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
                           {errors[`guestAddressState${index}`]}
                         </span>
                       )}
+                    </div>
+                    <div className="form-group">
+                      <label>Landmark</label>
+                      <input
+                        type="text"
+                        name="guestAddress.landmark"
+                        value={
+                          (formData.guests[index].guestAddress || {})
+                            .landmark || ""
+                        }
+                        onChange={(e) => handleGuestInputChange(e, index)}
+                        placeholder="Enter nearby landmark"
+                        disabled={formData.guests[index].sameAsApplicant}
+                      />
                     </div>
                   </div>
                 </div>
@@ -960,7 +1037,7 @@ const GuestDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
           }}
         >
           <CommonButton
-          className="back"
+            className="back"
             buttonName="Back"
             style={{
               backgroundColor: "#FFF",
@@ -988,7 +1065,7 @@ const GuestDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
               />
             )}
             <CommonButton
-            className="proceed"
+              className="proceed"
               buttonName="Proceed"
               style={{
                 backgroundColor: "#EA7704",

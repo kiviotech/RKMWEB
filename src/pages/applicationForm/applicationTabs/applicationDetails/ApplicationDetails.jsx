@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import "./ApplicationDetails.scss";
 import CommonButton from "../../../../components/ui/Button";
 import useApplicationStore from "../../../../../useApplicationStore";
-import {icons } from "../../../../constants"
+import { icons } from "../../../../constants";
 import ApplicationFormHeader from "../../ApplicationFormHeader";
 
 const ApplicationDetails = ({ goToNextStep, tabName }) => {
@@ -71,12 +71,12 @@ const ApplicationDetails = ({ goToNextStep, tabName }) => {
   useEffect(() => {
     console.log("Current Zustand Store State:", {
       formData,
-      errors
+      errors,
     });
   }, [formData, errors]);
 
   useEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({ top: 0, behavior: "smooth" });
   }, []);
 
   const validateField = (name, value) => {
@@ -240,7 +240,7 @@ const ApplicationDetails = ({ goToNextStep, tabName }) => {
           setAddressData("district", postOffice.District);
           console.log("Pincode API Response:", {
             state: postOffice.State,
-            district: postOffice.District
+            district: postOffice.District,
           });
         } else {
           setAddressData("state", "");
@@ -276,23 +276,25 @@ const ApplicationDetails = ({ goToNextStep, tabName }) => {
     // Check if any required field is empty
     fieldsToValidate.forEach((field) => {
       if (!formData[field]) {
-        setErrors(field, `${field.charAt(0).toUpperCase() + field.slice(1)} is required`);
+        setErrors(
+          field,
+          `${field.charAt(0).toUpperCase() + field.slice(1)} is required`
+        );
         hasErrors = true;
       } else {
         validateField(field, formData[field]);
       }
     });
 
-    const addressFieldsToValidate = [
-      "state",
-      "district",
-      "pinCode"
-    ];
+    const addressFieldsToValidate = ["state", "district", "pinCode"];
 
     // Check if any required address field is empty
     addressFieldsToValidate.forEach((field) => {
       if (!formData.address[field]) {
-        setErrors(field, `${field.charAt(0).toUpperCase() + field.slice(1)} is required`);
+        setErrors(
+          field,
+          `${field.charAt(0).toUpperCase() + field.slice(1)} is required`
+        );
         hasErrors = true;
       } else {
         validateAddressField(field, formData.address[field]);
@@ -309,7 +311,7 @@ const ApplicationDetails = ({ goToNextStep, tabName }) => {
       goToNextStep();
     } else {
       console.log("Form Submission Failed - Validation Errors:", errors);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      window.scrollTo({ top: 0, behavior: "smooth" });
     }
   };
 
@@ -380,7 +382,9 @@ const ApplicationDetails = ({ goToNextStep, tabName }) => {
                     <option value="F">Female</option>
                     <option value="O">Other</option>
                   </select>
-                  {errors.gender && <span className="error">{errors.gender}</span>}
+                  {errors.gender && (
+                    <span className="error">{errors.gender}</span>
+                  )}
                 </div>
               </div>
 
@@ -402,8 +406,8 @@ const ApplicationDetails = ({ goToNextStep, tabName }) => {
                 <label>Phone number</label>
                 <div className="unified-input">
                   <div className="custom-select" ref={dropdownRef}>
-                    <div 
-                      className="selected-country" 
+                    <div
+                      className="selected-country"
                       onClick={() => {
                         setIsDropdownOpen(!isDropdownOpen);
                         setTimeout(() => {
@@ -415,10 +419,14 @@ const ApplicationDetails = ({ goToNextStep, tabName }) => {
                     >
                       {formData.countryCode && (
                         <>
-                          <img 
-                            src={countryCodes.find(c => c.code === formData.countryCode)?.flagUrl} 
-                            alt="" 
-                            className="flag-icon" 
+                          <img
+                            src={
+                              countryCodes.find(
+                                (c) => c.code === formData.countryCode
+                              )?.flagUrl
+                            }
+                            alt=""
+                            className="flag-icon"
                           />
                           +{formData.countryCode}
                         </>
@@ -445,9 +453,15 @@ const ApplicationDetails = ({ goToNextStep, tabName }) => {
                                 setSearchQuery("");
                               }}
                             >
-                              <img src={country.flagUrl} alt="" className="flag-icon" />
+                              <img
+                                src={country.flagUrl}
+                                alt=""
+                                className="flag-icon"
+                              />
                               <span>+{country.code}</span>
-                              <span className="country-name">{country.name}</span>
+                              <span className="country-name">
+                                {country.name}
+                              </span>
                             </div>
                           ))}
                         </div>
@@ -462,7 +476,9 @@ const ApplicationDetails = ({ goToNextStep, tabName }) => {
                     placeholder="921234902"
                   />
                 </div>
-                {errors.phoneNumber && <span className="error">{errors.phoneNumber}</span>}
+                {errors.phoneNumber && (
+                  <span className="error">{errors.phoneNumber}</span>
+                )}
               </div>
             </div>
 
@@ -494,7 +510,7 @@ const ApplicationDetails = ({ goToNextStep, tabName }) => {
                     Sri Ramakrishna – Life and Teachings
                   </option>
                   <option value="Sri Sarada Devi – Life and Teachings">
-                    Sri Sarada Devi  Life and Teachings
+                    Sri Sarada Devi Life and Teachings
                   </option>
                   <option value="Swami Vivekananda – His Life and Legacy">
                     Swami Vivekananda – His Life and Legacy
@@ -529,23 +545,35 @@ const ApplicationDetails = ({ goToNextStep, tabName }) => {
                 <div className="additional-guests-wrapper">
                   <label>Number of Additional guests</label>
                   <div className="number-control">
-                    <button 
-                      type="button" 
+                    <button
+                      type="button"
                       className="control-button"
                       onClick={() => {
-                        const newValue = Math.max(0, parseInt(formData.guestMembers || 0) - 1);
-                        handleInputChange({ target: { name: 'guestMembers', value: newValue }});
+                        const newValue = Math.max(
+                          0,
+                          parseInt(formData.guestMembers || 0) - 1
+                        );
+                        handleInputChange({
+                          target: { name: "guestMembers", value: newValue },
+                        });
                       }}
                     >
                       −
                     </button>
-                    <span className="number-display">{formData.guestMembers || 0}</span>
-                    <button 
+                    <span className="number-display">
+                      {formData.guestMembers || 0}
+                    </span>
+                    <button
                       type="button"
                       className="control-button"
                       onClick={() => {
-                        const newValue = Math.min(9, parseInt(formData.guestMembers || 0) + 1);
-                        handleInputChange({ target: { name: 'guestMembers', value: newValue }});
+                        const newValue = Math.min(
+                          9,
+                          parseInt(formData.guestMembers || 0) + 1
+                        );
+                        handleInputChange({
+                          target: { name: "guestMembers", value: newValue },
+                        });
                       }}
                     >
                       +
@@ -577,18 +605,23 @@ const ApplicationDetails = ({ goToNextStep, tabName }) => {
                     <span className="error">{errors.pinCode}</span>
                   )}
                 </div>
-                <div className="form-group">
-                  <label>House Number</label>
-                  <input
-                    type="text"
-                    name="houseNumber"
-                    value={formData.address.houseNumber}
-                    onChange={handleAddressInputChange}
-                    placeholder="Your house number"
-                  />
-                  {errors.houseNumber && (
-                    <span className="error">{errors.houseNumber}</span>
-                  )}
+                <div
+                  className="addressInputBox"
+                  style={{ display: "flex", gap: "10px" }}
+                >
+                  <div className="form-group" style={{ flex: 1 }}>
+                    <label>Flat/House No</label>
+                    <input
+                      type="text"
+                      name="houseNumber"
+                      value={formData.address.houseNumber}
+                      onChange={handleAddressInputChange}
+                      placeholder="Your house number"
+                    />
+                    {errors.houseNumber && (
+                      <span className="error">{errors.houseNumber}</span>
+                    )}
+                  </div>
                 </div>
               </div>
 
@@ -607,6 +640,19 @@ const ApplicationDetails = ({ goToNextStep, tabName }) => {
                     <span className="error">{errors.state}</span>
                   )}
                 </div>
+                <div className="form-group">
+                  <label>Street Name</label>
+                  <input
+                    type="text"
+                    name="streetName"
+                    value={formData.address.streetName}
+                    onChange={handleAddressInputChange}
+                    placeholder="Enter street name"
+                  />
+                  {errors.streetName && (
+                    <span className="error">{errors.streetName}</span>
+                  )}
+                </div>
               </div>
 
               <div className="addressInputBox">
@@ -622,6 +668,19 @@ const ApplicationDetails = ({ goToNextStep, tabName }) => {
                   />
                   {errors.district && (
                     <span className="error">{errors.district}</span>
+                  )}
+                </div>
+                <div className="form-group" style={{ flex: 1 }}>
+                  <label>Landmark</label>
+                  <input
+                    type="text"
+                    name="landmark"
+                    value={formData.address.landmark}
+                    onChange={handleAddressInputChange}
+                    placeholder="Enter nearby landmark"
+                  />
+                  {errors.landmark && (
+                    <span className="error">{errors.landmark}</span>
                   )}
                 </div>
               </div>

@@ -159,9 +159,6 @@
 
 // export default CheckInDetails;
 
-
-
-
 import React, { useState, useEffect } from "react";
 import Modal from "react-modal";
 import "./CheckInDetails.scss";

@@ -638,7 +638,7 @@ const NewDonation = () => {
     setIsModalOpen(true);
   };
 
-  // Move the API calls to handleConfirmPrint
+  // Modify handleConfirmPrint function
   const handleConfirmPrint = async () => {
     try {
       if (donationId) {
@@ -976,22 +976,33 @@ const NewDonation = () => {
       `;
 
       // Write content to iframe and print
-      printFrame.contentDocument.write(receiptContent);
-      printFrame.contentDocument.close();
+      const iframeWindow = printFrame.contentWindow;
+      iframeWindow.document.open();
+      iframeWindow.document.write(receiptContent);
+      iframeWindow.document.close();
 
-      // Wait for content to load then print
-      printFrame.onload = () => {
-        printFrame.contentWindow.print();
-        // Remove iframe after printing
-        setTimeout(() => {
-          document.body.removeChild(printFrame);
-        }, 1000);
+      // Set up print settings
+      const printSettings = {
+        silent: true,
+        printBackground: true,
+        deviceWidth: "210mm", // A4 width
+        deviceHeight: "297mm", // A4 height
       };
 
-      // Reset form and close modal
-      resetFormData();
-      setIsModalOpen(false);
-      navigate("/donation");
+      // Wait for content to load then print once
+      iframeWindow.onload = () => {
+        iframeWindow.focus();
+        iframeWindow.print(printSettings);
+
+        // Clean up
+        setTimeout(() => {
+          document.body.removeChild(printFrame);
+          // Reset form and close modal
+          resetFormData();
+          setIsModalOpen(false);
+          navigate("/donation");
+        }, 1000);
+      };
     } catch (error) {
       console.error("Error processing donation:", error);
       alert("Error processing donation. Please try again.");

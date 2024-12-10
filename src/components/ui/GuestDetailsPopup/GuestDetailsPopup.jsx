@@ -116,6 +116,7 @@ const GuestDetailsPopup = ({
       <RejectionEmailPopup
         onClose={() => setShowRejectionEmail(false)}
         onSubmit={handleRejectionEmailSubmit}
+        guestDetail={guestDetails}
       />
     );
   }
@@ -187,7 +188,7 @@ const GuestDetailsPopup = ({
   return (
     <>
       <div className="popup-overlay">
-        <div className="popup-content" style={{ padding: "20px" }}>
+        <div className="popup-content">
           <div className="header-section">
             <button className="close-btn" onClick={onClose}>
               <img src={icons.Close} alt="close" className="icon" />
@@ -385,7 +386,7 @@ const GuestDetailsPopup = ({
             {/* Alert and Action Buttons */}
             <div className="footer">
               <div className="alert">
-                {/* There is a Revisit within 6 months of Guest name */}
+                There is a Revisit within 6 months of Guest name
               </div>
               {renderActionButtons()}
             </div>

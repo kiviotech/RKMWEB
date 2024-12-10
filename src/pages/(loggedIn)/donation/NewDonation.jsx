@@ -640,11 +640,6 @@ const NewDonation = () => {
 
   // Move the API calls to handleConfirmPrint
   const handleConfirmPrint = async () => {
-    setShowPrintOptions(true);
-  };
-
-  // Add new function to handle print selection
-  const handlePrintSelection = async (withStamp) => {
     try {
       if (donationId) {
         // Update existing donation
@@ -982,10 +977,9 @@ const NewDonation = () => {
       printWindow.document.write(receiptContent);
       printWindow.document.close();
 
-      // Reset form and close modals
+      // Reset form and close modal
       resetFormData();
       setIsModalOpen(false);
-      setShowPrintOptions(false);
       navigate("/donation");
     } catch (error) {
       console.error("Error processing donation:", error);
@@ -2843,35 +2837,57 @@ const NewDonation = () => {
                 </strong>
               </div>
             </div>
-            <div className="print">
+            <div
+              className="print"
+              style={{
+                display: "flex",
+                justifyContent: "flex-end",
+                alignItems: "center",
+                gap: "12px",
+                marginTop: "20px",
+                padding: "16px",
+              }}
+            >
               <button
                 className="cancel-button"
-                onClick={() => {
-                  setIsModalOpen(false);
-                  setShowPrintOptions(false);
+                onClick={() => setIsModalOpen(false)}
+                style={{
+                  backgroundColor: "white",
+                  color: "#6B7280",
+                  border: "1px solid #D1D5DB",
+                  borderRadius: "4px",
+                  padding: "8px 16px",
+                  fontSize: "14px",
+                  fontWeight: "400",
+                  cursor: "pointer",
+                  transition: "background-color 0.2s",
+                  height: "36px",
+                  textAlign: "center",
                 }}
               >
                 Cancel
               </button>
-              <div className="print-dropdown-container">
-                <button
-                  className="confirm-print-button"
-                  onClick={() => setShowPrintOptions(!showPrintOptions)}
-                >
-                  Confirm & Print
-                  <span className="dropdown-arrow">▼</span>
-                </button>
-                {showPrintOptions && (
-                  <div className="print-options-dropdown">
-                    <button onClick={() => handlePrintSelection(true)}>
-                      Print with Stamp
-                    </button>
-                    <button onClick={() => handlePrintSelection(false)}>
-                      Print without Stamp
-                    </button>
-                  </div>
-                )}
-              </div>
+              <button
+                className="confirm-print-button"
+                onClick={handleConfirmPrint}
+                style={{
+                  backgroundColor: "#F47B20",
+                  color: "white",
+                  border: "none",
+                  borderRadius: "4px",
+                  padding: "8px 16px",
+                  fontSize: "14px",
+                  fontWeight: "400",
+                  cursor: "pointer",
+                  transition: "background-color 0.2s",
+                  height: "36px",
+                  width: "120px", // Fixed width for the confirm button
+                  textAlign: "center",
+                  marginTop: "8px",
+                }}
+              >
+                Confirm Print
+              </button>
             </div>
           </div>
         </div>

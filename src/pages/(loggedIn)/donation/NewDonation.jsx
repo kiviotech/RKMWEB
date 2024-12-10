@@ -2179,7 +2179,7 @@ const NewDonation = () => {
             {/* Fourth row with House Number and Street Name */}
             <div className="form-row">
               <div className="form-group">
-                <label>Flat/House No</label>
+                <label>Flat/House/Apartment No</label>
                 <input
                   type="text"
                   placeholder="Enter house number"
@@ -2194,7 +2194,7 @@ const NewDonation = () => {
               </div>
 
               <div className="form-group">
-                <label>Streetname</label>
+                <label>Streetname/Landmark</label>
                 <input
                   type="text"
                   placeholder="Enter street name"
@@ -2425,9 +2425,7 @@ const NewDonation = () => {
               <label>
                 Purpose <span className="required">*</span>
               </label>
-              <input
-                type="text"
-                placeholder="Enter donation purpose"
+              <select
                 value={currentReceipt?.donationDetails?.donationType || ""}
                 onChange={(e) => {
                   handleDonationDetailsUpdate({
@@ -2439,7 +2437,48 @@ const NewDonation = () => {
                   }));
                 }}
                 className={validationErrors.purpose ? "error" : ""}
-              />
+              >
+                <option value="">Select Purpose</option>
+                {selectedTab === "Math" ? (
+                  <>
+                    <option value="Thakur Seva">Thakur Seva</option>
+                    <option value="Sadhu Seva">Sadhu Seva</option>
+                    <option value="Nara Narayan Seva">Nara Narayan Seva</option>
+                    <option value="General Fund for Various Activities">
+                      General Fund for Various Activities
+                    </option>
+                    <option value="Welfare Fund">Welfare Fund</option>
+                    <option value="Thakur's Tithi Puja Celebrations">
+                      Thakur's Tithi Puja Celebrations
+                    </option>
+                    <option value="Holy Mother's Tithi Puja Celebrations">
+                      Holy Mother's Tithi Puja Celebrations
+                    </option>
+                    <option value="Swamiji Tithi Puja Celebrations">
+                      Swamiji Tithi Puja Celebrations
+                    </option>
+                  </>
+                ) : (
+                  <>
+                    <option value="Helping Poor Students">
+                      Helping Poor Students
+                    </option>
+                    <option value="Rural Development Fund">
+                      Rural Development Fund
+                    </option>
+                    <option value="Welfare Fund">Welfare Fund</option>
+                    <option value="General Fund for Various Activities">
+                      General Fund for Various Activities
+                    </option>
+                    <option value="All Round Child Development Project">
+                      All Round Child Development Project
+                    </option>
+                    <option value="Charitable Dispensary & Eye (Day) Care Centre">
+                      Charitable Dispensary & Eye (Day) Care Centre
+                    </option>
+                  </>
+                )}
+              </select>
               {validationErrors.purpose && (
                 <span className="error-message">
                   {validationErrors.purpose}

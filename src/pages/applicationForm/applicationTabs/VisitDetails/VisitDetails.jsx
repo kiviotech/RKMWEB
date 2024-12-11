@@ -42,7 +42,7 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
   const getMaxDepartureDate = (arrivalDate) => {
     if (!arrivalDate) return null;
     const date = new Date(arrivalDate);
-    date.setDate(date.getDate() + 2);
+    date.setDate(date.getDate() + 3);
     return date.toISOString().split("T")[0];
   };
 
@@ -72,22 +72,22 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
           (departureDate - arrivalDate) / (1000 * 60 * 60 * 24)
         );
 
-        // If stay is 2 days, force departure time to 7:30
-        if (daysDiff === 2) {
+        // If stay is 3 days, force departure time to 7:30
+        if (daysDiff === 3) {
           setVisitFormData("departureTime", "7:30");
         }
       }
     }
 
-    // Prevent departure time changes if stay is 2 days
+    // Prevent departure time changes if stay is 3 days
     if (name === "departureTime") {
       const daysDiff = Math.ceil(
         (new Date(formData.departureDate) - new Date(formData.visitDate)) /
           (1000 * 60 * 60 * 24)
       );
 
-      if (daysDiff === 2) {
-        return; // Don't allow time changes for 2-day stays
+      if (daysDiff === 3) {
+        return; // Don't allow time changes for 3-day stays
       }
       setVisitFormData(name, value);
     }
@@ -404,7 +404,7 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
                       (new Date(formData.departureDate) -
                         new Date(formData.visitDate)) /
                         (1000 * 60 * 60 * 24)
-                    ) === 2
+                    ) === 3
                   }
                 >
                   <option value="">Select Time</option>
@@ -417,8 +417,8 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
 
               <div className="form-group">
                 <label>
-                  Are you known to any of our Ramakrishna Math/Mission/Branch
-                  Centre/Monk(s)?
+                  Are you known to any of our Ramakrishna Math / Mission /
+                  Branch Centre / Monk(s)?
                 </label>
                 <input
                   type="text"

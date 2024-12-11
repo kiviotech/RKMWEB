@@ -386,7 +386,7 @@ const GuestDetailsPopup = ({
             {/* Alert and Action Buttons */}
             <div className="footer">
               <div className="alert">
-                There is a Revisit within 6 months of Guest name
+                {/* There is a Revisit within 6 months of Guest name */}
               </div>
               {renderActionButtons()}
             </div>

@@ -158,11 +158,14 @@ const VerifyDetails = () => {
           <thead>
             <tr>
               <th style={{ width: "5%" }}>Sl No.</th>
-              <th style={{ width: "40%" }}>Name (s)</th>
+              <th style={{ width: "20%" }}>Name (s)</th>
               <th style={{ width: "5%", textAlign: "center" }}>Age</th>
               <th style={{ width: "5%", textAlign: "center" }}>Gender</th>
-              <th style={{ width: "15%" }}>Profession</th>
-              <th style={{ width: "20%" }}>Initiated By</th>
+              <th style={{ width: "10%" }}>Profession</th>
+              <th style={{ width: "10%" }}>Initiated By</th>
+              <th style={{ width: "15%" }}>Mobile No.</th>
+              <th style={{ width: "15%" }}>Aadhaar</th>
+              <th style={{ width: "15%" }}>Address</th>
             </tr>
           </thead>
           <tbody>
@@ -174,28 +177,24 @@ const VerifyDetails = () => {
               <td style={{ textAlign: "center" }}>{formData.gender}</td>
               <td>{formData.occupation}</td>
               <td>{formData.deeksha || "Not specified"}</td>
+              <td>{`+${formData.countryCode} ${formData.phoneNumber}`}</td>
+              <td>{formData.aadhaar}</td>
+              <td>{`${formData.address.houseNumber}, ${formData.address.district}, ${formData.address.state}`}</td>
             </tr>
             {/* Guest Rows */}
-            {formData.guests.map((guest, index) => {
-              // Check if guest address matches applicant address
-              const isAddressSame =
-                guest.guestAddress.houseNumber ===
-                  formData.address.houseNumber &&
-                guest.guestAddress.district === formData.address.district &&
-                guest.guestAddress.state === formData.address.state &&
-                guest.guestAddress.pinCode === formData.address.pinCode;
-
-              return (
-                <tr key={index}>
-                  <td>{index + 2}</td>
-                  <td>{`${guest.guestTitle} ${guest.guestName}`}</td>
-                  <td style={{ textAlign: "center" }}>{guest.guestAge}</td>
-                  <td style={{ textAlign: "center" }}>{guest.guestGender}</td>
-                  <td>{guest.guestOccupation}</td>
-                  <td>{guest.guestDeeksha || "Not specified"}</td>
-                </tr>
-              );
-            })}
+            {formData.guests.map((guest, index) => (
+              <tr key={index}>
+                <td>{index + 2}</td>
+                <td>{`${guest.guestTitle} ${guest.guestName}`}</td>
+                <td style={{ textAlign: "center" }}>{guest.guestAge}</td>
+                <td style={{ textAlign: "center" }}>{guest.guestGender}</td>
+                <td>{guest.guestOccupation}</td>
+                <td>{guest.guestDeeksha || "Not specified"}</td>
+                <td>{`+${guest.countryCode} ${guest.guestNumber}`}</td>
+                <td>{guest.guestAadhaar}</td>
+                <td>{`${guest.guestAddress.houseNumber}, ${guest.guestAddress.district}, ${guest.guestAddress.state}`}</td>
+              </tr>
+            ))}
           </tbody>
         </table>
       </div>
@@ -210,7 +209,6 @@ const VerifyDetails = () => {
         <p>
           <span>Departure Date and Time :</span>{" "}
           <strong>
-            {" "}
             {formatDateTime(formData.departureDate, formData.departureTime)}
           </strong>
         </p>
@@ -222,13 +220,21 @@ const VerifyDetails = () => {
         </p>
         {formData.visited === "yes" && (
           <p>
+            Date of Last visit & stay in Ramakrishna Math Kamarpukur Guest
+            House:{" "}
             <strong>
-              Date of Last visit & stay in Ramakrishna Math Kamarpukur Guest
-              House:
-            </strong>{" "}
-            {new Date(formData.previousVisitDate).toLocaleDateString()}
+              {new Date(formData.previousVisitDate).toLocaleDateString("en-GB")}
+            </strong>
           </p>
         )}
+        <p>
+          <span>
+            Known to Ramakrishna Math / Mission / Branch Centre / Monk(s) :
+          </span>{" "}
+          <strong>
+            {formData.knownToMath ? formData.knownToMath : "Not specified"}
+          </strong>
+        </p>
       </div>
 
       <div className="address-details">
@@ -263,6 +269,12 @@ const VerifyDetails = () => {
           <div className="details-row">
             <strong>Address:</strong>{" "}
             <span>{`${formData.address.houseNumber}`}</span>
+          </div>
+          <div className="details-row">
+            <div>
+              <span>Landmark:</span>{" "}
+              <strong>{formData.address.landmark || "Not specified"}</strong>
+            </div>
           </div>
           <div className="details-row">
             <div>
@@ -321,6 +333,14 @@ const VerifyDetails = () => {
                   <div className="details-row">
                     <strong>Address:</strong>{" "}
                     <span>{`${guest.guestAddress.houseNumber}`}</span>
+                  </div>
+                  <div className="details-row">
+                    <div>
+                      <span>Landmark:</span>{" "}
+                      <strong>
+                        {guest.guestAddress.landmark || "Not specified"}
+                      </strong>
+                    </div>
                   </div>
                   <div className="details-row">
                     <div>

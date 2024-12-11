@@ -55,6 +55,7 @@ const useApplicationStore = create((set) => ({
     visited: "",
     reason: "",
     previousVisitDate: "",
+    knownToMath: "",
   },
   errors: {},
 
@@ -221,6 +222,7 @@ const useApplicationStore = create((set) => ({
         visited: "",
         reason: "",
         previousVisitDate: "",
+        knownToMath: "",
       },
       errors: {},
     })),

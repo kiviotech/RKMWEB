@@ -301,14 +301,17 @@ const VerifyDetails = () => {
               </h3>
               <div className="details-row">
                 <div>
-                  <strong>Name:</strong> {guest.guestName}
+                  <span>Name:</span> <strong>{guest.guestName}</strong>
                 </div>
                 <div>
-                  <strong>Aadhar Number:</strong> {guest.guestAadhaar}
+                  <span>Aadhar Number:</span>{" "}
+                  <strong>{guest.guestAadhaar}</strong>
                 </div>
                 <div>
-                  <strong>Mobile Number:</strong> +{guest.countryCode}{" "}
-                  {guest.guestNumber}
+                  <span>Mobile Number:</span>{" "}
+                  <strong>
+                    +{guest.countryCode} {guest.guestNumber}
+                  </strong>
                 </div>
               </div>
               {!isAddressSame ? (
@@ -319,13 +322,16 @@ const VerifyDetails = () => {
                   </div>
                   <div className="details-row">
                     <div>
-                      <strong>District:</strong> {guest.guestAddress.district}
+                      <span>District:</span>{" "}
+                      <strong>{guest.guestAddress.district}</strong>
                     </div>
                     <div>
-                      <strong>Pincode:</strong> {guest.guestAddress.pinCode}
+                      <span>Pincode:</span>{" "}
+                      <strong>{guest.guestAddress.pinCode}</strong>
                     </div>
                     <div>
-                      <strong>State:</strong> {guest.guestAddress.state}
+                      <span>State:</span>{" "}
+                      <strong>{guest.guestAddress.state}</strong>
                     </div>
                   </div>
                 </>

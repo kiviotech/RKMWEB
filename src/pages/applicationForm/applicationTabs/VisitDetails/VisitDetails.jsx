@@ -50,6 +50,48 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
   const handleInputChange = (e) => {
     const { name, value } = e.target;
 
+    // Special handling for visitDate/arrivalDate
+    if (name === "visitDate") {
+      const arrivalDate = new Date(value);
+      if (!isNaN(arrivalDate.getTime())) {
+        // Set next day as default departure date
+        const nextDay = new Date(arrivalDate);
+        nextDay.setDate(nextDay.getDate() + 1);
+        const formattedNextDay = nextDay.toISOString().split("T")[0];
+        setVisitFormData("departureDate", formattedNextDay);
+      }
+    }
+
+    // Handle departure date changes
+    if (name === "departureDate") {
+      const arrivalDate = new Date(formData.visitDate);
+      const departureDate = new Date(value);
+
+      if (!isNaN(arrivalDate.getTime()) && !isNaN(departureDate.getTime())) {
+        const daysDiff = Math.ceil(
+          (departureDate - arrivalDate) / (1000 * 60 * 60 * 24)
+        );
+
+        // If stay is 2 days, force departure time to 7:30
+        if (daysDiff === 2) {
+          setVisitFormData("departureTime", "7:30");
+        }
+      }
+    }
+
+    // Prevent departure time changes if stay is 2 days
+    if (name === "departureTime") {
+      const daysDiff = Math.ceil(
+        (new Date(formData.departureDate) - new Date(formData.visitDate)) /
+          (1000 * 60 * 60 * 24)
+      );
+
+      if (daysDiff === 2) {
+        return; // Don't allow time changes for 2-day stays
+      }
+      setVisitFormData(name, value);
+    }
+
     // Add validation for knownToMath field
     if (name === "knownToMath") {
       // Only allow letters and spaces
@@ -63,17 +105,6 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
 
     if (name === "arrivalTime") {
       setVisitFormData("visitTime", value);
-    }
-
-    // Set default departure date to 2 days after when arrival date is selected
-    if (name === "visitDate") {
-      const arrivalDate = new Date(value);
-      if (!isNaN(arrivalDate.getTime())) {
-        const nextDay = new Date(arrivalDate);
-        nextDay.setDate(nextDay.getDate() + 1);
-        const formattedNextDay = nextDay.toISOString().split("T")[0];
-        setVisitFormData("departureDate", formattedNextDay);
-      }
     }
 
     // Modified stay duration calculation
@@ -261,14 +292,19 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
 
   const generateTimeOptions = () => {
     const options = [];
-    // Generate options for each hour (0-23)
-    for (let hour = 0; hour <= 23; hour++) {
-      // Format 24-hour time for value
-      const time24 = `${hour.toString().padStart(2, "0")}:00`;
 
-      // Convert to 12-hour format for display
+    // Add 7:30 AM as first option
+    options.push(
+      <option key="7:30" value="7:30">
+        7:30 AM
+      </option>
+    );
+
+    // Generate regular hourly options
+    for (let hour = 0; hour <= 23; hour++) {
+      const time24 = `${hour.toString().padStart(2, "0")}:00`;
       let hour12 = hour % 12;
-      hour12 = hour12 === 0 ? 12 : hour12; // Convert 0 to 12
+      hour12 = hour12 === 0 ? 12 : hour12;
       const period = hour < 12 ? "AM" : "PM";
       const timeDisplay = `${hour12}:00 ${period}`;
 
@@ -278,6 +314,7 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
         </option>
       );
     }
+
     return options;
   };
 
@@ -362,6 +399,13 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
                   name="departureTime"
                   value={formData.departureTime || ""}
                   onChange={handleInputChange}
+                  disabled={
+                    Math.ceil(
+                      (new Date(formData.departureDate) -
+                        new Date(formData.visitDate)) /
+                        (1000 * 60 * 60 * 24)
+                    ) === 2
+                  }
                 >
                   <option value="">Select Time</option>
                   {generateTimeOptions()}
@@ -389,7 +433,7 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
                   <span className="error">{errors.knownToMath}</span>
                 )}
               </div>
-
+              {/* 
               {showExtendedStayReason && (
                 <div className="form-group">
                   <label>
@@ -407,7 +451,7 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
                     <span className="error">{errors.extendedStayReason}</span>
                   )}
                 </div>
-              )}
+              )} */}
 
               <div className="form-group file-upload-section">
                 <label>Recommendation Letter (If any)</label>

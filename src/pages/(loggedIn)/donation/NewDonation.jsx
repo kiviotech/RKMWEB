@@ -3126,16 +3126,15 @@ const NewDonation = () => {
                     }}
                   >
                     <p style={{ margin: "0" }}>
-                      {currentReceipt?.donationDetails?.transactionType ||
-                        "Cash"}
+                      {currentReceipt?.donationDetails?.transactionType?.toLowerCase() ===
+                      "cash"
+                        ? "Cash"
+                        : currentReceipt?.donationDetails?.transactionType ||
+                          "Cash"}
                     </p>
                     {currentReceipt?.donationDetails?.transactionType?.toLowerCase() !==
                       "cash" && (
-                      <p
-                        style={{
-                          margin: "0",
-                        }}
-                      >
+                      <p style={{ margin: "0" }}>
                         {currentReceipt?.donationDetails?.transactionDetails
                           ?.bankName || ""}
                       </p>
@@ -3146,7 +3145,7 @@ const NewDonation = () => {
                   <p
                     style={{ minWidth: "120px", flexShrink: 0, marginTop: "0" }}
                   >
-                    The Sum Of Rupees:{" "}
+                    The Sum of Rupees:{" "}
                   </p>
                   <div
                     style={{

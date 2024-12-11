@@ -186,7 +186,7 @@ const VerifyDetails = () => {
               <td>{formData.deeksha || "Not specified"}</td>
               <td>{`+${formData.countryCode} ${formData.phoneNumber}`}</td>
               <td>{formData.aadhaar}</td>
-              <td>{`${formData.address.houseNumber}, ${formData.address.district}, ${formData.address.state}`}</td>
+              <td>{`${formData.address.district}, ${formData.address.state}`}</td>
             </tr>
             {/* Guest Rows */}
             {formData.guests.map((guest, index) => (
@@ -199,7 +199,7 @@ const VerifyDetails = () => {
                 <td>{guest.guestDeeksha || "Not specified"}</td>
                 <td>{`+${guest.countryCode} ${guest.guestNumber}`}</td>
                 <td>{guest.guestAadhaar}</td>
-                <td>{`${guest.guestAddress.houseNumber}, ${guest.guestAddress.district}, ${guest.guestAddress.state}`}</td>
+                <td>{`${guest.guestAddress.district}, ${guest.guestAddress.state}`}</td>
               </tr>
             ))}
           </tbody>
@@ -225,7 +225,7 @@ const VerifyDetails = () => {
             <strong>{calculateStayDuration()}</strong>
           </span>
         </p>
-        {formData.visited === "yes" && (
+        {formData.visited === "yes" && formData.previousVisitDate && (
           <p>
             Date of Last visit & stay in Ramakrishna Math Kamarpukur Guest
             House:{" "}
@@ -234,62 +234,25 @@ const VerifyDetails = () => {
             </strong>
           </p>
         )}
-        <p>
-          <span>
-            Known to Ramakrishna Math / Mission / Branch Centre / Monk(s) :
-          </span>{" "}
-          <strong>
-            {formData.knownToMath ? formData.knownToMath : "Not specified"}
-          </strong>
-        </p>
-        <p>
-          <span>Recommendation Letter :</span>{" "}
-          {formData.file ? (
-            <span
-              className="document-preview"
-              style={{ display: "inline-flex", alignItems: "center" }}
-            >
-              <strong>Document uploaded</strong>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="currentColor"
-                onClick={handlePreviewClick}
-                style={{
-                  cursor: "pointer",
-                  marginLeft: "10px",
-                  width: "20px",
-                  height: "20px",
-                }}
-              >
-                <path d="M12 15a3 3 0 100-6 3 3 0 000 6z" />
-                <path
-                  fillRule="evenodd"
-                  d="M1.323 11.447C2.811 6.976 7.028 3.75 12.001 3.75c4.97 0 9.185 3.223 10.675 7.69.12.362.12.752 0 1.113-1.487 4.471-5.705 7.697-10.677 7.697-4.97 0-9.186-3.223-10.675-7.69a1.762 1.762 0 010-1.113zM17.25 12a5.25 5.25 0 11-10.5 0 5.25 5.25 0 0110.5 0z"
-                  clipRule="evenodd"
-                />
-              </svg>
-            </span>
-          ) : (
-            <strong>Not uploaded</strong>
-          )}
-        </p>
+        {formData.knownToMath && (
+          <p>
+            <span>
+              Are you known to any of our Ramakrishna Math / Mission / Branch
+              Centre / Monk(s) :
+            </span>{" "}
+            <strong>{formData.knownToMath}</strong>
+          </p>
+        )}
+        {formData.file && Object.keys(formData.file).length > 0 && (
+          <p>
+            <span>Recommendation Letter :</span> <strong>Not uploaded</strong>
+          </p>
+        )}
       </div>
 
       <div className="address-details">
         <h2>Address Details</h2>
-        {/* Applicant Address */}
         <div className="address-block">
-          <h3>
-            Applicant
-            <img
-              src={edit_icon}
-              alt="Edit"
-              className="edit-icon"
-              onClick={() => handleEditClick("applicant")}
-              style={{ cursor: "pointer" }}
-            />
-          </h3>
           <div className="details-row">
             <div>
               <span>Name:</span>{" "}
@@ -329,81 +292,6 @@ const VerifyDetails = () => {
             </div>
           </div>
         </div>
-
-        {/* Guest Addresses */}
-        {formData.guests.map((guest, index) => {
-          // Check if guest address matches applicant address
-          const isAddressSame =
-            guest.guestAddress.houseNumber === formData.address.houseNumber &&
-            guest.guestAddress.district === formData.address.district &&
-            guest.guestAddress.state === formData.address.state &&
-            guest.guestAddress.pinCode === formData.address.pinCode;
-
-          return (
-            <div key={index} className="address-block">
-              <h3>
-                Member {index + 1}
-                <img
-                  src={edit_icon}
-                  alt="Edit"
-                  className="edit-icon"
-                  onClick={() => handleEditClick("guest")}
-                  style={{ cursor: "pointer" }}
-                />
-              </h3>
-              <div className="details-row">
-                <div>
-                  <span>Name:</span>{" "}
-                  <strong>{`${guest.guestTitle} ${guest.guestName}`}</strong>
-                </div>
-                <div>
-                  <span>Aadhar Number:</span>{" "}
-                  <strong>{guest.guestAadhaar}</strong>
-                </div>
-                <div>
-                  <span>Mobile Number:</span>{" "}
-                  <strong>
-                    +{guest.countryCode} {guest.guestNumber}
-                  </strong>
-                </div>
-              </div>
-              {!isAddressSame ? (
-                <>
-                  <div className="details-row">
-                    <strong>Address:</strong>{" "}
-                    <span>{`${guest.guestAddress.houseNumber}`}</span>
-                  </div>
-                  <div className="details-row">
-                    <div>
-                      <span>Landmark:</span>{" "}
-                      <strong>
-                        {guest.guestAddress.landmark || "Not specified"}
-                      </strong>
-                    </div>
-                  </div>
-                  <div className="details-row">
-                    <div>
-                      <span>District:</span>{" "}
-                      <strong>{guest.guestAddress.district}</strong>
-                    </div>
-                    <div>
-                      <span>Pincode:</span>{" "}
-                      <strong>{guest.guestAddress.pinCode}</strong>
-                    </div>
-                    <div>
-                      <span>State:</span>{" "}
-                      <strong>{guest.guestAddress.state}</strong>
-                    </div>
-                  </div>
-                </>
-              ) : (
-                <div className="details-row">
-                  <em>Same as applicant's address</em>
-                </div>
-              )}
-            </div>
-          );
-        })}
       </div>
 
       {/* Add Additional Message section if it exists */}

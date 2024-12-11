@@ -993,22 +993,21 @@ const GuestDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
 
                   <div className="addressInputBox">
                     <div className="form-group">
-                      <label>District</label>
+                      <label>State</label>
                       <input
                         type="text"
-                        name="guestAddress.district"
+                        name="guestAddress.state"
                         value={
-                          (formData.guests[index].guestAddress || {})
-                            .district || ""
+                          (formData.guests[index].guestAddress || {}).state ||
+                          ""
                         }
                         onChange={(e) => handleGuestInputChange(e, index)}
-                        placeholder="Enter your district"
-                        readOnly
+                        placeholder="Enter your state"
                         disabled={formData.guests[index].sameAsApplicant}
                       />
-                      {errors[`guestAddressDistrict${index}`] && (
+                      {errors[`guestAddressState${index}`] && (
                         <span className="error">
-                          {errors[`guestAddressDistrict${index}`]}
+                          {errors[`guestAddressState${index}`]}
                         </span>
                       )}
                     </div>
@@ -1030,22 +1029,21 @@ const GuestDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
 
                   <div className="addressInputBox">
                     <div className="form-group">
-                      <label>State</label>
+                      <label>District</label>
                       <input
                         type="text"
-                        name="guestAddress.state"
+                        name="guestAddress.district"
                         value={
-                          (formData.guests[index].guestAddress || {}).state ||
-                          ""
+                          (formData.guests[index].guestAddress || {})
+                            .district || ""
                         }
                         onChange={(e) => handleGuestInputChange(e, index)}
-                        placeholder="Enter your state"
-                        readOnly
+                        placeholder="Enter your district"
                         disabled={formData.guests[index].sameAsApplicant}
                       />
-                      {errors[`guestAddressState${index}`] && (
+                      {errors[`guestAddressDistrict${index}`] && (
                         <span className="error">
-                          {errors[`guestAddressState${index}`]}
+                          {errors[`guestAddressDistrict${index}`]}
                         </span>
                       )}
                     </div>

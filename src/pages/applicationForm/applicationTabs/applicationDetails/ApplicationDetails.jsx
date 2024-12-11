@@ -626,7 +626,7 @@ const ApplicationDetails = ({ goToNextStep, tabName }) => {
 
           {/* Address Fields */}
           <div className="address-section">
-            <h3>Address</h3>
+            <h3 style={{ textAlign: "left" }}>Address</h3>
             <div className="formTabSection">
               <div className="addressInputBox">
                 <div className="form-group">

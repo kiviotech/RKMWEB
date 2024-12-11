@@ -483,12 +483,14 @@ const GuestDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
     setGuestData(index, "sameAsApplicant", newSameAsApplicant);
 
     if (newSameAsApplicant) {
-      // Copy applicant's address to guest
+      // Copy applicant's address to guest, including streetName and postOffice
       const guestAddress = {
         state: formData.address.state,
         district: formData.address.district,
         pinCode: formData.address.pinCode,
         houseNumber: formData.address.houseNumber,
+        streetName: formData.address.streetName,
+        postOffice: formData.address.postOffice,
       };
 
       Object.entries(guestAddress).forEach(([key, value]) => {
@@ -548,7 +550,7 @@ const GuestDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
 
   return (
     <div className="guest-details" style={{ marginLeft: "50px" }}>
-      <h2 style={{ marginTop: "55px" }}>Kamarpukur Guesthouse Booking</h2>
+      <h2 style={{ marginTop: "55px" }}>Guest Details</h2>
 
       <div className="form-tabs custom-form-tab">
         {guestTabs.map((tab, index) => (
@@ -776,7 +778,20 @@ const GuestDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
                         type="text"
                         name="guestNumber"
                         value={formData.guests[index].guestNumber || ""}
-                        onChange={(e) => handleGuestInputChange(e, index)}
+                        onChange={(e) => {
+                          const value = e.target.value
+                            .replace(/\D/g, "")
+                            .slice(0, 10);
+                          handleGuestInputChange(
+                            {
+                              target: {
+                                name: "guestNumber",
+                                value,
+                              },
+                            },
+                            index
+                          );
+                        }}
                         placeholder="921234902"
                       />
                     </div>
@@ -840,8 +855,21 @@ const GuestDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
                       type="text"
                       name="guestAadhaar"
                       value={formData.guests[index].guestAadhaar || ""}
-                      onChange={(e) => handleGuestInputChange(e, index)}
-                      placeholder="••••••••••••"
+                      onChange={(e) => {
+                        const value = e.target.value
+                          .replace(/\D/g, "")
+                          .slice(0, 12);
+                        handleGuestInputChange(
+                          {
+                            target: {
+                              name: "guestAadhaar",
+                              value,
+                            },
+                          },
+                          index
+                        );
+                      }}
+                      placeholder="•••••••••��••"
                     />
                     {errors[`guestAadhaar${index}`] && (
                       <span className="error">
@@ -932,7 +960,7 @@ const GuestDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
                       )}
                     </div>
                     <div className="form-group">
-                      <label>Flat/House No</label>
+                      <label>Flat / House / Apartment No</label>
                       <input
                         type="text"
                         name="guestAddress.houseNumber"
@@ -969,7 +997,7 @@ const GuestDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
                       )}
                     </div>
                     <div className="form-group">
-                      <label>Street Name</label>
+                      <label>Street Name / Landmark</label>
                       <input
                         type="text"
                         name="guestAddress.streetName"
@@ -1006,16 +1034,16 @@ const GuestDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
                       )}
                     </div>
                     <div className="form-group">
-                      <label>Landmark</label>
+                      <label>Post Office</label>
                       <input
                         type="text"
-                        name="guestAddress.landmark"
+                        name="guestAddress.postOffice"
                         value={
                           (formData.guests[index].guestAddress || {})
-                            .landmark || ""
+                            .postOffice || ""
                         }
                         onChange={(e) => handleGuestInputChange(e, index)}
-                        placeholder="Enter nearby landmark"
+                        placeholder="Enter post office"
                         disabled={formData.guests[index].sameAsApplicant}
                       />
                     </div>

@@ -15,8 +15,8 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
   const [showExtendedStayReason, setShowExtendedStayReason] = useState(false);
 
   const handleNext = () => {
-    navigate('/application-form', { 
-      state: { activeTab: '3' }
+    navigate("/application-form", {
+      state: { activeTab: "3" },
     });
   };
 
@@ -31,10 +31,10 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
         visited: formData.visited,
         previousVisitDate: formData.previousVisitDate,
         reason: formData.reason,
-        file: formData.file
+        file: formData.file,
       },
       errors,
-      fullState: formData
+      fullState: formData,
     });
   }, [formData, errors]);
 
@@ -43,7 +43,7 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
     if (!arrivalDate) return null;
     const date = new Date(arrivalDate);
     date.setDate(date.getDate() + 3);
-    return date.toISOString().split('T')[0];
+    return date.toISOString().split("T")[0];
   };
 
   // Generate time options in 12-hour format
@@ -51,10 +51,10 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
     const options = [];
     for (let hour = 0; hour < 24; hour++) {
       for (let minute = 0; minute < 60; minute += 30) {
-        const period = hour < 12 ? 'AM' : 'PM';
+        const period = hour < 12 ? "AM" : "PM";
         const displayHour = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
-        const displayMinute = minute.toString().padStart(2, '0');
-        const value = `${hour.toString().padStart(2, '0')}:${displayMinute}`;
+        const displayMinute = minute.toString().padStart(2, "0");
+        const value = `${hour.toString().padStart(2, "0")}:${displayMinute}`;
         const label = `${displayHour}:${displayMinute} ${period}`;
         options.push({ value, label });
       }
@@ -65,53 +65,54 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
   // Update handleInputChange to set next day as departure date
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    
+
     setVisitFormData(name, value);
 
-    if (name === 'arrivalTime') {
-      setVisitFormData('visitTime', value);
+    if (name === "arrivalTime") {
+      setVisitFormData("visitTime", value);
     }
 
     // Set default departure date when arrival date is selected
-    if (name === 'visitDate') {
+    if (name === "visitDate") {
       const arrivalDate = new Date(value);
       if (!isNaN(arrivalDate.getTime())) {
         const nextDay = new Date(arrivalDate);
         nextDay.setDate(nextDay.getDate() + 1);
-        const formattedNextDay = nextDay.toISOString().split('T')[0];
-        setVisitFormData('departureDate', formattedNextDay);
+        const formattedNextDay = nextDay.toISOString().split("T")[0];
+        setVisitFormData("departureDate", formattedNextDay);
       }
     }
 
     // Modified stay duration calculation
-    if (name === 'visitDate' || name === 'departureDate') {
-      let visitDate = name === 'visitDate' ? value : formData.visitDate;
-      let departureDate = name === 'departureDate' ? value : formData.departureDate;
+    if (name === "visitDate" || name === "departureDate") {
+      let visitDate = name === "visitDate" ? value : formData.visitDate;
+      let departureDate =
+        name === "departureDate" ? value : formData.departureDate;
 
       if (visitDate && departureDate) {
         visitDate = new Date(visitDate);
         departureDate = new Date(departureDate);
-        
+
         if (!isNaN(visitDate.getTime()) && !isNaN(departureDate.getTime())) {
           // Calculate the difference in days
           const timeDiff = departureDate - visitDate;
           const daysDiff = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
-          
+
           // Show extended stay reason if stay is more than 2 days (3 nights)
           setShowExtendedStayReason(daysDiff > 2);
-          
-          console.log('Stay Duration:', {
+
+          console.log("Stay Duration:", {
             visitDate: visitDate.toISOString(),
             departureDate: departureDate.toISOString(),
             daysDiff,
-            showExtendedStay: daysDiff > 2
+            showExtendedStay: daysDiff > 2,
           });
         }
       }
     }
 
     if (errors[name]) {
-      setErrors(name, '');
+      setErrors(name, "");
     }
   };
 
@@ -119,38 +120,38 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
     const { value } = e.target;
     setVisited(value);
     setVisitFormData("visited", value);
-    console.log("Previous Visit Status Change:", { 
+    console.log("Previous Visit Status Change:", {
       value,
-      requiresAdditionalInfo: value === "yes"
+      requiresAdditionalInfo: value === "yes",
     });
   };
 
   const handleFileUpload = async (file) => {
     try {
       const formData = new FormData();
-      formData.append('files', file);
+      formData.append("files", file);
 
       const response = await fetch(`${BASE_URL}/upload`, {
-        method: 'POST',
+        method: "POST",
         body: formData,
         headers: {
-          'Authorization': `Bearer dab72e1a44ce33db65569da89fdc1927935e21775c16a6d6f8f035533fb939552a712001461dd2cabfbffb50b81b3635d6ffb080a24c475f1b8246bbc399da4189dfd3fae5fed6998811fc81e9954d670b6b60e4859bda4634148a94f3ddfecf9c4364858523f5f447bbce967ffc679e35810f1f3c282a6a6f4ee877b58fb8ee`,
+          Authorization: `Bearer dab72e1a44ce33db65569da89fdc1927935e21775c16a6d6f8f035533fb939552a712001461dd2cabfbffb50b81b3635d6ffb080a24c475f1b8246bbc399da4189dfd3fae5fed6998811fc81e9954d670b6b60e4859bda4634148a94f3ddfecf9c4364858523f5f447bbce967ffc679e35810f1f3c282a6a6f4ee877b58fb8ee`,
         },
       });
 
       if (!response.ok) {
-        throw new Error('Upload failed');
+        throw new Error("Upload failed");
       }
 
       const data = await response.json();
       setFile({
         ...data[0],
-        fileId: data[0].id
+        fileId: data[0].id,
       });
       console.log("File Upload Success:", data[0]);
     } catch (error) {
       console.error("File Upload Error:", error);
-      setErrors('file', 'Failed to upload file');
+      setErrors("file", "Failed to upload file");
     }
   };
 
@@ -158,10 +159,10 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
     const file = e.target.files[0];
     if (file) {
       handleFileUpload(file);
-      console.log("File Upload Initiated:", { 
+      console.log("File Upload Initiated:", {
         fileName: file?.name,
         fileType: file?.type,
-        fileSize: file?.size
+        fileSize: file?.size,
       });
     }
   };
@@ -171,10 +172,10 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
     const file = e.dataTransfer.files[0];
     if (file) {
       handleFileUpload(file);
-      console.log("File Drop Upload Initiated:", { 
+      console.log("File Drop Upload Initiated:", {
         fileName: file?.name,
         fileType: file?.type,
-        fileSize: file?.size
+        fileSize: file?.size,
       });
     }
   };
@@ -186,18 +187,21 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
     let hasErrors = false;
-    
+
     // Validate required fields
     const fieldsToValidate = [
       "visitDate",
       "visitTime",
       "departureDate",
-      "departureTime"
+      "departureTime",
     ];
 
     fieldsToValidate.forEach((field) => {
       if (!formData[field]) {
-        setErrors(field, `${field.charAt(0).toUpperCase() + field.slice(1)} is required`);
+        setErrors(
+          field,
+          `${field.charAt(0).toUpperCase() + field.slice(1)} is required`
+        );
         hasErrors = true;
       }
     });
@@ -214,10 +218,10 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
     }
 
     if (!hasErrors) {
-      navigate('/application-form', { 
-        state: { 
-          activeTab: '3'  // Pass as string to match the expected format
-        }
+      navigate("/application-form", {
+        state: {
+          activeTab: "3", // Pass as string to match the expected format
+        },
       });
     } else {
       console.log("Visit Details Validation Failed:", errors);
@@ -230,30 +234,30 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
       (state) => state,
       (newState, prevState) => {
         const visitFields = [
-          'visitDate', 
-          'visitTime', 
-          'departureDate', 
-          'departureTime',
-          'visited',
-          'previousVisitDate',
-          'reason',
-          'file'
+          "visitDate",
+          "visitTime",
+          "departureDate",
+          "departureTime",
+          "visited",
+          "previousVisitDate",
+          "reason",
+          "file",
         ];
-        
+
         const changes = visitFields.reduce((acc, field) => {
           if (newState.formData[field] !== prevState.formData[field]) {
             acc[field] = {
               from: prevState.formData[field],
-              to: newState.formData[field]
+              to: newState.formData[field],
             };
           }
           return acc;
         }, {});
 
         if (Object.keys(changes).length > 0) {
-          console.log('VisitDetails - Store Updates:', {
+          console.log("VisitDetails - Store Updates:", {
             changes,
-            timestamp: new Date().toISOString()
+            timestamp: new Date().toISOString(),
           });
         }
       }
@@ -266,7 +270,7 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
     <div className="application-form">
       <form onSubmit={handleSubmit}>
         <div className="div">
-          <h2>Kamarpukur Guesthouse Booking</h2>
+          <h2>Visit Details</h2>
           <div className="form-section">
             <div className="form-left-section">
               <div className="form-group">
@@ -276,10 +280,12 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
                 <input
                   type="date"
                   name="visitDate"
-                  value={formData.arrivalDate || formData.visitDate || ''}
+                  value={formData.arrivalDate || formData.visitDate || ""}
                   onChange={handleInputChange}
                 />
-                {errors.visitDate && <span className="error">{errors.visitDate}</span>}
+                {errors.visitDate && (
+                  <span className="error">{errors.visitDate}</span>
+                )}
               </div>
 
               <div className="form-group">
@@ -289,12 +295,18 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
                 <input
                   type="date"
                   name="departureDate"
-                  value={formData.departureDate || ''}
+                  value={formData.departureDate || ""}
                   onChange={handleInputChange}
-                  min={formData.visitDate || ''}
-                  max={formData.visitDate ? getMaxDepartureDate(formData.visitDate) : ''}
+                  min={formData.visitDate || ""}
+                  max={
+                    formData.visitDate
+                      ? getMaxDepartureDate(formData.visitDate)
+                      : ""
+                  }
                 />
-                {errors.departureDate && <span className="error">{errors.departureDate}</span>}
+                {errors.departureDate && (
+                  <span className="error">{errors.departureDate}</span>
+                )}
               </div>
 
               <div className="form-group file-upload-section">
@@ -329,7 +341,7 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
                 </label>
                 <select
                   name="arrivalTime"
-                  value={formData.arrivalTime || ''}
+                  value={formData.arrivalTime || ""}
                   onChange={handleInputChange}
                 >
                   <option value="">Select Time</option>
@@ -339,7 +351,9 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
                     </option>
                   ))}
                 </select>
-                {errors.arrivalTime && <span className="error">{errors.arrivalTime}</span>}
+                {errors.arrivalTime && (
+                  <span className="error">{errors.arrivalTime}</span>
+                )}
               </div>
 
               <div className="form-group">
@@ -348,7 +362,7 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
                 </label>
                 <select
                   name="departureTime"
-                  value={formData.departureTime || ''}
+                  value={formData.departureTime || ""}
                   onChange={handleInputChange}
                 >
                   <option value="">Select Time</option>
@@ -358,18 +372,21 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
                     </option>
                   ))}
                 </select>
-                {errors.departureTime && <span className="error">{errors.departureTime}</span>}
+                {errors.departureTime && (
+                  <span className="error">{errors.departureTime}</span>
+                )}
               </div>
 
               {showExtendedStayReason && (
                 <div className="form-group">
                   <label>
-                    State reason for more than 3 nights stay? <span className="required"> *</span>
+                    State reason for more than 3 nights stay?{" "}
+                    <span className="required"> *</span>
                   </label>
                   <textarea
                     rows={3}
                     name="extendedStayReason"
-                    value={formData.extendedStayReason || ''}
+                    value={formData.extendedStayReason || ""}
                     onChange={handleInputChange}
                     placeholder="State your reason"
                   />
@@ -384,7 +401,7 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
 
         <div className="previously-visited-section">
           <h2>Previously Visited Detail</h2>
-          
+
           <div className="form-group" style={{ paddingTop: "10px" }}>
             <label>Previously Visited?</label>
             <div style={{ display: "flex", gap: 40, paddingTop: "10px" }}>
@@ -421,7 +438,7 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
                 <input
                   type="date"
                   name="previousVisitDate"
-                  value={formData.previousVisitDate || ''}
+                  value={formData.previousVisitDate || ""}
                   onChange={handleInputChange}
                 />
                 {errors.previousVisitDate && (
@@ -438,7 +455,9 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
                   onChange={handleInputChange}
                   placeholder="State reason for re-visit"
                 />
-                {errors.reason && <span className="error">{errors.reason}</span>}
+                {errors.reason && (
+                  <span className="error">{errors.reason}</span>
+                )}
               </div>
             </>
           )}

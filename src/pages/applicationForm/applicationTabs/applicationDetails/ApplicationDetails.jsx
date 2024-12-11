@@ -163,8 +163,11 @@ const ApplicationDetails = ({ goToNextStep, tabName }) => {
       case "phoneNumber":
         if (!value) {
           setErrors(name, "Phone number is required");
-        } else if (!/^\d{10}$/.test(value)) {
-          setErrors(name, "Phone number must be 10 digits long");
+        } else if (!/^\d{1,10}$/.test(value)) {
+          setErrors(
+            name,
+            "Phone number must contain only digits and be up to 10 digits long"
+          );
         } else {
           setErrors(name, "");
         }
@@ -319,7 +322,7 @@ const ApplicationDetails = ({ goToNextStep, tabName }) => {
     <div className="application-form">
       <form onSubmit={handleSubmit}>
         <div className="div">
-          <h2>Kamarpukur Guesthouse Booking</h2>
+          <h2>Application Details</h2>
           <div className="form-section">
             <div className="form-left-section">
               {/* Name Field */}
@@ -472,7 +475,17 @@ const ApplicationDetails = ({ goToNextStep, tabName }) => {
                     type="text"
                     name="phoneNumber"
                     value={formData.phoneNumber}
-                    onChange={handleInputChange}
+                    onChange={(e) => {
+                      const value = e.target.value
+                        .replace(/\D/g, "")
+                        .slice(0, 10);
+                      handleInputChange({
+                        target: {
+                          name: "phoneNumber",
+                          value,
+                        },
+                      });
+                    }}
                     placeholder="921234902"
                   />
                 </div>
@@ -532,7 +545,17 @@ const ApplicationDetails = ({ goToNextStep, tabName }) => {
                   type="text"
                   name="aadhaar"
                   value={formData.aadhaar}
-                  onChange={handleInputChange}
+                  onChange={(e) => {
+                    const value = e.target.value
+                      .replace(/\D/g, "")
+                      .slice(0, 12);
+                    handleInputChange({
+                      target: {
+                        name: "aadhaar",
+                        value,
+                      },
+                    });
+                  }}
                   placeholder="••••••••••••"
                 />
                 {errors.aadhaar && (
@@ -610,7 +633,7 @@ const ApplicationDetails = ({ goToNextStep, tabName }) => {
                   style={{ display: "flex", gap: "10px" }}
                 >
                   <div className="form-group" style={{ flex: 1 }}>
-                    <label>Flat/House No</label>
+                    <label>Flat / House / Apartment No</label>
                     <input
                       type="text"
                       name="houseNumber"
@@ -641,7 +664,7 @@ const ApplicationDetails = ({ goToNextStep, tabName }) => {
                   )}
                 </div>
                 <div className="form-group">
-                  <label>Street Name</label>
+                  <label>Street Name / Landmark</label>
                   <input
                     type="text"
                     name="streetName"
@@ -671,16 +694,16 @@ const ApplicationDetails = ({ goToNextStep, tabName }) => {
                   )}
                 </div>
                 <div className="form-group" style={{ flex: 1 }}>
-                  <label>Landmark</label>
+                  <label>Post Office</label>
                   <input
                     type="text"
-                    name="landmark"
-                    value={formData.address.landmark}
+                    name="postOffice"
+                    value={formData.address.postOffice}
                     onChange={handleAddressInputChange}
-                    placeholder="Enter nearby landmark"
+                    placeholder="Enter post office"
                   />
-                  {errors.landmark && (
-                    <span className="error">{errors.landmark}</span>
+                  {errors.postOffice && (
+                    <span className="error">{errors.postOffice}</span>
                   )}
                 </div>
               </div>

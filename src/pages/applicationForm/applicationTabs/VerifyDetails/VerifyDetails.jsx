@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import edit_icon from "../../../../assets/icons/edit_icon.png"
+import edit_icon from "../../../../assets/icons/edit_icon.png";
 import useApplicationStore from "../../../../../useApplicationStore";
 import "./VerifyDetails.scss";
 import { createNewGuestDetails } from "../../../../../services/src/services/guestDetailsService";
@@ -11,9 +11,9 @@ const VerifyDetails = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    window.scrollTo({ 
-      top: 0, 
-      behavior: 'smooth' 
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
     });
   }, []);
 
@@ -40,14 +40,17 @@ const VerifyDetails = () => {
       applicantDetails: {
         name: formData.name,
         address: formData.address,
-        contact: formData.phoneNumber
+        contact: formData.phoneNumber,
       },
       guestDetails: formData.guests,
       visitDetails: {
         arrival: formatDateTime(formData.visitDate, formData.visitTime),
-        departure: formatDateTime(formData.departureDate, formData.departureTime),
-        previousVisit: formData.previousVisitDate
-      }
+        departure: formatDateTime(
+          formData.departureDate,
+          formData.departureTime
+        ),
+        previousVisit: formData.previousVisitDate,
+      },
     });
   }, [formData]);
 
@@ -67,7 +70,7 @@ const VerifyDetails = () => {
         email: formData.email,
         relationship: "applicant",
         arrival_date: formData.visitDate,
-        departure_date: formData.departureDate
+        departure_date: formData.departureDate,
       };
 
       // Create main applicant guest record
@@ -76,7 +79,7 @@ const VerifyDetails = () => {
 
       // Create guest details for additional guests
       const guestResponses = await Promise.all(
-        formData.guests.map(guest => {
+        formData.guests.map((guest) => {
           const guestData = {
             name: `${guest.guestTitle} ${guest.guestName}`.trim(),
             phone_number: `+${guest.countryCode}${guest.guestNumber}`,
@@ -90,14 +93,14 @@ const VerifyDetails = () => {
             email: guest.guestEmail,
             relationship: guest.guestRelation || "guest",
             arrival_date: formData.visitDate,
-            departure_date: formData.departureDate
+            departure_date: formData.departureDate,
           };
           return createNewGuestDetails(guestData);
         })
       );
 
       // Collect all guest IDs from the correct response path
-      const guestIds = guestResponses.map(response => response.data.id);
+      const guestIds = guestResponses.map((response) => response.data.id);
 
       // Create booking request with updated schema
       const bookingData = {
@@ -120,15 +123,14 @@ const VerifyDetails = () => {
         accommodation_requirements: formData.file ? [formData.file] : [],
         // Add default values for required fields
         number_of_male_devotees: "0",
-        number_of_female_devotees: "0"
+        number_of_female_devotees: "0",
       };
 
       await createNewBookingRequest(bookingData);
-      
+
       // Handle successful submission
       alert("Application submitted successfully!");
-      navigate('/thank-you');
-      
+      navigate("/thank-you");
     } catch (error) {
       console.error("Error submitting application:", error);
       alert("Failed to submit application. Please try again.");
@@ -136,12 +138,12 @@ const VerifyDetails = () => {
   };
 
   const handleEditClick = (section) => {
-    switch(section) {
-      case 'applicant':
-        navigate('/application-form', { state: { activeTab: 0 } });
+    switch (section) {
+      case "applicant":
+        navigate("/application-form", { state: { activeTab: 0 } });
         break;
-      case 'guest':
-        navigate('/application-form', { state: { activeTab: 1 } });
+      case "guest":
+        navigate("/application-form", { state: { activeTab: 1 } });
         break;
       default:
         break;
@@ -150,7 +152,7 @@ const VerifyDetails = () => {
 
   return (
     <div className="verify-details">
-      <h2>Kamarpukur Guesthouse Booking</h2>
+      <h2>Guests / Visitors Details</h2>
       <div className="table-container">
         <table>
           <thead>
@@ -158,9 +160,9 @@ const VerifyDetails = () => {
               <th style={{ width: "5%" }}>Sl No.</th>
               <th style={{ width: "40%" }}>Name (s)</th>
               <th style={{ width: "5%", textAlign: "center" }}>Age</th>
-              <th style={{ width: "5%", textAlign: "center" }}>Gender (M/F)</th>
+              <th style={{ width: "5%", textAlign: "center" }}>Gender</th>
               <th style={{ width: "15%" }}>Profession</th>
-              <th style={{ width: "20%" }}>Initiation By</th>
+              <th style={{ width: "20%" }}>Initiated By</th>
             </tr>
           </thead>
           <tbody>
@@ -195,15 +197,21 @@ const VerifyDetails = () => {
         </p>
         <p>
           <strong>Departure Date and Time :</strong>{" "}
-          <span> {formatDateTime(formData.departureDate, formData.departureTime)}</span>
+          <span>
+            {" "}
+            {formatDateTime(formData.departureDate, formData.departureTime)}
+          </span>
         </p>
         <p>
-          <span><strong>Total Days of Stay :</strong> {calculateStayDuration()}</span>
+          <span>
+            <strong>Total Days of Stay :</strong> {calculateStayDuration()}
+          </span>
         </p>
         {formData.visited === "yes" && (
           <p>
             <strong>
-              Date of Last visit & stay in Ramakrishna Math Kamarpukur Guest House:
+              Date of Last visit & stay in Ramakrishna Math Kamarpukur Guest
+              House:
             </strong>{" "}
             {new Date(formData.previousVisitDate).toLocaleDateString()}
           </p>
@@ -216,27 +224,44 @@ const VerifyDetails = () => {
         <div className="address-block">
           <h3>
             Applicant
-            <img 
-              src={edit_icon} 
-              alt="Edit" 
-              className="edit-icon" 
-              onClick={() => handleEditClick('applicant')}
-              style={{ cursor: 'pointer' }}
+            <img
+              src={edit_icon}
+              alt="Edit"
+              className="edit-icon"
+              onClick={() => handleEditClick("applicant")}
+              style={{ cursor: "pointer" }}
             />
           </h3>
           <div className="details-row">
-            <div><strong>Name:</strong> <span>{formData.name}</span></div>
-            <div><strong>Aadhaar Number:</strong> <span>{formData.aadhaar}</span></div>
-            <div><strong>Mobile Number:</strong> <span>+{formData.countryCode} {formData.phoneNumber}</span></div>
+            <div>
+              <strong>Name:</strong> <span>{formData.name}</span>
+            </div>
+            <div>
+              <strong>Aadhaar Number:</strong> <span>{formData.aadhaar}</span>
+            </div>
+            <div>
+              <strong>Mobile Number:</strong>{" "}
+              <span>
+                +{formData.countryCode} {formData.phoneNumber}
+              </span>
+            </div>
           </div>
           <div className="details-row">
             <strong>Address:</strong>{" "}
             <span>{`${formData.address.houseNumber}`}</span>
           </div>
           <div className="details-row">
-            <div><strong>District:</strong> <span>{formData.address.district}</span></div>
-            <div><strong>Pincode:</strong><span> {formData.address.pinCode}</span></div>
-            <div><strong>State:</strong> <span>{formData.address.state}</span></div>
+            <div>
+              <strong>District:</strong>{" "}
+              <span>{formData.address.district}</span>
+            </div>
+            <div>
+              <strong>Pincode:</strong>
+              <span> {formData.address.pinCode}</span>
+            </div>
+            <div>
+              <strong>State:</strong> <span>{formData.address.state}</span>
+            </div>
           </div>
         </div>
 
@@ -245,27 +270,40 @@ const VerifyDetails = () => {
           <div key={index} className="address-block">
             <h3>
               Member {index + 1}
-              <img 
-                src={edit_icon} 
-                alt="Edit" 
-                className="edit-icon" 
-                onClick={() => handleEditClick('guest')}
-                style={{ cursor: 'pointer' }}
+              <img
+                src={edit_icon}
+                alt="Edit"
+                className="edit-icon"
+                onClick={() => handleEditClick("guest")}
+                style={{ cursor: "pointer" }}
               />
             </h3>
             <div className="details-row">
-              <div><strong>Name:</strong> {guest.guestName}</div>
-              <div><strong>Aadhar Number:</strong> {guest.guestAadhaar}</div>
-              <div><strong>Mobile Number:</strong> +{guest.countryCode} {guest.guestNumber}</div>
+              <div>
+                <strong>Name:</strong> {guest.guestName}
+              </div>
+              <div>
+                <strong>Aadhar Number:</strong> {guest.guestAadhaar}
+              </div>
+              <div>
+                <strong>Mobile Number:</strong> +{guest.countryCode}{" "}
+                {guest.guestNumber}
+              </div>
             </div>
             <div className="details-row">
               <strong>Address:</strong>{" "}
               <span>{`${guest.guestAddress.houseNumber}`}</span>
             </div>
             <div className="details-row">
-              <div><strong>District:</strong> {guest.guestAddress.district}</div>
-              <div><strong>Pincode:</strong> {guest.guestAddress.pinCode}</div>
-              <div><strong>State:</strong> {guest.guestAddress.state}</div>
+              <div>
+                <strong>District:</strong> {guest.guestAddress.district}
+              </div>
+              <div>
+                <strong>Pincode:</strong> {guest.guestAddress.pinCode}
+              </div>
+              <div>
+                <strong>State:</strong> {guest.guestAddress.state}
+              </div>
             </div>
           </div>
         ))}
@@ -273,7 +311,9 @@ const VerifyDetails = () => {
 
       <div className="button-container">
         {/* <button className="save">Save for later</button> */}
-        <button className="submit-button" onClick={handleSubmit}>Submit</button>
+        <button className="submit-button" onClick={handleSubmit}>
+          Submit
+        </button>
       </div>
     </div>
   );

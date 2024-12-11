@@ -3134,35 +3134,41 @@ const NewDonation = () => {
                 </div>
                 <div className="receipt-amt">
                   <p
-                    style={{ minWidth: "120px", flexShrink: 0, marginTop: "0" }}
+                    style={{
+                      minWidth: "120px",
+                      flexShrink: 0,
+                      marginTop: "0",
+                      alignSelf: "flex-start",
+                    }}
                   >
                     By Transaction Type:{" "}
                   </p>
-                  <p style={{ paddingLeft: "20px" }}>
-                    {currentReceipt?.donationDetails?.transactionType || "Cash"}
+                  <div
+                    style={{
+                      paddingLeft: "20px",
+                      flex: 1,
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "flex-start",
+                      gap: "4px",
+                    }}
+                  >
+                    <p style={{ margin: "0" }}>
+                      {currentReceipt?.donationDetails?.transactionType ||
+                        "Cash"}
+                    </p>
                     {currentReceipt?.donationDetails?.transactionType?.toLowerCase() !==
                       "cash" && (
-                      <span>
-                        {" "}
-                        (
+                      <p
+                        style={{
+                          margin: "0",
+                        }}
+                      >
                         {currentReceipt?.donationDetails?.transactionDetails
-                          ?.ddNumber &&
-                          `No: ${currentReceipt.donationDetails.transactionDetails.ddNumber}, `}
-                        {currentReceipt?.donationDetails?.transactionDetails
-                          ?.ddDate &&
-                          `Date: ${new Date(
-                            currentReceipt.donationDetails.transactionDetails.ddDate
-                          ).toLocaleDateString()}, `}
-                        {currentReceipt?.donationDetails?.transactionDetails
-                          ?.bankName &&
-                          `Bank: ${currentReceipt.donationDetails.transactionDetails.bankName}, `}
-                        {currentReceipt?.donationDetails?.transactionDetails
-                          ?.branchName &&
-                          `Branch: ${currentReceipt.donationDetails.transactionDetails.branchName}`}
-                        )
-                      </span>
+                          ?.bankName || ""}
+                      </p>
                     )}
-                  </p>
+                  </div>
                 </div>
                 <div className="receipt-amt">
                   <p

@@ -376,56 +376,59 @@ const GuestDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
   };
 
   const handleProceed = () => {
-    console.log("Proceed Attempt - Current Form Status:", {
-      totalGuests: formData.guestMembers,
-      currentGuests: formData.guests,
-      currentTab: activeTab,
-      validationErrors: errors,
-      formValidation: {
-        hasErrors: Object.keys(errors).length > 0,
-        errorFields: Object.keys(errors),
-      },
-    });
-
     // Find current guest index
     const currentGuestIndex = guestTabs.indexOf(activeTab);
+    let emptyFields = [];
 
-    // Validate current guest's required fields
-    let currentGuestHasErrors = false;
+    // Required fields for validation
     const requiredFields = [
-      "guestTitle",
-      "guestName",
-      "guestAge",
-      "guestGender",
-      "guestEmail",
-      "guestNumber",
-      "guestRelation",
+      { key: "guestTitle", label: "Title" },
+      { key: "guestName", label: "Name" },
+      { key: "guestAge", label: "Age" },
+      { key: "guestGender", label: "Gender" },
+      { key: "guestEmail", label: "Email" },
+      { key: "guestNumber", label: "Phone Number" },
+      { key: "guestRelation", label: "Relation with Applicant" },
+      { key: "guestOccupation", label: "Occupation" },
+      { key: "guestDeeksha", label: "Deeksha" },
+      { key: "guestAadhaar", label: "Aadhaar" },
     ];
 
-    // Log validation status for current guest
-    console.log("Validating Current Guest:", {
-      guestIndex: currentGuestIndex,
-      guestName: formData.guests[currentGuestIndex].guestName,
-      missingFields: requiredFields.filter(
-        (field) => !formData.guests[currentGuestIndex][field]
-      ),
-      currentErrors: Object.keys(errors).filter((key) =>
-        key.includes(currentGuestIndex)
-      ),
-    });
+    // Required address fields
+    const requiredAddressFields = [
+      { key: "pinCode", label: "Pin Code" },
+      { key: "state", label: "State" },
+      { key: "district", label: "District" },
+    ];
 
-    requiredFields.forEach((field) => {
-      if (!formData.guests[currentGuestIndex][field]) {
-        setErrors(
-          `${field}${currentGuestIndex}`,
-          `${field.replace("guest", "")} is required`
-        );
-        currentGuestHasErrors = true;
+    // Check required fields for current guest
+    requiredFields.forEach(({ key, label }) => {
+      if (!formData.guests[currentGuestIndex][key]) {
+        emptyFields.push(label);
+        setErrors(`${key}${currentGuestIndex}`, `${label} is required`);
       }
     });
 
-    if (currentGuestHasErrors) {
-      console.log("Current Guest Validation Failed:", errors);
+    // Check required address fields if not using same as applicant address
+    if (!formData.guests[currentGuestIndex].sameAsApplicant) {
+      requiredAddressFields.forEach(({ key, label }) => {
+        if (!formData.guests[currentGuestIndex].guestAddress?.[key]) {
+          emptyFields.push(`Address ${label}`);
+          setErrors(
+            `guestAddress${key}${currentGuestIndex}`,
+            `${label} is required`
+          );
+        }
+      });
+    }
+
+    // Show alert if there are empty fields
+    if (emptyFields.length > 0) {
+      alert(
+        `Please fill in the following required fields for ${activeTab}:\n${emptyFields.join(
+          "\n"
+        )}`
+      );
       window.scrollTo({ top: 0, behavior: "smooth" });
       return;
     }
@@ -439,33 +442,46 @@ const GuestDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
       return;
     }
 
-    // If we're on the last guest and all validations pass, proceed to next step
+    // Validate all guests before final proceed
     let hasErrors = false;
     formData.guests.forEach((guest, index) => {
-      requiredFields.forEach((field) => {
-        if (!guest[field]) {
-          setErrors(
-            `${field}${index}`,
-            `${field.replace("guest", "")} is required`
-          );
+      let guestEmptyFields = [];
+
+      // Check required fields for each guest
+      requiredFields.forEach(({ key, label }) => {
+        if (!guest[key]) {
+          guestEmptyFields.push(label);
+          setErrors(`${key}${index}`, `${label} is required`);
           hasErrors = true;
         }
       });
+
+      // Check required address fields for each guest
+      if (!guest.sameAsApplicant) {
+        requiredAddressFields.forEach(({ key, label }) => {
+          if (!guest.guestAddress?.[key]) {
+            guestEmptyFields.push(`Address ${label}`);
+            setErrors(`guestAddress${key}${index}`, `${label} is required`);
+            hasErrors = true;
+          }
+        });
+      }
+
+      if (guestEmptyFields.length > 0) {
+        alert(
+          `Please fill in the following required fields for Guest ${
+            index + 1
+          }:\n${guestEmptyFields.join("\n")}`
+        );
+        setActiveTab(guestTabs[index]);
+        window.scrollTo({ top: 0, behavior: "smooth" });
+        return;
+      }
     });
 
     if (!hasErrors) {
       console.log("Guest Details Validation Successful");
       goToNextStep();
-    } else {
-      console.log("Guest Details Validation Failed:", errors);
-      // Move to the first guest with errors
-      const firstErrorIndex = formData.guests.findIndex((guest) =>
-        requiredFields.some((field) => !guest[field])
-      );
-      if (firstErrorIndex !== -1) {
-        setActiveTab(guestTabs[firstErrorIndex]);
-        window.scrollTo({ top: 0, behavior: "smooth" });
-      }
     }
   };
 
@@ -869,7 +885,7 @@ const GuestDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
                           index
                         );
                       }}
-                      placeholder="•••••••••��••"
+                      placeholder="••••••••••••"
                     />
                     {errors[`guestAadhaar${index}`] && (
                       <span className="error">

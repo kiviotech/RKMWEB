@@ -261,6 +261,7 @@ const ApplicationDetails = ({ goToNextStep, tabName }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
     let hasErrors = false;
+    let emptyFields = [];
     console.log("Form Submission Attempt - Current State:", formData);
 
     // Validate all fields
@@ -279,6 +280,7 @@ const ApplicationDetails = ({ goToNextStep, tabName }) => {
     // Check if any required field is empty
     fieldsToValidate.forEach((field) => {
       if (!formData[field]) {
+        emptyFields.push(field.charAt(0).toUpperCase() + field.slice(1));
         setErrors(
           field,
           `${field.charAt(0).toUpperCase() + field.slice(1)} is required`
@@ -294,6 +296,7 @@ const ApplicationDetails = ({ goToNextStep, tabName }) => {
     // Check if any required address field is empty
     addressFieldsToValidate.forEach((field) => {
       if (!formData.address[field]) {
+        emptyFields.push(field.charAt(0).toUpperCase() + field.slice(1));
         setErrors(
           field,
           `${field.charAt(0).toUpperCase() + field.slice(1)} is required`
@@ -303,6 +306,17 @@ const ApplicationDetails = ({ goToNextStep, tabName }) => {
         validateAddressField(field, formData.address[field]);
       }
     });
+
+    // Show alert if there are empty fields
+    if (emptyFields.length > 0) {
+      alert(
+        `Please fill in the following required fields:\n${emptyFields.join(
+          "\n"
+        )}`
+      );
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    }
 
     // Check for any validation errors
     Object.values(errors).forEach((error) => {

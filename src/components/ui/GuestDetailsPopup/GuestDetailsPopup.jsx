@@ -219,24 +219,9 @@ const GuestDetailsPopup = ({
             })()}
             buttonWidth="220px"
             style={{
-              backgroundColor: (() => {
-                const hasRoom = guestDetails.guests.some(
-                  (guest) => guest.room?.data?.attributes?.room_number
-                );
-                return hasRoom ? "#9867E9" : "#FFBDCB";
-              })(),
-              color: (() => {
-                const hasRoom = guestDetails.guests.some(
-                  (guest) => guest.room?.data?.attributes?.room_number
-                );
-                return hasRoom ? "#fff" : "#FC5275";
-              })(),
-              borderColor: (() => {
-                const hasRoom = guestDetails.guests.some(
-                  (guest) => guest.room?.data?.attributes?.room_number
-                );
-                return hasRoom ? "#9867E9" : "#FC5275";
-              })(),
+              backgroundColor: "#9867E9",
+              color: "#fff",
+              borderColor: "#9867E9",
               fontSize: "14px",
               borderRadius: "7px",
               borderWidth: 1,

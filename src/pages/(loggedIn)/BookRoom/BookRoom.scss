@@ -241,6 +241,7 @@
 
 .grid-container {
   max-width: 1300px;
+  background-color: #fff;
   width: calc(100% - 20px);
   height: 59vh;
   border: 2px solid #ccc;
@@ -671,6 +672,8 @@
 
 .room-list-view {
   padding: 20px;
+  background-color: #fff;
+  height: 100%;
 
   .room-category-header {
     font-size: 18px;

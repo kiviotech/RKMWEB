@@ -66,6 +66,15 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
   const handleInputChange = (e) => {
     const { name, value } = e.target;
 
+    // Add validation for knownToMath field
+    if (name === "knownToMath") {
+      // Only allow letters and spaces
+      if (/^[A-Za-z\s]*$/.test(value) || value === "") {
+        setVisitFormData(name, value);
+      }
+      return;
+    }
+
     setVisitFormData(name, value);
 
     if (name === "arrivalTime") {
@@ -364,6 +373,25 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
                 </select>
                 {errors.departureTime && (
                   <span className="error">{errors.departureTime}</span>
+                )}
+              </div>
+
+              <div className="form-group">
+                <label>
+                  Are you known to any of our Ramakrishna Math/Mission/Branch
+                  Centre/Monk(s)?
+                </label>
+                <input
+                  type="text"
+                  name="knownToMath"
+                  value={formData.knownToMath || ""}
+                  onChange={handleInputChange}
+                  placeholder="Enter details if applicable"
+                  pattern="[A-Za-z\s]*"
+                  title="Only letters and spaces are allowed"
+                />
+                {errors.knownToMath && (
+                  <span className="error">{errors.knownToMath}</span>
                 )}
               </div>
 

@@ -6,7 +6,10 @@ import {
   fetchGuestDetails,
   createNewGuestDetails,
 } from "../../../../services/src/services/guestDetailsService";
-import { createNewReceiptDetail } from "../../../../services/src/services/receiptDetailsService";
+import {
+  createNewReceiptDetail,
+  fetchUniqueNumbers,
+} from "../../../../services/src/services/receiptDetailsService";
 import {
   createNewDonation,
   fetchDonationsByField,
@@ -1783,6 +1786,45 @@ const NewDonation = () => {
       donorNameInputRef.current.focus();
     }
   }, []); // Empty dependency array means this runs once on mount
+
+  useEffect(() => {
+    const fetchNumbers = async () => {
+      try {
+        const uniqueNumbers = await fetchUniqueNumbers();
+        console.log("Unique Receipt Numbers:", uniqueNumbers);
+
+        // Filter MT and MSN receipts
+        const mtReceipts = uniqueNumbers.data.filter((receipt) =>
+          receipt.attributes.Receipt_number.startsWith("MT")
+        );
+        const msnReceipts = uniqueNumbers.data.filter((receipt) =>
+          receipt.attributes.Receipt_number.startsWith("MSN")
+        );
+
+        // Get highest unique numbers
+        const highestMT = mtReceipts.reduce((max, receipt) => {
+          const current = parseInt(
+            receipt.attributes.unique_no.replace("C", "")
+          );
+          return Math.max(max, current);
+        }, 0);
+
+        const highestMSN = msnReceipts.reduce((max, receipt) => {
+          const current = parseInt(
+            receipt.attributes.unique_no.replace("C", "")
+          );
+          return Math.max(max, current);
+        }, 0);
+
+        console.log("Highest MT unique_no:", `C${highestMT}`);
+        console.log("Highest MSN unique_no:", `C${highestMSN}`);
+      } catch (error) {
+        console.error("Error fetching unique numbers:", error);
+      }
+    };
+
+    fetchNumbers();
+  }, []); // Empty dependency array means this runs once when component mounts
 
   return (
     <div className="donations-container">

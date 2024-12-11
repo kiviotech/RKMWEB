@@ -38,3 +38,7 @@ export const getReceiptDetailsByDateRange = (startDate, endDate) =>
   apiClient.get(
     `${receiptDetailsEndpoints.getReceiptDetails}?startDate=${startDate}&endDate=${endDate}`
   );
+
+// Fetch unique numbers
+export const getUniqueNumbers = () =>
+  apiClient.get(receiptDetailsEndpoints.getUniqueNumbers);

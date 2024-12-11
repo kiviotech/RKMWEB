@@ -34,6 +34,24 @@ export const useDonationStore = create((set) => ({
   donations: {
     receipts: [],
   },
+  receiptNumbers: {
+    Math: 1,
+    Mission: 1,
+  },
+  getNextReceiptNumber: (type) =>
+    set((state) => ({
+      receiptNumbers: {
+        ...state.receiptNumbers,
+        [type]: state.receiptNumbers[type] + 1,
+      },
+    })),
+  setInitialReceiptNumbers: (mathNumber, missionNumber) =>
+    set({
+      receiptNumbers: {
+        Math: mathNumber,
+        Mission: missionNumber,
+      },
+    }),
   addDonation: (receipt) =>
     set((state) => {
       const currentReceipts = state.donations?.receipts || [];
@@ -43,8 +61,8 @@ export const useDonationStore = create((set) => ({
         ...receipt,
         donationDetails: {
           ...initialDonationDetails,
-          purpose: "", // Initialize empty purpose
-          donationType: "Others (Revenue)", // Set default donation type
+          purpose: "",
+          donationType: "Others (Revenue)",
         },
       };
 
@@ -67,24 +85,17 @@ export const useDonationStore = create((set) => ({
         );
 
         if (existingReceiptIndex >= 0) {
-          // Preserve existing donation details if they exist
-          const existingDonationDetails =
-            existingGroup[existingReceiptIndex].donationDetails ||
-            initialDonationDetails;
           existingGroup[existingReceiptIndex] = {
             ...receiptWithDetails,
             donationDetails: {
-              ...existingDonationDetails,
-              donationType:
-                existingDonationDetails.donationType || "Others (Revenue)", // Ensure default type
+              ...existingGroup[existingReceiptIndex].donationDetails,
+              donationType: "Others (Revenue)",
             },
           };
         } else {
-          // Add new receipt to group
           existingGroup.push(receiptWithDetails);
         }
       } else {
-        // Add new donor group
         newReceipts = [...currentReceipts, [receiptWithDetails]];
       }
 
@@ -125,12 +136,10 @@ export const useDonationStore = create((set) => ({
                     donationDetails: {
                       ...receipt.donationDetails,
                       ...details,
-                      // Ensure donationType remains 'Others (Revenue)' unless explicitly changed
                       donationType:
                         details.donationType ||
                         receipt.donationDetails?.donationType ||
                         "Others (Revenue)",
-                      // Preserve transaction details if they exist
                       transactionDetails: {
                         ...(receipt.donationDetails?.transactionDetails || {}),
                         ...(details.transactionDetails || {}),

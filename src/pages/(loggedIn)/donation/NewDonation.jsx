@@ -1002,35 +1002,38 @@ const NewDonation = () => {
                   <span class="date">Date: <b>${formattedDate}</b></span>
                 </div>
                 <div class="donor-details">
-                  <p>
+                  <p style="margin: 0 0 5px 0;">
                     Received with thanks from
                     <b>${donorDetails.title} ${donorDetails.name}</b>
                   </p>
-                  <p style="margin-left: 40px;">
-                    ${donorDetails.houseNumber || ""}${
+                  <div style="margin-left: 190px; font-weight: bold;">
+                    <p style="margin: 0 0 5px 0;">
+                      ${donorDetails.houseNumber || ""}${
         donorDetails.streetName ? `, ${donorDetails.streetName}` : ""
       }
-                  </p>
-                  <p style="margin-left: 40px;">
-                    ${
-                      donorDetails.postOffice
-                        ? `PO: ${donorDetails.postOffice}, `
-                        : ""
-                    }${
+                    </p>
+                    <p style="margin: 0 0 5px 0;">
+                      ${
+                        donorDetails.postOffice
+                          ? `PO: ${donorDetails.postOffice}, `
+                          : ""
+                      }${
         donorDetails.district ? `Dist: ${donorDetails.district}` : ""
       }
-                  </p>
-                  <p style="margin-left: 40px;">
-                    ${
-                      donorDetails.state ? `State: ${donorDetails.state}, ` : ""
-                    }${
+                    </p>
+                    <p style="margin: 0 0 5px 0;">
+                      ${
+                        donorDetails.state
+                          ? `State: ${donorDetails.state}, `
+                          : ""
+                      }${
         donorDetails.pincode ? `Pin: ${donorDetails.pincode}` : ""
       }
-                  </p>
-                  ${
-                    donorDetails.identityNumber
-                      ? `
-                    <p style="margin-left: 40px;">
+                    </p>
+                    ${
+                      donorDetails.identityNumber
+                        ? `
+                    <p style="margin: 0 0 5px 0;">
                       ${
                         donorDetails.identityType === "PAN"
                           ? `PAN: ${donorDetails.identityNumber}`
@@ -1038,8 +1041,9 @@ const NewDonation = () => {
                       }
                       </p>
                   `
-                      : ""
-                  }
+                        : ""
+                    }
+                  </div>
                 </div>
                 <div class="payment-details">
                   <p>The sum of Rupees <b>${numberToWords(

@@ -111,6 +111,18 @@ const GuestDetailsPopup = ({
     setShowRejectionEmail(false);
   };
 
+  const formatDate = (dateString) => {
+    if (!dateString) return "N/A";
+    const date = new Date(dateString);
+    return date
+      .toLocaleDateString("en-GB", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+      })
+      .replace(/\//g, "-");
+  };
+
   if (showRejectionEmail) {
     return (
       <RejectionEmailPopup
@@ -209,25 +221,33 @@ const GuestDetailsPopup = ({
                     <div className="info-item">
                       <span className="label">Age</span>
                       <span className="value">
-                        {guestDetails?.userDetails?.age || "N/A"}
+                        <strong>
+                          {guestDetails?.userDetails?.age || "N/A"}
+                        </strong>
                       </span>
                     </div>
                     <div className="info-item">
                       <span className="label">Gender</span>
                       <span className="value">
-                        {guestDetails?.userDetails?.gender || "N/A"}
+                        <strong>
+                          {guestDetails?.userDetails?.gender || "N/A"}
+                        </strong>
                       </span>
                     </div>
                     <div className="info-item">
                       <img src={icons.Email} alt="email" className="icon" />
                       <span className="value">
-                        {guestDetails?.userDetails?.email || "N/A"}
+                        <strong>
+                          {guestDetails?.userDetails?.email || "N/A"}
+                        </strong>
                       </span>
                     </div>
                     <div className="info-item">
                       <img src={icons.Contact} alt="phone" className="icon" />
                       <span className="value">
-                        {guestDetails?.userDetails?.mobile || "N/A"}
+                        <strong>
+                          {guestDetails?.userDetails?.mobile || "N/A"}
+                        </strong>
                       </span>
                     </div>
                   </div>
@@ -235,13 +255,17 @@ const GuestDetailsPopup = ({
                     <div className="info-item">
                       <span className="label">Occupation</span>
                       <span className="value">
-                        {guestDetails?.userDetails?.occupation || "N/A"}
+                        <strong>
+                          {guestDetails?.userDetails?.occupation || "N/A"}
+                        </strong>
                       </span>
                     </div>
                     <div className="info-item">
                       <span className="label">Initiation by</span>
                       <span className="value">
-                        {guestDetails?.userDetails?.deeksha || "N/A"}
+                        <strong>
+                          {guestDetails?.userDetails?.deeksha || "N/A"}
+                        </strong>
                       </span>
                     </div>
                     {/* <div className="info-item">
@@ -263,21 +287,23 @@ const GuestDetailsPopup = ({
                 <div className="stay-info">
                   <div className="duration">
                     <span className="label">Stay Duration:- </span>
-                    <span className="value">{stayDuration || "N/A"} days</span>
+                    <span className="value">
+                      <strong>{stayDuration || "N/A"} days</strong>
+                    </span>
                   </div>
                   <div className="dates">
                     <div className="date-row">
                       <img src={icons.Calendar} alt="calendar" />
                       <span className="date-label">Arrival Date:</span>
                       <span className="date-value">
-                        {guestDetails?.userDetails?.arrivalDate || "N/A"}
+                        {formatDate(guestDetails?.userDetails?.arrivalDate)}
                       </span>
                     </div>
                     <div className="date-row">
                       <img src={icons.Calendar} alt="calendar" />
                       <span className="date-label">Departure Date:</span>
                       <span className="date-value">
-                        {guestDetails?.userDetails?.departureDate || "N/A"}
+                        {formatDate(guestDetails?.userDetails?.departureDate)}
                       </span>
                     </div>
                   </div>

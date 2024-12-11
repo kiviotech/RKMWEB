@@ -4,15 +4,25 @@ import filledBedImage from "../../../assets/icons/filledBedImage.jpeg";
 import emptyBedImage from "../../../assets/icons/emptyBedImage.jpeg";
 import hoverImage from "../../../assets/icons/hoverImage.jpeg";
 import selectedImage from "../../../assets/icons/selectedImage.jpeg";
-import { fetchRooms, updateRoomById } from "../../../../services/src/services/roomService";
-import { useLocation, useNavigate } from 'react-router-dom';
-import { BsListUl } from 'react-icons/bs';
+import {
+  fetchRooms,
+  updateRoomById,
+} from "../../../../services/src/services/roomService";
+import { useLocation, useNavigate } from "react-router-dom";
+import { BsListUl } from "react-icons/bs";
 import { IoGrid } from "react-icons/io5";
 import { updateBookingRequestById } from "../../../../services/src/services/bookingRequestService";
 
 // Add these new components at the top of the file
-const AllocatedGuestsTable = ({ guests, onConfirmAllocation, roomsData, hasUnallocatedGuests, onReset }) => {
-  const allocatedGuests = guests?.filter(guest => guest.roomNo && guest.roomNo !== "-") || [];
+const AllocatedGuestsTable = ({
+  guests,
+  onConfirmAllocation,
+  roomsData,
+  hasUnallocatedGuests,
+  onReset,
+}) => {
+  const allocatedGuests =
+    guests?.filter((guest) => guest.roomNo && guest.roomNo !== "-") || [];
 
   // Group guests by room number
   const guestsByRoom = allocatedGuests.reduce((acc, guest) => {
@@ -28,7 +38,7 @@ const AllocatedGuestsTable = ({ guests, onConfirmAllocation, roomsData, hasUnall
       alert("Please allocate all guests before confirming");
       return;
     }
-    
+
     if (onConfirmAllocation) {
       onConfirmAllocation(allocatedGuests);
     }
@@ -61,14 +71,17 @@ const AllocatedGuestsTable = ({ guests, onConfirmAllocation, roomsData, hasUnall
               ))}
             </tbody>
           </table>
-          <div style={{ display: 'flex', justifyContent: 'flex-start', marginTop: '10px' }}>
-            <button 
-              className="confirm-button"
-              onClick={handleConfirm}
-            >
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "flex-start",
+              marginTop: "10px",
+            }}
+          >
+            <button className="confirm-button" onClick={handleConfirm}>
               Confirm Allocation
             </button>
-            <button 
+            <button
               className="reset-button"
               onClick={onReset}
               disabled={allocatedGuests.length === 0}
@@ -84,7 +97,12 @@ const AllocatedGuestsTable = ({ guests, onConfirmAllocation, roomsData, hasUnall
   );
 };
 
-const NonAllocatedGuestsTable = ({ guests, onSelect, selectedGuests, guestData }) => {
+const NonAllocatedGuestsTable = ({
+  guests,
+  onSelect,
+  selectedGuests,
+  guestData,
+}) => {
   if (!guests || guests.length === 0) {
     return (
       <div className="guests-table">
@@ -95,7 +113,7 @@ const NonAllocatedGuestsTable = ({ guests, onSelect, selectedGuests, guestData }
   }
 
   const findOriginalIndex = (guest) => {
-    return guestData.additionalGuests.findIndex(g => g.name === guest.name);
+    return guestData.additionalGuests.findIndex((g) => g.name === guest.name);
   };
 
   return (
@@ -148,7 +166,7 @@ const AvailabilityBox = ({ availableBeds }) => (
 const formatDate = (dateString) => {
   const date = new Date(dateString);
   const day = date.getDate();
-  const month = date.toLocaleString('default', { month: 'short' });
+  const month = date.toLocaleString("default", { month: "short" });
   const year = date.getFullYear();
   return `${day}${month} ${year}`;
 };
@@ -169,13 +187,13 @@ const BedDetailsPanel = ({ bedData }) => {
               <h3>Mr. {guest.attributes.name}</h3>
               <span className="room-number">{room.room_number}</span>
             </div>
-            
+
             <div className="guest-details-grid">
               <div className="detail-row">
                 <span className="label">Age :</span>
                 <span className="value">{guest.attributes.age}</span>
               </div>
-              
+
               <div className="detail-row">
                 <span className="label">Ph. No. :</span>
                 <span className="value">{guest.attributes.phone_number}</span>
@@ -211,69 +229,83 @@ const BedDetailsPanel = ({ bedData }) => {
 
 // Add this new component for the list view
 const RoomListView = ({ rooms, activeTab, onRoomSelect, selectedGuests }) => {
-  const getCategoryDetails = () => {
-    switch (activeTab) {
-      case "Guest house":
-        return {
-          text: "Guest House",
-          color: "#7ACD06"
-        };
-      case "F":
-        return {
-          text: "Peerless Flat",
-          color: "#F2930D"
-        };
+  // Group rooms by category
+  const roomsByCategory = rooms.reduce((acc, room) => {
+    const category = room.category?.toLowerCase() || "";
+    let normalizedCategory;
+
+    if (category.includes("guest")) {
+      normalizedCategory = "Guest House";
+    } else if (category === "f") {
+      normalizedCategory = "Peerless Flat";
+    } else if (category.includes("yatri")) {
+      normalizedCategory = "Yatri Niwas";
+    } else {
+      normalizedCategory = "Other";
+    }
+
+    if (!acc[normalizedCategory]) {
+      acc[normalizedCategory] = [];
+    }
+    acc[normalizedCategory].push(room);
+    return acc;
+  }, {});
+
+  const getCategoryColor = (category) => {
+    switch (category) {
+      case "Guest House":
+        return "#7ACD06";
+      case "Peerless Flat":
+        return "#F2930D";
       case "Yatri Niwas":
-        return {
-          text: "Yatri Niwas",
-          color: "#FF4B4B"  // You can adjust this color as needed
-        };
+        return "#FF4B4B";
       default:
-        return {
-          text: "",
-          color: "#000000"
-        };
+        return "#000000";
     }
   };
 
-  const { text, color } = getCategoryDetails();
-
   return (
     <div className="room-list-view">
-      <div className="room-category-header" style={{ color }}>
-        {text}
-      </div>
-      <div className="room-list-grid">
-        {rooms.map((room, index) => {
-          const canAllocate = room.availableBeds > 0;
-          const selectedGuestsCount = selectedGuests?.filter(Boolean).length || 0;
-          const isDisabled = !canAllocate || selectedGuestsCount === 0;
+      {Object.entries(roomsByCategory).map(([category, categoryRooms]) => (
+        <div key={category} className="category-section">
+          <div
+            className="room-category-header"
+            style={{ color: getCategoryColor(category) }}
+          >
+            {category}
+          </div>
+          <div className="room-list-grid">
+            {categoryRooms.map((room, index) => {
+              const canAllocate = room.availableBeds > 0;
+              const selectedGuestsCount =
+                selectedGuests?.filter(Boolean).length || 0;
+              const isDisabled = !canAllocate || selectedGuestsCount === 0;
 
-          return (
-            <div 
-              key={index} 
-              className={`room-list-item ${isDisabled ? 'disabled' : ''}`}
-              onClick={() => {
-                if (isDisabled) {
-                  if (!canAllocate) {
-                    alert("This room has no available beds");
-                  } else if (selectedGuestsCount === 0) {
-                    alert("Please select guests to allocate");
-                  }
-                  return;
-                }
-                onRoomSelect(room);
-              }}
-              style={{ cursor: isDisabled ? 'not-allowed' : 'pointer' }}
-            >
-              <div className="room-number">{room.name}</div>
-              <div className="available-count">
-                {room.availableBeds}
-              </div>
-            </div>
-          );
-        })}
-      </div>
+              return (
+                <div
+                  key={index}
+                  className={`room-list-item ${isDisabled ? "disabled" : ""}`}
+                  onClick={() => {
+                    if (isDisabled) {
+                      if (!canAllocate) {
+                        alert("This room has no available beds");
+                      } else if (selectedGuestsCount === 0) {
+                        alert("Please select guests to allocate");
+                      }
+                      return;
+                    }
+                    onRoomSelect(room);
+                  }}
+                  style={{ cursor: isDisabled ? "not-allowed" : "pointer" }}
+                >
+                  <div className="room-number">{room.name}</div>
+                  <div className="available-count">{room.availableBeds}</div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      ))}
     </div>
   );
 };
@@ -290,15 +322,20 @@ const CustomModal = ({ isOpen, onClose, children }) => {
 
   return (
     <div className="modal-backdrop" onClick={handleBackdropClick}>
-      <div className="modal-content">
-        {children}
-      </div>
+      <div className="modal-content">{children}</div>
     </div>
   );
 };
 
 // Update the email modal component
-const ConfirmationEmailModal = ({ isOpen, onClose, guestData, arrivalDate, departureDate, onSend }) => {
+const ConfirmationEmailModal = ({
+  isOpen,
+  onClose,
+  guestData,
+  arrivalDate,
+  departureDate,
+  onSend,
+}) => {
   const navigate = useNavigate();
   const [emailContent, setEmailContent] = useState(`Dear Devotee,
 
@@ -319,7 +356,7 @@ Adhyaksha
 RAMAKRISHNA MATH & RAMAKRISHNA MISSION, KAMANKUNUR`);
 
   useEffect(() => {
-    setEmailContent(prevContent => {
+    setEmailContent((prevContent) => {
       return prevContent.replace(
         /arrival - .* and departure - .*/,
         `arrival - ${arrivalDate} and departure - ${departureDate}`
@@ -332,10 +369,10 @@ RAMAKRISHNA MATH & RAMAKRISHNA MISSION, KAMANKUNUR`);
       // Call the onSend prop function and wait for it to complete
       await onSend();
       onClose();
-      navigate('/Requests');
+      navigate("/Requests");
     } catch (error) {
-      console.error('Error sending email:', error);
-      alert('Failed to send email and allocate rooms. Please try again.');
+      console.error("Error sending email:", error);
+      alert("Failed to send email and allocate rooms. Please try again.");
     }
   };
 
@@ -343,7 +380,9 @@ RAMAKRISHNA MATH & RAMAKRISHNA MISSION, KAMANKUNUR`);
     <CustomModal isOpen={isOpen} onClose={onClose}>
       <div className="email-template">
         <div className="email-header">
-          <span className="close-button" onClick={onClose}>×</span>
+          <span className="close-button" onClick={onClose}>
+            ×
+          </span>
           <div className="email-fields">
             <div className="field">
               <span>From:</span>
@@ -362,7 +401,7 @@ RAMAKRISHNA MATH & RAMAKRISHNA MISSION, KAMANKUNUR`);
             </div>
           </div>
         </div>
-        
+
         <div className="email-content">
           <textarea
             value={emailContent}
@@ -372,8 +411,12 @@ RAMAKRISHNA MATH & RAMAKRISHNA MISSION, KAMANKUNUR`);
         </div>
 
         <div className="email-footer">
-          <button onClick={onClose} className="cancel-button">Cancel</button>
-          <button onClick={handleSend} className="send-button">Send</button>
+          <button onClick={onClose} className="cancel-button">
+            Cancel
+          </button>
+          <button onClick={handleSend} className="send-button">
+            Send
+          </button>
         </div>
       </div>
     </CustomModal>
@@ -395,8 +438,8 @@ const BookRoom = () => {
   const [sortType, setSortType] = useState(""); // State to store the selected room type
   const [clickedBeds, setClickedBeds] = useState({
     "Guest house": {},
-    "F": {},
-    "Yatri Niwas": {}
+    F: {},
+    "Yatri Niwas": {},
   });
   const [hoveredBeds, setHoveredBeds] = useState({});
   const [isLoading, setIsLoading] = useState(false);
@@ -410,15 +453,20 @@ const BookRoom = () => {
   const [selectedBedData, setSelectedBedData] = useState(null);
   const [isToggled, setIsToggled] = useState(false);
   const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
-  const [confirmedGuestsForAllocation, setConfirmedGuestsForAllocation] = useState([]);
+  const [confirmedGuestsForAllocation, setConfirmedGuestsForAllocation] =
+    useState([]);
 
   useEffect(() => {
     if (guestData) {
       if (guestData.arrivalDate) {
-        setArrivalDate(new Date(guestData.arrivalDate).toISOString().split('T')[0]);
+        setArrivalDate(
+          new Date(guestData.arrivalDate).toISOString().split("T")[0]
+        );
       }
       if (guestData.departureDate) {
-        setDepartureDate(new Date(guestData.departureDate).toISOString().split('T')[0]);
+        setDepartureDate(
+          new Date(guestData.departureDate).toISOString().split("T")[0]
+        );
       }
     }
   }, [guestData]);
@@ -427,7 +475,9 @@ const BookRoom = () => {
   useEffect(() => {
     if (guestData?.additionalGuests) {
       // Initialize all guests as selected (true)
-      setSelectedGuests(new Array(guestData.additionalGuests.length).fill(true));
+      setSelectedGuests(
+        new Array(guestData.additionalGuests.length).fill(true)
+      );
     }
   }, [guestData]);
 
@@ -459,7 +509,7 @@ const BookRoom = () => {
 
     const newClickedBeds = {
       ...clickedBeds,
-      [activeTab]: {}
+      [activeTab]: {},
     };
 
     let bedsNeeded = selectedGuestCount;
@@ -467,11 +517,17 @@ const BookRoom = () => {
     let roomAssignments = [];
 
     // Modified logic for F category
-    if (activeTab === 'F') {
+    if (activeTab === "F") {
       // Find rooms with available beds
-      const availableRooms = filteredRooms.filter(room => room.availableBeds > 0);
-      
-      for (let roomIndex = 0; roomIndex < filteredRooms.length && bedsNeeded > 0; roomIndex++) {
+      const availableRooms = filteredRooms.filter(
+        (room) => room.availableBeds > 0
+      );
+
+      for (
+        let roomIndex = 0;
+        roomIndex < filteredRooms.length && bedsNeeded > 0;
+        roomIndex++
+      ) {
         const room = filteredRooms[roomIndex];
         const availableBeds = room.availableBeds;
         const totalBeds = room.beds;
@@ -479,7 +535,7 @@ const BookRoom = () => {
 
         // Calculate how many beds we can allocate in this room
         const bedsToAllocateInThisRoom = Math.min(availableBeds, bedsNeeded);
-        
+
         // Allocate beds in this room
         for (let i = 0; i < bedsToAllocateInThisRoom; i++) {
           const bedIndex = filledBedCount + i;
@@ -492,14 +548,18 @@ const BookRoom = () => {
       }
     } else {
       // Existing logic for other categories
-      for (let roomIndex = 0; roomIndex < filteredRooms.length && bedsNeeded > 0; roomIndex++) {
+      for (
+        let roomIndex = 0;
+        roomIndex < filteredRooms.length && bedsNeeded > 0;
+        roomIndex++
+      ) {
         const room = roomsData[roomIndex];
         const availableBeds = room?.attributes?.available_beds ?? 0;
         const totalBeds = room?.attributes?.beds ?? 0;
         const filledBedCount = totalBeds - availableBeds;
 
         const bedsToAllocateInThisRoom = Math.min(availableBeds, bedsNeeded);
-        
+
         for (let i = 0; i < bedsToAllocateInThisRoom; i++) {
           const bedIndex = filledBedCount + i;
           selectedBeds.push({ roomIndex, bedIndex });
@@ -530,17 +590,25 @@ const BookRoom = () => {
 
     setClickedBeds(newClickedBeds);
 
-    const selectedGuestsList = guestData.additionalGuests.filter((_, index) => selectedGuests[index]);
+    const selectedGuestsList = guestData.additionalGuests.filter(
+      (_, index) => selectedGuests[index]
+    );
     const newAllocatedGuests = selectedGuestsList.map((guest, index) => ({
       ...guest,
-      roomNo: roomAssignments[index]
+      roomNo: roomAssignments[index],
     }));
 
-    setAllocatedGuestsList(prev => [...prev, ...newAllocatedGuests]);
-    setSelectedGuests(prev => prev.map((isSelected) => false));
+    setAllocatedGuestsList((prev) => [...prev, ...newAllocatedGuests]);
+    setSelectedGuests((prev) => prev.map((isSelected) => false));
   };
 
-  const handleBedAllocation = (bedIndex, bedId, isFilled, roomIndex, dateIndex) => {
+  const handleBedAllocation = (
+    bedIndex,
+    bedId,
+    isFilled,
+    roomIndex,
+    dateIndex
+  ) => {
     if (isFilled) return;
 
     const isCurrentlySelected = clickedBeds[activeTab]?.[bedId];
@@ -551,7 +619,10 @@ const BookRoom = () => {
       const newClickedBeds = { ...clickedBeds };
       dates.forEach((dateStr, idx) => {
         const currentDate = new Date(dateStr);
-        if (currentDate >= arrivalDateTime && currentDate <= departureDateTime) {
+        if (
+          currentDate >= arrivalDateTime &&
+          currentDate <= departureDateTime
+        ) {
           const dateBedId = `${roomIndex}-${idx}-${bedIndex}`;
           if (newClickedBeds[activeTab]) {
             delete newClickedBeds[activeTab][dateBedId];
@@ -562,31 +633,37 @@ const BookRoom = () => {
       setClickedBeds(newClickedBeds);
 
       const currentRoom = filteredRooms[roomIndex];
-      const guestToRemove = allocatedGuestsList.find(guest => guest.roomNo === currentRoom.name);
+      const guestToRemove = allocatedGuestsList.find(
+        (guest) => guest.roomNo === currentRoom.name
+      );
 
       if (guestToRemove) {
-        const originalGuestIndex = guestData.additionalGuests.findIndex(g => g.name === guestToRemove.name);
-        
+        const originalGuestIndex = guestData.additionalGuests.findIndex(
+          (g) => g.name === guestToRemove.name
+        );
+
         if (originalGuestIndex !== -1) {
-          setSelectedGuests(prev => {
+          setSelectedGuests((prev) => {
             const newSelected = [...prev];
             newSelected[originalGuestIndex] = true;
             return newSelected;
           });
         }
 
-        setAllocatedGuestsList(prev => prev.filter(guest => guest !== guestToRemove));
+        setAllocatedGuestsList((prev) =>
+          prev.filter((guest) => guest !== guestToRemove)
+        );
       }
 
-      setRoomsData(prevRooms => 
-        prevRooms.map(r => {
+      setRoomsData((prevRooms) =>
+        prevRooms.map((r) => {
           if (r.attributes.room_number === currentRoom.name) {
             return {
               ...r,
               attributes: {
                 ...r.attributes,
-                available_beds: parseInt(r.attributes.available_beds) + 1
-              }
+                available_beds: parseInt(r.attributes.available_beds) + 1,
+              },
             };
           }
           return r;
@@ -597,9 +674,10 @@ const BookRoom = () => {
       return;
     }
 
-    const selectedUnallocatedGuest = guestData?.additionalGuests?.find((guest, index) => 
-      selectedGuests[index] && 
-      !allocatedGuestsList.some(allocated => allocated.name === guest.name)
+    const selectedUnallocatedGuest = guestData?.additionalGuests?.find(
+      (guest, index) =>
+        selectedGuests[index] &&
+        !allocatedGuestsList.some((allocated) => allocated.name === guest.name)
     );
 
     if (!selectedUnallocatedGuest) {
@@ -610,14 +688,16 @@ const BookRoom = () => {
     const currentRoom = filteredRooms[roomIndex];
     const newAllocatedGuest = {
       ...selectedUnallocatedGuest,
-      roomNo: currentRoom.name
+      roomNo: currentRoom.name,
     };
 
-    setAllocatedGuestsList(prev => [...prev, newAllocatedGuest]);
+    setAllocatedGuestsList((prev) => [...prev, newAllocatedGuest]);
 
-    const guestIndex = guestData.additionalGuests.findIndex(g => g.name === selectedUnallocatedGuest.name);
+    const guestIndex = guestData.additionalGuests.findIndex(
+      (g) => g.name === selectedUnallocatedGuest.name
+    );
     if (guestIndex !== -1) {
-      setSelectedGuests(prev => {
+      setSelectedGuests((prev) => {
         const newSelected = [...prev];
         newSelected[guestIndex] = false;
         return newSelected;
@@ -635,38 +715,38 @@ const BookRoom = () => {
         newClickedBeds[activeTab][dateBedId] = true;
       }
     });
-    
+
     setClickedBeds(newClickedBeds);
 
     const bedData = {
       bed: {
         index: bedIndex,
         id: bedId,
-        status: 'selected',
-        date: dates[dateIndex]
+        status: "selected",
+        date: dates[dateIndex],
       },
       room: {
         ...currentRoom,
-        guests: [newAllocatedGuest]
-      }
+        guests: [newAllocatedGuest],
+      },
     };
     setSelectedBedData(bedData);
   };
 
   const getBeds = (beds, roomIndex, dateIndex) => {
     const currentRoom = filteredRooms[roomIndex];
-    const originalRoomData = roomsData.find(r => r.id === currentRoom.id);
+    const originalRoomData = roomsData.find((r) => r.id === currentRoom.id);
     const currentDate = dates[dateIndex];
 
     // Get all guests for this room
     const roomGuests = originalRoomData?.attributes?.guests?.data || [];
-    
+
     // Calculate occupied beds for the current date
     const occupiedBedsCount = roomGuests.reduce((count, guest) => {
       const arrivalDate = new Date(guest.attributes.arrival_date);
       const departureDate = new Date(guest.attributes.departure_date);
       const currentDateTime = new Date(currentDate);
-      
+
       if (currentDateTime >= arrivalDate && currentDateTime <= departureDate) {
         return count + 1;
       }
@@ -704,40 +784,48 @@ const BookRoom = () => {
                 date: currentDate,
                 isOccupied: true,
                 rawAttributes: originalRoomData?.attributes || {},
-                guests: roomGuests
+                guests: roomGuests,
               };
-              console.log('Occupied Bed Data:', roomData);
+              console.log("Occupied Bed Data:", roomData);
 
               const bedData = {
                 bed: {
                   index: bedIndex,
                   id: bedId,
-                  status: 'occupied',
-                  date: currentDate
+                  status: "occupied",
+                  date: currentDate,
                 },
-                room: originalRoomData
+                room: originalRoomData,
               };
               setSelectedBedData(bedData);
             } else {
               // For unoccupied beds, call the original allocation logic
-              handleBedAllocation(bedIndex, bedId, isFilled, roomIndex, dateIndex);
+              handleBedAllocation(
+                bedIndex,
+                bedId,
+                isFilled,
+                roomIndex,
+                dateIndex
+              );
             }
           };
 
           return (
             <div
               key={bedId}
-              className={`bed-icon ${isFilled ? 'filled' : 'empty'}`}
+              className={`bed-icon ${isFilled ? "filled" : "empty"}`}
               title={isFilled ? "Occupied" : "Available"}
               onClick={handleBedClick}
               onMouseEnter={() => !isFilled && handleMouseEnter(bedId)}
               onMouseLeave={() => !isFilled && handleMouseLeave(bedId)}
-              style={{ cursor: 'pointer' }}
+              style={{ cursor: "pointer" }}
             >
               <img
                 src={bedImage}
                 alt="bed"
-                className={`bed-img ${!isFilled && isClicked ? "clicked-img" : ""}`}
+                className={`bed-img ${
+                  !isFilled && isClicked ? "clicked-img" : ""
+                }`}
               />
             </div>
           );
@@ -798,7 +886,7 @@ const BookRoom = () => {
       for (let i = 0; i < 180; i++) {
         const date = new Date(startDate);
         date.setDate(startDate.getDate() + i);
-        initialDates.push(date.toISOString().split('T')[0]);
+        initialDates.push(date.toISOString().split("T")[0]);
       }
       setDates(initialDates);
     };
@@ -831,12 +919,12 @@ const BookRoom = () => {
     const getRooms = async () => {
       try {
         const response = await fetchRooms();
-        const processedRooms = response.data.map(room => ({
+        const processedRooms = response.data.map((room) => ({
           ...room,
           attributes: {
             ...room.attributes,
-            original_available_beds: parseInt(room.attributes.available_beds)
-          }
+            original_available_beds: parseInt(room.attributes.available_beds),
+          },
         }));
         setRoomsData(processedRooms);
         setOriginalRoomData(processedRooms); // Store original data
@@ -851,22 +939,33 @@ const BookRoom = () => {
   // Update the filteredRooms logic
   const filteredRooms = roomsData
     .filter((room) => {
+      if (isToggled) {
+        // When in list view, show all rooms
+        return true;
+      }
+
       // Normalize room category for comparison
-      const roomCategory = (room.attributes?.room_category || '').trim().toLowerCase();
+      const roomCategory = (room.attributes?.room_category || "")
+        .trim()
+        .toLowerCase();
       const activeTabLower = activeTab.toLowerCase();
 
       // Special handling for F category
-      if (activeTabLower === 'f') {
-        return roomCategory === 'f';
+      if (activeTabLower === "f") {
+        return roomCategory === "f";
       }
 
       // Handle other categories
-      if (activeTabLower === 'guest house') {
-        return ['guesthouse', 'guest house', 'guest-house'].includes(roomCategory);
+      if (activeTabLower === "guest house") {
+        return ["guesthouse", "guest house", "guest-house"].includes(
+          roomCategory
+        );
       }
 
-      if (activeTabLower === 'yatri niwas') {
-        return ['yatriniwas', 'yatri niwas', 'yatri-niwas', 'yatri'].includes(roomCategory);
+      if (activeTabLower === "yatri niwas") {
+        return ["yatriniwas", "yatri niwas", "yatri-niwas", "yatri"].includes(
+          roomCategory
+        );
       }
 
       return false;
@@ -882,14 +981,14 @@ const BookRoom = () => {
       type: room.attributes.room_type,
       category: room.attributes.room_category,
       id: room.id,
-      // Add raw attributes for reference
-      rawAttributes: room.attributes
+      rawAttributes: room.attributes,
     }));
 
   const handleRoomSelection = (room) => {
-    const unallocatedGuests = guestData.additionalGuests.filter((guest, index) => 
-      selectedGuests[index] && 
-      !allocatedGuestsList.some(allocated => allocated.name === guest.name)
+    const unallocatedGuests = guestData.additionalGuests.filter(
+      (guest, index) =>
+        selectedGuests[index] &&
+        !allocatedGuestsList.some((allocated) => allocated.name === guest.name)
     );
 
     const selectedUnallocatedGuest = unallocatedGuests[0];
@@ -901,28 +1000,30 @@ const BookRoom = () => {
 
     const newAllocatedGuest = {
       ...selectedUnallocatedGuest,
-      roomNo: room.name
+      roomNo: room.name,
     };
 
-    setAllocatedGuestsList(prev => [...prev, newAllocatedGuest]);
+    setAllocatedGuestsList((prev) => [...prev, newAllocatedGuest]);
 
     const newSelectedGuests = [...selectedGuests];
-    const guestIndex = guestData.additionalGuests.findIndex(g => g.name === selectedUnallocatedGuest.name);
+    const guestIndex = guestData.additionalGuests.findIndex(
+      (g) => g.name === selectedUnallocatedGuest.name
+    );
     if (guestIndex !== -1) {
       newSelectedGuests[guestIndex] = false;
     }
     setSelectedGuests(newSelectedGuests);
 
     // Update room's available beds
-    setRoomsData(prevRooms => 
-      prevRooms.map(r => {
+    setRoomsData((prevRooms) =>
+      prevRooms.map((r) => {
         if (r.attributes.room_number === room.name) {
           return {
             ...r,
             attributes: {
               ...r.attributes,
-              available_beds: parseInt(r.attributes.available_beds) - 1
-            }
+              available_beds: parseInt(r.attributes.available_beds) - 1,
+            },
           };
         }
         return r;
@@ -935,9 +1036,9 @@ const BookRoom = () => {
     return (
       <div className="grid-container" onScroll={handleScroll}>
         {isToggled ? (
-          <RoomListView 
-            rooms={filteredRooms} 
-            activeTab={activeTab} 
+          <RoomListView
+            rooms={filteredRooms}
+            activeTab={activeTab}
             onRoomSelect={handleRoomSelection}
             selectedGuests={selectedGuests}
           />
@@ -972,17 +1073,17 @@ const BookRoom = () => {
                     totalBeds: room.beds,
                     availableBeds: room.availableBeds,
                     roomId: room.id,
-                    rawData: roomsData[roomIndex]?.attributes || {}
+                    rawData: roomsData[roomIndex]?.attributes || {},
                   };
-                  console.log('Room Data:', roomData);
+                  console.log("Room Data:", roomData);
                 };
 
                 return (
                   <div key={roomIndex} className="grid-row">
-                    <div 
+                    <div
                       className="room-cell"
                       onClick={handleRoomClick}
-                      style={{ cursor: 'pointer' }}
+                      style={{ cursor: "pointer" }}
                     >
                       {room.name}
                     </div>
@@ -1031,33 +1132,36 @@ const BookRoom = () => {
 
       // Process each room allocation
       for (const [roomNo, guests] of Object.entries(guestsByRoom)) {
-        const room = roomsData.find(r => r.attributes.room_number === roomNo);
+        const room = roomsData.find((r) => r.attributes.room_number === roomNo);
         if (!room) continue;
 
         const currentRoomResponse = await fetchRooms();
-        const currentRoom = currentRoomResponse.data.find(r => r.id === room.id);
-        
+        const currentRoom = currentRoomResponse.data.find(
+          (r) => r.id === room.id
+        );
+
         if (!currentRoom) {
           throw new Error(`Room with ID ${room.id} not found`);
         }
 
-        const currentAvailableBeds = parseInt(currentRoom.attributes.available_beds) || 0;
+        const currentAvailableBeds =
+          parseInt(currentRoom.attributes.available_beds) || 0;
         const newAvailableBeds = currentAvailableBeds - guests.length;
 
         const guestConnections = guests
-          .filter(guest => guest.id)
-          .map(guest => ({
+          .filter((guest) => guest.id)
+          .map((guest) => ({
             id: guest.id,
-            type: "guest"
+            type: "guest",
           }));
 
         const updateData = {
           data: {
             available_beds: newAvailableBeds,
             guests: {
-              connect: guestConnections.map(guest => guest.id)
-            }
-          }
+              connect: guestConnections.map((guest) => guest.id),
+            },
+          },
         };
 
         await updateRoomById(room.id, updateData);
@@ -1068,8 +1172,8 @@ const BookRoom = () => {
       if (bookingRequestId) {
         const bookingUpdateData = {
           data: {
-            status: "confirmed"
-          }
+            status: "confirmed",
+          },
         };
         await updateBookingRequestById(bookingRequestId, bookingUpdateData);
       }
@@ -1087,22 +1191,24 @@ const BookRoom = () => {
   const handleReset = () => {
     // Reset rooms to original state
     setRoomsData(originalRoomData);
-    
+
     // Reset all allocations
     setAllocatedGuestsList([]);
-    
+
     // Reset all bed selections
     setClickedBeds({
       "Guest house": {},
-      "F": {},
-      "Yatri Niwas": {}
+      F: {},
+      "Yatri Niwas": {},
     });
-    
+
     // Reset all guests to selected
     if (guestData?.additionalGuests) {
-      setSelectedGuests(new Array(guestData.additionalGuests.length).fill(true));
+      setSelectedGuests(
+        new Array(guestData.additionalGuests.length).fill(true)
+      );
     }
-    
+
     // Reset bed data
     setSelectedBedData(null);
   };
@@ -1111,47 +1217,50 @@ const BookRoom = () => {
     <div className="attithi-booking-wrapper">
       <div className="booking-header-panel">
         <div className="booking-controls-group">
-          <div className="booking-tab-group">
-            {["Guest house", "F", "Yatri Niwas"].map((tab) => (
-              <button
-                key={tab}
-                className={`tab ${activeTab === tab ? "active" : ""}`}
-                onClick={() => setActiveTab(tab)}
-              >
-                {tab}
-              </button>
-            ))}
-          </div>
+          {isToggled ? (
+            <h2 className="room-allocation-heading">Room Allocation</h2>
+          ) : (
+            <div className="booking-tab-group">
+              {["Guest house", "F", "Yatri Niwas"].map((tab) => (
+                <button
+                  key={tab}
+                  className={`tab ${activeTab === tab ? "active" : ""}`}
+                  onClick={() => setActiveTab(tab)}
+                >
+                  {tab}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
-
 
         <div className="booking-date-panel">
-        <div className="booking-filter-control">
-          <div className="view-toggle">
-            <button 
-              className={!isToggled ? 'active' : ''} 
-              onClick={() => setIsToggled(false)}
+          <div className="booking-filter-control">
+            <div className="view-toggle">
+              <button
+                className={!isToggled ? "active" : ""}
+                onClick={() => setIsToggled(false)}
+              >
+                <IoGrid />
+              </button>
+              <button
+                className={isToggled ? "active" : ""}
+                onClick={() => setIsToggled(true)}
+              >
+                <BsListUl />
+              </button>
+            </div>
+            <span className="filter-label">Sort by</span>
+            <select
+              className="filter-select"
+              value={sortType}
+              onChange={(e) => setSortType(e.target.value)}
             >
-              <IoGrid />
-            </button>
-            <button 
-              className={isToggled ? 'active' : ''} 
-              onClick={() => setIsToggled(true)}
-            >
-              <BsListUl />
-            </button>
+              <option value="">All Types</option>
+              <option value="AC Rooms">AC</option>
+              <option value="Non-AC Rooms">Non-AC</option>
+            </select>
           </div>
-          <span className="filter-label">Sort by</span>
-          <select
-            className="filter-select"
-            value={sortType}
-            onChange={(e) => setSortType(e.target.value)}
-          >
-            <option value="">All Types</option>
-            <option value="AC Rooms">AC</option>
-            <option value="Non-AC Rooms">Non-AC</option>
-          </select>
-        </div>
           <div className="date-wrapper">
             <input
               type="date"
@@ -1180,37 +1289,41 @@ const BookRoom = () => {
         </div>
       </div>
       <div className="booking-content">
-        <div className="booking-grid">
-          {renderDateGrid()}
-        </div>
-        {!guestData?.additionalGuests?.some(guest => guest.id) ? (
+        <div className="booking-grid">{renderDateGrid()}</div>
+        {!guestData?.additionalGuests?.some((guest) => guest.id) ? (
           <div className="details-panel-container">
             {selectedBedData && <BedDetailsPanel bedData={selectedBedData} />}
           </div>
         ) : (
           // Only show guest allocation tables if guestData exists and has valid guest IDs
-          guestData?.additionalGuests?.some(guest => guest.id) && (
+          guestData?.additionalGuests?.some((guest) => guest.id) && (
             <div className="guests-panel">
-              <AllocatedGuestsTable 
-                guests={allocatedGuestsList} 
+              <AllocatedGuestsTable
+                guests={allocatedGuestsList}
                 onConfirmAllocation={handleConfirmAllocation}
                 roomsData={roomsData}
-                hasUnallocatedGuests={guestData?.additionalGuests?.some((_, index) => 
-                  !allocatedGuestsList.some(allocated => 
-                    allocated.name === guestData.additionalGuests[index].name
-                  )
+                hasUnallocatedGuests={guestData?.additionalGuests?.some(
+                  (_, index) =>
+                    !allocatedGuestsList.some(
+                      (allocated) =>
+                        allocated.name ===
+                        guestData.additionalGuests[index].name
+                    )
                 )}
                 onReset={handleReset}
               />
-              <NonAllocatedGuestsTable 
-                guests={guestData.additionalGuests.filter((_, index) => 
-                  !allocatedGuestsList.some(allocated => 
-                    allocated.name === guestData.additionalGuests[index].name
-                  )
+              <NonAllocatedGuestsTable
+                guests={guestData.additionalGuests.filter(
+                  (_, index) =>
+                    !allocatedGuestsList.some(
+                      (allocated) =>
+                        allocated.name ===
+                        guestData.additionalGuests[index].name
+                    )
                 )}
                 selectedGuests={selectedGuests}
                 onSelect={(index) => {
-                  setSelectedGuests(prev => {
+                  setSelectedGuests((prev) => {
                     const newSelected = [...prev];
                     newSelected[index] = !newSelected[index];
                     return newSelected;
@@ -1218,12 +1331,14 @@ const BookRoom = () => {
                 }}
                 guestData={guestData}
               />
-              {guestData.additionalGuests.some((_, index) => 
-                !allocatedGuestsList.some(allocated => 
-                  allocated.name === guestData.additionalGuests[index].name
-                )
+              {guestData.additionalGuests.some(
+                (_, index) =>
+                  !allocatedGuestsList.some(
+                    (allocated) =>
+                      allocated.name === guestData.additionalGuests[index].name
+                  )
               ) && (
-                <button 
+                <button
                   className="allocate-button"
                   onClick={handleAllocateClick}
                 >
@@ -1234,7 +1349,7 @@ const BookRoom = () => {
           )
         )}
       </div>
-      <ConfirmationEmailModal 
+      <ConfirmationEmailModal
         isOpen={isEmailModalOpen}
         onClose={() => setIsEmailModalOpen(false)}
         guestData={guestData}

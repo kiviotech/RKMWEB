@@ -742,18 +742,17 @@ const NewDonation = () => {
                 currentReceipt?.donationDetails?.transactionDetails
                   ?.branchName || "",
             }),
+            unique_no: uniqueDonorId,
           },
         };
 
         await updateDonationById(donationId, updatePayload);
         console.log("Successfully updated donation");
       } else {
-        console.log("Creating new donation");
         // Create new guest if needed
         let guestId = donorDetails.guestId;
         if (!guestId) {
           console.log("Creating new guest");
-          // Create guest payload without extra nesting
           const guestPayload = {
             name: `${donorDetails.title} ${donorDetails.name}`,
             phone_number: `${donorDetails.phoneCode}${donorDetails.phone}`,
@@ -762,7 +761,6 @@ const NewDonation = () => {
             aadhaar_number: donorDetails.identityNumber,
             address: `${donorDetails.houseNumber}, ${donorDetails.streetName}, ${donorDetails.postOffice}, ${donorDetails.district}, ${donorDetails.state}, ${donorDetails.pincode}`,
           };
-          // Send the payload directly without wrapping in data object
           const guestResponse = await createNewGuestDetails(guestPayload);
           guestId = guestResponse.data.id;
           console.log("Created new guest with ID:", guestId);
@@ -774,6 +772,7 @@ const NewDonation = () => {
           Receipt_number: receiptNumber,
           status: "completed",
           amount: currentReceipt?.donationDetails?.amount,
+          unique_no: uniqueDonorId,
         };
         const receiptResponse = await createNewReceiptDetail(receiptPayload);
         console.log("Created new receipt:", receiptResponse);
@@ -811,6 +810,7 @@ const NewDonation = () => {
                 currentReceipt?.donationDetails?.transactionDetails
                   ?.branchName || "",
             }),
+            unique_no: uniqueDonorId,
           },
         };
 
@@ -957,7 +957,7 @@ const NewDonation = () => {
               }
 
               .donor-details p:not(:first-child) {
-                margin-left: 150px;  /* Reduced from 160px to 40px */
+                margin-left: 40px;  /* Reduced from 160px to 40px */
               }
 
               .payment-details {

@@ -187,7 +187,9 @@ const NewDonation = () => {
           name: guestData.name.split(" ").slice(1).join(" "), // Extract name without title
           phoneCode: "+91",
           phone: guestData.phone_number.replace("+91", ""),
-          email: guestData.email,
+          email:
+            guestData.email ||
+            `${guestData.name.split(" ").slice(1).join(" ")}@gmail.com`,
           mantraDiksha: guestData.deeksha,
           identityType: "Aadhaar",
           identityNumber: guestData.aadhaar_number,
@@ -722,113 +724,88 @@ const NewDonation = () => {
   // Modify handleConfirmPrint function
   const handleConfirmPrint = async () => {
     try {
-      if (donationId) {
-        // Update existing donation
-        console.log("Updating existing donation with ID:", donationId);
-        const updatePayload = {
-          data: {
-            InMemoryOf:
-              currentReceipt?.donationDetails?.inMemoryOf || "for Thakur Seva",
-            donationAmount: currentReceipt?.donationDetails?.amount,
-            transactionType:
-              currentReceipt?.donationDetails?.transactionType
-                ?.charAt(0)
-                .toUpperCase() +
-                currentReceipt?.donationDetails?.transactionType?.slice(1) ||
-              "Cash",
-            donationFor: selectedTab,
-            status: "completed",
-            donationDate: getCurrentFormattedDate(),
-            ...(currentReceipt?.donationDetails?.transactionType?.toLowerCase() !==
-              "cash" && {
-              ddch_number:
-                currentReceipt?.donationDetails?.transactionDetails?.ddNumber ||
-                "",
-              ddch_date:
-                currentReceipt?.donationDetails?.transactionDetails?.ddDate ||
-                "",
-              bankName:
-                currentReceipt?.donationDetails?.transactionDetails?.bankName ||
-                "",
-              branchName:
-                currentReceipt?.donationDetails?.transactionDetails
-                  ?.branchName || "",
-            }),
-            unique_no: uniqueDonorId,
-          },
+      // Remove the email validation check
+      // if (!donorDetails.email) {
+      //   setValidationErrors((prev) => ({
+      //     ...prev,
+      //     email: "Email is required",
+      //   }));
+      //   alert("Email cannot be empty");
+      //   return;
+      // }
+
+      // ... rest of your existing code ...
+
+      // Create new guest if needed
+      let guestId = donorDetails.guestId;
+      if (!guestId) {
+        console.log("Creating new guest");
+        const guestPayload = {
+          name: `${donorDetails.title} ${donorDetails.name}`,
+          phone_number: `${donorDetails.phoneCode}${donorDetails.phone}`,
+          email:
+            donorDetails.email ||
+            `${donorDetails.name.replace(/\s+/g, "").toLowerCase()}@gmail.com`, // Generate default email
+          deeksha: donorDetails.mantraDiksha,
+          aadhaar_number: donorDetails.identityNumber,
+          address: `${donorDetails.houseNumber}, ${donorDetails.streetName}, ${donorDetails.postOffice}, ${donorDetails.district}, ${donorDetails.state}, ${donorDetails.pincode}`,
         };
-
-        await updateDonationById(donationId, updatePayload);
-        console.log("Successfully updated donation");
-      } else {
-        // Create new guest if needed
-        let guestId = donorDetails.guestId;
-        if (!guestId) {
-          console.log("Creating new guest");
-          const guestPayload = {
-            name: `${donorDetails.title} ${donorDetails.name}`,
-            phone_number: `${donorDetails.phoneCode}${donorDetails.phone}`,
-            email: donorDetails.email,
-            deeksha: donorDetails.mantraDiksha,
-            aadhaar_number: donorDetails.identityNumber,
-            address: `${donorDetails.houseNumber}, ${donorDetails.streetName}, ${donorDetails.postOffice}, ${donorDetails.district}, ${donorDetails.state}, ${donorDetails.pincode}`,
-          };
-          const guestResponse = await createNewGuestDetails(guestPayload);
-          guestId = guestResponse.data.id;
-          console.log("Created new guest with ID:", guestId);
-        }
-
-        // Create receipt details
-        console.log("Creating new receipt");
-        const receiptPayload = {
-          Receipt_number: receiptNumber,
-          status: "completed",
-          amount: currentReceipt?.donationDetails?.amount,
-          unique_no: uniqueDonorId,
-        };
-        const receiptResponse = await createNewReceiptDetail(receiptPayload);
-        console.log("Created new receipt:", receiptResponse);
-
-        // Create donation
-        console.log("Creating new donation record");
-        const donationPayload = {
-          data: {
-            InMemoryOf:
-              currentReceipt?.donationDetails?.inMemoryOf || "for Thakur Seva",
-            donationAmount: currentReceipt?.donationDetails?.amount,
-            transactionType:
-              currentReceipt?.donationDetails?.transactionType
-                ?.charAt(0)
-                .toUpperCase() +
-                currentReceipt?.donationDetails?.transactionType?.slice(1) ||
-              "Cash",
-            donationFor: selectedTab,
-            status: "completed",
-            donationDate: getCurrentFormattedDate(),
-            guest: guestId,
-            receipt_detail: receiptResponse.data.id,
-            ...(currentReceipt?.donationDetails?.transactionType?.toLowerCase() !==
-              "cash" && {
-              ddch_number:
-                currentReceipt?.donationDetails?.transactionDetails?.ddNumber ||
-                "",
-              ddch_date:
-                currentReceipt?.donationDetails?.transactionDetails?.ddDate ||
-                "",
-              bankName:
-                currentReceipt?.donationDetails?.transactionDetails?.bankName ||
-                "",
-              branchName:
-                currentReceipt?.donationDetails?.transactionDetails
-                  ?.branchName || "",
-            }),
-            unique_no: uniqueDonorId,
-          },
-        };
-
-        await createNewDonation(donationPayload);
-        console.log("Successfully created new donation");
+        const guestResponse = await createNewGuestDetails(guestPayload);
+        guestId = guestResponse.data.id;
+        console.log("Created new guest with ID:", guestId);
       }
+
+      // ... rest of your existing code ...
+
+      // Create receipt details
+      console.log("Creating new receipt");
+      const receiptPayload = {
+        Receipt_number: receiptNumber,
+        status: "completed",
+        amount: currentReceipt?.donationDetails?.amount,
+        unique_no: uniqueDonorId,
+      };
+      const receiptResponse = await createNewReceiptDetail(receiptPayload);
+      console.log("Created new receipt:", receiptResponse);
+
+      // Create donation
+      console.log("Creating new donation record");
+      const donationPayload = {
+        data: {
+          InMemoryOf:
+            currentReceipt?.donationDetails?.inMemoryOf || "for Thakur Seva",
+          donationAmount: currentReceipt?.donationDetails?.amount,
+          transactionType:
+            currentReceipt?.donationDetails?.transactionType
+              ?.charAt(0)
+              .toUpperCase() +
+              currentReceipt?.donationDetails?.transactionType?.slice(1) ||
+            "Cash",
+          donationFor: selectedTab,
+          status: "completed",
+          donationDate: getCurrentFormattedDate(),
+          guest: guestId,
+          receipt_detail: receiptResponse.data.id,
+          ...(currentReceipt?.donationDetails?.transactionType?.toLowerCase() !==
+            "cash" && {
+            ddch_number:
+              currentReceipt?.donationDetails?.transactionDetails?.ddNumber ||
+              "",
+            ddch_date:
+              currentReceipt?.donationDetails?.transactionDetails?.ddDate || "",
+            bankName:
+              currentReceipt?.donationDetails?.transactionDetails?.bankName ||
+              "",
+            branchName:
+              currentReceipt?.donationDetails?.transactionDetails?.branchName ||
+              "",
+          }),
+          unique_no: uniqueDonorId,
+        },
+      };
+
+      await createNewDonation(donationPayload);
+      console.log("Successfully created new donation");
 
       // Create a hidden iframe for printing
       const printFrame = document.createElement("iframe");

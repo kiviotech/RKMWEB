@@ -247,16 +247,16 @@ const VerifyDetails = () => {
           </h3>
           <div className="details-row">
             <div>
-              <strong>Name:</strong> <span>{formData.name}</span>
+              <span>Name:</span> <strong>{formData.name}</strong>
             </div>
             <div>
-              <strong>Aadhaar Number:</strong> <span>{formData.aadhaar}</span>
+              <span>Aadhaar Number:</span> <strong>{formData.aadhaar}</strong>
             </div>
             <div>
-              <strong>Mobile Number:</strong>{" "}
-              <span>
+              <span>Mobile Number:</span>{" "}
+              <strong>
                 +{formData.countryCode} {formData.phoneNumber}
-              </span>
+              </strong>
             </div>
           </div>
           <div className="details-row">
@@ -265,15 +265,15 @@ const VerifyDetails = () => {
           </div>
           <div className="details-row">
             <div>
-              <strong>District:</strong>{" "}
-              <span>{formData.address.district}</span>
+              <span>District:</span>{" "}
+              <strong>{formData.address.district}</strong>
             </div>
             <div>
-              <strong>Pincode:</strong>
-              <span> {formData.address.pinCode}</span>
+              <span>Pincode:</span>
+              <strong> {formData.address.pinCode}</strong>
             </div>
             <div>
-              <strong>State:</strong> <span>{formData.address.state}</span>
+              <span>State:</span> <strong>{formData.address.state}</strong>
             </div>
           </div>
         </div>

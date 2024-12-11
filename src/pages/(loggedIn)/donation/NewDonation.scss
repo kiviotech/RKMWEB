@@ -772,8 +772,13 @@ input::placeholder {
       }
 
       .receipt-amt {
-        width: 100%;
         display: flex;
+        align-items: flex-start;
+        margin-bottom: 10px;
+      }
+
+      .receipt-amt p {
+        margin: 0;
       }
 
       .receipt-amount {
@@ -1887,4 +1892,14 @@ select {
   }
 
   transition: all 0.2s ease;
+}
+
+.receipt-amt {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 10px;
+}
+
+.receipt-amt p {
+  margin: 0;
 }

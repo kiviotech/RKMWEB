@@ -3039,9 +3039,26 @@ const NewDonation = () => {
                   </div>
                 </div>
                 <div className="receipt-amt">
-                  <p>The sum of Rupees: </p>
-                  <div style={{ paddingLeft: "20px" }} className="amt">
-                    <p>
+                  <p
+                    style={{
+                      minWidth: "120px",
+                      flexShrink: 0,
+                      marginTop: "0", // Ensure no top margin
+                    }}
+                  >
+                    The sum of Rupees:{" "}
+                  </p>
+                  <div
+                    style={{
+                      paddingLeft: "20px",
+                      flex: 1,
+                      wordBreak: "break-word",
+                      display: "flex",
+                      alignItems: "flex-start", // Align content to top
+                    }}
+                    className="amt"
+                  >
+                    <p style={{ margin: "0" }}>
                       <strong>
                         {numberToWords(
                           parseFloat(
@@ -3082,18 +3099,36 @@ const NewDonation = () => {
                   </p>
                 </div>
                 <div className="receipt-amt">
-                  <p>As Donation for: </p>
-                  <p style={{ paddingLeft: "20px" }}>
-                    {currentReceipt?.donationDetails?.donationType} for{" "}
-                    {currentReceipt?.donationDetails?.purpose}
-                    {currentReceipt?.donationDetails?.donationType ===
-                      "Other" &&
-                      currentReceipt?.donationDetails?.otherPurpose &&
-                      ` (${currentReceipt.donationDetails.otherPurpose})`}
-                    {currentReceipt?.donationDetails?.inMemoryOf && (
-                      <span>{` in memory of ${currentReceipt.donationDetails.inMemoryOf}`}</span>
-                    )}
+                  <p
+                    style={{
+                      minWidth: "120px",
+                      flexShrink: 0,
+                      marginTop: "0", // Ensure no top margin
+                    }}
+                  >
+                    As Donation for:{" "}
                   </p>
+                  <div
+                    style={{
+                      paddingLeft: "20px",
+                      flex: 1,
+                      wordBreak: "break-word",
+                      display: "flex",
+                      alignItems: "flex-start", // Align content to top
+                    }}
+                  >
+                    <p style={{ margin: "0" }}>
+                      {currentReceipt?.donationDetails?.donationType} for{" "}
+                      {currentReceipt?.donationDetails?.purpose}
+                      {currentReceipt?.donationDetails?.donationType ===
+                        "Other" &&
+                        currentReceipt?.donationDetails?.otherPurpose &&
+                        ` (${currentReceipt.donationDetails.otherPurpose})`}
+                      {currentReceipt?.donationDetails?.inMemoryOf && (
+                        <span>{` in memory of ${currentReceipt.donationDetails.inMemoryOf}`}</span>
+                      )}
+                    </p>
+                  </div>
                 </div>
               </div>
               <div className="receipt-amount">

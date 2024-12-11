@@ -12,6 +12,7 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
   const navigate = useNavigate();
 
   const [visited, setVisited] = useState(formData.visited);
+  const [showExtendedStayReason, setShowExtendedStayReason] = useState(false);
 
   const handleNext = () => {
     navigate("/application-form", {
@@ -43,22 +44,6 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
     const date = new Date(arrivalDate);
     date.setDate(date.getDate() + 2);
     return date.toISOString().split("T")[0];
-  };
-
-  // Generate time options in 12-hour format
-  const generate12HourTimeOptions = () => {
-    const options = [];
-    for (let hour = 0; hour < 24; hour++) {
-      for (let minute = 0; minute < 60; minute += 30) {
-        const period = hour < 12 ? "AM" : "PM";
-        const displayHour = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
-        const displayMinute = minute.toString().padStart(2, "0");
-        const value = `${hour.toString().padStart(2, "0")}:${displayMinute}`;
-        const label = `${displayHour}:${displayMinute} ${period}`;
-        options.push({ value, label });
-      }
-    }
-    return options;
   };
 
   // Update handleInputChange to set departure date 2 days after arrival
@@ -102,13 +87,18 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
         departureDate = new Date(departureDate);
 
         if (!isNaN(visitDate.getTime()) && !isNaN(departureDate.getTime())) {
+          // Calculate the difference in days
           const timeDiff = departureDate - visitDate;
           const daysDiff = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
+
+          // Show extended stay reason if stay is more than 2 days (3 nights)
+          setShowExtendedStayReason(daysDiff > 1);
 
           console.log("Stay Duration:", {
             visitDate: visitDate.toISOString(),
             departureDate: departureDate.toISOString(),
             daysDiff,
+            showExtendedStay: daysDiff > 1,
           });
         }
       }
@@ -269,6 +259,28 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
     return () => unsubscribe();
   }, []);
 
+  const generateTimeOptions = () => {
+    const options = [];
+    // Generate options for each hour (0-23)
+    for (let hour = 0; hour <= 23; hour++) {
+      // Format 24-hour time for value
+      const time24 = `${hour.toString().padStart(2, "0")}:00`;
+
+      // Convert to 12-hour format for display
+      let hour12 = hour % 12;
+      hour12 = hour12 === 0 ? 12 : hour12; // Convert 0 to 12
+      const period = hour < 12 ? "AM" : "PM";
+      const timeDisplay = `${hour12}:00 ${period}`;
+
+      options.push(
+        <option key={time24} value={time24}>
+          {timeDisplay}
+        </option>
+      );
+    }
+    return options;
+  };
+
   return (
     <div className="application-form">
       <form onSubmit={handleSubmit}>
@@ -329,21 +341,14 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
 
             <div className="form-right-section">
               <div className="form-group">
-                <label>
-                  Arrival Time <span className="required"> *</span>
-                </label>
-                <select
+                <label>Arrival Time (Official Timming)</label>
+                <input
+                  type="text"
                   name="arrivalTime"
-                  value={formData.arrivalTime || ""}
-                  onChange={handleInputChange}
-                >
-                  <option value="">Select Time</option>
-                  {generate12HourTimeOptions().map((time) => (
-                    <option key={time.value} value={time.value}>
-                      {time.label}
-                    </option>
-                  ))}
-                </select>
+                  value="10:30"
+                  readOnly
+                  disabled
+                />
                 {errors.arrivalTime && (
                   <span className="error">{errors.arrivalTime}</span>
                 )}
@@ -359,11 +364,7 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
                   onChange={handleInputChange}
                 >
                   <option value="">Select Time</option>
-                  {generate12HourTimeOptions().map((time) => (
-                    <option key={time.value} value={time.value}>
-                      {time.label}
-                    </option>
-                  ))}
+                  {generateTimeOptions()}
                 </select>
                 {errors.departureTime && (
                   <span className="error">{errors.departureTime}</span>
@@ -388,6 +389,25 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
                   <span className="error">{errors.knownToMath}</span>
                 )}
               </div>
+
+              {showExtendedStayReason && (
+                <div className="form-group">
+                  <label>
+                    State reason for more than 3 nights stay?{" "}
+                    <span className="required"> *</span>
+                  </label>
+                  <textarea
+                    rows={3}
+                    name="extendedStayReason"
+                    value={formData.extendedStayReason || ""}
+                    onChange={handleInputChange}
+                    placeholder="State your reason"
+                  />
+                  {errors.extendedStayReason && (
+                    <span className="error">{errors.extendedStayReason}</span>
+                  )}
+                </div>
+              )}
 
               <div className="form-group file-upload-section">
                 <label>Recommendation Letter (If any)</label>

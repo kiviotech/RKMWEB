@@ -1,58 +1,54 @@
-import React from 'react';
-import { FaCheckCircle } from 'react-icons/fa';
-import { MdEmail, MdPhone } from 'react-icons/md';
-import './ThankYouPage.scss';
-import ApplicationFormHeader from './ApplicationFormHeader';
-import ApplicationFormFooter from './ApplicationFormFooter';
+import React from "react";
+import { FaCheckCircle } from "react-icons/fa";
+import { MdEmail, MdPhone } from "react-icons/md";
+import "./ThankYouPage.scss";
+import ApplicationFormHeader from "./ApplicationFormHeader";
+import ApplicationFormFooter from "./ApplicationFormFooter";
 
 const ThankYouPage = () => {
   return (
-    <div style={{backgroundColor: "#fff2ea"}}>
-        <ApplicationFormHeader/>
-        <div className="thank-you-container">
+    <div style={{ backgroundColor: "#fff2ea" }}>
+      <ApplicationFormHeader />
+      <div className="thank-you-container">
         <div className="thank-you-card">
-            <div>
+          <div>
             <FaCheckCircle className="thank-you-check-icon" />
-            </div>
+          </div>
 
-            <h1 className="thank-you-heading">
+          <h1 className="thank-you-heading">
             Thank You for Submitting Guest House Booking Form
-            </h1>
+          </h1>
 
-            <p className="thank-you-success-message">
+          <p className="thank-you-success-message">
             Your booking request has been successfully Registered.
-            </p>
-            <p className="thank-you-sub-message">
+          </p>
+          <p className="thank-you-sub-message">
             We will send a confirmation to your email shortly.
-            </p>
+          </p>
 
-            <div className="thank-you-contact-section">
+          <div className="thank-you-contact-section">
             <p className="thank-you-contact-text">Need help? Contact us at:</p>
-            
+
             <div className="thank-you-contact-item">
-                <MdEmail className="thank-you-icon" />
-                <a 
-                href="mailto:kamarpukur@rkmm.org" 
+              <MdEmail className="thank-you-icon" />
+              <a
+                href="mailto:guesthouse@kamarpukurmath.org"
                 className="thank-you-link"
-                >
-                kamarpukur@rkmm.org
-                </a>
+              >
+                guesthouse@kamarpukurmath.org
+              </a>
             </div>
 
             <div className="thank-you-contact-item">
-                <MdPhone className="thank-you-icon" />
-                <p className="thank-you-link">
-                +91-7872800844, +91-03211-244221
-                </p>
+              <MdPhone className="thank-you-icon" />
+              <p className="thank-you-link">+91-7872800844</p>
             </div>
-            </div>
+          </div>
 
-            <p className="thank-you-footer">
-            Thank you for choosing us
-            </p>
+          <p className="thank-you-footer">Thank you for choosing us</p>
         </div>
-        </div>
-        <ApplicationFormFooter/>
+      </div>
+      <ApplicationFormFooter />
     </div>
   );
 };

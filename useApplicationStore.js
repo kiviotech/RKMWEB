@@ -47,7 +47,7 @@ const useApplicationStore = create((set) => ({
       },
     ],
     visitDate: "",
-    visitTime: "",
+    visitTime: "10:30",
     arrivalDate: "",
     departureDate: "",
     departureTime: "",

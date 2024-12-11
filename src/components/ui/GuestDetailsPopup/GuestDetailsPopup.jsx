@@ -4,6 +4,7 @@ import "./GuestDetailsPopup.scss";
 import { updateBookingRequest } from "../../../../services/src/api/repositories/bookingRequestRepository";
 import { getToken } from "../../../../services/src/utils/storage";
 import RejectionEmailPopup from "./RejectionEmailPopup";
+import { useNavigate } from "react-router-dom";
 
 const icons = {
   Reminder: "https://api.iconify.design/mdi:bell-ring-outline.svg",
@@ -32,6 +33,7 @@ const GuestDetailsPopup = ({
     guestDetails?.userDetails?.name || ""
   );
   const [showRejectionEmail, setShowRejectionEmail] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (guestDetails?.guests?.length > 0) {
@@ -123,6 +125,43 @@ const GuestDetailsPopup = ({
       .replace(/\//g, "-");
   };
 
+  const handleButtonClick = (request) => {
+    console.log("Main Request ID:", request.id);
+    console.log(
+      "Guest IDs:",
+      request.guests.map((guest) => guest.id)
+    );
+
+    const guestData = {
+      requestId: request.id,
+      name: request.userDetails.name,
+      arrivalDate: request.userDetails.arrivalDate,
+      departureDate: request.userDetails.departureDate,
+      numberOfGuests: request.noOfGuest,
+      guestDetails: {
+        ...request.userDetails,
+      },
+      additionalGuests: request.guests.map((guest) => ({
+        id: guest.id,
+        name: guest.name,
+        age: guest.age,
+        gender: guest.gender,
+        relation: guest.relation,
+        roomNo: guest.room?.data?.attributes?.room_number || "-",
+      })),
+    };
+
+    console.log("Formatted Guest Data IDs:", {
+      requestId: request.id,
+      guestIds: guestData.additionalGuests.map((guest) => guest.id),
+    });
+
+    navigate("/book-room", {
+      state: { guestData },
+    });
+    onClose(); // Close the popup after navigation
+  };
+
   if (showRejectionEmail) {
     return (
       <RejectionEmailPopup
@@ -171,12 +210,39 @@ const GuestDetailsPopup = ({
           <button className="reject-btn" onClick={handleRejectClick}>
             Reject
           </button>
-          <button
-            className="allocate-btn"
+          <CommonButton
+            buttonName={(() => {
+              const hasRoom = guestDetails.guests.some(
+                (guest) => guest.room?.data?.attributes?.room_number
+              );
+              return hasRoom ? "View" : "Allocate Rooms";
+            })()}
+            buttonWidth="220px"
+            style={{
+              backgroundColor: (() => {
+                const hasRoom = guestDetails.guests.some(
+                  (guest) => guest.room?.data?.attributes?.room_number
+                );
+                return hasRoom ? "#9867E9" : "#FFBDCB";
+              })(),
+              color: (() => {
+                const hasRoom = guestDetails.guests.some(
+                  (guest) => guest.room?.data?.attributes?.room_number
+                );
+                return hasRoom ? "#fff" : "#FC5275";
+              })(),
+              borderColor: (() => {
+                const hasRoom = guestDetails.guests.some(
+                  (guest) => guest.room?.data?.attributes?.room_number
+                );
+                return hasRoom ? "#9867E9" : "#FC5275";
+              })(),
+              fontSize: "14px",
+              borderRadius: "7px",
+              borderWidth: 1,
+            }}
             onClick={() => handleButtonClick(guestDetails)}
-          >
-            Allocate Rooms
-          </button>
+          />
         </div>
       );
     } else if (label === "onHold") {

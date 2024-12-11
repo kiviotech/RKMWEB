@@ -149,6 +149,11 @@ const NewDonation = () => {
   // Add this ref near the top with other refs
   const identityInputRef = useRef(null);
 
+  // Add this with your other state declarations at the top
+  const [uniqueDonorId, setUniqueDonorId] = useState(() => {
+    return `C${Math.floor(100000 + Math.random() * 900000)}`;
+  });
+
   console.log("Zustand Store Data:", {
     // auth: { user },
     donations,
@@ -352,13 +357,18 @@ const NewDonation = () => {
   const handleAddDonation = () => {
     const newReceiptNumber = generateReceiptNumber(selectedTab);
     setReceiptNumber(newReceiptNumber);
+
+    // Generate new unique ID
+    const newUniqueId = `C${Math.floor(100000 + Math.random() * 900000)}`;
+    setUniqueDonorId(newUniqueId);
+
     setCurrentReceipt({
       receiptNumber: newReceiptNumber,
       donationDetails: {
         donationType: "Others (Revenue)",
         amount: "",
         transactionType: "cash",
-        inMemoryOf: "", // Keep in memory of empty by default
+        inMemoryOf: "",
         transactionDetails: {
           ddNumber: "",
           ddDate: "",
@@ -374,7 +384,6 @@ const NewDonation = () => {
       isNewDonor: true,
     };
 
-    // Add new donor to the array while preserving existing donors
     setDonorTags((prev) => [...prev, newDonor]);
     setSelectedDonor(newDonor.id);
 
@@ -1071,7 +1080,8 @@ const NewDonation = () => {
           // Reset form and close modal
           resetFormData();
           setIsModalOpen(false);
-          navigate("/donation");
+          // Change the navigation path to /newDonation
+          navigate("/newDonation");
         }, 1000);
       };
     } catch (error) {
@@ -1388,7 +1398,10 @@ const NewDonation = () => {
   };
 
   const handleReset = () => {
-    // Reset donor details to initial state
+    // Generate new unique ID
+    setUniqueDonorId(`C${Math.floor(100000 + Math.random() * 900000)}`);
+
+    // Rest of your existing handleReset code...
     setDonorDetails({
       title: "Sri",
       name: "",
@@ -1406,45 +1419,7 @@ const NewDonation = () => {
       state: "",
       postOffice: "",
     });
-
-    // Reset current receipt and donation details
-    const newReceiptNumber = generateReceiptNumber(selectedTab);
-    setReceiptNumber(newReceiptNumber);
-    setCurrentReceipt({
-      receiptNumber: newReceiptNumber,
-      donationDetails: {
-        donationType: "",
-        amount: "",
-        transactionType: "cash",
-        donationType: "Others (Revenue)", // Set default donation type here
-        inMemoryOf: "", // Keep in memory of empty by default
-        transactionDetails: {
-          ddNumber: "",
-          ddDate: "",
-          bankName: "",
-          branchName: "",
-        },
-      },
-    });
-
-    // Reset donor tags to only show "New Donor"
-    const newDonorId = Date.now();
-    setDonorTags([
-      {
-        id: newDonorId,
-        name: "New Donor",
-        isNewDonor: true,
-      },
-    ]);
-    setSelectedDonor(newDonorId);
-
-    // Reset validation errors
-    setValidationErrors({
-      name: "",
-      phone: "",
-      email: "",
-      identityNumber: "",
-    });
+    // ... rest of reset code
   };
 
   // Add this useEffect to fetch donation history when donor changes
@@ -1974,7 +1949,18 @@ const NewDonation = () => {
                   : "white",
             }}
           >
-            <h2>Donor Details</h2>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                marginBottom: "20px",
+              }}
+            >
+              <h2>Donor Details</h2>
+              <div className="unique-id-display">{uniqueDonorId}</div>
+            </div>
+
             {/* First row with Name, Phone, Mantra Diksha */}
             <div className="form-row">
               <div className="form-group">
@@ -2374,11 +2360,26 @@ const NewDonation = () => {
               </span>
             </div>
             <div className="action-buttons">
-              {/* Add these two new buttons */}
+              {/* Modified consent letter button */}
               <button
                 className="letter-btn consent-letter"
                 type="button"
                 onClick={() => window.open("/consent-letter", "_blank")}
+                disabled={
+                  !currentReceipt?.donationDetails?.amount || !donorDetails.name
+                }
+                style={{
+                  opacity:
+                    !currentReceipt?.donationDetails?.amount ||
+                    !donorDetails.name
+                      ? 0.5
+                      : 1,
+                  cursor:
+                    !currentReceipt?.donationDetails?.amount ||
+                    !donorDetails.name
+                      ? "not-allowed"
+                      : "pointer",
+                }}
               >
                 <svg
                   width="16"
@@ -2414,10 +2415,26 @@ const NewDonation = () => {
                 Consent Letter
               </button>
 
+              {/* Modified thank letter button */}
               <button
                 className="letter-btn thank-letter"
                 type="button"
                 onClick={() => window.open("/thank-letter", "_blank")}
+                disabled={
+                  !currentReceipt?.donationDetails?.amount || !donorDetails.name
+                }
+                style={{
+                  opacity:
+                    !currentReceipt?.donationDetails?.amount ||
+                    !donorDetails.name
+                      ? 0.5
+                      : 1,
+                  cursor:
+                    !currentReceipt?.donationDetails?.amount ||
+                    !donorDetails.name
+                      ? "not-allowed"
+                      : "pointer",
+                }}
               >
                 <svg
                   width="16"
@@ -3046,7 +3063,7 @@ const NewDonation = () => {
                       marginTop: "0", // Ensure no top margin
                     }}
                   >
-                    The sum of Rupees:{" "}
+                    The Sum Of Rupees:{" "}
                   </p>
                   <div
                     style={{
@@ -3071,7 +3088,7 @@ const NewDonation = () => {
                   </div>
                 </div>
                 <div className="receipt-amt">
-                  <p>By transaction type: </p>
+                  <p>By Transaction Type: </p>
                   <p style={{ paddingLeft: "20px" }}>
                     {currentReceipt?.donationDetails?.transactionType || "Cash"}
                     {currentReceipt?.donationDetails?.transactionType?.toLowerCase() !==

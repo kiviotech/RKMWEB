@@ -667,6 +667,18 @@ const NewDonation = () => {
       return;
     }
 
+    // Add validation for other purpose
+    if (
+      currentReceipt?.donationDetails?.purpose === "Other" &&
+      !currentReceipt?.donationDetails?.otherPurpose
+    ) {
+      setValidationErrors((prev) => ({
+        ...prev,
+        otherPurpose: "Please specify the purpose",
+      }));
+      return;
+    }
+
     // Rest of your validation checks
     if (validateDonationAmount(currentReceipt?.donationDetails?.amount)) {
       alert("Enter the amount");
@@ -2729,7 +2741,7 @@ const NewDonation = () => {
             </div>
 
             {/* Add this conditional input field for both Math and Mission */}
-            {currentReceipt?.donationDetails?.donationType === "Other" && (
+            {currentReceipt?.donationDetails?.purpose === "Other" && (
               <div className="form-group">
                 <label>
                   Specify Other Purpose <span className="required">*</span>
@@ -2748,7 +2760,7 @@ const NewDonation = () => {
                         : "Please specify the purpose",
                     }));
                   }}
-                  placeholder="Enter purpose"
+                  placeholder=""
                   className={validationErrors.otherPurpose ? "error" : ""}
                 />
                 {validationErrors.otherPurpose && (

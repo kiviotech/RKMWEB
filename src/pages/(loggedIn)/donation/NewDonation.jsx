@@ -77,6 +77,7 @@ const NewDonation = () => {
     streetName: "",
     district: "",
     state: "",
+    postOffice: "",
   });
   const [donorTags, setDonorTags] = useState([
     {
@@ -141,6 +142,13 @@ const NewDonation = () => {
       "http://localhost:1337/uploads/medium_Whats_App_Image_2024_12_09_at_10_31_00_AM_d828ff9d49.jpeg",
   });
 
+  // Add this near the top of the component with other state declarations
+  const donorNameInputRef = useRef(null);
+  const phoneInputRef = useRef(null);
+
+  // Add this ref near the top with other refs
+  const identityInputRef = useRef(null);
+
   console.log("Zustand Store Data:", {
     // auth: { user },
     donations,
@@ -185,7 +193,7 @@ const NewDonation = () => {
         setCurrentReceipt({
           receiptNumber: receiptData.Receipt_number,
           donationDetails: {
-            donationType: "", // Set appropriate donation type if available
+            donationType: "Others (Revenue)", // Set appropriate donation type if available
             amount: donationData.attributes.donationAmount,
             transactionType:
               donationData.attributes.transactionType.toLowerCase(),
@@ -342,6 +350,24 @@ const NewDonation = () => {
   };
 
   const handleAddDonation = () => {
+    const newReceiptNumber = generateReceiptNumber(selectedTab);
+    setReceiptNumber(newReceiptNumber);
+    setCurrentReceipt({
+      receiptNumber: newReceiptNumber,
+      donationDetails: {
+        donationType: "Others (Revenue)",
+        amount: "",
+        transactionType: "cash",
+        inMemoryOf: "", // Keep in memory of empty by default
+        transactionDetails: {
+          ddNumber: "",
+          ddDate: "",
+          bankName: "",
+          branchName: "",
+        },
+      },
+    });
+
     const newDonor = {
       id: Date.now(),
       name: "New Donor",
@@ -368,6 +394,7 @@ const NewDonation = () => {
       streetName: "",
       district: "",
       state: "",
+      postOffice: "",
     });
   };
 
@@ -390,6 +417,7 @@ const NewDonation = () => {
       streetName: "",
       district: "",
       state: "",
+      postOffice: "",
     });
   };
 
@@ -429,6 +457,7 @@ const NewDonation = () => {
         streetName: "",
         district: "",
         state: "",
+        postOffice: "",
       });
     }
   };
@@ -454,8 +483,9 @@ const NewDonation = () => {
 
     // Extract address components
     const addressParts = guestData.address?.split(", ") || [];
-    const houseNumber = addressParts[0] || ""; // Extract house number
-    const streetAddress = addressParts.slice(1, -3).join(", ") || "";
+    const houseNumber = addressParts[0] || "";
+    const streetAddress = addressParts.slice(1, -4).join(", ") || ""; // Updated slice
+    const postOffice = addressParts[addressParts.length - 4] || ""; // Added postOffice
     const district = addressParts[addressParts.length - 3] || "";
     const state = addressParts[addressParts.length - 2] || "";
     const pincode =
@@ -468,17 +498,18 @@ const NewDonation = () => {
 
     const donorDetailsData = {
       title: guestData.title || "Sri",
-      name: nameWithoutTitle, // Use the name without title
+      name: nameWithoutTitle,
       phoneCode: "+91",
       phone: guestData.phone_number?.replace("+91", "") || "",
-      email: guestData.email || "",
+      email: guestData.email,
       mantraDiksha: guestData.deeksha || "",
       identityType: "Aadhaar",
       identityNumber: guestData.aadhaar_number || "",
       roomNumber: "",
       pincode: pincode,
-      houseNumber: houseNumber, // Set house number
+      houseNumber: houseNumber,
       streetName: streetAddress,
+      postOffice: postOffice, // Added postOffice
       district: district,
       state: state,
       guestId: guest.id,
@@ -538,7 +569,6 @@ const NewDonation = () => {
   };
 
   const resetFormData = () => {
-    // Reset donor details
     setDonorDetails({
       title: "Sri",
       name: "",
@@ -554,11 +584,25 @@ const NewDonation = () => {
       streetName: "",
       district: "",
       state: "",
+      postOffice: "",
     });
-
-    // Reset receipt and current receipt
+    // Reset receipt and current receipt with "Others (Revenue)" as default
     setReceiptNumber("");
-    setCurrentReceipt(null);
+    setCurrentReceipt({
+      receiptNumber: "",
+      donationDetails: {
+        donationType: "Others (Revenue)", // Set default donation type here
+        amount: "",
+        transactionType: "cash",
+        inMemoryOf: "",
+        transactionDetails: {
+          ddNumber: "",
+          ddDate: "",
+          bankName: "",
+          branchName: "",
+        },
+      },
+    });
 
     // Reset donor tags and selected donor
     setDonorTags([
@@ -570,17 +614,12 @@ const NewDonation = () => {
     ]);
     setSelectedDonor(Date.now());
 
-    // Reset donation details in the store
-    handleDonationDetailsUpdate({
-      amount: "",
-      transactionType: "",
-      inMemoryOf: "Others (Revenue)", // Set default value here
-      transactionDetails: {
-        ddNumber: "",
-        ddDate: "",
-        bankName: "",
-        branchName: "",
-      },
+    // Reset validation errors
+    setValidationErrors({
+      name: "",
+      phone: "",
+      email: "",
+      identityNumber: "",
     });
   };
 
@@ -595,12 +634,18 @@ const NewDonation = () => {
 
   // Modify handlePrintReceipt to only show the modal
   const handlePrintReceipt = async () => {
-    // Check donation amount first
-    if (!currentReceipt?.donationDetails?.amount) {
+    // Check if purpose exists before validation
+    if (!currentReceipt?.donationDetails?.purpose) {
       setValidationErrors((prev) => ({
         ...prev,
-        amount: "Amount is required",
+        purpose: "Purpose is required",
       }));
+      return;
+    }
+
+    // Rest of your validation checks
+    if (validateDonationAmount(currentReceipt?.donationDetails?.amount)) {
+      alert("Enter the amount");
       return;
     }
 
@@ -684,16 +729,16 @@ const NewDonation = () => {
         let guestId = donorDetails.guestId;
         if (!guestId) {
           console.log("Creating new guest");
+          // Create guest payload without extra nesting
           const guestPayload = {
-            data: {
-              name: `${donorDetails.title} ${donorDetails.name}`,
-              phone_number: `${donorDetails.phoneCode}${donorDetails.phone}`,
-              email: donorDetails.email,
-              deeksha: donorDetails.mantraDiksha,
-              aadhaar_number: donorDetails.identityNumber,
-              address: `${donorDetails.houseNumber}, ${donorDetails.streetName}, ${donorDetails.district}, ${donorDetails.state}, ${donorDetails.pincode}`,
-            },
+            name: `${donorDetails.title} ${donorDetails.name}`,
+            phone_number: `${donorDetails.phoneCode}${donorDetails.phone}`,
+            email: donorDetails.email,
+            deeksha: donorDetails.mantraDiksha,
+            aadhaar_number: donorDetails.identityNumber,
+            address: `${donorDetails.houseNumber}, ${donorDetails.streetName}, ${donorDetails.postOffice}, ${donorDetails.district}, ${donorDetails.state}, ${donorDetails.pincode}`,
           };
+          // Send the payload directly without wrapping in data object
           const guestResponse = await createNewGuestDetails(guestPayload);
           guestId = guestResponse.data.id;
           console.log("Created new guest with ID:", guestId);
@@ -925,24 +970,38 @@ const NewDonation = () => {
                     Received with thanks from
                     <b>${donorDetails.title} ${donorDetails.name}</b>
                   </p>
+                  <p style="margin-left: 40px;">
+                    ${donorDetails.houseNumber || ""}${
+        donorDetails.streetName ? `, ${donorDetails.streetName}` : ""
+      }
+                  </p>
+                  <p style="margin-left: 40px;">
+                    ${
+                      donorDetails.postOffice
+                        ? `PO: ${donorDetails.postOffice}, `
+                        : ""
+                    }${
+        donorDetails.district ? `Dist: ${donorDetails.district}` : ""
+      }
+                  </p>
+                  <p style="margin-left: 40px;">
+                    ${
+                      donorDetails.state ? `State: ${donorDetails.state}, ` : ""
+                    }${
+        donorDetails.pincode ? `Pin: ${donorDetails.pincode}` : ""
+      }
+                  </p>
                   ${
-                    donorDetails.houseNumber || donorDetails.streetName
-                      ? `<p><b>${donorDetails.houseNumber}${
-                          donorDetails.streetName
-                            ? `, ${donorDetails.streetName}`
-                            : ""
-                        }</b></p>`
-                      : ""
-                  }
-                  <p><b>PO: ${donorDetails.district || ""}, Dist: ${
-        donorDetails.district || ""
-      }</b></p>
-                  <p><b>State: ${donorDetails.state || ""}, Pin: ${
-        donorDetails.pincode || ""
-      }</b></p>
-                  ${
-                    donorDetails.identityType === "PAN"
-                      ? `<p><b>PAN: ${donorDetails.identityNumber}</b></p>`
+                    donorDetails.identityNumber
+                      ? `
+                    <p style="margin-left: 40px;">
+                      ${
+                        donorDetails.identityType === "PAN"
+                          ? `PAN: ${donorDetails.identityNumber}`
+                          : `Aadhaar: ${donorDetails.identityNumber}`
+                      }
+                      </p>
+                  `
                       : ""
                   }
                 </div>
@@ -953,7 +1012,19 @@ const NewDonation = () => {
                   <p>By ${
                     currentReceipt?.donationDetails?.transactionType || "Cash"
                   }</p>
-                  <p>As Donation for ${selectedTab} for Thakur Seva</p>
+                  <p>As Donation for ${
+                    currentReceipt?.donationDetails?.inMemoryOf ||
+                    "for Thakur Seva"
+                  } for ${currentReceipt?.donationDetails?.donationType}${
+        currentReceipt?.donationDetails?.donationType === "Other" &&
+        currentReceipt?.donationDetails?.otherPurpose
+          ? ` (${currentReceipt.donationDetails.otherPurpose})`
+          : ""
+      }${
+        currentReceipt?.donationDetails?.inMemoryOf
+          ? ` in memory of ${currentReceipt?.donationDetails?.inMemoryOf}`
+          : ""
+      }</p>
                   <p class="amount"><b>Rs. ${parseFloat(
                     currentReceipt?.donationDetails?.amount || 0
                   ).toLocaleString("en-IN", {
@@ -1087,16 +1158,16 @@ const NewDonation = () => {
         let guestId = donorDetails.guestId;
         if (!guestId) {
           console.log("Creating new guest");
+          // Create guest payload without extra nesting
           const guestPayload = {
-            data: {
-              name: `${donorDetails.title} ${donorDetails.name}`,
-              phone_number: `${donorDetails.phoneCode}${donorDetails.phone}`,
-              email: donorDetails.email,
-              deeksha: donorDetails.mantraDiksha,
-              aadhaar_number: donorDetails.identityNumber,
-              address: `${donorDetails.houseNumber}, ${donorDetails.streetName}, ${donorDetails.district}, ${donorDetails.state}, ${donorDetails.pincode}`,
-            },
+            name: `${donorDetails.title} ${donorDetails.name}`,
+            phone_number: `${donorDetails.phoneCode}${donorDetails.phone}`,
+            email: donorDetails.email,
+            deeksha: donorDetails.mantraDiksha,
+            aadhaar_number: donorDetails.identityNumber,
+            address: `${donorDetails.houseNumber}, ${donorDetails.streetName}, ${donorDetails.postOffice}, ${donorDetails.district}, ${donorDetails.state}, ${donorDetails.pincode}`,
           };
+          // Send the payload directly without wrapping in data object
           const guestResponse = await createNewGuestDetails(guestPayload);
           guestId = guestResponse.data.id;
           console.log("Created new guest with ID:", guestId);
@@ -1219,6 +1290,7 @@ const NewDonation = () => {
         let guestId = donorDetails.guestId;
         if (!guestId) {
           console.log("Creating new guest");
+          // Create guest payload without extra nesting
           const guestPayload = {
             data: {
               name: `${donorDetails.title} ${donorDetails.name}`,
@@ -1226,9 +1298,10 @@ const NewDonation = () => {
               email: donorDetails.email,
               deeksha: donorDetails.mantraDiksha,
               aadhaar_number: donorDetails.identityNumber,
-              address: `${donorDetails.houseNumber}, ${donorDetails.streetName}, ${donorDetails.district}, ${donorDetails.state}, ${donorDetails.pincode}`,
+              address: `${donorDetails.houseNumber}, ${donorDetails.streetName}, ${donorDetails.postOffice}, ${donorDetails.district}, ${donorDetails.state}, ${donorDetails.pincode}`,
             },
           };
+          // Send the payload directly without wrapping in data object
           const guestResponse = await createNewGuestDetails(guestPayload);
           guestId = guestResponse.data.id;
           console.log("Created new guest with ID:", guestId);
@@ -1331,6 +1404,7 @@ const NewDonation = () => {
       streetName: "",
       district: "",
       state: "",
+      postOffice: "",
     });
 
     // Reset current receipt and donation details
@@ -1342,7 +1416,8 @@ const NewDonation = () => {
         donationType: "",
         amount: "",
         transactionType: "cash",
-        inMemoryOf: "Others (Revenue)", // Set default value here
+        donationType: "Others (Revenue)", // Set default donation type here
+        inMemoryOf: "", // Keep in memory of empty by default
         transactionDetails: {
           ddNumber: "",
           ddDate: "",
@@ -1444,6 +1519,25 @@ const NewDonation = () => {
     if (!number) return "";
     if (!/^[A-Z]{1}[0-9]{7}$/.test(number)) {
       return "Passport must be in format: A1234567";
+    }
+    return "";
+  };
+
+  // Add these validation functions near your other validation functions
+  const validateVoterId = (number) => {
+    if (!number) return "";
+    // Voter ID format: 3 letters followed by 7 numbers
+    if (!/^[A-Z]{3}[0-9]{7}$/.test(number)) {
+      return "Voter ID must be in format: ABC1234567";
+    }
+    return "";
+  };
+
+  const validateDrivingLicense = (number) => {
+    if (!number) return "";
+    // Driving License format: 2 letters, 2 numbers, 4 numbers, 7 numbers
+    if (!/^[A-Z]{2}[0-9]{2}[0-9]{4}[0-9]{7}$/.test(number)) {
+      return "Driving License must be in format: DL0120160000000";
     }
     return "";
   };
@@ -1637,6 +1731,15 @@ const NewDonation = () => {
 
   // Add this validation function
   const validateTransactionDetails = () => {
+    // First check if purpose exists
+    if (!currentReceipt?.donationDetails?.purpose) {
+      setValidationErrors((prev) => ({
+        ...prev,
+        purpose: "Purpose is required",
+      }));
+      return false;
+    }
+
     const transactionType =
       currentReceipt?.donationDetails?.transactionType?.toLowerCase();
     const details = currentReceipt?.donationDetails?.transactionDetails;
@@ -1697,6 +1800,14 @@ const NewDonation = () => {
       }));
     }
   };
+
+  // Add this useEffect after other useEffects
+  useEffect(() => {
+    // Focus the donor name input when component mounts
+    if (donorNameInputRef.current) {
+      donorNameInputRef.current.focus();
+    }
+  }, []); // Empty dependency array means this runs once on mount
 
   return (
     <div className="donations-container">
@@ -1892,11 +2003,10 @@ const NewDonation = () => {
                     <option value="Ms">Ms.</option>
                   </select>
                   <input
+                    ref={donorNameInputRef}
                     type="text"
-                    placeholder="John Doe"
                     value={donorDetails.name}
                     onChange={(e) => {
-                      // Only allow letters and spaces
                       const newName = e.target.value.replace(
                         /[^a-zA-Z\s]/g,
                         ""
@@ -1909,6 +2019,12 @@ const NewDonation = () => {
                         ...prev,
                         name: nameError,
                       }));
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === "Tab") {
+                        e.preventDefault();
+                        phoneInputRef.current?.focus();
+                      }
                     }}
                     className={validationErrors.name ? "error" : ""}
                   />
@@ -1960,11 +2076,10 @@ const NewDonation = () => {
                     <option value="+91">+91</option>
                   </select>
                   <input
+                    ref={phoneInputRef}
                     type="text"
-                    placeholder="9212341902"
                     value={donorDetails.phone}
                     onChange={(e) => {
-                      // Only allow numbers and limit to 10 digits
                       const newPhone = e.target.value
                         .replace(/\D/g, "")
                         .slice(0, 10);
@@ -1975,7 +2090,7 @@ const NewDonation = () => {
                         phone: phoneError,
                       }));
                     }}
-                    maxLength={10} // Add maxLength attribute
+                    maxLength={10}
                     className={validationErrors.phone ? "error" : ""}
                   />
                   {validationErrors.phone && (
@@ -2024,17 +2139,21 @@ const NewDonation = () => {
                 <label>Email ID</label>
                 <input
                   type="email"
-                  placeholder="johndoe87@gmail.com"
                   value={donorDetails.email}
                   onChange={(e) => {
                     const newEmail = e.target.value;
                     setDonorDetails({ ...donorDetails, email: newEmail });
-                    // Validate email on change
                     const emailError = validateEmail(newEmail);
                     setValidationErrors((prev) => ({
                       ...prev,
                       email: emailError,
                     }));
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === "Tab") {
+                      e.preventDefault();
+                      identityInputRef.current?.focus();
+                    }
                   }}
                 />
                 {validationErrors.email && (
@@ -2067,18 +2186,12 @@ const NewDonation = () => {
                     <option value="Aadhaar">Aadhaar</option>
                     <option value="PAN">PAN</option>
                     <option value="Passport">Passport</option>
+                    <option value="VoterId">Voter ID</option>
+                    <option value="DrivingLicense">Driving License</option>
                   </select>
                   <input
+                    ref={identityInputRef}
                     type="text"
-                    placeholder={
-                      donorDetails.identityType === "Aadhaar"
-                        ? "12 digit number"
-                        : donorDetails.identityType === "PAN"
-                        ? "ABCDE1234F"
-                        : donorDetails.identityType === "Passport"
-                        ? "A1234567"
-                        : "Enter ID number"
-                    }
                     value={donorDetails.identityNumber}
                     onChange={(e) => {
                       let value = e.target.value;
@@ -2093,6 +2206,12 @@ const NewDonation = () => {
                           break;
                         case "Passport":
                           value = value.toUpperCase().slice(0, 8);
+                          break;
+                        case "VoterId":
+                          value = value.toUpperCase().slice(0, 10);
+                          break;
+                        case "DrivingLicense":
+                          value = value.toUpperCase().slice(0, 15);
                           break;
                       }
 
@@ -2112,6 +2231,12 @@ const NewDonation = () => {
                           break;
                         case "Passport":
                           error = validatePassport(value);
+                          break;
+                        case "VoterId":
+                          error = validateVoterId(value);
+                          break;
+                        case "DrivingLicense":
+                          error = validateDrivingLicense(value);
                           break;
                       }
 
@@ -2134,7 +2259,6 @@ const NewDonation = () => {
                 <label>Guest House Room No.</label>
                 <input
                   type="text"
-                  placeholder="Enter Room No. (Optional)"
                   value={donorDetails.roomNumber}
                   onChange={(e) =>
                     setDonorDetails({
@@ -2154,7 +2278,6 @@ const NewDonation = () => {
                 </label>
                 <input
                   type="text"
-                  placeholder="560041"
                   value={donorDetails.pincode}
                   onChange={(e) => {
                     const value = e.target.value.replace(/\D/g, "").slice(0, 6);
@@ -2172,7 +2295,6 @@ const NewDonation = () => {
                 </label>
                 <input
                   type="text"
-                  placeholder="Enter state"
                   value={donorDetails.state}
                   onChange={(e) =>
                     setDonorDetails({ ...donorDetails, state: e.target.value })
@@ -2186,7 +2308,6 @@ const NewDonation = () => {
                 </label>
                 <input
                   type="text"
-                  placeholder="Enter district"
                   value={donorDetails.district}
                   onChange={(e) =>
                     setDonorDetails({
@@ -2198,13 +2319,12 @@ const NewDonation = () => {
               </div>
             </div>
 
-            {/* Fourth row with House Number and Street Name */}
+            {/* Fourth row with House Number, Street Name, and PO */}
             <div className="form-row">
               <div className="form-group">
-                <label>Flat/House/Apartment No</label>
+                <label>Flat / House / Apartment No</label>
                 <input
                   type="text"
-                  placeholder="Enter house number"
                   value={donorDetails.houseNumber}
                   onChange={(e) =>
                     setDonorDetails({
@@ -2216,15 +2336,28 @@ const NewDonation = () => {
               </div>
 
               <div className="form-group">
-                <label>Streetname/Landmark</label>
+                <label>Street Name / Landmark</label>
                 <input
                   type="text"
-                  placeholder="Enter street name"
                   value={donorDetails.streetName}
                   onChange={(e) =>
                     setDonorDetails({
                       ...donorDetails,
                       streetName: e.target.value,
+                    })
+                  }
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Post Office</label>
+                <input
+                  type="text"
+                  value={donorDetails.postOffice || ""}
+                  onChange={(e) =>
+                    setDonorDetails({
+                      ...donorDetails,
+                      postOffice: e.target.value,
                     })
                   }
                 />
@@ -2448,15 +2581,22 @@ const NewDonation = () => {
                 Purpose <span className="required">*</span>
               </label>
               <select
-                value={currentReceipt?.donationDetails?.donationType || ""}
+                value={currentReceipt?.donationDetails?.purpose || ""}
                 onChange={(e) => {
+                  const newPurpose = e.target.value;
                   handleDonationDetailsUpdate({
-                    donationType: e.target.value,
+                    purpose: newPurpose,
+                    donationType:
+                      currentReceipt?.donationDetails?.donationType ||
+                      "Others (Revenue)", // Ensure donation type is set
                   });
-                  setValidationErrors((prev) => ({
-                    ...prev,
-                    purpose: e.target.value ? "" : "Purpose is required",
-                  }));
+                  // Clear the purpose validation error when a value is selected
+                  if (newPurpose) {
+                    setValidationErrors((prev) => ({
+                      ...prev,
+                      purpose: "",
+                    }));
+                  }
                 }}
                 className={validationErrors.purpose ? "error" : ""}
               >
@@ -2479,6 +2619,7 @@ const NewDonation = () => {
                     <option value="Swamiji Tithi Puja Celebrations">
                       Swamiji Tithi Puja Celebrations
                     </option>
+                    <option value="Other">Other</option>
                   </>
                 ) : (
                   <>
@@ -2498,6 +2639,7 @@ const NewDonation = () => {
                     <option value="Charitable Dispensary & Eye (Day) Care Centre">
                       Charitable Dispensary & Eye (Day) Care Centre
                     </option>
+                    <option value="Other">Other</option>
                   </>
                 )}
               </select>
@@ -2507,13 +2649,48 @@ const NewDonation = () => {
                 </span>
               )}
             </div>
+
+            {/* Add this conditional input field for both Math and Mission */}
+            {currentReceipt?.donationDetails?.donationType === "Other" && (
+              <div className="form-group">
+                <label>
+                  Specify Other Purpose <span className="required">*</span>
+                </label>
+                <input
+                  type="text"
+                  value={currentReceipt?.donationDetails?.otherPurpose || ""}
+                  onChange={(e) => {
+                    handleDonationDetailsUpdate({
+                      otherPurpose: e.target.value,
+                    });
+                    setValidationErrors((prev) => ({
+                      ...prev,
+                      otherPurpose: e.target.value
+                        ? ""
+                        : "Please specify the purpose",
+                    }));
+                  }}
+                  placeholder="Enter purpose"
+                  className={validationErrors.otherPurpose ? "error" : ""}
+                />
+                {validationErrors.otherPurpose && (
+                  <span className="error-message">
+                    {validationErrors.otherPurpose}
+                  </span>
+                )}
+              </div>
+            )}
+
             <div className="form-group">
               <label>Donations Type</label>
               <select
-                value={currentReceipt?.donationDetails?.inMemoryOf || ""}
+                value={
+                  currentReceipt?.donationDetails?.donationType ||
+                  "Others (Revenue)"
+                }
                 onChange={(e) => {
                   handleDonationDetailsUpdate({
-                    inMemoryOf: e.target.value,
+                    donationType: e.target.value,
                   });
                 }}
               >
@@ -2527,7 +2704,6 @@ const NewDonation = () => {
               </label>
               <input
                 type="text"
-                placeholder="Enter the amount"
                 value={currentReceipt?.donationDetails?.amount || ""}
                 onChange={(e) => handleDonationAmountChange(e.target.value)}
                 className={validationErrors.amount ? "error" : ""}
@@ -2543,7 +2719,6 @@ const NewDonation = () => {
                 </label>
                 <input
                   type="text"
-                  placeholder="ABCDE1234F"
                   value={donorDetails.panNumber || ""}
                   onChange={(e) => {
                     const value = e.target.value.toUpperCase();
@@ -2590,7 +2765,6 @@ const NewDonation = () => {
               <label>In Memory of</label>
               <input
                 type="text"
-                placeholder="Enter in memory of"
                 value={currentReceipt?.donationDetails?.inMemoryOf || ""}
                 onChange={(e) => {
                   handleDonationDetailsUpdate({
@@ -2649,7 +2823,6 @@ const NewDonation = () => {
                 </label>
                 <input
                   type="text"
-                  placeholder="DD/CH number"
                   value={
                     currentReceipt?.donationDetails?.transactionDetails
                       ?.ddNumber || ""
@@ -2678,7 +2851,6 @@ const NewDonation = () => {
                 </label>
                 <input
                   type="text"
-                  placeholder="Enter bank name"
                   value={
                     currentReceipt?.donationDetails?.transactionDetails
                       ?.bankName || ""
@@ -2707,7 +2879,6 @@ const NewDonation = () => {
                 </label>
                 <input
                   type="text"
-                  placeholder="Enter branch name"
                   value={
                     currentReceipt?.donationDetails?.transactionDetails
                       ?.branchName || ""
@@ -2809,36 +2980,61 @@ const NewDonation = () => {
               </div>
               <div className="receipt-body">
                 <div className="receipt-thanks">
-                  <p>Received with thanks from </p>
+                  <p>Received With Thanks From </p>
                   <div className="receipt-address">
                     <p>
                       <strong>{`${donorDetails.title} ${donorDetails.name}`}</strong>
                       {(donorDetails.houseNumber ||
                         donorDetails.streetName) && (
                         <p>
-                          {donorDetails.houseNumber}
-                          {donorDetails.streetName &&
-                            `, ${donorDetails.streetName}`}
+                          <strong>
+                            {donorDetails.houseNumber}
+                            {donorDetails.streetName &&
+                              `, ${donorDetails.streetName}`}
+                          </strong>
                         </p>
                       )}
-                      {(donorDetails.district ||
-                        donorDetails.state ||
-                        donorDetails.pincode) && (
+                      {(donorDetails.postOffice || donorDetails.district) && (
                         <p>
-                          {donorDetails.district &&
-                            `PO: ${donorDetails.district}, `}
-                          {donorDetails.district &&
-                            `Dist: ${donorDetails.district}, `}
-                          {donorDetails.state &&
-                            `State: ${donorDetails.state}, `}
-                          {donorDetails.pincode &&
-                            `Pin: ${donorDetails.pincode}`}
+                          {donorDetails.postOffice && (
+                            <strong>PO: {donorDetails.postOffice}</strong>
+                          )}
+                          {donorDetails.postOffice && donorDetails.district && (
+                            <strong>, </strong>
+                          )}
+                          {donorDetails.district && (
+                            <strong>Dist: {donorDetails.district}</strong>
+                          )}
                         </p>
                       )}
-                      {donorDetails.identityType === "PAN" &&
+                      {(donorDetails.state || donorDetails.pincode) && (
+                        <p>
+                          {donorDetails.state && (
+                            <strong>State: {donorDetails.state}</strong>
+                          )}
+                          {donorDetails.state && donorDetails.pincode && (
+                            <strong>, </strong>
+                          )}
+                          {donorDetails.pincode && (
+                            <strong>Pin: {donorDetails.pincode}</strong>
+                          )}
+                        </p>
+                      )}
+                      {/* Show PAN if available, otherwise show other identity */}
+                      {donorDetails.panNumber ? (
+                        <p>
+                          <strong>PAN: {donorDetails.panNumber}</strong>
+                        </p>
+                      ) : (
                         donorDetails.identityNumber && (
-                          <p>PAN: {donorDetails.identityNumber}</p>
-                        )}
+                          <p>
+                            <strong>
+                              {donorDetails.identityType}:{" "}
+                              {donorDetails.identityNumber}
+                            </strong>
+                          </p>
+                        )
+                      )}
                     </p>
                   </div>
                 </div>
@@ -2846,10 +3042,14 @@ const NewDonation = () => {
                   <p>The sum of Rupees: </p>
                   <div style={{ paddingLeft: "20px" }} className="amt">
                     <p>
-                      {numberToWords(
-                        parseFloat(currentReceipt?.donationDetails?.amount || 0)
-                      )}{" "}
-                      Only
+                      <strong>
+                        {numberToWords(
+                          parseFloat(
+                            currentReceipt?.donationDetails?.amount || 0
+                          )
+                        )}{" "}
+                        Only
+                      </strong>
                     </p>
                   </div>
                 </div>
@@ -2883,7 +3083,17 @@ const NewDonation = () => {
                 </div>
                 <div className="receipt-amt">
                   <p>As Donation for: </p>
-                  <p style={{ paddingLeft: "20px" }}>{selectedTab}</p>
+                  <p style={{ paddingLeft: "20px" }}>
+                    {currentReceipt?.donationDetails?.donationType} for{" "}
+                    {currentReceipt?.donationDetails?.purpose}
+                    {currentReceipt?.donationDetails?.donationType ===
+                      "Other" &&
+                      currentReceipt?.donationDetails?.otherPurpose &&
+                      ` (${currentReceipt.donationDetails.otherPurpose})`}
+                    {currentReceipt?.donationDetails?.inMemoryOf && (
+                      <span>{` in memory of ${currentReceipt.donationDetails.inMemoryOf}`}</span>
+                    )}
+                  </p>
                 </div>
               </div>
               <div className="receipt-amount">

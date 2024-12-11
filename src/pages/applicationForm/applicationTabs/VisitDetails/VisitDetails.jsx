@@ -318,6 +318,48 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
     return options;
   };
 
+  const generateArrivalTimeOptions = () => {
+    const morningTimes = [
+      "8:00",
+      "8:30",
+      "9:00",
+      "9:30",
+      "10:00",
+      "10:30",
+      "11:00",
+    ];
+    const eveningTimes = ["15:30", "16:00", "16:30", "17:00"];
+
+    return [
+      <option key="" value="">
+        Select Time
+      </option>,
+      <optgroup label="Morning (8:00 AM - 11:00 AM)">
+        {morningTimes.map((time) => {
+          const hour = parseInt(time);
+          const timeDisplay = `${time} ${hour < 12 ? "AM" : "PM"}`;
+          return (
+            <option key={time} value={time}>
+              {timeDisplay}
+            </option>
+          );
+        })}
+      </optgroup>,
+      <optgroup label="Evening (3:30 PM - 5:00 PM)">
+        {eveningTimes.map((time) => {
+          const [hours, minutes] = time.split(":");
+          const hour12 = hours % 12 || 12;
+          const timeDisplay = `${hour12}:${minutes} PM`;
+          return (
+            <option key={time} value={time}>
+              {timeDisplay}
+            </option>
+          );
+        })}
+      </optgroup>,
+    ];
+  };
+
   return (
     <div className="application-form">
       <form onSubmit={handleSubmit}>
@@ -378,14 +420,17 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
 
             <div className="form-right-section">
               <div className="form-group">
-                <label>Arrival Time (Official Timming)</label>
-                <input
-                  type="text"
+                <label>
+                  Arrival Time (Official Timming){" "}
+                  <span className="required"> *</span>
+                </label>
+                <select
                   name="arrivalTime"
-                  value="10:30"
-                  readOnly
-                  disabled
-                />
+                  value={formData.arrivalTime || ""}
+                  onChange={handleInputChange}
+                >
+                  {generateArrivalTimeOptions()}
+                </select>
                 {errors.arrivalTime && (
                   <span className="error">{errors.arrivalTime}</span>
                 )}

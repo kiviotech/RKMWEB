@@ -1,14 +1,16 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import edit_icon from "../../../../assets/icons/edit_icon.png";
 import useApplicationStore from "../../../../../useApplicationStore";
 import "./VerifyDetails.scss";
 import { createNewGuestDetails } from "../../../../../services/src/services/guestDetailsService";
 import { createNewBookingRequest } from "../../../../../services/src/services/bookingRequestService";
 import { useNavigate } from "react-router-dom";
+import { MEDIA_BASE_URL } from "../../../../../services/apiClient";
 
 const VerifyDetails = () => {
   const { formData } = useApplicationStore();
   const navigate = useNavigate();
+  const [showPreview, setShowPreview] = useState(false);
 
   useEffect(() => {
     window.scrollTo({
@@ -31,7 +33,7 @@ const VerifyDetails = () => {
     const departure = new Date(formData.departureDate);
     const diffTime = Math.abs(departure - arrival);
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    return `${diffDays + 1} Days`;
+    return `${diffDays} Days`;
   };
 
   // Log store data
@@ -150,6 +152,11 @@ const VerifyDetails = () => {
     }
   };
 
+  const handlePreviewClick = () => {
+    console.log("File URL:", formData.file?.url);
+    setShowPreview(true);
+  };
+
   return (
     <div className="verify-details">
       <h2>Guests / Visitors Details</h2>
@@ -234,6 +241,38 @@ const VerifyDetails = () => {
           <strong>
             {formData.knownToMath ? formData.knownToMath : "Not specified"}
           </strong>
+        </p>
+        <p>
+          <span>Recommendation Letter :</span>{" "}
+          {formData.file ? (
+            <span
+              className="document-preview"
+              style={{ display: "inline-flex", alignItems: "center" }}
+            >
+              <strong>Document uploaded</strong>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                onClick={handlePreviewClick}
+                style={{
+                  cursor: "pointer",
+                  marginLeft: "10px",
+                  width: "20px",
+                  height: "20px",
+                }}
+              >
+                <path d="M12 15a3 3 0 100-6 3 3 0 000 6z" />
+                <path
+                  fillRule="evenodd"
+                  d="M1.323 11.447C2.811 6.976 7.028 3.75 12.001 3.75c4.97 0 9.185 3.223 10.675 7.69.12.362.12.752 0 1.113-1.487 4.471-5.705 7.697-10.677 7.697-4.97 0-9.186-3.223-10.675-7.69a1.762 1.762 0 010-1.113zM17.25 12a5.25 5.25 0 11-10.5 0 5.25 5.25 0 0110.5 0z"
+                  clipRule="evenodd"
+                />
+              </svg>
+            </span>
+          ) : (
+            <strong>Not uploaded</strong>
+          )}
         </p>
       </div>
 
@@ -367,12 +406,49 @@ const VerifyDetails = () => {
         })}
       </div>
 
+      {/* Add Additional Message section if it exists */}
+      {formData.additionalMessage && (
+        <div className="details-section">
+          <h2>Additional Message / Special Requests</h2>
+          <p>
+            <strong>{formData.additionalMessage}</strong>
+          </p>
+        </div>
+      )}
+
       <div className="button-container">
         {/* <button className="save">Save for later</button> */}
         <button className="submit-button" onClick={handleSubmit}>
           Submit
         </button>
       </div>
+
+      {showPreview && (
+        <div className="modal-overlay" onClick={() => setShowPreview(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3>Recommendation Letter Preview</h3>
+              <button
+                className="close-button"
+                onClick={() => setShowPreview(false)}
+              >
+                ×
+              </button>
+            </div>
+            <div className="modal-body">
+              {formData.file?.url ? (
+                <img
+                  src={`${MEDIA_BASE_URL}${formData.file.url}`}
+                  alt="Recommendation Letter"
+                  style={{ maxWidth: "100%", maxHeight: "70vh" }}
+                />
+              ) : (
+                <p>Preview not available</p>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

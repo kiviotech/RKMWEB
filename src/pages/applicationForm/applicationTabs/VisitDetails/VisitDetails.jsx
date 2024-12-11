@@ -12,7 +12,6 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
   const navigate = useNavigate();
 
   const [visited, setVisited] = useState(formData.visited);
-  const [showExtendedStayReason, setShowExtendedStayReason] = useState(false);
 
   const handleNext = () => {
     navigate("/application-form", {
@@ -38,7 +37,6 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
     });
   }, [formData, errors]);
 
-  // Add function to get max allowed departure date
   const getMaxDepartureDate = (arrivalDate) => {
     if (!arrivalDate) return null;
     const date = new Date(arrivalDate);
@@ -46,7 +44,6 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
     return date.toISOString().split("T")[0];
   };
 
-  // Generate time options in 12-hour format
   const generate12HourTimeOptions = () => {
     const options = [];
     for (let hour = 0; hour < 24; hour++) {
@@ -62,7 +59,6 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
     return options;
   };
 
-  // Update handleInputChange to set next day as departure date
   const handleInputChange = (e) => {
     const { name, value } = e.target;
 
@@ -72,7 +68,6 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
       setVisitFormData("visitTime", value);
     }
 
-    // Set default departure date when arrival date is selected
     if (name === "visitDate") {
       const arrivalDate = new Date(value);
       if (!isNaN(arrivalDate.getTime())) {
@@ -80,34 +75,6 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
         nextDay.setDate(nextDay.getDate() + 1);
         const formattedNextDay = nextDay.toISOString().split("T")[0];
         setVisitFormData("departureDate", formattedNextDay);
-      }
-    }
-
-    // Modified stay duration calculation
-    if (name === "visitDate" || name === "departureDate") {
-      let visitDate = name === "visitDate" ? value : formData.visitDate;
-      let departureDate =
-        name === "departureDate" ? value : formData.departureDate;
-
-      if (visitDate && departureDate) {
-        visitDate = new Date(visitDate);
-        departureDate = new Date(departureDate);
-
-        if (!isNaN(visitDate.getTime()) && !isNaN(departureDate.getTime())) {
-          // Calculate the difference in days
-          const timeDiff = departureDate - visitDate;
-          const daysDiff = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
-
-          // Show extended stay reason if stay is more than 2 days (3 nights)
-          setShowExtendedStayReason(daysDiff > 2);
-
-          console.log("Stay Duration:", {
-            visitDate: visitDate.toISOString(),
-            departureDate: departureDate.toISOString(),
-            daysDiff,
-            showExtendedStay: daysDiff > 2,
-          });
-        }
       }
     }
 
@@ -376,25 +343,6 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
                   <span className="error">{errors.departureTime}</span>
                 )}
               </div>
-
-              {showExtendedStayReason && (
-                <div className="form-group">
-                  <label>
-                    State reason for more than 3 nights stay?{" "}
-                    <span className="required"> *</span>
-                  </label>
-                  <textarea
-                    rows={3}
-                    name="extendedStayReason"
-                    value={formData.extendedStayReason || ""}
-                    onChange={handleInputChange}
-                    placeholder="State your reason"
-                  />
-                  {errors.extendedStayReason && (
-                    <span className="error">{errors.extendedStayReason}</span>
-                  )}
-                </div>
-              )}
             </div>
           </div>
         </div>

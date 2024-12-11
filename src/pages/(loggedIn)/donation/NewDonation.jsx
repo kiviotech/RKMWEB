@@ -157,6 +157,12 @@ const NewDonation = () => {
     return `C${Math.floor(100000 + Math.random() * 900000)}`;
   });
 
+  // Add this state to store the highest numbers
+  const [highestNumbers, setHighestNumbers] = useState({
+    MT: 0,
+    MSN: 0,
+  });
+
   console.log("Zustand Store Data:", {
     // auth: { user },
     donations,
@@ -532,12 +538,18 @@ const NewDonation = () => {
     setShowDropdown(false);
   };
 
+  // Modify handleTabClick to update unique donor ID
   const handleTabClick = (tabType) => {
     setSelectedTab(tabType);
     setDonorTabs((prev) => ({
       ...prev,
       [selectedDonor]: tabType,
     }));
+
+    // Update unique donor ID based on selected tab
+    const newUniqueNumber =
+      tabType === "Math" ? highestNumbers.MT + 1 : highestNumbers.MSN + 1;
+    setUniqueDonorId(`C${newUniqueNumber}`);
 
     // Generate new receipt number when tab changes
     const newReceiptNumber = generateReceiptNumber(tabType);
@@ -1816,8 +1828,15 @@ const NewDonation = () => {
           return Math.max(max, current);
         }, 0);
 
-        console.log("Highest MT unique_no:", `C${highestMT}`);
-        console.log("Highest MSN unique_no:", `C${highestMSN}`);
+        setHighestNumbers({
+          MT: highestMT,
+          MSN: highestMSN,
+        });
+
+        // Set initial unique donor ID based on selected tab
+        setUniqueDonorId(
+          `C${selectedTab === "Math" ? highestMT + 1 : highestMSN + 1}`
+        );
       } catch (error) {
         console.error("Error fetching unique numbers:", error);
       }

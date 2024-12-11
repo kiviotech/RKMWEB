@@ -998,7 +998,7 @@ const NewDonation = () => {
             <div class="letterhead">
               <div class="receipt-details">
                 <div class="receipt-row">
-                  <span>Receipt <b>No. ${receiptNumber}</b></span>
+                  <span>Receipt <b>No: ${uniqueDonorId} / ${receiptNumber}</b></span>
                   <span class="date">Date: <b>${formattedDate}</b></span>
                 </div>
                 <div class="donor-details">
@@ -3061,7 +3061,10 @@ const NewDonation = () => {
               <div className="receipt-header">
                 <div className="receipt-info">
                   <span>
-                    Receipt No: <strong>{receiptNumber}</strong>
+                    Receipt No:{" "}
+                    <strong>
+                      {uniqueDonorId} / {receiptNumber}
+                    </strong>
                   </span>
                   <span>
                     Date: <strong>{new Date().toLocaleDateString()}</strong>

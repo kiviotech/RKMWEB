@@ -31,7 +31,7 @@ const VerifyDetails = () => {
     const departure = new Date(formData.departureDate);
     const diffTime = Math.abs(departure - arrival);
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    return `${diffDays} Days`;
+    return `${diffDays + 1} Days`;
   };
 
   // Log store data
@@ -202,19 +202,22 @@ const VerifyDetails = () => {
 
       <div className="details-section">
         <p>
-          <strong>Arrival Date and Time :</strong>{" "}
-          {formatDateTime(formData.visitDate, formData.visitTime)}
+          <span>Arrival Date and Time :</span>{" "}
+          <strong>
+            {formatDateTime(formData.visitDate, formData.visitTime)}
+          </strong>
         </p>
         <p>
-          <strong>Departure Date and Time :</strong>{" "}
-          <span>
+          <span>Departure Date and Time :</span>{" "}
+          <strong>
             {" "}
             {formatDateTime(formData.departureDate, formData.departureTime)}
-          </span>
+          </strong>
         </p>
         <p>
           <span>
-            <strong>Total Days of Stay :</strong> {calculateStayDuration()}
+            <span>Total Days of Stay :</span>{" "}
+            <strong>{calculateStayDuration()}</strong>
           </span>
         </p>
         {formData.visited === "yes" && (

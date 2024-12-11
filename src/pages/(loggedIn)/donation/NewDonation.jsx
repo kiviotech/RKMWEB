@@ -1094,28 +1094,27 @@ const NewDonation = () => {
       const printSettings = {
         silent: true,
         printBackground: true,
-        deviceWidth: "210mm", // A4 width
-        deviceHeight: "297mm", // A4 height
+        deviceWidth: "210mm",
+        deviceHeight: "297mm",
       };
 
-      // Wait for content to load then print once
+      // Modify the onload handler to include modal closing
       iframeWindow.onload = () => {
         iframeWindow.focus();
         iframeWindow.print(printSettings);
 
-        // Clean up
+        // Clean up and close modal
         setTimeout(() => {
           document.body.removeChild(printFrame);
-          // Reset form and close modal
+          setIsModalOpen(false); // Close the modal
           resetFormData();
-          setIsModalOpen(false);
-          // Change the navigation path to /newDonation
           navigate("/newDonation");
         }, 1000);
       };
     } catch (error) {
       console.error("Error processing donation:", error);
       alert("Error processing donation. Please try again.");
+      setIsModalOpen(false); // Close modal even if there's an error
     }
   };
 

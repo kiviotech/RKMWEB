@@ -2333,9 +2333,8 @@ const NewDonation = () => {
                 <input
                   type="text"
                   value={donorDetails.state}
-                  onChange={(e) =>
-                    setDonorDetails({ ...donorDetails, state: e.target.value })
-                  }
+                  readOnly // Add this line
+                  style={{ backgroundColor: "#f3f4f6" }} // Optional: Add a background color to indicate it's readonly
                 />
               </div>
 
@@ -2346,12 +2345,8 @@ const NewDonation = () => {
                 <input
                   type="text"
                   value={donorDetails.district}
-                  onChange={(e) =>
-                    setDonorDetails({
-                      ...donorDetails,
-                      district: e.target.value,
-                    })
-                  }
+                  readOnly // Add this line
+                  style={{ backgroundColor: "#f3f4f6" }} // Optional: Add a background color to indicate it's readonly
                 />
               </div>
             </div>

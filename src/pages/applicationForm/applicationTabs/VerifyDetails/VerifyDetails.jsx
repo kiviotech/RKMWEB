@@ -169,7 +169,7 @@ const VerifyDetails = () => {
             {/* Applicant Row */}
             <tr>
               <td>1</td>
-              <td>{formData.name}</td>
+              <td>{`${formData.title} ${formData.name}`}</td>
               <td style={{ textAlign: "center" }}>{formData.age}</td>
               <td style={{ textAlign: "center" }}>{formData.gender}</td>
               <td>{formData.occupation}</td>
@@ -188,7 +188,7 @@ const VerifyDetails = () => {
               return (
                 <tr key={index}>
                   <td>{index + 2}</td>
-                  <td>{guest.guestName}</td>
+                  <td>{`${guest.guestTitle} ${guest.guestName}`}</td>
                   <td style={{ textAlign: "center" }}>{guest.guestAge}</td>
                   <td style={{ textAlign: "center" }}>{guest.guestGender}</td>
                   <td>{guest.guestOccupation}</td>
@@ -247,7 +247,8 @@ const VerifyDetails = () => {
           </h3>
           <div className="details-row">
             <div>
-              <span>Name:</span> <strong>{formData.name}</strong>
+              <span>Name:</span>{" "}
+              <strong>{`${formData.title} ${formData.name}`}</strong>
             </div>
             <div>
               <span>Aadhaar Number:</span> <strong>{formData.aadhaar}</strong>
@@ -301,7 +302,8 @@ const VerifyDetails = () => {
               </h3>
               <div className="details-row">
                 <div>
-                  <span>Name:</span> <strong>{guest.guestName}</strong>
+                  <span>Name:</span>{" "}
+                  <strong>{`${guest.guestTitle} ${guest.guestName}`}</strong>
                 </div>
                 <div>
                   <span>Aadhar Number:</span>{" "}

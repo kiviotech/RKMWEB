@@ -176,16 +176,26 @@ const VerifyDetails = () => {
               <td>{formData.deeksha || "Not specified"}</td>
             </tr>
             {/* Guest Rows */}
-            {formData.guests.map((guest, index) => (
-              <tr key={index}>
-                <td>{index + 2}</td>
-                <td>{guest.guestName}</td>
-                <td style={{ textAlign: "center" }}>{guest.guestAge}</td>
-                <td style={{ textAlign: "center" }}>{guest.guestGender}</td>
-                <td>{guest.guestOccupation}</td>
-                <td>{guest.guestDeeksha || "Not specified"}</td>
-              </tr>
-            ))}
+            {formData.guests.map((guest, index) => {
+              // Check if guest address matches applicant address
+              const isAddressSame =
+                guest.guestAddress.houseNumber ===
+                  formData.address.houseNumber &&
+                guest.guestAddress.district === formData.address.district &&
+                guest.guestAddress.state === formData.address.state &&
+                guest.guestAddress.pinCode === formData.address.pinCode;
+
+              return (
+                <tr key={index}>
+                  <td>{index + 2}</td>
+                  <td>{guest.guestName}</td>
+                  <td style={{ textAlign: "center" }}>{guest.guestAge}</td>
+                  <td style={{ textAlign: "center" }}>{guest.guestGender}</td>
+                  <td>{guest.guestOccupation}</td>
+                  <td>{guest.guestDeeksha || "Not specified"}</td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
@@ -266,47 +276,64 @@ const VerifyDetails = () => {
         </div>
 
         {/* Guest Addresses */}
-        {formData.guests.map((guest, index) => (
-          <div key={index} className="address-block">
-            <h3>
-              Member {index + 1}
-              <img
-                src={edit_icon}
-                alt="Edit"
-                className="edit-icon"
-                onClick={() => handleEditClick("guest")}
-                style={{ cursor: "pointer" }}
-              />
-            </h3>
-            <div className="details-row">
-              <div>
-                <strong>Name:</strong> {guest.guestName}
+        {formData.guests.map((guest, index) => {
+          // Check if guest address matches applicant address
+          const isAddressSame =
+            guest.guestAddress.houseNumber === formData.address.houseNumber &&
+            guest.guestAddress.district === formData.address.district &&
+            guest.guestAddress.state === formData.address.state &&
+            guest.guestAddress.pinCode === formData.address.pinCode;
+
+          return (
+            <div key={index} className="address-block">
+              <h3>
+                Member {index + 1}
+                <img
+                  src={edit_icon}
+                  alt="Edit"
+                  className="edit-icon"
+                  onClick={() => handleEditClick("guest")}
+                  style={{ cursor: "pointer" }}
+                />
+              </h3>
+              <div className="details-row">
+                <div>
+                  <strong>Name:</strong> {guest.guestName}
+                </div>
+                <div>
+                  <strong>Aadhar Number:</strong> {guest.guestAadhaar}
+                </div>
+                <div>
+                  <strong>Mobile Number:</strong> +{guest.countryCode}{" "}
+                  {guest.guestNumber}
+                </div>
               </div>
-              <div>
-                <strong>Aadhar Number:</strong> {guest.guestAadhaar}
-              </div>
-              <div>
-                <strong>Mobile Number:</strong> +{guest.countryCode}{" "}
-                {guest.guestNumber}
-              </div>
+              {!isAddressSame ? (
+                <>
+                  <div className="details-row">
+                    <strong>Address:</strong>{" "}
+                    <span>{`${guest.guestAddress.houseNumber}`}</span>
+                  </div>
+                  <div className="details-row">
+                    <div>
+                      <strong>District:</strong> {guest.guestAddress.district}
+                    </div>
+                    <div>
+                      <strong>Pincode:</strong> {guest.guestAddress.pinCode}
+                    </div>
+                    <div>
+                      <strong>State:</strong> {guest.guestAddress.state}
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <div className="details-row">
+                  <em>Same as applicant's address</em>
+                </div>
+              )}
             </div>
-            <div className="details-row">
-              <strong>Address:</strong>{" "}
-              <span>{`${guest.guestAddress.houseNumber}`}</span>
-            </div>
-            <div className="details-row">
-              <div>
-                <strong>District:</strong> {guest.guestAddress.district}
-              </div>
-              <div>
-                <strong>Pincode:</strong> {guest.guestAddress.pinCode}
-              </div>
-              <div>
-                <strong>State:</strong> {guest.guestAddress.state}
-              </div>
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       <div className="button-container">

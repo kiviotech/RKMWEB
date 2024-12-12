@@ -1552,7 +1552,28 @@ const NewDonation = () => {
     if (
       validationErrors.name ||
       validationErrors.phone ||
-      validationErrors.email
+      validationErrors.email ||
+      validationErrors.purpose ||
+      validationErrors.amount
+    ) {
+      return false;
+    }
+
+    // Check if donation amount exists and is valid
+    const amount = parseFloat(currentReceipt?.donationDetails?.amount);
+    if (!amount || isNaN(amount) || amount <= 0) {
+      return false;
+    }
+
+    // Check if purpose is selected
+    if (!currentReceipt?.donationDetails?.purpose) {
+      return false;
+    }
+
+    // If purpose is "Other", check if otherPurpose is specified
+    if (
+      currentReceipt?.donationDetails?.purpose === "Other" &&
+      !currentReceipt?.donationDetails?.otherPurpose
     ) {
       return false;
     }
@@ -2425,25 +2446,15 @@ const NewDonation = () => {
               </span>
             </div>
             <div className="action-buttons">
-              {/* Modified consent letter button */}
+              {/* Consent Letter Button */}
               <button
                 className="letter-btn consent-letter"
                 type="button"
                 onClick={() => window.open("/consent-letter", "_blank")}
-                disabled={
-                  !currentReceipt?.donationDetails?.amount || !donorDetails.name
-                }
+                disabled={true} // Always disabled
                 style={{
-                  opacity:
-                    !currentReceipt?.donationDetails?.amount ||
-                    !donorDetails.name
-                      ? 0.5
-                      : 1,
-                  cursor:
-                    !currentReceipt?.donationDetails?.amount ||
-                    !donorDetails.name
-                      ? "not-allowed"
-                      : "pointer",
+                  opacity: 0.5, // Always dimmed
+                  cursor: "not-allowed",
                 }}
               >
                 <svg
@@ -2480,25 +2491,15 @@ const NewDonation = () => {
                 Consent Letter
               </button>
 
-              {/* Modified thank letter button */}
+              {/* Thank Letter Button */}
               <button
                 className="letter-btn thank-letter"
                 type="button"
                 onClick={() => window.open("/thank-letter", "_blank")}
-                disabled={
-                  !currentReceipt?.donationDetails?.amount || !donorDetails.name
-                }
+                disabled={true} // Always disabled
                 style={{
-                  opacity:
-                    !currentReceipt?.donationDetails?.amount ||
-                    !donorDetails.name
-                      ? 0.5
-                      : 1,
-                  cursor:
-                    !currentReceipt?.donationDetails?.amount ||
-                    !donorDetails.name
-                      ? "not-allowed"
-                      : "pointer",
+                  opacity: 0.5, // Always dimmed
+                  cursor: "not-allowed",
                 }}
               >
                 <svg

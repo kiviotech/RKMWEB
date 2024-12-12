@@ -180,6 +180,12 @@ const AllDonation = ({
     });
   };
 
+  const handleViewDonation = (donationId) => {
+    // Implement the logic to handle the "View" button click
+    // For example, you can navigate to a detailed view page
+    navigate(`/donation/${donationId}`);
+  };
+
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error}</div>;
   if (!Array.isArray(donations)) return <div>No donations available</div>;
@@ -270,15 +276,22 @@ const AllDonation = ({
                               Cancel
                             </button>
                             {donation.attributes.status.toLowerCase() ===
+                              "completed" && (
+                              <button
+                                className="view-btn"
+                                onClick={() => handleViewDonation(donation.id)}
+                              >
+                                View
+                              </button>
+                            )}
+                            {donation.attributes.status.toLowerCase() ===
                               "pending" && (
-                              <>
-                                <button
-                                  className="submit-btn"
-                                  onClick={() => handleSubmit(donation)}
-                                >
-                                  Submit
-                                </button>
-                              </>
+                              <button
+                                className="submit-btn"
+                                onClick={() => handleSubmit(donation)}
+                              >
+                                Submit
+                              </button>
                             )}
                           </>
                         )}

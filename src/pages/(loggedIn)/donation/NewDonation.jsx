@@ -2464,10 +2464,12 @@ const NewDonation = () => {
                 className="letter-btn consent-letter"
                 type="button"
                 onClick={() => window.open("/consent-letter", "_blank")}
-                disabled={true} // Always disabled
+                disabled={!isDonationCompleted(donationData)} // Changed from always true
                 style={{
-                  opacity: 0.5, // Always dimmed
-                  cursor: "not-allowed",
+                  opacity: isDonationCompleted(donationData) ? 1 : 0.5, // Changed from always 0.5
+                  cursor: isDonationCompleted(donationData)
+                    ? "pointer"
+                    : "not-allowed",
                 }}
               >
                 <svg
@@ -2509,10 +2511,12 @@ const NewDonation = () => {
                 className="letter-btn thank-letter"
                 type="button"
                 onClick={() => window.open("/thank-letter", "_blank")}
-                disabled={true} // Always disabled
+                disabled={!isDonationCompleted(donationData)} // Changed from always true
                 style={{
-                  opacity: 0.5, // Always dimmed
-                  cursor: "not-allowed",
+                  opacity: isDonationCompleted(donationData) ? 1 : 0.5, // Changed from always 0.5
+                  cursor: isDonationCompleted(donationData)
+                    ? "pointer"
+                    : "not-allowed",
                 }}
               >
                 <svg

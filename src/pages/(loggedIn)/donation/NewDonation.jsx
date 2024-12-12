@@ -3602,7 +3602,7 @@ const NewDonation = () => {
                   </p>
                   <div
                     style={{
-                      paddingLeft: "5px",
+                      // paddingLeft: "5px",
                       flex: 1,
                       wordBreak: "break-word",
                       display: "flex",

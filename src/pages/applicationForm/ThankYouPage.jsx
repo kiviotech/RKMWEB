@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { FaCheckCircle } from "react-icons/fa";
 import { MdEmail, MdPhone } from "react-icons/md";
 import "./ThankYouPage.scss";
@@ -6,6 +6,13 @@ import ApplicationFormHeader from "./ApplicationFormHeader";
 import ApplicationFormFooter from "./ApplicationFormFooter";
 
 const ThankYouPage = () => {
+  useEffect(() => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  }, []);
+
   return (
     <div style={{ backgroundColor: "#fff2ea" }}>
       <ApplicationFormHeader />

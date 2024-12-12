@@ -69,7 +69,9 @@ const VerifyDetails = () => {
         gender: formData.gender,
         status: "pending",
         deeksha: formData.deeksha,
-        email: formData.email,
+        email:
+          formData.email ||
+          `${formData.name.toLowerCase().replace(/\s+/g, "")}@gmail.com`,
         relationship: "applicant",
         arrival_date: formData.visitDate,
         departure_date: formData.departureDate,
@@ -92,7 +94,9 @@ const VerifyDetails = () => {
             gender: guest.guestGender,
             status: "pending",
             deeksha: guest.guestDeeksha,
-            email: guest.guestEmail,
+            email:
+              guest.guestEmail ||
+              `${guest.guestName.toLowerCase().replace(/\s+/g, "")}@gmail.com`,
             relationship: guest.guestRelation || "guest",
             arrival_date: formData.visitDate,
             departure_date: formData.departureDate,

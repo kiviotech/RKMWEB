@@ -1424,7 +1424,7 @@ const NewDonation = () => {
 
     return donorReceipts.reduce((total, receipt) => {
       const amount = parseFloat(receipt.donationDetails?.amount || 0);
-      return total + (isNaN(amount) ? 0 : amount); // Fixed missing closing parenthesis
+      return total + (isNaN(amount) ? 0 : amount);
     }, 0);
   };
 
@@ -2069,71 +2069,141 @@ const NewDonation = () => {
                 size: A4;
                 margin: 20mm;
               }
-            }
-          </style>
-        </head>
-        <body>
-          <div class="thank-letter">
-            <div style="margin-bottom: 20px;">
-              <p style="text-align: left;">Date: ${formatDate(
-                donationData.donationDate
-              )}</p>
-            </div>
+              .header-section {
+                display: flex;
+                justify-content: space-between;
+                margin-bottom: 20px;
+              }
+              .ref-numbers {
+                text-align: left;
+              }
+              .ref-numbers p {
+                margin: 0;  /* Remove margin between ref number lines */
+                line-height: 1.2;  /* Reduce line height between ref number lines */
+              }
+              .date {
+                text-align: right;
+              }
+              .donor-address {
+                margin-bottom: 20px;
+              }
+              .donor-address p {
+                margin: 0;
+                line-height: 1.2;
+              }
+              .donor-address p:empty {
+                display: none;
+              }
+              .acknowledgment {
+                margin: 20px 0;
+                line-height: 1.4;
+                text-align: justify;
+              }
+              .acknowledgment p {
+                margin: 0;
+                white-space: normal;
+              }
+              .receipt-reference {
+                margin: 15px 0;
+                line-height: 1.2;
+              }
+              .receipt-reference p {
+                margin: 0;
+                white-space: normal;
+              }
+              .prayer-section {
+                margin: 15px 0;
+                line-height: 1.2;
+              }
+              .prayer-section p {
+                margin: 0;
+                white-space: normal;
+                text-align: justify;
+              }
+            </style>
+          </head>
+          <body>
+            <div class="thank-letter">
+              <div class="header-section">
+                <div class="ref-numbers">
+                  <p>Ref. No.: PFDON/2024</p>
+                  <p>ID NO: ${donationData.uniqueDonorId}</p>
+                </div>
+                <div class="date">
+                  <p>Date: ${formatDate(donationData.donationDate)}</p>
+                </div>
+              </div>
 
-            <div style="margin-bottom: 20px;">
-              <p>To</p>
-              <p>${donationData.title} ${donationData.name}</p>
-              <p>Vill: ${donationData.houseNumber}, ${
-      donationData.streetName
+              <div class="donor-address">
+                <p>To</p>
+                <p>${donationData.title} ${donationData.name}</p>
+                <p>${
+                  donationData.houseNumber
+                    ? `Vill: ${donationData.houseNumber}`
+                    : ""
+                }${
+      donationData.streetName ? `, ${donationData.streetName}` : ""
     }</p>
-              <p>PO: ${donationData.postOffice}, Dist: ${
-      donationData.district
+                <p>${
+                  donationData.postOffice
+                    ? `PO: ${donationData.postOffice}`
+                    : ""
+                }${
+      donationData.district ? `, Dist: ${donationData.district}` : ""
     }</p>
-              <p>State: ${donationData.state}, Pin: ${donationData.pincode}</p>
-            </div>
+                <p>${donationData.state ? `State: ${donationData.state}` : ""}${
+      donationData.pincode ? `, Pin: ${donationData.pincode}` : ""
+    }</p>
+              </div>
 
-            <p>Respected ${donationData.title} ${donationData.name},</p>
+              <p>Respected ${donationData.title} ${donationData.name},</p>
 
-            <p style="margin-top: 15px;">Namaskar!</p>
-
-            <p style="text-align: justify; margin-top: 20px;">
-              We thankfully acknowledge your kind and generous contribution of Rs. ${
-                donationData.amount
-              }/- (${numberToWords(donationData.amount)} only) by ${
+              <div class="acknowledgment">
+                <p>We, thankfully acknowledge your kind and generous contribution of Rs. ${
+                  donationData.amount
+                }/- (${numberToWords(donationData.amount)} only) ${
       donationData.transactionType
-    } as 
-              ${donationData.donationType} for ${donationData.purpose}${
+        ? `as ${donationData.transactionType.toLowerCase()}`
+        : ""
+    } ${donationData.donationType ? `as ${donationData.donationType}` : ""} ${
+      donationData.purpose
+        ? `for ${
+            donationData.purpose === "Other"
+              ? donationData.otherPurpose || ""
+              : donationData.purpose
+          }`
+        : ""
+    }${
       donationData.inMemoryOf ? ` in memory of ${donationData.inMemoryOf}` : ""
-    }.
-            </p>
+    }.</p>
+            </div>
 
-            <p style="margin-top: 15px;">
-              Please find enclosed our official receipt (${
+            <div class="receipt-reference">
+              <p>Please find attached herewith the official Receipt vide no. (${
                 donationData.receiptNumber
               }, dated ${formatDate(
       donationData.donationDate
-    )}) for you records.
-            </p>
+    )}) for this contribution.</p>
+            </div>
 
-            <p style="margin-top: 15px;">
-              We pray to Sri Ramakrishna, Sri Maa Sarada Devi and Sri Swamiji Maharaj that they may bestow 
-              their choicest blessings upon you and members of your family!
-            </p>
+            <div class="prayer-section">
+              <p>We pray to Sri Ramakrishna, Sri Maa Sarada Devi and Sri Swamiji Maharaj that they may bestow their choicest blessings upon you and members of your family!</p>
+            </div>
 
             <p style="margin-top: 20px;">With best wishes and namaskars,</p>
 
             <div style="margin-top: 30px; text-align: right;">
               <p>Yours sincerely,</p>
-              <p style="margin-top: 20px;">(Swami Lokottarananda)</p>
-              <p>Adhyaksha</p>
+              <p style="margin-top: 20px; margin-bottom: 0;">(Swami Lokottarananda)</p>
+              <p style="margin-top: 0;">Adhyaksha</p>
             </div>
 
             <p style="margin-top: 20px;">Encl: As stated above.</p>
 
-            <div style="margin-top: 30px; border-top: 1px solid #000; padding-top: 10px; text-align: center;">
-              <p>Please Mention Your Id (${
+            <div style="border: 1px solid #000; text-align: center;">
+              <span>Please Mention Your Id (${
                 donationData.uniqueDonorId
-              }) In The Future Correspondences.</p>
+              }) In The Future Correspondences.</span>
             </div>
           </div>
           <script>

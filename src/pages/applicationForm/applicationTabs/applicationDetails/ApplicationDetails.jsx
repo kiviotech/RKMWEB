@@ -336,7 +336,7 @@ const ApplicationDetails = ({ goToNextStep, tabName }) => {
     <div className="application-form">
       <form onSubmit={handleSubmit}>
         <div className="div">
-          <h2>Application Details</h2>
+          <h2>Applicant Details</h2>
           <div className="form-section">
             <div className="form-left-section">
               {/* Name Field */}

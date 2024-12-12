@@ -234,7 +234,7 @@ const VerifyDetails = () => {
         )}
         {formData.knownToMath && (
           <p>
-            <span>
+            <span style={{ marginLeft: "20px" }}>
               Are you known to any of our Ramakrishna Math / Mission / Branch
               Centre / Monk(s) :
             </span>{" "}
@@ -243,7 +243,23 @@ const VerifyDetails = () => {
         )}
         {formData.file && Object.keys(formData.file).length > 0 && (
           <p>
-            <span>Recommendation Letter :</span> <strong>Not uploaded</strong>
+            <span style={{ marginLeft: "20px" }}>Recommendation Letter :</span>{" "}
+            <span>Document uploaded</span>{" "}
+            <svg
+              onClick={handlePreviewClick}
+              style={{ cursor: "pointer", verticalAlign: "middle" }}
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
+              <circle cx="12" cy="12" r="3" />
+            </svg>
           </p>
         )}
       </div>
@@ -266,24 +282,24 @@ const VerifyDetails = () => {
               </strong>
             </div>
           </div>
-          <div className="details-row">
+          {/* <div className="details-row">
             <strong>Address:</strong>{" "}
             <span>{`${formData.address.houseNumber}`}</span>
-          </div>
-          <div className="details-row">
+          </div> */}
+          {/* <div className="details-row">
             <div>
               <span>Landmark:</span>{" "}
               <strong>{formData.address.landmark || "Not specified"}</strong>
             </div>
-          </div>
+          </div> */}
           <div className="details-row">
-            <div>
-              <span>District:</span>{" "}
-              <strong>{formData.address.district}</strong>
-            </div>
             <div>
               <span>Pincode:</span>
               <strong> {formData.address.pinCode}</strong>
+            </div>
+            <div>
+              <span>District:</span>{" "}
+              <strong>{formData.address.district}</strong>
             </div>
             <div>
               <span>State:</span> <strong>{formData.address.state}</strong>

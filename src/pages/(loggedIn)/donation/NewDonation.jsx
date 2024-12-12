@@ -2108,10 +2108,11 @@ const NewDonation = () => {
             </p>
 
             <p style="margin-top: 15px;">
-              Please find attached herewith the official Receipt vide no. ${
+              Please find enclosed our official receipt (${
                 donationData.receiptNumber
-              }, dated ${formatDate(donationData.donationDate)} for this 
-              contribution.
+              }, dated ${formatDate(
+      donationData.donationDate
+    )}) for you records.
             </p>
 
             <p style="margin-top: 15px;">

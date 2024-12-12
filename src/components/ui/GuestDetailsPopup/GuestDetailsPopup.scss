@@ -187,21 +187,22 @@
 
   .close-btn {
     position: absolute;
-    top: 0px;
-    right: 16px;
+    top: -25px;
+    right: 0px;
     background: none;
     border: none;
     cursor: pointer;
     padding: 8px;
-
-    &:hover {
-      opacity: 0.8;
-    }
+    z-index: 1001;
 
     .icon {
       width: 20px;
       height: 20px;
       filter: invert(40%);
+    }
+
+    &:hover {
+      opacity: 0.8;
     }
   }
 }

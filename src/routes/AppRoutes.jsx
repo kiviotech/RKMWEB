@@ -17,9 +17,10 @@ import DonationDetail from "../pages/(loggedIn)/donation/DonationDetail";
 import DeekshaForm from "../pages/(loggedIn)/deeksha/DeekshaForm";
 import Deeksha from "../pages/(loggedIn)/deeksha/Deeksha";
 import {
-  AdminRoute,
   DeekshaRoute,
   SharedRoute,
+  SubAdminRoute,
+  SuperAdminRoute,
 } from "../components/ProtectedRoute";
 import { PublicRoute } from "../components/AuthMiddleware";
 
@@ -66,99 +67,106 @@ const AppRoutes = () => {
         <Route
           path="/dashboard"
           element={
-            <AdminRoute>
+            <SuperAdminRoute>
               <Dashboard />
-            </AdminRoute>
+            </SuperAdminRoute>
           }
         />
-        <Route path="/coupons" element={<Coupons />} />
+        <Route
+          path="/coupons"
+          element={
+            <SuperAdminRoute>
+              <Coupons />
+            </SuperAdminRoute>
+          }
+        />
         <Route
           path="/check-in"
           element={
-            <AdminRoute>
+            <SuperAdminRoute>
               <CheckInDetails />
-            </AdminRoute>
+            </SuperAdminRoute>
           }
         />
         <Route
           path="/check-out"
           element={
-            <AdminRoute>
+            <SuperAdminRoute>
               <CheckOutDetails />
-            </AdminRoute>
+            </SuperAdminRoute>
           }
         />
         <Route
           path="/allocate-rooms"
           element={
-            <AdminRoute>
+            <SuperAdminRoute>
               <AllocateRoom />
-            </AdminRoute>
+            </SuperAdminRoute>
           }
         />
         <Route
           path="/approve-guests"
           element={
-            <AdminRoute>
+            <SuperAdminRoute>
               <ApproveGuests />
-            </AdminRoute>
+            </SuperAdminRoute>
           }
         />
         <Route
           path="/room-availability"
           element={
-            <AdminRoute>
+            <SuperAdminRoute>
               <CheckRoomAvailability />
-            </AdminRoute>
+            </SuperAdminRoute>
           }
         />
         <Route
           path="/book-room"
           element={
-            <AdminRoute>
+            <SuperAdminRoute>
               <BookRoom />
-            </AdminRoute>
+            </SuperAdminRoute>
           }
         />
         <Route
           path="/Requests"
           element={
-            <AdminRoute>
+            <SuperAdminRoute>
               <Requests />
-            </AdminRoute>
+            </SuperAdminRoute>
           }
         />
         <Route
           path="/donation"
           element={
-            <AdminRoute>
+            <SuperAdminRoute>
               <Donation />
-            </AdminRoute>
+            </SuperAdminRoute>
           }
         />
         <Route
           path="/newDonation"
           element={
-            <AdminRoute>
+            <SubAdminRoute>
               <NewDonation />
-            </AdminRoute>
+            </SubAdminRoute>
           }
         />
         <Route
           path="/allDonationDetails"
           element={
-            <AdminRoute>
+            <SuperAdminRoute>
               <AllDonationDetails />
-            </AdminRoute>
+            </SuperAdminRoute>
           }
         />
 
         <Route
           path="/donationdetail"
           element={
-            <AdminRoute>
+            <SuperAdminRoute>
               <DonationDetail />
-            </AdminRoute>
+            </SuperAdminRoute>
           }
         />
 
@@ -256,9 +264,9 @@ const AppRoutes = () => {
       <Route
         path="/allDonation"
         element={
-          <AdminRoute>
+          <SuperAdminRoute>
             <AllDonation />
-          </AdminRoute>
+          </SuperAdminRoute>
         }
       />
     </Routes>

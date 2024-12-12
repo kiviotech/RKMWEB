@@ -3542,7 +3542,7 @@ const NewDonation = () => {
                   </p>
                   <div
                     style={{
-                      paddingLeft: "20px",
+                      paddingLeft: "5px",
                       flex: 1,
                       display: "flex",
                       flexDirection: "column",
@@ -3574,7 +3574,7 @@ const NewDonation = () => {
                   </p>
                   <div
                     style={{
-                      paddingLeft: "20px",
+                      paddingLeft: "5px",
                       flex: 1,
                       wordBreak: "break-word",
                       display: "flex",
@@ -3602,7 +3602,7 @@ const NewDonation = () => {
                   </p>
                   <div
                     style={{
-                      paddingLeft: "20px",
+                      paddingLeft: "5px",
                       flex: 1,
                       wordBreak: "break-word",
                       display: "flex",

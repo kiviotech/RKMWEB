@@ -13,6 +13,7 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
 
   const [visited, setVisited] = useState(formData.visited);
   const [showExtendedStayReason, setShowExtendedStayReason] = useState(false);
+  const [showUploadSuccess, setShowUploadSuccess] = useState(false);
 
   // Add useEffect for smooth scroll to top
   useEffect(() => {
@@ -181,6 +182,15 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
         ...data[0],
         fileId: data[0].id,
       });
+
+      // Show success popup
+      setShowUploadSuccess(true);
+
+      // Hide popup after 3 seconds
+      setTimeout(() => {
+        setShowUploadSuccess(false);
+      }, 3000);
+
       console.log("File Upload Success:", data[0]);
     } catch (error) {
       console.error("File Upload Error:", error);
@@ -637,6 +647,26 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
           </div>
         )}
       </form>
+
+      {/* Success Popup */}
+      {showUploadSuccess && (
+        <div
+          style={{
+            position: "fixed",
+            top: "20px",
+            right: "20px",
+            backgroundColor: "#4CAF50",
+            color: "white",
+            padding: "15px 25px",
+            borderRadius: "5px",
+            boxShadow: "0 2px 5px rgba(0,0,0,0.2)",
+            zIndex: 1000,
+            animation: "fadeIn 0.3s ease-in",
+          }}
+        >
+          Recommendation letter uploaded successfully!
+        </div>
+      )}
     </div>
   );
 };

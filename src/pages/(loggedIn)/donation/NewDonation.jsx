@@ -1888,6 +1888,41 @@ const NewDonation = () => {
     return donationData?.status?.toLowerCase() === "completed";
   };
 
+  // Add this function to prepare donation data for consent letter
+  const prepareConsentLetterData = () => {
+    return {
+      uniqueDonorId,
+      donationDate: getCurrentFormattedDate(),
+      amount: currentReceipt?.donationDetails?.amount,
+      transactionType:
+        currentReceipt?.donationDetails?.transactionType || "Cash",
+      donationType:
+        currentReceipt?.donationDetails?.donationType || "Others(Revenue)",
+      purpose:
+        currentReceipt?.donationDetails?.purpose === "Other"
+          ? currentReceipt?.donationDetails?.otherPurpose
+          : currentReceipt?.donationDetails?.purpose,
+      title: donorDetails.title,
+      name: donorDetails.name,
+      houseNumber: donorDetails.houseNumber,
+      streetName: donorDetails.streetName,
+      postOffice: donorDetails.postOffice,
+      district: donorDetails.district,
+      state: donorDetails.state,
+      pincode: donorDetails.pincode,
+      panNumber: donorDetails.panNumber || donorDetails.identityNumber,
+      phone: `${donorDetails.phoneCode}${donorDetails.phone}`,
+      inMemoryOf: currentReceipt?.donationDetails?.inMemoryOf,
+      receiptNumber: receiptNumber,
+    };
+  };
+
+  // Modify the consent letter button click handler
+  const handleConsentLetterClick = () => {
+    const donationData = prepareConsentLetterData();
+    navigate("/consent-letter", { state: { donationData } });
+  };
+
   return (
     <div className="donations-container">
       <div className="header">
@@ -2463,10 +2498,10 @@ const NewDonation = () => {
               <button
                 className="letter-btn consent-letter"
                 type="button"
-                onClick={() => window.open("/consent-letter", "_blank")}
-                disabled={!isDonationCompleted(donationData)} // Changed from always true
+                onClick={handleConsentLetterClick}
+                disabled={!isDonationCompleted(donationData)}
                 style={{
-                  opacity: isDonationCompleted(donationData) ? 1 : 0.5, // Changed from always 0.5
+                  opacity: isDonationCompleted(donationData) ? 1 : 0.5,
                   cursor: isDonationCompleted(donationData)
                     ? "pointer"
                     : "not-allowed",

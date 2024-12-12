@@ -39,6 +39,8 @@ import ThankYouPage from "../pages/applicationForm/ThankYouPage";
 import WelcomePage from "../pages/applicationForm/WelcomePage";
 import Coupons from "../pages/(loggedIn)/coupons/Coupons";
 
+import ConsentLetter from "../pages/(loggedIn)/donation/ConsentLetter";
+
 const AppRoutes = () => {
   return (
     <Routes>
@@ -142,7 +144,7 @@ const AppRoutes = () => {
             </AdminRoute>
           }
         />
-                <Route
+        <Route
           path="/allDonationDetails"
           element={
             <AdminRoute>
@@ -177,11 +179,11 @@ const AppRoutes = () => {
           </SharedRoute>
         }
       />
-            <Route
+      <Route
         path="/deekshaAdress-form"
         element={
           <SharedRoute>
-            < DeekshaAddressForm />
+            <DeekshaAddressForm />
           </SharedRoute>
         }
       />
@@ -221,8 +223,7 @@ const AppRoutes = () => {
         path="/deekshaDuration-form"
         element={
           <SharedRoute>
-            <DeekshaDurationForm
- />
+            <DeekshaDurationForm />
           </SharedRoute>
         }
       />
@@ -230,18 +231,16 @@ const AppRoutes = () => {
         path="/deekshaBooks-form"
         element={
           <SharedRoute>
-            <DeekshaBooksForm
- />
+            <DeekshaBooksForm />
           </SharedRoute>
         }
       />
 
-<Route
+      <Route
         path="/deekshaUpasana-form"
         element={
           <SharedRoute>
-            <DeekshaUpasanaForm
- />
+            <DeekshaUpasanaForm />
           </SharedRoute>
         }
       />
@@ -249,15 +248,19 @@ const AppRoutes = () => {
       <Route path="/application-form" element={<ApplicationForm />} />
       <Route path="/welcome" element={<WelcomePage />} />
       <Route path="/thank-you" element={<ThankYouPage />} />
-      <Route path="/dormitory-application-form" element={<DormitoryApplicationForm />} />
       <Route
-          path="/allDonation"
-          element={
-            <AdminRoute>
-              <AllDonation />
-            </AdminRoute>
-          }
-        />
+        path="/dormitory-application-form"
+        element={<DormitoryApplicationForm />}
+      />
+      <Route path="/consent-letter" element={<ConsentLetter />} />
+      <Route
+        path="/allDonation"
+        element={
+          <AdminRoute>
+            <AllDonation />
+          </AdminRoute>
+        }
+      />
     </Routes>
   );
 };

@@ -2061,13 +2061,13 @@ const NewDonation = () => {
               body {
                 padding: 5px;
                 max-width: 800px;
-                margin: 0 auto;
+                margin: 40mm auto; /* Increased from 20mm to 40mm */
                 line-height: 1.5;
                 font-size: 12pt;
               }
               @page {
                 size: A4;
-                margin: 20mm;
+                margin: 30mm 20mm; /* Added different top margin for page */
               }
               .header-section {
                 display: flex;
@@ -2163,7 +2163,7 @@ const NewDonation = () => {
                   donationData.amount
                 }/- (${numberToWords(donationData.amount)} only) ${
       donationData.transactionType
-        ? `as ${donationData.transactionType.toLowerCase()}`
+        ? `by ${donationData.transactionType.toLowerCase()}`
         : ""
     } ${donationData.donationType ? `as ${donationData.donationType}` : ""} ${
       donationData.purpose

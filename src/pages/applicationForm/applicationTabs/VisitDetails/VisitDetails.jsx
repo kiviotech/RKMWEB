@@ -14,6 +14,15 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
   const [visited, setVisited] = useState(formData.visited);
   const [showExtendedStayReason, setShowExtendedStayReason] = useState(false);
 
+  // Add useEffect for smooth scroll to top
+  useEffect(() => {
+    window.scrollTo({
+      top: 0,
+      left: 0,
+      behavior: "smooth",
+    });
+  }, []); // Empty dependency array means this runs once when component mounts
+
   const handleNext = () => {
     navigate("/application-form", {
       state: { activeTab: "3" },

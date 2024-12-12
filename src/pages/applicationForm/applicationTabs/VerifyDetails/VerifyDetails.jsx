@@ -208,22 +208,20 @@ const VerifyDetails = () => {
 
       <div className="details-section">
         <p>
-          <span>Arrival Date and Time :</span>{" "}
+          <span style={{ marginLeft: "20px" }}>Arrival Date and Time :</span>{" "}
           <strong>
             {formatDateTime(formData.visitDate, formData.visitTime)}
           </strong>
         </p>
         <p>
-          <span>Departure Date and Time :</span>{" "}
+          <span style={{ marginLeft: "20px" }}>Departure Date and Time :</span>{" "}
           <strong>
             {formatDateTime(formData.departureDate, formData.departureTime)}
           </strong>
         </p>
         <p>
-          <span>
-            <span>Total Days of Stay :</span>{" "}
-            <strong>{calculateStayDuration()}</strong>
-          </span>
+          <span style={{ marginLeft: "20px" }}>Total Days of Stay :</span>{" "}
+          <strong>{calculateStayDuration()}</strong>
         </p>
         {formData.visited === "yes" && formData.previousVisitDate && (
           <p>

@@ -278,9 +278,7 @@ const GuestDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
 
       case "guestEmail":
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!value) {
-          setErrors(`guestEmail${index}`, "Email is required");
-        } else if (!emailRegex.test(value)) {
+        if (value && !emailRegex.test(value)) {
           setErrors(`guestEmail${index}`, "Please enter a valid email address");
         } else {
           setErrors(`guestEmail${index}`, "");
@@ -380,13 +378,12 @@ const GuestDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
     const currentGuestIndex = guestTabs.indexOf(activeTab);
     let emptyFields = [];
 
-    // Required fields for validation
+    // Required fields for validation (removed email)
     const requiredFields = [
       { key: "guestTitle", label: "Title" },
       { key: "guestName", label: "Name" },
       { key: "guestAge", label: "Age" },
       { key: "guestGender", label: "Gender" },
-      { key: "guestEmail", label: "Email" },
       { key: "guestNumber", label: "Phone Number" },
       { key: "guestRelation", label: "Relation with Applicant" },
       { key: "guestOccupation", label: "Occupation" },

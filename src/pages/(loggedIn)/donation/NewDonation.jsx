@@ -1993,20 +1993,54 @@ const NewDonation = () => {
             </div>
 
             <div style="margin-top: 5px;">
-              <p>${donationData.title} ${donationData.name}</p>
-              <p>Vill: ${donationData.houseNumber}, ${
-      donationData.streetName
-    }</p>
-              <p>PO: ${donationData.postOffice}, Dist: ${
-      donationData.district
-    }</p>
-              <p>State: ${donationData.state}, Pin: ${donationData.pincode}</p>
-              <p>PAN: ${donationData.panNumber}, Mobile No.: ${
-      donationData.phone
+              <p style="margin: 0;">${donorDetails.title} ${
+      donorDetails.name
     }</p>
               ${
-                donationData.inMemoryOf
-                  ? `<p>In Memory of ${donationData.inMemoryOf}.</p>`
+                donorDetails.houseNumber || donorDetails.streetName
+                  ? `<p style="margin: 0;">Vill: ${[
+                      donorDetails.houseNumber,
+                      donorDetails.streetName,
+                    ]
+                      .filter(Boolean)
+                      .join(", ")}</p>`
+                  : ""
+              }
+              ${
+                donorDetails.postOffice || donorDetails.district
+                  ? `<p style="margin: 0;">${[
+                      donorDetails.postOffice
+                        ? `PO: ${donorDetails.postOffice}`
+                        : "",
+                      donorDetails.district
+                        ? `Dist: ${donorDetails.district}`
+                        : "",
+                    ]
+                      .filter(Boolean)
+                      .join(", ")}</p>`
+                  : ""
+              }
+              ${
+                donorDetails.state || donorDetails.pincode
+                  ? `<p style="margin: 0;">${[
+                      donorDetails.state ? `State: ${donorDetails.state}` : "",
+                      donorDetails.pincode
+                        ? `Pin: ${donorDetails.pincode}`
+                        : "",
+                    ]
+                      .filter(Boolean)
+                      .join(", ")}</p>`
+                  : ""
+              }
+              <p style="margin: 0;">${[
+                donorDetails.panNumber ? `PAN: ${donorDetails.panNumber}` : "",
+                donorDetails.phone ? `Mobile No.: ${donorDetails.phone}` : "",
+              ]
+                .filter(Boolean)
+                .join(", ")}</p>
+              ${
+                donorDetails.inMemoryOf
+                  ? `<p style="margin: 0;">In Memory of ${donorDetails.inMemoryOf}</p>`
                   : ""
               }
             </div>

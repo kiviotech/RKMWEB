@@ -2061,107 +2061,90 @@ const NewDonation = () => {
               body {
                 padding: 5px;
                 max-width: 800px;
-                margin: 40mm auto; /* Increased from 20mm to 40mm */
-                line-height: 1.5;
+                margin: 25mm auto; /* Decreased from 45mm to 25mm to reduce top gap */
+                line-height: 1.6;
                 font-size: 12pt;
               }
               @page {
                 size: A4;
-                margin: 30mm 20mm; /* Added different top margin for page */
+                margin: 15mm 20mm; /* Reduced top margin from 25mm to 15mm */
               }
               .header-section {
                 display: flex;
                 justify-content: space-between;
-                margin-bottom: 20px;
-              }
-              .ref-numbers {
-                text-align: left;
-              }
-              .ref-numbers p {
-                margin: 0;  /* Remove margin between ref number lines */
-                line-height: 1.2;  /* Reduce line height between ref number lines */
-              }
-              .date {
-                text-align: right;
+                margin-bottom: 25px; /* Increased from 20px to 25px */
               }
               .donor-address {
-                margin-bottom: 20px;
+                margin-bottom: 25px; /* Increased from 20px to 25px */
               }
               .donor-address p {
                 margin: 0;
-                line-height: 1.2;
-              }
-              .donor-address p:empty {
-                display: none;
+                line-height: 1.4; /* Increased from 1.2 to 1.4 */
               }
               .acknowledgment {
-                margin: 20px 0;
-                line-height: 1.4;
-                text-align: justify;
-              }
-              .acknowledgment p {
-                margin: 0;
-                white-space: normal;
+                margin: 25px 0; /* Increased from 20px to 25px */
+                line-height: 1.6; /* Increased from 1.4 to 1.6 */
               }
               .receipt-reference {
-                margin: 15px 0;
-                line-height: 1.2;
-              }
-              .receipt-reference p {
-                margin: 0;
-                white-space: normal;
+                margin: 20px 0; /* Increased from 15px to 20px */
+                line-height: 1.4; /* Increased from 1.2 to 1.4 */
               }
               .prayer-section {
-                margin: 15px 0;
-                line-height: 1.2;
+                margin: 20px 0; /* Increased from 15px to 20px */
+                line-height: 1.4; /* Increased from 1.2 to 1.4 */
               }
-              .prayer-section p {
-                margin: 0;
-                white-space: normal;
-                text-align: justify;
+              .signature-section {
+                margin-top: 35px; /* Added specific margin for signature section */
               }
-            </style>
-          </head>
-          <body>
-            <div class="thank-letter">
-              <div class="header-section">
-                <div class="ref-numbers">
-                  <p>Ref. No.: PFDON/2024</p>
-                  <p>ID NO: ${donationData.uniqueDonorId}</p>
-                </div>
-                <div class="date">
-                  <p>Date: ${formatDate(donationData.donationDate)}</p>
-                </div>
+              .enclosure {
+                margin-top: 25px; /* Added specific margin for enclosure */
+              }
+              .border-box {
+                margin-top: 20px; /* Added margin for the bordered box */
+                padding: 10px;
+                border: 1px solid #000;
+              }
+            }
+          </style>
+        </head>
+        <body>
+          <div class="thank-letter">
+            <div class="header-section">
+              <div class="ref-numbers">
+                <p>Ref. No.: PFDON/2024</p>
+                <p>ID NO: ${donationData.uniqueDonorId}</p>
               </div>
+              <div class="date">
+                <p>Date: ${formatDate(donationData.donationDate)}</p>
+              </div>
+            </div>
 
-              <div class="donor-address">
-                <p>To</p>
-                <p>${donationData.title} ${donationData.name}</p>
-                <p>${
-                  donationData.houseNumber
-                    ? `Vill: ${donationData.houseNumber}`
-                    : ""
-                }${
+            <div class="donor-address">
+              <p>To</p>
+              <p>${donationData.title} ${donationData.name}</p>
+              <p>${
+                donationData.houseNumber
+                  ? `Vill: ${donationData.houseNumber}`
+                  : ""
+              }${
       donationData.streetName ? `, ${donationData.streetName}` : ""
     }</p>
-                <p>${
-                  donationData.postOffice
-                    ? `PO: ${donationData.postOffice}`
-                    : ""
-                }${
+              <p>${
+                donationData.postOffice ? `PO: ${donationData.postOffice}` : ""
+              }${
       donationData.district ? `, Dist: ${donationData.district}` : ""
     }</p>
-                <p>${donationData.state ? `State: ${donationData.state}` : ""}${
+              <p>${donationData.state ? `State: ${donationData.state}` : ""}${
       donationData.pincode ? `, Pin: ${donationData.pincode}` : ""
     }</p>
-              </div>
+            </div>
 
-              <p>Respected ${donationData.title} ${donationData.name},</p>
+            <p>Respected ${donationData.title} ${donationData.name},</p>
 
-              <div class="acknowledgment">
-                <p>We, thankfully acknowledge your kind and generous contribution of Rs. ${
-                  donationData.amount
-                }/- (${numberToWords(donationData.amount)} only) ${
+            <div class="acknowledgment">
+              <p>We, thankfully acknowledge your kind and generous contribution of Rs. ${
+                donationData.amount
+              }/- (${numberToWords(donationData.amount)} only) ${
       donationData.transactionType
         ? `by ${donationData.transactionType.toLowerCase()}`
         : ""
@@ -2176,46 +2159,46 @@ const NewDonation = () => {
     }${
       donationData.inMemoryOf ? ` in memory of ${donationData.inMemoryOf}` : ""
     }.</p>
-            </div>
+          </div>
 
-            <div class="receipt-reference">
-              <p>Please find attached herewith the official Receipt vide no. (${
-                donationData.receiptNumber
-              }, dated ${formatDate(
+          <div class="receipt-reference">
+            <p>Please find attached herewith the official Receipt vide no. (${
+              donationData.receiptNumber
+            }, dated ${formatDate(
       donationData.donationDate
     )}) for this contribution.</p>
-            </div>
-
-            <div class="prayer-section">
-              <p>We pray to Sri Ramakrishna, Sri Maa Sarada Devi and Sri Swamiji Maharaj that they may bestow their choicest blessings upon you and members of your family!</p>
-            </div>
-
-            <p style="margin-top: 20px;">With best wishes and namaskars,</p>
-
-            <div style="margin-top: 30px; text-align: right;">
-              <p>Yours sincerely,</p>
-              <p style="margin-top: 20px; margin-bottom: 0;">(Swami Lokottarananda)</p>
-              <p style="margin-top: 0;">Adhyaksha</p>
-            </div>
-
-            <p style="margin-top: 20px;">Encl: As stated above.</p>
-
-            <div style="border: 1px solid #000; text-align: center;">
-              <span>Please Mention Your Id (${
-                donationData.uniqueDonorId
-              }) In The Future Correspondences.</span>
-            </div>
           </div>
-          <script>
-            window.onload = function() {
-              window.print();
-              window.onafterprint = function() {
-                window.close();
-              };
-            }
-          </script>
-        </body>
-      </html>
+
+          <div class="prayer-section">
+            <p>We pray to Sri Ramakrishna, Sri Maa Sarada Devi and Sri Swamiji Maharaj that they may bestow their choicest blessings upon you and members of your family!</p>
+          </div>
+
+          <p style="margin-top: 20px;">With best wishes and namaskars,</p>
+
+          <div style="margin-top: 30px; text-align: right;">
+            <p>Yours sincerely,</p>
+            <p style="margin-top: 20px; margin-bottom: 0;">(Swami Lokottarananda)</p>
+            <p style="margin-top: 0;">Adhyaksha</p>
+          </div>
+
+          <p style="margin-top: 20px;">Encl: As stated above.</p>
+
+          <div style="border: 1px solid #000; text-align: center;">
+            <span>Please Mention Your Id (${
+              donationData.uniqueDonorId
+            }) In The Future Correspondences.</span>
+          </div>
+        </div>
+        <script>
+          window.onload = function() {
+            window.print();
+            window.onafterprint = function() {
+              window.close();
+            };
+          }
+        </script>
+      </body>
+    </html>
     `;
 
     // Write content to iframe and print

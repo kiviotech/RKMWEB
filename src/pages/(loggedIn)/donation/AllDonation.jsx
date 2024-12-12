@@ -279,6 +279,14 @@ const AllDonation = ({
                               "completed" && (
                               <button
                                 className="view-btn"
+                                style={{
+                                  color: "#ea7704",
+                                  background: "transparent",
+                                  border: "none",
+                                  cursor: "pointer",
+                                  padding: "5px 10px",
+                                  fontSize: "14px",
+                                }}
                                 onClick={() => handleViewDonation(donation.id)}
                               >
                                 View

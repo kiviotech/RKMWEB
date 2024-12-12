@@ -1026,9 +1026,28 @@ const NewDonation = () => {
                   <p>The sum of Rupees <b>${numberToWords(
                     parseFloat(currentReceipt?.donationDetails?.amount || 0)
                   )} Only</b></p>
-                  <p>By ${
-                    currentReceipt?.donationDetails?.transactionType || "Cash"
-                  }</p>
+                  
+                  <div style="display: flex; gap: 10px; align-items: center;">
+                    <p style="margin: 0;">By ${
+                      currentReceipt?.donationDetails?.transactionType || "Cash"
+                    }</p>
+                    ${
+                      currentReceipt?.donationDetails?.transactionType?.toLowerCase() !==
+                      "cash"
+                        ? `
+                      <p style="margin: 0;">Dt.  ${
+                        currentReceipt?.donationDetails?.transactionDetails
+                          ?.ddDate || ""
+                      }</p>
+                      <p style="margin: 0;">Bank: ${
+                        currentReceipt?.donationDetails?.transactionDetails
+                          ?.bankName || ""
+                      }</p>
+                    `
+                        : ""
+                    }
+                  </div>
+
                   <p>As Donation for ${
                     currentReceipt?.donationDetails?.donationType
                   } for ${

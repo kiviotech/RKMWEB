@@ -52,7 +52,8 @@ const AllDonation = ({
   const filteredDonations = donations.filter((donation) => {
     const searchString = (searchTerm || "").toLowerCase();
     const donationDate =
-      donation.attributes.receipt_detail?.data?.attributes?.donation_date;
+      donation.attributes.receipt_detail?.data?.attributes?.donation_date ||
+      donation.attributes.updatedAt;
 
     // Search term filter
     const matchesSearch =
@@ -66,9 +67,9 @@ const AllDonation = ({
     // Date range filter
     let matchesDateRange = true;
     if (dateRange.startDate && dateRange.endDate) {
-      const donationDateTime = new Date(donationDate).getTime();
-      const startDateTime = new Date(dateRange.startDate).getTime();
-      const endDateTime = new Date(dateRange.endDate).getTime();
+      const donationDateTime = new Date(donationDate).setHours(0, 0, 0, 0);
+      const startDateTime = new Date(dateRange.startDate).setHours(0, 0, 0, 0);
+      const endDateTime = new Date(dateRange.endDate).setHours(23, 59, 59, 999);
 
       matchesDateRange =
         donationDateTime >= startDateTime && donationDateTime <= endDateTime;

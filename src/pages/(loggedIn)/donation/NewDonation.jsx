@@ -61,6 +61,14 @@ const NewDonation = () => {
     return () => window.removeEventListener("popstate", handleRouteChange);
   }, []);
 
+  // Add this useEffect near the top of your component, with other useEffects
+  useEffect(() => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  }, []); // Empty dependency array means this runs once when component mounts
+
   const [selectedTab, setSelectedTab] = useState("Math");
   const [receiptNumber, setReceiptNumber] = useState("");
   const { user } = useAuthStore();
@@ -1875,6 +1883,11 @@ const NewDonation = () => {
     fetchNumbers();
   }, []); // Empty dependency array means this runs once when component mounts
 
+  // Add this helper function near your other utility functions
+  const isDonationCompleted = (donationData) => {
+    return donationData?.status?.toLowerCase() === "completed";
+  };
+
   return (
     <div className="donations-container">
       <div className="header">
@@ -2532,6 +2545,13 @@ const NewDonation = () => {
                 className="pending-btn"
                 type="button"
                 onClick={handlePending}
+                disabled={isDonationCompleted(donationData)}
+                style={{
+                  opacity: isDonationCompleted(donationData) ? 0.5 : 1,
+                  cursor: isDonationCompleted(donationData)
+                    ? "not-allowed"
+                    : "pointer",
+                }}
               >
                 Pending
               </button>
@@ -2539,6 +2559,13 @@ const NewDonation = () => {
                 className="print-receipt-btn"
                 type="button"
                 onClick={handlePrintReceipt}
+                disabled={isDonationCompleted(donationData)}
+                style={{
+                  opacity: isDonationCompleted(donationData) ? 0.5 : 1,
+                  cursor: isDonationCompleted(donationData)
+                    ? "not-allowed"
+                    : "pointer",
+                }}
               >
                 <svg
                   width="16"
@@ -2600,13 +2627,17 @@ const NewDonation = () => {
                     .find((g) => g.id === donorDetails.guestId)
                     ?.attributes?.donations?.data.map((donation) => {
                       const attributes = donation.attributes;
+                      // Format the date to dd-mm-yyyy
+                      const date = new Date(attributes.createdAt);
+                      const formattedDate = date.toLocaleDateString("en-GB", {
+                        day: "2-digit",
+                        month: "2-digit",
+                        year: "numeric",
+                      });
+
                       return (
                         <tr key={donation.id}>
-                          <td>
-                            {new Date(
-                              attributes.createdAt
-                            ).toLocaleDateString()}
-                          </td>
+                          <td>{formattedDate}</td>
                           <td>{attributes.donationFor}</td>
                           <td>
                             <span

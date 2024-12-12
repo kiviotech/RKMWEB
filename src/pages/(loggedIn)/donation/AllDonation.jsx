@@ -180,10 +180,28 @@ const AllDonation = ({
     });
   };
 
-  const handleViewDonation = (donationId) => {
-    // Implement the logic to handle the "View" button click
-    // For example, you can navigate to a detailed view page
-    navigate(`/donation/${donationId}`);
+  const handleViewDonation = (donation) => {
+    navigate("/newDonation", {
+      state: {
+        donationData: {
+          id: donation.id,
+          receiptNumber:
+            donation.attributes.receipt_detail?.data?.attributes
+              ?.Receipt_number,
+          donorName: donation.attributes.guest?.data?.attributes?.name,
+          donationDate:
+            donation.attributes.receipt_detail?.data?.attributes?.donation_date,
+          phoneNumber:
+            donation.attributes.guest?.data?.attributes?.phone_number,
+          donatedFor: donation.attributes.donationFor,
+          status: donation.attributes.status,
+          amount: donation.attributes.donationAmount,
+          createdBy:
+            donation.attributes.receipt_detail?.data?.attributes?.createdBy
+              ?.data?.id || donation.attributes.createdBy?.data?.id,
+        },
+      },
+    });
   };
 
   if (loading) return <div>Loading...</div>;
@@ -287,7 +305,7 @@ const AllDonation = ({
                                   padding: "5px 10px",
                                   fontSize: "14px",
                                 }}
-                                onClick={() => handleViewDonation(donation.id)}
+                                onClick={() => handleViewDonation(donation)}
                               >
                                 View
                               </button>

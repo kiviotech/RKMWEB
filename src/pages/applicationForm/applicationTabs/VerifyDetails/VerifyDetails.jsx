@@ -190,7 +190,17 @@ const VerifyDetails = () => {
               <td>{formData.deeksha || "Not specified"}</td>
               <td>{`+${formData.countryCode} ${formData.phoneNumber}`}</td>
               <td>{formData.aadhaar}</td>
-              <td>{`${formData.address.district}, ${formData.address.state}`}</td>
+              <td>
+                {[
+                  formData.address.houseNumber,
+                  formData.address.streetName,
+                  formData.address.postOffice,
+                  formData.address.district,
+                  formData.address.state,
+                ]
+                  .filter(Boolean)
+                  .join(", ")}
+              </td>
             </tr>
             {/* Guest Rows */}
             {formData.guests.map((guest, index) => (
@@ -203,7 +213,17 @@ const VerifyDetails = () => {
                 <td>{guest.guestDeeksha || "Not specified"}</td>
                 <td>{`+${guest.countryCode} ${guest.guestNumber}`}</td>
                 <td>{guest.guestAadhaar}</td>
-                <td>{`${guest.guestAddress.district}, ${guest.guestAddress.state}`}</td>
+                <td>
+                  {[
+                    guest.guestAddress.houseNumber,
+                    guest.guestAddress.streetName,
+                    guest.guestAddress.postOffice,
+                    guest.guestAddress.district,
+                    guest.guestAddress.state,
+                  ]
+                    .filter(Boolean)
+                    .join(", ")}
+                </td>
               </tr>
             ))}
           </tbody>
@@ -229,8 +249,10 @@ const VerifyDetails = () => {
         </p>
         {formData.visited === "yes" && formData.previousVisitDate && (
           <p>
-            Date of Last visit & stay in Ramakrishna Math Kamarpukur Guest
-            House:{" "}
+            <span style={{ marginLeft: "20px" }}>
+              Date of Last visit & stay in Ramakrishna Math Kamarpukur Guest
+              House:
+            </span>{" "}
             <strong>
               {new Date(formData.previousVisitDate).toLocaleDateString("en-GB")}
             </strong>

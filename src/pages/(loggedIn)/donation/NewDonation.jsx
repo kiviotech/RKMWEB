@@ -1942,6 +1942,17 @@ const NewDonation = () => {
                 size: A4;
                 margin: 20mm;
               }
+              .header-info p {
+                margin: 0;
+                line-height: 1.4;
+              }
+              .header-info {
+                margin-bottom: 15px;  /* Add space after ID NO */
+              }
+              .address p {
+                margin: 0;
+                line-height: 1.2;
+              }
             }
           </style>
         </head>
@@ -1949,12 +1960,12 @@ const NewDonation = () => {
           <div class="consent-letter">
             <h2 style="text-align: center; margin-bottom: 5px;">CONSENT LETTER</h2>
 
-            <div style="margin-bottom: 5px;">
+            <div class="header-info">
               <p>Date: ${formatDate(donationData.donationDate)}</p>
               <p>ID NO: ${donationData.uniqueDonorId}</p>
             </div>
 
-            <div style="margin-bottom: 5px;">
+            <div class="address">
               <p>To</p>
               <p>The Adhyaksha</p>
               <p>Ramakrishna Math</p>

@@ -1102,7 +1102,7 @@ const NewDonation = () => {
         deviceHeight: "297mm",
       };
 
-      // Modify the onload handler to include modal closing
+      // Modify the onload handler to include modal closing and form reset
       iframeWindow.onload = () => {
         iframeWindow.focus();
         iframeWindow.print(printSettings);
@@ -1112,7 +1112,7 @@ const NewDonation = () => {
           document.body.removeChild(printFrame);
           setIsModalOpen(false); // Close the modal
           resetFormData();
-          navigate("/newDonation");
+          window.location.reload(); // Add this line to reload the page
         }, 1000);
       };
     } catch (error) {

@@ -119,7 +119,12 @@ const ConsentLetter = () => {
   return (
     <div
       className="consent-letter"
-      style={{ padding: "5px", maxWidth: "800px", margin: "0 auto" }}
+      style={{
+        padding: "5px",
+        maxWidth: "800px",
+        margin: "0 auto",
+        lineHeight: "1.2",
+      }}
     >
       <h2 style={{ textAlign: "center", marginBottom: "5px" }}>
         CONSENT LETTER

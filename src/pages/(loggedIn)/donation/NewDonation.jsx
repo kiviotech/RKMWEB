@@ -1209,7 +1209,6 @@ const NewDonation = () => {
             aadhaar_number: donorDetails.identityNumber,
             address: `${donorDetails.houseNumber}, ${donorDetails.streetName}, ${donorDetails.postOffice}, ${donorDetails.district}, ${donorDetails.state}, ${donorDetails.pincode}`,
           };
-          // Send the payload directly without wrapping in data object
           const guestResponse = await createNewGuestDetails(guestPayload);
           guestId = guestResponse.data.id;
           console.log("Created new guest with ID:", guestId);
@@ -1425,7 +1424,7 @@ const NewDonation = () => {
 
     return donorReceipts.reduce((total, receipt) => {
       const amount = parseFloat(receipt.donationDetails?.amount || 0);
-      return total + (isNaN(amount) ? 0 : amount);
+      return total + (isNaN(amount) ? 0 : amount); // Fixed missing closing parenthesis
     }, 0);
   };
 
@@ -1917,10 +1916,247 @@ const NewDonation = () => {
     };
   };
 
-  // Modify the consent letter button click handler
+  // Modify the handleConsentLetterClick function
   const handleConsentLetterClick = () => {
     const donationData = prepareConsentLetterData();
-    navigate("/consent-letter", { state: { donationData } });
+
+    // Create a new iframe for printing
+    const printFrame = document.createElement("iframe");
+    printFrame.style.display = "none";
+    document.body.appendChild(printFrame);
+
+    // Generate consent letter content
+    const consentLetterContent = `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <style>
+            @media print {
+              body {
+                padding: 5px;
+                max-width: 800px;
+                margin: 0 auto;
+                line-height: 1.2;
+              }
+              @page {
+                size: A4;
+                margin: 20mm;
+              }
+            }
+          </style>
+        </head>
+        <body>
+          <div class="consent-letter">
+            <h2 style="text-align: center; margin-bottom: 5px;">CONSENT LETTER</h2>
+
+            <div style="margin-bottom: 5px;">
+              <p>Date: ${formatDate(donationData.donationDate)}</p>
+              <p>ID NO: ${donationData.uniqueDonorId}</p>
+            </div>
+
+            <div style="margin-bottom: 5px;">
+              <p>To</p>
+              <p>The Adhyaksha</p>
+              <p>Ramakrishna Math</p>
+              <p>Vill. & P.O.: Kamarpukur</p>
+              <p>Dist.: Hooghly, West Bengal, Pin - 712 612</p>
+            </div>
+
+            <p>Revered Maharaj,</p>
+
+            <p style="margin-top: 5px;">
+              I am donating a sum of Rs. ${
+                donationData.amount
+              }/- (${numberToWords(donationData.amount)} only) 
+              by ${donationData.transactionType} as ${
+      donationData.donationType
+    } for ${donationData.purpose}.
+            </p>
+
+            <p>Please accept and oblige.</p>
+
+            <p>With pranams,</p>
+
+            <div style="margin-top: 10px; display: flex; justify-content: flex-end;">
+              <p>Yours sincerely,</p>
+            </div>
+
+            <div style="margin-top: 5px;">
+              <p>${donationData.title} ${donationData.name}</p>
+              <p>Vill: ${donationData.houseNumber}, ${
+      donationData.streetName
+    }</p>
+              <p>PO: ${donationData.postOffice}, Dist: ${
+      donationData.district
+    }</p>
+              <p>State: ${donationData.state}, Pin: ${donationData.pincode}</p>
+              <p>PAN: ${donationData.panNumber}, Mobile No.: ${
+      donationData.phone
+    }</p>
+              ${
+                donationData.inMemoryOf
+                  ? `<p>In Memory of ${donationData.inMemoryOf}.</p>`
+                  : ""
+              }
+            </div>
+
+            <div style="margin-top: 10px; border-top: 1px solid #000; padding-top: 5px;">
+              <h3 style="text-align: center; margin-bottom: 3px;">FOR OFFICE USE ONLY</h3>
+              <p>Receipt No.: ${donationData.receiptNumber}, dated ${formatDate(
+      donationData.donationDate
+    )}</p>
+              <p>By ${donationData.transactionType}</p>
+              <p>Issued by hand / Send by Post</p>
+            </div>
+          </div>
+          <script>
+            window.onload = function() {
+              window.print();
+              window.onafterprint = function() {
+                window.close();
+              };
+            }
+          </script>
+        </body>
+      </html>
+    `;
+
+    // Write content to iframe and print
+    const iframeWindow = printFrame.contentWindow;
+    iframeWindow.document.open();
+    iframeWindow.document.write(consentLetterContent);
+    iframeWindow.document.close();
+
+    // Clean up iframe after printing
+    setTimeout(() => {
+      document.body.removeChild(printFrame);
+    }, 1000);
+  };
+
+  // Add this helper function to format dates
+  const formatDate = (date) => {
+    return new Date(date).toLocaleDateString("en-GB", {
+      day: "2-digit",
+      month: "short",
+      year: "2-digit",
+    });
+  };
+
+  // Modify the handleThankLetterClick function
+  const handleThankLetterClick = () => {
+    const donationData = prepareConsentLetterData();
+
+    // Create a new iframe for printing
+    const printFrame = document.createElement("iframe");
+    printFrame.style.display = "none";
+    document.body.appendChild(printFrame);
+
+    // Generate thank letter content
+    const thankLetterContent = `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <style>
+            @media print {
+              body {
+                padding: 5px;
+                max-width: 800px;
+                margin: 0 auto;
+                line-height: 1.5;
+                font-size: 12pt;
+              }
+              @page {
+                size: A4;
+                margin: 20mm;
+              }
+            }
+          </style>
+        </head>
+        <body>
+          <div class="thank-letter">
+            <div style="margin-bottom: 20px;">
+              <p style="text-align: left;">Date: ${formatDate(
+                donationData.donationDate
+              )}</p>
+            </div>
+
+            <div style="margin-bottom: 20px;">
+              <p>To</p>
+              <p>${donationData.title} ${donationData.name}</p>
+              <p>Vill: ${donationData.houseNumber}, ${
+      donationData.streetName
+    }</p>
+              <p>PO: ${donationData.postOffice}, Dist: ${
+      donationData.district
+    }</p>
+              <p>State: ${donationData.state}, Pin: ${donationData.pincode}</p>
+            </div>
+
+            <p>Respected ${donationData.title} ${donationData.name},</p>
+
+            <p style="margin-top: 15px;">Namaskar!</p>
+
+            <p style="text-align: justify; margin-top: 20px;">
+              We thankfully acknowledge your kind and generous contribution of Rs. ${
+                donationData.amount
+              }/- (${numberToWords(donationData.amount)} only) by ${
+      donationData.transactionType
+    } as 
+              ${donationData.donationType} for ${donationData.purpose}${
+      donationData.inMemoryOf ? ` in memory of ${donationData.inMemoryOf}` : ""
+    }.
+            </p>
+
+            <p style="margin-top: 15px;">
+              Please find attached herewith the official Receipt vide no. ${
+                donationData.receiptNumber
+              }, dated ${formatDate(donationData.donationDate)} for this 
+              contribution.
+            </p>
+
+            <p style="margin-top: 15px;">
+              We pray to Sri Ramakrishna, Sri Maa Sarada Devi and Sri Swamiji Maharaj that they may bestow 
+              their choicest blessings upon you and members of your family!
+            </p>
+
+            <p style="margin-top: 20px;">With best wishes and namaskars,</p>
+
+            <div style="margin-top: 30px; text-align: right;">
+              <p>Yours sincerely,</p>
+              <p style="margin-top: 20px;">(Swami Lokottarananda)</p>
+              <p>Adhyaksha</p>
+            </div>
+
+            <p style="margin-top: 20px;">Encl: As stated above.</p>
+
+            <div style="margin-top: 30px; border-top: 1px solid #000; padding-top: 10px; text-align: center;">
+              <p>Please Mention Your Id (${
+                donationData.uniqueDonorId
+              }) In The Future Correspondences.</p>
+            </div>
+          </div>
+          <script>
+            window.onload = function() {
+              window.print();
+              window.onafterprint = function() {
+                window.close();
+              };
+            }
+          </script>
+        </body>
+      </html>
+    `;
+
+    // Write content to iframe and print
+    const iframeWindow = printFrame.contentWindow;
+    iframeWindow.document.open();
+    iframeWindow.document.write(thankLetterContent);
+    iframeWindow.document.close();
+
+    // Clean up iframe after printing
+    setTimeout(() => {
+      document.body.removeChild(printFrame);
+    }, 1000);
   };
 
   return (
@@ -2545,10 +2781,10 @@ const NewDonation = () => {
               <button
                 className="letter-btn thank-letter"
                 type="button"
-                onClick={() => window.open("/thank-letter", "_blank")}
-                disabled={!isDonationCompleted(donationData)} // Changed from always true
+                onClick={handleThankLetterClick}
+                disabled={!isDonationCompleted(donationData)}
                 style={{
-                  opacity: isDonationCompleted(donationData) ? 1 : 0.5, // Changed from always 0.5
+                  opacity: isDonationCompleted(donationData) ? 1 : 0.5,
                   cursor: isDonationCompleted(donationData)
                     ? "pointer"
                     : "not-allowed",

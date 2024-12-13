@@ -4,6 +4,7 @@ import "./VisitDetails.scss";
 import useApplicationStore from "../../../../../useApplicationStore";
 import { BASE_URL } from "../../../../../services/apiClient";
 import { useNavigate } from "react-router-dom";
+import { fetchCelebrations } from "../../../../../services/src/services/celebrationsService";
 
 const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
   const { formData, errors, setVisitFormData, setFile, setErrors } =
@@ -14,6 +15,9 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
   const [visited, setVisited] = useState(formData.visited);
   const [showExtendedStayReason, setShowExtendedStayReason] = useState(false);
   const [showUploadSuccess, setShowUploadSuccess] = useState(false);
+  const [celebrations, setCelebrations] = useState([]);
+  const [showCelebrationWarning, setShowCelebrationWarning] = useState(false);
+  const [celebrationWarnings, setCelebrationWarnings] = useState([]);
 
   // Add useEffect for smooth scroll to top
   useEffect(() => {
@@ -22,6 +26,20 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
       left: 0,
       behavior: "smooth",
     });
+  }, []); // Empty dependency array means this runs once when component mounts
+
+  // Add useEffect for fetching celebrations
+  useEffect(() => {
+    const getCelebrations = async () => {
+      try {
+        const celebrationsData = await fetchCelebrations();
+        setCelebrations(celebrationsData.data);
+      } catch (error) {
+        console.error("Error fetching celebrations:", error);
+      }
+    };
+
+    getCelebrations();
   }, []); // Empty dependency array means this runs once when component mounts
 
   const handleNext = () => {
@@ -60,16 +78,54 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
   const handleInputChange = (e) => {
     const { name, value } = e.target;
 
-    // Special handling for visitDate/arrivalDate
     if (name === "visitDate") {
+      // Set departure date to next day
       const arrivalDate = new Date(value);
-      if (!isNaN(arrivalDate.getTime())) {
-        // Set next day as default departure date
-        const nextDay = new Date(arrivalDate);
-        nextDay.setDate(nextDay.getDate() + 1);
-        const formattedNextDay = nextDay.toISOString().split("T")[0];
-        setVisitFormData("departureDate", formattedNextDay);
+      const nextDay = new Date(arrivalDate);
+      nextDay.setDate(arrivalDate.getDate() + 1);
+
+      // Format the date to YYYY-MM-DD
+      const formattedNextDay = nextDay.toISOString().split("T")[0];
+
+      // Update both the arrival date and set default departure date
+      setVisitFormData("visitDate", value);
+      setVisitFormData("departureDate", formattedNextDay);
+
+      // Check celebrations for both dates
+      const dateRange = [value, formattedNextDay];
+      const matchingCelebrations = [];
+
+      dateRange.forEach((date) => {
+        const dateCelebrations = celebrations.filter(
+          (cel) => cel.attributes.gregorian_date === date
+        );
+
+        dateCelebrations.forEach((celebration) => {
+          matchingCelebrations.push({
+            event: celebration.attributes.event_name,
+            type: celebration.attributes.event_type,
+            date: celebration.attributes.gregorian_date,
+            isArrival: date === value,
+            isDeparture: date === formattedNextDay,
+          });
+        });
+      });
+
+      if (matchingCelebrations.length > 0) {
+        setShowCelebrationWarning(true);
+        setCelebrationWarnings(matchingCelebrations);
+
+        // Auto-dismiss after 3 seconds
+        setTimeout(() => {
+          setShowCelebrationWarning(false);
+          setCelebrationWarnings([]);
+        }, 3000);
+      } else {
+        setShowCelebrationWarning(false);
+        setCelebrationWarnings([]);
       }
+
+      return;
     }
 
     // Handle departure date changes
@@ -667,6 +723,41 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
           Recommendation letter uploaded successfully!
         </div>
       )}
+
+      {showCelebrationWarning &&
+        celebrationWarnings.map((celebration, index) => (
+          <div
+            key={`${celebration.event}-${celebration.date}-${index}`}
+            style={{
+              position: "fixed",
+              top: `${20 + index * 120}px`,
+              right: "20px",
+              backgroundColor: "#f39c12",
+              color: "white",
+              padding: "15px 25px",
+              borderRadius: "5px",
+              boxShadow: "0 2px 5px rgba(0,0,0,0.2)",
+              zIndex: 1000,
+              maxWidth: "600px",
+              width: "600px",
+              fontSize: "16px",
+              animation: "fadeIn 0.3s ease-in",
+            }}
+          >
+            <strong>High Occupancy Alert!</strong>
+            <p>
+              {celebration.event} ({celebration.type}) celebration is scheduled
+              on {celebration.date}
+              {celebration.isArrival
+                ? " (your arrival date)"
+                : celebration.isDeparture
+                ? " (your departure date)"
+                : ""}
+              . Expect higher than usual occupancy. Please consider alternate
+              dates or submit special requests if needed.
+            </p>
+          </div>
+        ))}
     </div>
   );
 };

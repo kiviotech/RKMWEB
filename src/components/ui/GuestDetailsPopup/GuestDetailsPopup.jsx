@@ -5,6 +5,7 @@ import { updateBookingRequest } from "../../../../services/src/api/repositories/
 import { getToken } from "../../../../services/src/utils/storage";
 import RejectionEmailPopup from "./RejectionEmailPopup";
 import { useNavigate } from "react-router-dom";
+import { getCelebrations } from "../../../../services/src/api/repositories/celebrationsRepository";
 
 const icons = {
   Reminder: "https://api.iconify.design/mdi:bell-ring-outline.svg",
@@ -34,6 +35,7 @@ const GuestDetailsPopup = ({
   );
   const [showRejectionEmail, setShowRejectionEmail] = useState(false);
   const navigate = useNavigate();
+  const [upcomingCelebration, setUpcomingCelebration] = useState(null);
 
   useEffect(() => {
     if (guestDetails?.guests?.length > 0) {
@@ -44,6 +46,36 @@ const GuestDetailsPopup = ({
       );
     }
   }, [guestDetails]);
+
+  useEffect(() => {
+    const fetchCelebrations = async () => {
+      try {
+        const response = await getCelebrations();
+        console.log("Celebrations response:", response.data);
+
+        // Get current date
+        const currentDate = new Date();
+
+        // Find celebrations that are 3 days away
+        const upcoming = response?.data?.data?.find((celebration) => {
+          const celebrationDate = new Date(
+            celebration.attributes.gregorian_date
+          );
+          const timeDiff = celebrationDate.getTime() - currentDate.getTime();
+          const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
+          return daysDiff === 3;
+        });
+
+        if (upcoming) {
+          setUpcomingCelebration(upcoming.attributes);
+        }
+      } catch (error) {
+        console.error("Error fetching celebrations:", error);
+      }
+    };
+
+    fetchCelebrations();
+  }, []);
 
   console.log("GuestDetailsPopup - Full guestDetails:", guestDetails);
   console.log("GuestDetailsPopup - User Details:", guestDetails?.userDetails);
@@ -253,7 +285,11 @@ const GuestDetailsPopup = ({
       <div className="popup-overlay">
         <div className="popup-content">
           <div className="header-section">
-            <button className="close-btn" onClick={onClose}>
+            <button
+              className="close-btn"
+              onClick={onClose}
+              style={{ marginTop: "-10px" }}
+            >
               <img src={icons.Close} alt="close" className="icon" />
             </button>
 
@@ -338,8 +374,32 @@ const GuestDetailsPopup = ({
                           "invert(37%) sepia(74%) saturate(3383%) hue-rotate(206deg) brightness(101%) contrast(101%)",
                       }}
                     />
-                    <span style={{ color: "#066bff" }}>
-                      Reminder: <span>26th Aug is Janmasthami</span>
+                    <span
+                      style={{
+                        color: "#066bff",
+                        fontWeight: "500",
+                        fontSize: "14px",
+                      }}
+                    >
+                      {upcomingCelebration ? (
+                        <>
+                          Reminder:{" "}
+                          <span>
+                            {new Date(
+                              upcomingCelebration.gregorian_date
+                            ).getDate()}
+                            th{" "}
+                            {new Date(
+                              upcomingCelebration.gregorian_date
+                            ).toLocaleDateString("en-US", {
+                              month: "short",
+                            })}{" "}
+                            is {upcomingCelebration.event_name}
+                          </span>
+                        </>
+                      ) : (
+                        <span>No upcoming celebrations</span>
+                      )}
                     </span>
                   </div>
                 </div>

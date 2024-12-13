@@ -78,131 +78,134 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
   const handleInputChange = (e) => {
     const { name, value } = e.target;
 
-    if (name === "visitDate") {
-      // Set departure date to next day
-      const arrivalDate = new Date(value);
-      const nextDay = new Date(arrivalDate);
-      nextDay.setDate(arrivalDate.getDate() + 1);
-
-      // Format the date to YYYY-MM-DD
-      const formattedNextDay = nextDay.toISOString().split("T")[0];
-
-      // Update both the arrival date and set default departure date
-      setVisitFormData("visitDate", value);
-      setVisitFormData("departureDate", formattedNextDay);
-
-      // Check celebrations for both dates
-      const dateRange = [value, formattedNextDay];
-      const matchingCelebrations = [];
-
-      dateRange.forEach((date) => {
-        const dateCelebrations = celebrations.filter(
-          (cel) => cel.attributes.gregorian_date === date
-        );
-
-        dateCelebrations.forEach((celebration) => {
-          matchingCelebrations.push({
-            event: celebration.attributes.event_name,
-            type: celebration.attributes.event_type,
-            date: celebration.attributes.gregorian_date,
-            isArrival: date === value,
-            isDeparture: date === formattedNextDay,
-          });
-        });
-      });
-
-      if (matchingCelebrations.length > 0) {
-        setShowCelebrationWarning(true);
-        setCelebrationWarnings(matchingCelebrations);
-
-        // Auto-dismiss after 3 seconds
-        setTimeout(() => {
-          setShowCelebrationWarning(false);
-          setCelebrationWarnings([]);
-        }, 3000);
-      } else {
-        setShowCelebrationWarning(false);
-        setCelebrationWarnings([]);
-      }
-
-      return;
-    }
-
-    // Handle departure date changes
-    if (name === "departureDate") {
-      const arrivalDate = new Date(formData.visitDate);
-      const departureDate = new Date(value);
-
-      if (!isNaN(arrivalDate.getTime()) && !isNaN(departureDate.getTime())) {
-        const daysDiff = Math.ceil(
-          (departureDate - arrivalDate) / (1000 * 60 * 60 * 24)
-        );
-
-        // If stay is 3 days, force departure time to 7:30
-        if (daysDiff === 3) {
-          setVisitFormData("departureTime", "7:30");
-        }
-      }
-    }
-
-    // Prevent departure time changes if stay is 3 days
-    if (name === "departureTime") {
-      const daysDiff = Math.ceil(
-        (new Date(formData.departureDate) - new Date(formData.visitDate)) /
-          (1000 * 60 * 60 * 24)
-      );
-
-      if (daysDiff === 3) {
-        return; // Don't allow time changes for 3-day stays
-      }
-      setVisitFormData(name, value);
-    }
-
-    // Add validation for knownToMath field
-    if (name === "knownToMath") {
-      // Only allow letters and spaces
-      if (/^[A-Za-z\s]*$/.test(value) || value === "") {
-        setVisitFormData(name, value);
-      }
-      return;
-    }
-
-    setVisitFormData(name, value);
-
-    if (name === "arrivalTime") {
-      setVisitFormData("visitTime", value);
-    }
-
-    // Modified stay duration calculation
     if (name === "visitDate" || name === "departureDate") {
-      let visitDate = name === "visitDate" ? value : formData.visitDate;
-      let departureDate =
+      // Update the form data first
+      setVisitFormData(name, value);
+
+      // Get both dates
+      const visitDate = name === "visitDate" ? value : formData.visitDate;
+      const departureDate =
         name === "departureDate" ? value : formData.departureDate;
 
       if (visitDate && departureDate) {
-        visitDate = new Date(visitDate);
-        departureDate = new Date(departureDate);
+        // Get all dates in the range
+        const dateRange = [];
+        const start = new Date(visitDate);
+        const end = new Date(departureDate);
 
-        if (!isNaN(visitDate.getTime()) && !isNaN(departureDate.getTime())) {
-          // Calculate the difference in days
-          const timeDiff = departureDate - visitDate;
-          const daysDiff = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
+        for (let date = start; date <= end; date.setDate(date.getDate() + 1)) {
+          dateRange.push(date.toISOString().split("T")[0]);
+        }
 
-          // Show extended stay reason if stay is more than 2 days (3 nights)
-          setShowExtendedStayReason(daysDiff > 1);
+        const matchingCelebrations = [];
 
-          console.log("Stay Duration:", {
-            visitDate: visitDate.toISOString(),
-            departureDate: departureDate.toISOString(),
-            daysDiff,
-            showExtendedStay: daysDiff > 1,
+        dateRange.forEach((date) => {
+          const dateCelebrations = celebrations.filter(
+            (cel) => cel.attributes.gregorian_date === date
+          );
+
+          dateCelebrations.forEach((celebration) => {
+            matchingCelebrations.push({
+              event: celebration.attributes.event_name,
+              type: celebration.attributes.event_type,
+              date: celebration.attributes.gregorian_date,
+              isArrival: date === visitDate,
+              isDeparture: date === departureDate,
+            });
           });
+        });
+
+        if (matchingCelebrations.length > 0) {
+          setShowCelebrationWarning(true);
+          setCelebrationWarnings(matchingCelebrations);
+
+          // Auto-dismiss after 5 seconds (increased from 3 to give more time to read multiple warnings)
+          setTimeout(() => {
+            setShowCelebrationWarning(false);
+            setCelebrationWarnings([]);
+          }, 5000);
+        } else {
+          setShowCelebrationWarning(false);
+          setCelebrationWarnings([]);
         }
       }
-    }
 
-    if (errors[name]) {
-      setErrors(name, "");
+      // Handle departure date changes
+      if (name === "departureDate") {
+        const arrivalDate = new Date(formData.visitDate);
+        const departureDate = new Date(value);
+
+        if (!isNaN(arrivalDate.getTime()) && !isNaN(departureDate.getTime())) {
+          const daysDiff = Math.ceil(
+            (departureDate - arrivalDate) / (1000 * 60 * 60 * 24)
+          );
+
+          // If stay is 3 days, force departure time to 7:30
+          if (daysDiff === 3) {
+            setVisitFormData("departureTime", "7:30");
+          }
+        }
+      }
+
+      // Prevent departure time changes if stay is 3 days
+      if (name === "departureTime") {
+        const daysDiff = Math.ceil(
+          (new Date(formData.departureDate) - new Date(formData.visitDate)) /
+            (1000 * 60 * 60 * 24)
+        );
+
+        if (daysDiff === 3) {
+          return; // Don't allow time changes for 3-day stays
+        }
+        setVisitFormData(name, value);
+      }
+
+      // Add validation for knownToMath field
+      if (name === "knownToMath") {
+        // Only allow letters and spaces
+        if (/^[A-Za-z\s]*$/.test(value) || value === "") {
+          setVisitFormData(name, value);
+        }
+        return;
+      }
+
+      setVisitFormData(name, value);
+
+      if (name === "arrivalTime") {
+        setVisitFormData("visitTime", value);
+      }
+
+      // Modified stay duration calculation
+      if (name === "visitDate" || name === "departureDate") {
+        let visitDate = name === "visitDate" ? value : formData.visitDate;
+        let departureDate =
+          name === "departureDate" ? value : formData.departureDate;
+
+        if (visitDate && departureDate) {
+          visitDate = new Date(visitDate);
+          departureDate = new Date(departureDate);
+
+          if (!isNaN(visitDate.getTime()) && !isNaN(departureDate.getTime())) {
+            // Calculate the difference in days
+            const timeDiff = departureDate - visitDate;
+            const daysDiff = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
+
+            // Show extended stay reason if stay is more than 2 days (3 nights)
+            setShowExtendedStayReason(daysDiff > 1);
+
+            console.log("Stay Duration:", {
+              visitDate: visitDate.toISOString(),
+              departureDate: departureDate.toISOString(),
+              daysDiff,
+              showExtendedStay: daysDiff > 1,
+            });
+          }
+        }
+      }
+
+      if (errors[name]) {
+        setErrors(name, "");
+      }
     }
   };
 
@@ -730,7 +733,7 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
             key={`${celebration.event}-${celebration.date}-${index}`}
             style={{
               position: "fixed",
-              top: `${20 + index * 120}px`,
+              top: `${20 + index * 140}px`,
               right: "20px",
               backgroundColor: "#f39c12",
               color: "white",
@@ -742,6 +745,7 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
               width: "600px",
               fontSize: "16px",
               animation: "fadeIn 0.3s ease-in",
+              marginBottom: "15px",
             }}
           >
             <strong>High Occupancy Alert!</strong>

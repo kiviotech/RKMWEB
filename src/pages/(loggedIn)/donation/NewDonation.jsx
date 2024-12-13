@@ -757,6 +757,7 @@ const NewDonation = () => {
           deeksha: donorDetails.mantraDiksha,
           aadhaar_number: donorDetails.identityNumber,
           address: `${donorDetails.houseNumber}, ${donorDetails.streetName}, ${donorDetails.postOffice}, ${donorDetails.district}, ${donorDetails.state}, ${donorDetails.pincode}`,
+          status: "none",
         };
         const guestResponse = await createNewGuestDetails(guestPayload);
         guestId = guestResponse.data.id;

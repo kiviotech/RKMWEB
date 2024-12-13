@@ -52,7 +52,10 @@ const ThankYouPage = () => {
             </div>
           </div>
 
-          <p className="thank-you-footer">Thank you for choosing us</p>
+          <p className="thank-you-footer">
+            May Sri Ramakrishna, Holy Mother Sri Sarada Devi and Swami
+            Vivekananda bless you all !
+          </p>
         </div>
       </div>
       <ApplicationFormFooter />

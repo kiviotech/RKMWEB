@@ -22,8 +22,11 @@ const VerifyDetails = () => {
   // Format date and time
   const formatDateTime = (date, time) => {
     if (!date || !time) return "Not specified";
-    const formattedDate = new Date(date).toLocaleDateString();
-    return `${formattedDate} at ${time}`;
+    const d = new Date(date);
+    const day = d.getDate().toString().padStart(2, "0");
+    const month = (d.getMonth() + 1).toString().padStart(2, "0");
+    const year = d.getFullYear();
+    return `${day}-${month}-${year} at ${time}`;
   };
 
   // Calculate total days of stay
@@ -135,7 +138,7 @@ const VerifyDetails = () => {
       await createNewBookingRequest(bookingData);
 
       // Handle successful submission
-      alert("Application submitted successfully!");
+      // alert("Application submitted successfully!");
       navigate("/thank-you");
     } catch (error) {
       console.error("Error submitting application:", error);
@@ -214,15 +217,17 @@ const VerifyDetails = () => {
                 <td>{`+${guest.countryCode} ${guest.guestNumber}`}</td>
                 <td>{guest.guestAadhaar}</td>
                 <td>
-                  {[
-                    guest.guestAddress.houseNumber,
-                    guest.guestAddress.streetName,
-                    guest.guestAddress.postOffice,
-                    guest.guestAddress.district,
-                    guest.guestAddress.state,
-                  ]
-                    .filter(Boolean)
-                    .join(", ")}
+                  {guest.sameAsApplicant
+                    ? "Same as applicant"
+                    : [
+                        guest.guestAddress.houseNumber,
+                        guest.guestAddress.streetName,
+                        guest.guestAddress.postOffice,
+                        guest.guestAddress.district,
+                        guest.guestAddress.state,
+                      ]
+                        .filter(Boolean)
+                        .join(", ")}
                 </td>
               </tr>
             ))}
@@ -247,7 +252,7 @@ const VerifyDetails = () => {
           <span style={{ marginLeft: "20px" }}>Total Days of Stay :</span>{" "}
           <strong>{calculateStayDuration()}</strong>
         </p>
-        {formData.visited === "yes" && formData.previousVisitDate && (
+        {formData.visited === "yes" && formData.previousVisitDate ? (
           <p>
             <span style={{ marginLeft: "20px" }}>
               Date of Last visit & stay in Ramakrishna Math Kamarpukur Guest
@@ -256,6 +261,11 @@ const VerifyDetails = () => {
             <strong>
               {new Date(formData.previousVisitDate).toLocaleDateString("en-GB")}
             </strong>
+          </p>
+        ) : (
+          <p>
+            <span style={{ marginLeft: "20px" }}>Previously visited:</span>{" "}
+            <strong>None</strong>
           </p>
         )}
         {formData.knownToMath && (
@@ -290,7 +300,7 @@ const VerifyDetails = () => {
         )}
       </div>
 
-      <div className="address-details">
+      {/* <div className="address-details">
         <h2>Address Details</h2>
         <div className="address-block">
           <div className="details-row">
@@ -308,16 +318,6 @@ const VerifyDetails = () => {
               </strong>
             </div>
           </div>
-          {/* <div className="details-row">
-            <strong>Address:</strong>{" "}
-            <span>{`${formData.address.houseNumber}`}</span>
-          </div> */}
-          {/* <div className="details-row">
-            <div>
-              <span>Landmark:</span>{" "}
-              <strong>{formData.address.landmark || "Not specified"}</strong>
-            </div>
-          </div> */}
           <div className="details-row">
             <div>
               <span>Pincode:</span>
@@ -332,7 +332,7 @@ const VerifyDetails = () => {
             </div>
           </div>
         </div>
-      </div>
+      </div> */}
 
       {/* Add Additional Message section if it exists */}
       {formData.additionalMessage && (

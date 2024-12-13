@@ -666,9 +666,30 @@ const NewDonation = () => {
     return "";
   };
 
-  // Modify handlePrintReceipt to call handleConfirmPrint directly
-  const handlePrintReceipt = () => {
-    // Check donation amount first
+  // Modify handlePrintReceipt to only show the modal
+  const handlePrintReceipt = async () => {
+    // Check if purpose exists before validation
+    if (!currentReceipt?.donationDetails?.purpose) {
+      setValidationErrors((prev) => ({
+        ...prev,
+        purpose: "Purpose is required",
+      }));
+      return;
+    }
+
+    // Add validation for other purpose
+    if (
+      currentReceipt?.donationDetails?.purpose === "Other" &&
+      !currentReceipt?.donationDetails?.otherPurpose
+    ) {
+      setValidationErrors((prev) => ({
+        ...prev,
+        otherPurpose: "Please specify the purpose",
+      }));
+      return;
+    }
+
+    // Rest of your validation checks
     if (validateDonationAmount(currentReceipt?.donationDetails?.amount)) {
       alert("Enter the amount");
       return;
@@ -678,15 +699,23 @@ const NewDonation = () => {
     const nameError = validateName(donorDetails.name);
     const phoneError = validatePhone(donorDetails.phone);
     const emailError = validateEmail(donorDetails.email);
+    const purposeError = !currentReceipt?.donationDetails?.donationType
+      ? "Purpose is required"
+      : "";
+    const amountError = validateDonationAmount(
+      currentReceipt?.donationDetails?.amount
+    );
 
     setValidationErrors({
       name: nameError,
       phone: phoneError,
       email: emailError,
+      purpose: purposeError,
+      amount: amountError,
     });
 
-    if (nameError || phoneError || emailError) {
-      alert("Please fill required fields");
+    if (nameError || phoneError || purposeError || amountError) {
+      alert("Please fill all required fields");
       return;
     }
 
@@ -696,38 +725,360 @@ const NewDonation = () => {
       return;
     }
 
-    // Call handleConfirmPrint directly instead of opening the modal
-    handleConfirmPrint();
+    // Show the modal if validation passes
+    setIsModalOpen(true);
   };
 
   // Modify handleConfirmPrint function
   const handleConfirmPrint = async () => {
     try {
-      // Create and write receipt content to iframe
+      // Remove the email validation check
+      // if (!donorDetails.email) {
+      //   setValidationErrors((prev) => ({
+      //     ...prev,
+      //     email: "Email is required",
+      //   }));
+      //   alert("Email cannot be empty");
+      //   return;
+      // }
+
+      // ... rest of your existing code ...
+
+      // Create new guest if needed
+      let guestId = donorDetails.guestId;
+      if (!guestId) {
+        console.log("Creating new guest");
+        const guestPayload = {
+          name: `${donorDetails.title} ${donorDetails.name}`,
+          phone_number: `${donorDetails.phoneCode}${donorDetails.phone}`,
+          email:
+            donorDetails.email ||
+            `${donorDetails.name.replace(/\s+/g, "").toLowerCase()}@gmail.com`, // Generate default email
+          deeksha: donorDetails.mantraDiksha,
+          aadhaar_number: donorDetails.identityNumber,
+          address: `${donorDetails.houseNumber}, ${donorDetails.streetName}, ${donorDetails.postOffice}, ${donorDetails.district}, ${donorDetails.state}, ${donorDetails.pincode}`,
+        };
+        const guestResponse = await createNewGuestDetails(guestPayload);
+        guestId = guestResponse.data.id;
+        console.log("Created new guest with ID:", guestId);
+      }
+
+      // ... rest of your existing code ...
+
+      // Create receipt details
+      console.log("Creating new receipt");
+      const receiptPayload = {
+        Receipt_number: receiptNumber,
+        status: "completed",
+        amount: currentReceipt?.donationDetails?.amount,
+        unique_no: uniqueDonorId,
+      };
+      const receiptResponse = await createNewReceiptDetail(receiptPayload);
+      console.log("Created new receipt:", receiptResponse);
+
+      // Create donation
+      console.log("Creating new donation record");
+      const donationPayload = {
+        data: {
+          InMemoryOf:
+            currentReceipt?.donationDetails?.inMemoryOf || "for Thakur Seva",
+          donationAmount: currentReceipt?.donationDetails?.amount,
+          transactionType:
+            currentReceipt?.donationDetails?.transactionType
+              ?.charAt(0)
+              .toUpperCase() +
+              currentReceipt?.donationDetails?.transactionType?.slice(1) ||
+            "Cash",
+          donationFor: selectedTab,
+          status: "completed",
+          donationDate: getCurrentFormattedDate(),
+          guest: guestId,
+          receipt_detail: receiptResponse.data.id,
+          ...(currentReceipt?.donationDetails?.transactionType?.toLowerCase() !==
+            "cash" && {
+            ddch_number:
+              currentReceipt?.donationDetails?.transactionDetails?.ddNumber ||
+              "",
+            ddch_date:
+              currentReceipt?.donationDetails?.transactionDetails?.ddDate || "",
+            bankName:
+              currentReceipt?.donationDetails?.transactionDetails?.bankName ||
+              "",
+            branchName:
+              currentReceipt?.donationDetails?.transactionDetails?.branchName ||
+              "",
+          }),
+          unique_no: uniqueDonorId,
+        },
+      };
+
+      await createNewDonation(donationPayload);
+      console.log("Successfully created new donation");
+
+      // Create a hidden iframe for printing
       const printFrame = document.createElement("iframe");
       printFrame.style.display = "none";
       document.body.appendChild(printFrame);
 
+      // Format the date in DD-MM-YYYY format
+      const today = new Date();
+      const formattedDate = today.toLocaleDateString("en-GB", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+      });
+
+      // Create the receipt HTML content
       const receiptContent = `
         <!DOCTYPE html>
-        <html>
+        <html lang="en">
           <head>
+            <meta charset="UTF-8" />
+            <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+            <title>Ramakrishna Math Letterhead</title>
             <style>
-              // ... existing styles ...
+              body {
+                margin: 0;
+                padding: 20px;
+                background-color: #fff;
+                font-family: Arial, sans-serif;
+              }
+
+              .letterhead {
+                width: 672 px;
+                margin: 0 auto;
+              }
+
+              .header {
+                display: flex;
+                align-items: flex-start;
+                gap: 20px;
+                margin-bottom: 40px;
+              }
+
+              .logo {
+                width: 100px;
+                height: auto;
+              }
+
+              .title-section {
+                flex: 1;
+              }
+
+              h1 {
+                margin: 0;
+                color: #4b3968;
+                font-size: 24px;
+                text-align: center;
+              }
+
+              .subtitle {
+                margin: 5px 0;
+                font-size: 14px;
+                text-align: center;
+                color: #4b3968;
+              }
+
+              .address {
+                margin: 5px 0;
+                font-size: 14px;
+                text-align: center;
+                color: #4b3968;
+              }
+
+              .contact {
+                margin: 5px 0;
+                font-size: 12px;
+                text-align: center;
+                color: #4b3968;
+              }
+
+              .signature-section {
+                display: flex;
+                flex-direction: row;
+                justify-content: center;
+                align-items: flex-start;
+                margin-bottom: 20px;
+                position: relative;
+              }
+
+              .received {
+                margin: 0 0 5px 0;
+                color: #4b3968;
+                font-size: 14px;
+              }
+
+              .adhyaksha {
+                position: absolute;
+                right: 0;
+                margin: 0;
+                padding-top: 5px;
+                min-width: 150px;
+                text-align: center;
+                color: #4b3968;
+                font-size: 14px;
+              }
+
+              .donation-text {
+                font-size: 14px;
+                color: #4b3968;
+                line-height: 1.6;
+                margin: 20px 0 0 0;
+                padding: 5px 0 0 0;
+                font-weight: 600;
+                letter-spacing: 0.2px;
+                border-top: 1px solid #4b3968;
+              }
+
+              .receipt-details {
+                margin: 100px 0px;
+                line-height: 2;
+                font-size: 16px;  /* Increased from 14px */
+              }
+
+              .receipt-row {
+                display: flex;
+                justify-content: space-between;
+                margin-bottom: 20px;
+                font-size: 16px;  /* Increased from 14px */
+              }
+
+              .donor-details {
+                margin-bottom: 25px;
+              }
+
+              .donor-details p {
+                margin: 0;
+                line-height: 2;
+                font-size: 16px;  /* Increased from 14px */
+              }
+
+              .donor-details p:not(:first-child) {
+                margin-left: 40px;  /* Reduced from 160px to 40px */
+              }
+
+              .payment-details {
+                margin-top: 25px;
+              }
+
+              .payment-details p {
+                margin: 0;
+                line-height: 2;
+                font-size: 16px;  /* Increased from 14px */
+              }
+
+              .amount {
+                margin-top: 5px;
+                font-size: 18px;  /* Increased from 14px */
+                font-weight: bold;  /* Changed from normal */
+              }
+
+              /* Add styles for emphasized text */
+              b {
+                font-size: 18px;  /* Make bold text slightly larger */
+              }
             </style>
           </head>
           <body>
-            // ... existing receipt HTML ...
+            <div class="letterhead">
+              <div class="receipt-details">
+                <div class="receipt-row">
+                  <span>Receipt <b>No: ${uniqueDonorId} / ${receiptNumber}</b></span>
+                  <span class="date">Date: <b>${formattedDate}</b></span>
+                </div>
+                <div class="donor-details">
+                  <p style="margin: 0 0 5px 0;">
+                    Received with thanks from
+                    <b>${donorDetails.title} ${donorDetails.name}</b>
+                  </p>
+                  <div style="margin-left: 190px; font-weight: bold;">
+                    <p style="margin: 0 0 5px 0;">
+                      ${donorDetails.houseNumber || ""}${
+        donorDetails.streetName ? `, ${donorDetails.streetName}` : ""
+      }
+                    </p>
+                    <p style="margin: 0 0 5px 0;">
+                      ${
+                        donorDetails.postOffice
+                          ? `PO: ${donorDetails.postOffice}, `
+                          : ""
+                      }${
+        donorDetails.district ? `Dist: ${donorDetails.district}` : ""
+      }
+                    </p>
+                    <p style="margin: 0 0 5px 0;">
+                      ${
+                        donorDetails.state
+                          ? `State: ${donorDetails.state}, `
+                          : ""
+                      }${
+        donorDetails.pincode ? `Pin: ${donorDetails.pincode}` : ""
+      }
+                    </p>
+                    ${
+                      donorDetails.identityNumber
+                        ? `
+                    <p style="margin: 0 0 5px 0;">
+                      ${
+                        donorDetails.identityType === "PAN"
+                          ? `PAN: ${donorDetails.identityNumber}`
+                          : `Aadhaar: ${donorDetails.identityNumber}`
+                      }
+                      </p>
+                  `
+                        : ""
+                    }
+                  </div>
+                </div>
+                <div class="payment-details">
+                  <p>The sum of Rupees <b>${numberToWords(
+                    parseFloat(currentReceipt?.donationDetails?.amount || 0)
+                  )} Only</b></p>
+                  
+                  <div style="display: flex; gap: 10px; align-items: center;">
+                    <p style="margin: 0;">By ${
+                      currentReceipt?.donationDetails?.transactionType || "Cash"
+                    }</p>
+                    ${
+                      currentReceipt?.donationDetails?.transactionType?.toLowerCase() !==
+                      "cash"
+                        ? `
+                      <p style="margin: 0;">Dt.  ${
+                        currentReceipt?.donationDetails?.transactionDetails
+                          ?.ddDate || ""
+                      }</p>
+                      <p style="margin: 0;">Bank: ${
+                        currentReceipt?.donationDetails?.transactionDetails
+                          ?.bankName || ""
+                      }</p>
+                    `
+                        : ""
+                    }
+                  </div>
+
+                  <p>As Donation for ${
+                    currentReceipt?.donationDetails?.donationType
+                  } for ${
+        currentReceipt?.donationDetails?.purpose === "Other"
+          ? currentReceipt?.donationDetails?.otherPurpose
+          : currentReceipt?.donationDetails?.purpose
+      }${
+        currentReceipt?.donationDetails?.inMemoryOf
+          ? ` in memory of ${currentReceipt?.donationDetails?.inMemoryOf}`
+          : ""
+      }</p>
+                  <p class="amount"><b>Rs. ${parseFloat(
+                    currentReceipt?.donationDetails?.amount || 0
+                  ).toLocaleString("en-IN", {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  })}</b></p>
+                </div>
+              </div>
+            </div>
             <script>
               window.onload = function() {
-                const printSettings = {
-                  silent: true,
-                  printBackground: true,
-                  deviceWidth: "210mm",
-                  deviceHeight: "297mm",
-                };
-                
-                window.print(printSettings);
+                window.print();
                 window.onafterprint = function() {
                   window.close();
                 };
@@ -1705,14 +2056,7 @@ const NewDonation = () => {
           </div>
           <script>
             window.onload = function() {
-              const printSettings = {
-                silent: true,
-                printBackground: true,
-                deviceWidth: "210mm",
-                deviceHeight: "297mm",
-              };
-              
-              window.print(printSettings);
+              window.print();
               window.onafterprint = function() {
                 window.close();
               };
@@ -1892,14 +2236,7 @@ const NewDonation = () => {
         </div>
         <script>
           window.onload = function() {
-            const printSettings = {
-              silent: true,
-              printBackground: true,
-              deviceWidth: "210mm",
-              deviceHeight: "297mm",
-            };
-            
-            window.print(printSettings);
+            window.print();
             window.onafterprint = function() {
               window.close();
             };

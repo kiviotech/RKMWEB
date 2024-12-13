@@ -329,10 +329,19 @@ const GuestDetailsPopup = ({
 
               <div className="right-section">
                 <div className="reminder-bar">
-                  {/* <div className="reminder-content">
-                                        <img src={icons.Reminder} alt="reminder" />
-                                        <span>Reminder: 26th Aug is Janmasthami</span>
-                                    </div> */}
+                  <div className="reminder-content">
+                    <img
+                      src={icons.Reminder}
+                      alt="reminder"
+                      style={{
+                        filter:
+                          "invert(37%) sepia(74%) saturate(3383%) hue-rotate(206deg) brightness(101%) contrast(101%)",
+                      }}
+                    />
+                    <span style={{ color: "#066bff" }}>
+                      Reminder: <span>26th Aug is Janmasthami</span>
+                    </span>
+                  </div>
                 </div>
 
                 <div className="stay-info">

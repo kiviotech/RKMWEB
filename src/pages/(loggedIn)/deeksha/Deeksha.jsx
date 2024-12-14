@@ -109,11 +109,31 @@ const Deeksha = () => {
   }, []);
 
   const forms = [
-    { id: 1, title: "Diksha form of Srimat Swami Gautamanandaji Maharaj" },
-    { id: 2, title: "Diksha form of Srimat Swami Suhitanandaji Maharaj" },
-    { id: 3, title: "Diksha form of Srimat Swami Girishanandaji Maharaj" },
-    { id: 4, title: "Diksha form of Srimat Swami Vimalatmanandaji Maharaj" },
-    { id: 5, title: "Diksha form of Srimat Swami Divyanandaji Maharaj" },
+    {
+      id: 1,
+      title: "Diksha form of Srimat Swami Gautamanandaji Maharaj",
+      color: "#FF6B6B",
+    },
+    {
+      id: 2,
+      title: "Diksha form of Srimat Swami Suhitanandaji Maharaj",
+      color: "#4ECDC4",
+    },
+    {
+      id: 3,
+      title: "Diksha form of Srimat Swami Girishanandaji Maharaj",
+      color: "#45B7D1",
+    },
+    {
+      id: 4,
+      title: "Diksha form of Srimat Swami Vimalatmanandaji Maharaj",
+      color: "#96CEB4",
+    },
+    {
+      id: 5,
+      title: "Diksha form of Srimat Swami Divyanandaji Maharaj",
+      color: "#9B59B6",
+    },
   ];
 
   const handleStatusUpdate = async (id, newStatus) => {
@@ -318,7 +338,10 @@ const Deeksha = () => {
                   className="form-item"
                   style={{ cursor: "pointer" }}
                 >
-                  <BsFileEarmarkText className="form-icon" />
+                  <BsFileEarmarkText
+                    className="form-icon"
+                    style={{ color: form.color }}
+                  />
                   <span className="form-title">{form.title}</span>
                   <button
                     className="more-options"

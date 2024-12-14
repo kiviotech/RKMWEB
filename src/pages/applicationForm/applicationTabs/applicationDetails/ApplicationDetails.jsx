@@ -28,6 +28,33 @@ const ApplicationDetails = ({ goToNextStep, tabName }) => {
   const dropdownRef = useRef(null);
   const searchInputRef = useRef(null);
 
+  const deekshaOptions = [
+    "Srimat Swami Atmasthanandaji Maharaj",
+    "Srimat Swami Bhuteshanandaji Maharaj",
+    "Srimat Swami Divyanandaji Maharaj",
+    "Srimat Swami Gahananandaji Maharaj",
+    "Srimat Swami Gambhiranandaji Maharaj",
+    "Srimat Swami Gautamanandaji Maharaj",
+    "Srimat Swami Girishanandaji Maharaj",
+    "Srimat Swami Gitanandaji Maharaj",
+    "Srimat Swami Kailashanandaji Maharaj",
+    "Srimat Swami Madhavanandaji Maharaj",
+    "Srimat Swami Nirvananandaji Maharaj",
+    "Srimat Swami Omkaranandaji Maharaj",
+    "Srimat Swami Prabhanandaji Maharaj",
+    "Srimat Swami Prameyanandaji Maharaj",
+    "Srimat Swami Ranganathanandaji Maharaj",
+    "Srimat Swami Shivamayanandaji Maharaj",
+    "Srimat Swami Smarananandaji Maharaj",
+    "Srimat Swami Suhitanandaji Maharaj",
+    "Srimat Swami Tapasyanandaji Maharaj",
+    "Srimat Swami Vagishanandaji Maharaj",
+    "Srimat Swami Vimalatmanandaji Maharaj",
+    "Srimat Swami Vireshwaranandaji Maharaj",
+    "Srimat Swami Yatiswaranandaji Maharaj",
+    "none",
+  ];
+
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -533,19 +560,11 @@ const ApplicationDetails = ({ goToNextStep, tabName }) => {
                   onChange={handleInputChange}
                 >
                   <option value="">Select Deeksha</option>
-                  <option value="Sri Ramakrishna – Life and Teachings">
-                    Sri Ramakrishna – Life and Teachings
-                  </option>
-                  <option value="Sri Sarada Devi – Life and Teachings">
-                    Sri Sarada Devi Life and Teachings
-                  </option>
-                  <option value="Swami Vivekananda – His Life and Legacy">
-                    Swami Vivekananda – His Life and Legacy
-                  </option>
-                  <option value="The Gospel of Sri Ramakrishna">
-                    The Gospel of Sri Ramakrishna
-                  </option>
-                  <option value="none">None</option>
+                  {deekshaOptions.map((option) => (
+                    <option key={option} value={option}>
+                      {option}
+                    </option>
+                  ))}
                 </select>
                 {errors.deeksha && (
                   <span className="error">{errors.deeksha}</span>

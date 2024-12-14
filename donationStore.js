@@ -32,7 +32,8 @@ const initialDonationDetails = {
 
 export const useDonationStore = create((set) => ({
   donations: {
-    receipts: [],
+    math: { receipts: [] },
+    mission: { receipts: [] },
   },
   receiptNumbers: {
     Math: 1,
@@ -54,9 +55,8 @@ export const useDonationStore = create((set) => ({
     }),
   addDonation: (receipt) =>
     set((state) => {
-      const currentReceipts = state.donations?.receipts || [];
-
-      // Add donation details to the receipt with default donationType
+      const type = receipt.type.toLowerCase();
+      const currentReceipts = state.donations[type]?.receipts || [];
       const receiptWithDetails = {
         ...receipt,
         donationDetails: {
@@ -65,8 +65,6 @@ export const useDonationStore = create((set) => ({
           donationType: "Others (Revenue)",
         },
       };
-
-      // Find existing donor group
       const donorGroupIndex = currentReceipts.findIndex(
         (group) =>
           Array.isArray(group) &&
@@ -74,41 +72,29 @@ export const useDonationStore = create((set) => ({
           (group[0].donorDetails?.guestId === receipt.donorDetails?.guestId ||
             group[0].donorId === receipt.donorId)
       );
-
       let newReceipts;
       if (donorGroupIndex >= 0) {
-        // Update existing donor group
         newReceipts = [...currentReceipts];
         const existingGroup = newReceipts[donorGroupIndex];
-        const existingReceiptIndex = existingGroup.findIndex(
-          (r) => r.type === receipt.type
-        );
-
-        if (existingReceiptIndex >= 0) {
-          existingGroup[existingReceiptIndex] = {
-            ...receiptWithDetails,
-            donationDetails: {
-              ...existingGroup[existingReceiptIndex].donationDetails,
-              donationType: "Others (Revenue)",
-            },
-          };
-        } else {
-          existingGroup.push(receiptWithDetails);
-        }
+        existingGroup.push(receiptWithDetails);
       } else {
         newReceipts = [...currentReceipts, [receiptWithDetails]];
       }
-
       return {
         donations: {
           ...state.donations,
-          receipts: newReceipts,
+          [type]: {
+            ...state.donations[type],
+            receipts: newReceipts,
+          },
         },
       };
     }),
-  updateDonorDetails: (receiptNumber, details) =>
+  updateDonorDetails: (receiptNumber, details, type) =>
     set((state) => {
-      const updatedReceipts = (state.donations?.receipts || []).map((group) =>
+      const updatedReceipts = (
+        state.donations[type.toLowerCase()]?.receipts || []
+      ).map((group) =>
         Array.isArray(group)
           ? group.map((receipt) =>
               receipt.receiptNumber === receiptNumber
@@ -117,17 +103,21 @@ export const useDonationStore = create((set) => ({
             )
           : []
       );
-
       return {
         donations: {
           ...state.donations,
-          receipts: updatedReceipts,
+          [type.toLowerCase()]: {
+            ...state.donations[type.toLowerCase()],
+            receipts: updatedReceipts,
+          },
         },
       };
     }),
-  updateDonationDetails: (receiptNumber, details) =>
+  updateDonationDetails: (receiptNumber, details, type) =>
     set((state) => {
-      const updatedReceipts = (state.donations?.receipts || []).map((group) =>
+      const updatedReceipts = (
+        state.donations[type.toLowerCase()]?.receipts || []
+      ).map((group) =>
         Array.isArray(group)
           ? group.map((receipt) =>
               receipt.receiptNumber === receiptNumber
@@ -150,16 +140,21 @@ export const useDonationStore = create((set) => ({
             )
           : []
       );
-
       return {
         donations: {
           ...state.donations,
-          receipts: updatedReceipts,
+          [type.toLowerCase()]: {
+            ...state.donations[type.toLowerCase()],
+            receipts: updatedReceipts,
+          },
         },
       };
     }),
   clearDonations: () =>
     set({
-      donations: { receipts: [] },
+      donations: {
+        math: { receipts: [] },
+        mission: { receipts: [] },
+      },
     }),
 }));

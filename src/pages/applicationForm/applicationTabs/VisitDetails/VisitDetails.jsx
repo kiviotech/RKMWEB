@@ -33,6 +33,7 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
     const getCelebrations = async () => {
       try {
         const celebrationsData = await fetchCelebrations();
+        console.log("Fetched celebrations:", celebrationsData.data); // Debug log
         setCelebrations(celebrationsData.data);
       } catch (error) {
         console.error("Error fetching celebrations:", error);
@@ -77,6 +78,7 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
   // Update handleInputChange to set departure date 2 days after arrival
   const handleInputChange = (e) => {
     const { name, value } = e.target;
+    console.log("Time Selection:", { name, value });
 
     if (name === "visitDate" || name === "departureDate") {
       // Update the form data first
@@ -93,37 +95,33 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
         const start = new Date(visitDate);
         const end = new Date(departureDate);
 
-        for (let date = start; date <= end; date.setDate(date.getDate() + 1)) {
+        for (
+          let date = new Date(start);
+          date <= end;
+          date.setDate(date.getDate() + 1)
+        ) {
           dateRange.push(date.toISOString().split("T")[0]);
         }
 
         const matchingCelebrations = [];
 
-        dateRange.forEach((date) => {
-          const dateCelebrations = celebrations.filter(
-            (cel) => cel.attributes.gregorian_date === date
-          );
-
-          dateCelebrations.forEach((celebration) => {
+        celebrations.forEach((celebration) => {
+          const celebrationDate = celebration.attributes?.gregorian_date;
+          if (celebrationDate && dateRange.includes(celebrationDate)) {
             matchingCelebrations.push({
               event: celebration.attributes.event_name,
               type: celebration.attributes.event_type,
-              date: celebration.attributes.gregorian_date,
-              isArrival: date === visitDate,
-              isDeparture: date === departureDate,
+              date: celebrationDate,
+              isArrival: celebrationDate === visitDate,
+              isDeparture: celebrationDate === departureDate,
             });
-          });
+          }
         });
 
         if (matchingCelebrations.length > 0) {
+          console.log("Found matching celebrations:", matchingCelebrations);
           setShowCelebrationWarning(true);
           setCelebrationWarnings(matchingCelebrations);
-
-          // Auto-dismiss after 5 seconds (increased from 3 to give more time to read multiple warnings)
-          setTimeout(() => {
-            setShowCelebrationWarning(false);
-            setCelebrationWarnings([]);
-          }, 5000);
         } else {
           setShowCelebrationWarning(false);
           setCelebrationWarnings([]);
@@ -170,10 +168,6 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
       }
 
       setVisitFormData(name, value);
-
-      if (name === "arrivalTime") {
-        setVisitFormData("visitTime", value);
-      }
 
       // Modified stay duration calculation
       if (name === "visitDate" || name === "departureDate") {
@@ -398,44 +392,60 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
 
   const generateArrivalTimeOptions = () => {
     const morningTimes = [
-      "8:00",
-      "8:30",
-      "9:00",
-      "9:30",
-      "10:00",
-      "10:30",
-      "11:00",
+      { value: "7:30", label: "7:30 AM" },
+      { value: "8:00", label: "8:00 AM" },
+      { value: "8:30", label: "8:30 AM" },
+      { value: "9:00", label: "9:00 AM" },
+      { value: "9:30", label: "9:30 AM" },
+      { value: "10:00", label: "10:00 AM" },
+      { value: "10:30", label: "10:30 AM" },
+      { value: "11:00", label: "11:00 AM" },
     ];
-    const eveningTimes = ["15:30", "16:00", "16:30", "17:00"];
 
-    return [
-      <option key="" value="">
-        Select Time
-      </option>,
-      <optgroup label="Morning (8:00 AM - 11:00 AM)">
-        {morningTimes.map((time) => {
-          const hour = parseInt(time);
-          const timeDisplay = `${time} ${hour < 12 ? "AM" : "PM"}`;
-          return (
-            <option key={time} value={time}>
-              {timeDisplay}
-            </option>
-          );
-        })}
-      </optgroup>,
-      <optgroup label="Evening (3:30 PM - 5:00 PM)">
-        {eveningTimes.map((time) => {
-          const [hours, minutes] = time.split(":");
-          const hour12 = hours % 12 || 12;
-          const timeDisplay = `${hour12}:${minutes} PM`;
-          return (
-            <option key={time} value={time}>
-              {timeDisplay}
-            </option>
-          );
-        })}
-      </optgroup>,
+    const eveningTimes = [
+      { value: "15:30", label: "3:30 PM" },
+      { value: "16:00", label: "4:00 PM" },
+      { value: "16:30", label: "4:30 PM" },
+      { value: "17:00", label: "5:00 PM" },
     ];
+
+    return (
+      <>
+        <option value="">Select Time</option>
+        <optgroup label="Morning (7:30 AM - 11:00 AM)">
+          {morningTimes.map((time) => (
+            <option key={time.value} value={time.value}>
+              {time.label}
+            </option>
+          ))}
+        </optgroup>
+        <optgroup label="Evening (3:30 PM - 5:00 PM)">
+          {eveningTimes.map((time) => (
+            <option key={time.value} value={time.value}>
+              {time.label}
+            </option>
+          ))}
+        </optgroup>
+      </>
+    );
+  };
+
+  const warningStyle = {
+    position: "fixed",
+    top: (index) => `${20 + index * 140}px`,
+    right: "20px",
+    backgroundColor: "#f39c12",
+    color: "white",
+    padding: "15px 25px",
+    borderRadius: "5px",
+    boxShadow: "0 2px 5px rgba(0,0,0,0.2)",
+    zIndex: 9999,
+    maxWidth: "600px",
+    width: "600px",
+    fontSize: "16px",
+    animation: "fadeIn 0.3s ease-in",
+    marginBottom: "15px",
+    position: "relative",
   };
 
   return (
@@ -503,14 +513,15 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
                   <span className="required"> *</span>
                 </label>
                 <select
-                  name="arrivalTime"
-                  value={formData.arrivalTime || ""}
+                  name="visitTime"
+                  value={formData.visitTime || ""}
                   onChange={handleInputChange}
+                  className="form-control"
                 >
                   {generateArrivalTimeOptions()}
                 </select>
-                {errors.arrivalTime && (
-                  <span className="error">{errors.arrivalTime}</span>
+                {errors.visitTime && (
+                  <span className="error">{errors.visitTime}</span>
                 )}
               </div>
 
@@ -727,41 +738,72 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
         </div>
       )}
 
-      {showCelebrationWarning &&
-        celebrationWarnings.map((celebration, index) => (
-          <div
-            key={`${celebration.event}-${celebration.date}-${index}`}
-            style={{
-              position: "fixed",
-              top: `${20 + index * 140}px`,
-              right: "20px",
-              backgroundColor: "#f39c12",
-              color: "white",
-              padding: "15px 25px",
-              borderRadius: "5px",
-              boxShadow: "0 2px 5px rgba(0,0,0,0.2)",
-              zIndex: 1000,
-              maxWidth: "600px",
-              width: "600px",
-              fontSize: "16px",
-              animation: "fadeIn 0.3s ease-in",
-              marginBottom: "15px",
-            }}
-          >
-            <strong>High Occupancy Alert!</strong>
-            <p>
-              {celebration.event} ({celebration.type}) celebration is scheduled
-              on {celebration.date}
-              {celebration.isArrival
-                ? " (your arrival date)"
-                : celebration.isDeparture
-                ? " (your departure date)"
-                : ""}
-              . Expect higher than usual occupancy. Please consider alternate
-              dates or submit special requests if needed.
-            </p>
-          </div>
-        ))}
+      {showCelebrationWarning && celebrationWarnings.length > 0 && (
+        <div className="celebration-warnings">
+          {celebrationWarnings.map((celebration, index) => (
+            <div
+              key={`${celebration.event}-${celebration.date}-${index}`}
+              style={{
+                position: "fixed",
+                top: `${20 + index * 140}px`,
+                right: "20px",
+                backgroundColor: "#f39c12",
+                color: "white",
+                padding: "15px 25px",
+                borderRadius: "5px",
+                boxShadow: "0 2px 5px rgba(0,0,0,0.2)",
+                zIndex: 9999,
+                maxWidth: "600px",
+                width: "600px",
+                fontSize: "16px",
+                animation: "fadeIn 0.3s ease-in",
+                marginBottom: "15px",
+              }}
+            >
+              <svg
+                onClick={() => {
+                  const newWarnings = celebrationWarnings.filter(
+                    (_, i) => i !== index
+                  );
+                  setCelebrationWarnings(newWarnings);
+                  if (newWarnings.length === 0) {
+                    setShowCelebrationWarning(false);
+                  }
+                }}
+                style={{
+                  position: "absolute",
+                  top: "10px",
+                  right: "10px",
+                  cursor: "pointer",
+                  width: "16px",
+                  height: "16px",
+                }}
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
+              <strong>High Occupancy Alert!</strong>
+              <p>
+                {celebration.event} ({celebration.type}) celebration is
+                scheduled on {celebration.date}
+                {celebration.isArrival
+                  ? " (your arrival date)"
+                  : celebration.isDeparture
+                  ? " (your departure date)"
+                  : ""}{" "}
+                . Expect higher than usual occupancy. Please consider alternate
+                dates or submit special requests if needed.
+              </p>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };

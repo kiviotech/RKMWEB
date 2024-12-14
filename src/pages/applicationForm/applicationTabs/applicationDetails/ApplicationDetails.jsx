@@ -18,6 +18,8 @@ const ApplicationDetails = ({ goToNextStep, tabName }) => {
   const [countryCodes, setCountryCodes] = useState([]);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [isDeekshaDropdownOpen, setIsDeekshaDropdownOpen] = useState(false);
+  const [deekshaSearchQuery, setDeekshaSearchQuery] = useState("");
 
   const filteredCountryCodes = countryCodes.filter(
     (country) =>
@@ -27,6 +29,7 @@ const ApplicationDetails = ({ goToNextStep, tabName }) => {
 
   const dropdownRef = useRef(null);
   const searchInputRef = useRef(null);
+  const deekshaDropdownRef = useRef(null);
 
   const deekshaOptions = [
     "Srimat Swami Atmasthanandaji Maharaj",
@@ -104,6 +107,22 @@ const ApplicationDetails = ({ goToNextStep, tabName }) => {
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
+  }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        deekshaDropdownRef.current &&
+        !deekshaDropdownRef.current.contains(event.target)
+      ) {
+        setIsDeekshaDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
   }, []);
 
   const validateField = (name, value) => {
@@ -554,18 +573,97 @@ const ApplicationDetails = ({ goToNextStep, tabName }) => {
 
               <div className="form-group">
                 <label>Initiation / Mantra Diksha from</label>
-                <select
-                  name="deeksha"
-                  value={formData.deeksha}
-                  onChange={handleInputChange}
+                <div
+                  className="custom-dropdown"
+                  style={{ position: "relative" }}
+                  ref={deekshaDropdownRef}
                 >
-                  <option value="">Select Deeksha</option>
-                  {deekshaOptions.map((option) => (
-                    <option key={option} value={option}>
-                      {option}
-                    </option>
-                  ))}
-                </select>
+                  <div
+                    className="dropdown-header"
+                    onClick={() => {
+                      setIsDeekshaDropdownOpen(!isDeekshaDropdownOpen);
+                      setTimeout(() => {
+                        if (searchInputRef.current) {
+                          searchInputRef.current.focus();
+                        }
+                      }, 100);
+                    }}
+                    style={{
+                      padding: "10px",
+                      border: "1px solid #ccc",
+                      borderRadius: "4px",
+                      cursor: "pointer",
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      backgroundColor: "#FFF",
+                    }}
+                  >
+                    <span>{formData.deeksha || "Select Deeksha"}</span>
+                  </div>
+                  {isDeekshaDropdownOpen && (
+                    <div
+                      className="dropdown-options"
+                      style={{
+                        position: "absolute",
+                        top: "100%",
+                        left: 0,
+                        right: 0,
+                        maxHeight: "200px",
+                        overflowY: "auto",
+                        backgroundColor: "white",
+                        border: "1px solid #ccc",
+                        borderRadius: "4px",
+                        zIndex: 1000,
+                        boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+                      }}
+                    >
+                      <input
+                        ref={searchInputRef}
+                        type="text"
+                        placeholder="Search..."
+                        value={deekshaSearchQuery}
+                        onChange={(e) => setDeekshaSearchQuery(e.target.value)}
+                        style={{
+                          width: "100%",
+                          padding: "8px",
+                          border: "none",
+                          borderBottom: "1px solid #ccc",
+                          outline: "none",
+                        }}
+                        onClick={(e) => e.stopPropagation()}
+                        autoFocus
+                      />
+                      {deekshaOptions
+                        .filter((option) =>
+                          option
+                            .toLowerCase()
+                            .includes(deekshaSearchQuery.toLowerCase())
+                        )
+                        .map((option) => (
+                          <div
+                            key={option}
+                            onClick={() => {
+                              handleInputChange({
+                                target: { name: "deeksha", value: option },
+                              });
+                              setIsDeekshaDropdownOpen(false);
+                              setDeekshaSearchQuery(""); // Clear search when option is selected
+                            }}
+                            style={{
+                              padding: "10px",
+                              cursor: "pointer",
+                              ":hover": {
+                                backgroundColor: "#f5f5f5",
+                              },
+                            }}
+                          >
+                            {option}
+                          </div>
+                        ))}
+                    </div>
+                  )}
+                </div>
                 {errors.deeksha && (
                   <span className="error">{errors.deeksha}</span>
                 )}

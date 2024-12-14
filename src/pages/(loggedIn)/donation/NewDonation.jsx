@@ -1036,7 +1036,7 @@ const NewDonation = () => {
                   <p>The sum of Rupees <b>${numberToWords(
                     parseFloat(currentReceipt?.donationDetails?.amount || 0)
                   )} Only</b></p>
-                  
+
                   <div style="display: flex; gap: 10px; align-items: center;">
                     <p style="margin: 0;">By ${
                       currentReceipt?.donationDetails?.transactionType || "Cash"
@@ -1607,6 +1607,7 @@ const NewDonation = () => {
           ...prev,
           district: postOffice.District,
           state: postOffice.State,
+          postOffice: postOffice.Name, // Optional: Also update post office
         }));
       }
     } catch (error) {
@@ -1980,7 +1981,7 @@ const NewDonation = () => {
             <p style="margin-top: 5px;">
               I am donating a sum of Rs. ${
                 donationData.amount
-              }/- (${numberToWords(donationData.amount)} only) 
+              }/- (${numberToWords(donationData.amount)} only)
               by ${donationData.transactionType} as ${
       donationData.donationType
     } for ${donationData.purpose}.
@@ -2685,10 +2686,18 @@ const NewDonation = () => {
                     if (shouldDisableFields()) return;
                     const value = e.target.value.replace(/\D/g, "").slice(0, 6);
                     setDonorDetails({ ...donorDetails, pincode: value });
+
+                    // Call fetchPincodeDetails when pincode length is 6
+                    if (value.length === 6) {
+                      fetchPincodeDetails(value);
+                    }
                   }}
                   disabled={shouldDisableFields()}
                   className={`${shouldDisableFields() ? "disabled-input" : ""}`}
                 />
+                {isLoadingPincode && (
+                  <span className="loading-indicator">Loading...</span>
+                )}
               </div>
 
               <div className="form-group">
@@ -3701,6 +3710,23 @@ const NewDonation = () => {
           margin-bottom: 16px;
           text-align: center;
           font-size: 14px;
+        }
+
+        .loading-indicator {
+          margin-left: 8px;
+          font-size: 12px;
+          color: #666;
+        }
+
+        .form-group {
+          position: relative;
+        }
+
+        .form-group .loading-indicator {
+          position: absolute;
+          right: 8px;
+          top: 50%;
+          transform: translateY(-50%);
         }
       `}</style>
     </div>

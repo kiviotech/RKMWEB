@@ -1801,6 +1801,8 @@ select {
 
 .info-row {
   padding: 5px;
+  display: flex;
+  justify-content: flex-end;
 }
 
 .mantra-diksha-select {

@@ -550,32 +550,29 @@ const NewDonation = () => {
   };
 
   // Modify handleTabClick to update unique donor ID
-  const handleTabClick = (tabType) => {
-    setSelectedTab(tabType);
-    setDonorTabs((prev) => ({
-      ...prev,
-      [selectedDonor]: tabType,
-    }));
+  const handleTabClick = (tab) => {
+    // Check if there's existing donation data and it's completed
+    if (donationData && donationData.status === "completed") {
+      // Convert tab and donatedFor to lowercase for case-insensitive comparison
+      const normalizedTab = tab.toLowerCase();
+      const normalizedDonatedFor = donationData.donatedFor.toLowerCase();
 
-    // Update unique donor ID based on selected tab
-    const newUniqueNumber =
-      tabType === "Math" ? highestNumbers.MT + 1 : highestNumbers.MSN + 1;
-    setUniqueDonorId(`C${newUniqueNumber}`);
-
-    // Generate new receipt number when tab changes
-    const newReceiptNumber = generateReceiptNumber(tabType);
-    setReceiptNumber(newReceiptNumber);
-
-    // Update current receipt with new receipt number
-    if (currentReceipt) {
-      const updatedReceipt = {
-        ...currentReceipt,
-        receiptNumber: newReceiptNumber,
-        type: tabType,
-      };
-      setCurrentReceipt(updatedReceipt);
-      addDonation(updatedReceipt);
+      // If trying to switch to a different tab than the original donation
+      if (normalizedTab !== normalizedDonatedFor) {
+        alert("Cannot change donation type for a completed donation");
+        return;
+      }
     }
+
+    // If we get here, either there's no donation data, it's not completed,
+    // or we're selecting the same tab as the original donation
+    setSelectedTab(tab);
+
+    // Update receipt number based on new tab
+    const prefix = tab === "Math" ? "MT" : "MSN";
+    const nextNumber =
+      tab === "Math" ? highestNumbers.MT + 1 : highestNumbers.MSN + 1;
+    setReceiptNumber(`${prefix} ${nextNumber}`);
   };
 
   // Add handler for donation details updates
@@ -2396,16 +2393,34 @@ const NewDonation = () => {
           >
             <div className="tabs">
               <button
-                className={`tab ${selectedTab === "Math" ? "active" : ""}`}
+                className={`tab ${selectedTab === "Math" ? "active" : ""} ${
+                  donationData?.status === "completed" &&
+                  donationData?.donatedFor.toLowerCase() !== "math"
+                    ? "disabled"
+                    : ""
+                }`}
                 onClick={() => handleTabClick("Math")}
                 data-tab="Math"
+                disabled={
+                  donationData?.status === "completed" &&
+                  donationData?.donatedFor.toLowerCase() !== "math"
+                }
               >
                 Math
               </button>
               <button
-                className={`tab ${selectedTab === "Mission" ? "active" : ""}`}
+                className={`tab ${selectedTab === "Mission" ? "active" : ""} ${
+                  donationData?.status === "completed" &&
+                  donationData?.donatedFor.toLowerCase() !== "mission"
+                    ? "disabled"
+                    : ""
+                }`}
                 onClick={() => handleTabClick("Mission")}
                 data-tab="Mission"
+                disabled={
+                  donationData?.status === "completed" &&
+                  donationData?.donatedFor.toLowerCase() !== "mission"
+                }
               >
                 Mission
               </button>
@@ -3799,6 +3814,17 @@ const NewDonation = () => {
           right: 8px;
           top: 50%;
           transform: translateY(-50%);
+        }
+
+        .tab.disabled {
+          opacity: 0.5;
+          cursor: not-allowed;
+          pointer-events: none;
+        }
+
+        .tab:disabled {
+          opacity: 0.5;
+          cursor: not-allowed;
         }
       `}</style>
     </div>

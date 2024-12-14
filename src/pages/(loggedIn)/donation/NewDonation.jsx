@@ -89,6 +89,7 @@ const NewDonation = () => {
     district: "",
     state: "",
     postOffice: "",
+    panNumber: "",
   });
   const [donorTags, setDonorTags] = useState([
     {
@@ -2259,8 +2260,41 @@ const NewDonation = () => {
     }, 1000);
   };
 
+  // Helper function to check if fields should be disabled
+  const shouldDisableFields = () => {
+    return donationData && donationData.status === "completed";
+  };
+
+  // Pre-fill form with donation data if available
+  useEffect(() => {
+    if (donationData) {
+      setDonorDetails({
+        title: donationData.donorName.split(" ")[0] || "Sri",
+        name: donationData.donorName.split(" ").slice(1).join(" "),
+        phoneCode: donationData.phoneNumber.slice(0, 3),
+        phone: donationData.phoneNumber.slice(3),
+        // ... set other fields as needed
+      });
+
+      setCurrentReceipt({
+        ...currentReceipt,
+        donationDetails: {
+          amount: donationData.amount,
+          purpose: donationData.donatedFor,
+          // ... set other fields as needed
+        },
+      });
+    }
+  }, [donationData]);
+
   return (
     <div className="donations-container">
+      {shouldDisableFields() && (
+        <div className="view-only-banner">
+          <span>This donation has been completed and cannot be edited</span>
+        </div>
+      )}
+
       <div className="header">
         <div
           className="donor-tags"
@@ -2451,8 +2485,11 @@ const NewDonation = () => {
                         title: e.target.value,
                       })
                     }
+                    disabled={shouldDisableFields()}
+                    className={`${
+                      shouldDisableFields() ? "disabled-input" : ""
+                    }`}
                   >
-                    <option value="">Title</option>
                     <option value="Sri">Sri</option>
                     <option value="Smt">Smt.</option>
                     <option value="Mr">Mr.</option>
@@ -2468,55 +2505,18 @@ const NewDonation = () => {
                     type="text"
                     value={donorDetails.name}
                     onChange={(e) => {
+                      if (shouldDisableFields()) return;
                       const newName = e.target.value.replace(
                         /[^a-zA-Z\s]/g,
                         ""
                       );
                       setDonorDetails({ ...donorDetails, name: newName });
-                      setSearchTerm(newName);
-                      setShowDropdown(true);
-                      const nameError = validateName(newName);
-                      setValidationErrors((prev) => ({
-                        ...prev,
-                        name: nameError,
-                      }));
                     }}
-                    onKeyDown={(e) => {
-                      if (e.key === "Tab") {
-                        e.preventDefault();
-                        phoneInputRef.current?.focus();
-                      }
-                    }}
-                    className={validationErrors.name ? "error" : ""}
+                    disabled={shouldDisableFields()}
+                    className={`${validationErrors.name ? "error" : ""} ${
+                      shouldDisableFields() ? "disabled-input" : ""
+                    }`}
                   />
-                  {validationErrors.name && (
-                    <span className="error-message">
-                      {validationErrors.name}
-                    </span>
-                  )}
-                  {showDropdown && searchTerm && filteredGuests.length > 0 && (
-                    <div className="search-dropdown">
-                      {filteredGuests.map((guest) => (
-                        <div
-                          key={guest.id}
-                          className="dropdown-item"
-                          onClick={() => handleGuestSelect(guest)}
-                        >
-                          <div className="guest-info">
-                            <span className="guest-name">
-                              {guest.attributes.name}
-                            </span>
-                            <span className="guest-phone">
-                              {guest.attributes.phone_number}
-                            </span>
-                          </div>
-                          <div className="guest-details">
-                            <span>{guest.attributes.email}</span>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
                 </div>
               </div>
 
@@ -2533,6 +2533,10 @@ const NewDonation = () => {
                         phoneCode: e.target.value,
                       })
                     }
+                    disabled={shouldDisableFields()}
+                    className={`${
+                      shouldDisableFields() ? "disabled-input" : ""
+                    }`}
                   >
                     <option value="+91">+91</option>
                   </select>
@@ -2541,40 +2545,38 @@ const NewDonation = () => {
                     type="text"
                     value={donorDetails.phone}
                     onChange={(e) => {
+                      if (shouldDisableFields()) return;
                       const newPhone = e.target.value
                         .replace(/\D/g, "")
                         .slice(0, 10);
                       setDonorDetails({ ...donorDetails, phone: newPhone });
-                      const phoneError = validatePhone(newPhone);
-                      setValidationErrors((prev) => ({
-                        ...prev,
-                        phone: phoneError,
-                      }));
                     }}
-                    maxLength={10}
-                    className={validationErrors.phone ? "error" : ""}
+                    disabled={shouldDisableFields()}
+                    className={`${validationErrors.phone ? "error" : ""} ${
+                      shouldDisableFields() ? "disabled-input" : ""
+                    }`}
                   />
-                  {validationErrors.phone && (
-                    <span className="error-message">
-                      {validationErrors.phone}
-                    </span>
-                  )}
                 </div>
               </div>
 
+              {/* Mantra Diksha */}
               <div className="form-group">
                 <label>
                   Mantra Diksha <span className="required">*</span>
                 </label>
                 <select
-                  className="mantra-diksha-select"
                   value={donorDetails.mantraDiksha}
-                  onChange={(e) =>
+                  onChange={(e) => {
+                    if (shouldDisableFields()) return;
                     setDonorDetails({
                       ...donorDetails,
                       mantraDiksha: e.target.value,
-                    })
-                  }
+                    });
+                  }}
+                  disabled={shouldDisableFields()}
+                  className={`mantra-diksha-select ${
+                    shouldDisableFields() ? "disabled-input" : ""
+                  }`}
                 >
                   <option value="">Select Deeksha</option>
                   <option value="Sri Ramakrishna – Life and Teachings">
@@ -2602,28 +2604,15 @@ const NewDonation = () => {
                   type="email"
                   value={donorDetails.email}
                   onChange={(e) => {
-                    const newEmail = e.target.value;
-                    setDonorDetails({ ...donorDetails, email: newEmail });
-                    const emailError = validateEmail(newEmail);
-                    setValidationErrors((prev) => ({
-                      ...prev,
-                      email: emailError,
-                    }));
+                    if (shouldDisableFields()) return;
+                    setDonorDetails({ ...donorDetails, email: e.target.value });
                   }}
-                  onKeyDown={(e) => {
-                    if (e.key === "Tab") {
-                      e.preventDefault();
-                      identityInputRef.current?.focus();
-                    }
-                  }}
+                  disabled={shouldDisableFields()}
+                  className={`${shouldDisableFields() ? "disabled-input" : ""}`}
                 />
-                {validationErrors.email && (
-                  <span className="error-message">
-                    {validationErrors.email}
-                  </span>
-                )}
               </div>
 
+              {/* Identity Proof */}
               <div className="form-group">
                 <label>
                   Identity Proof <span className="required">*</span>
@@ -2632,18 +2621,16 @@ const NewDonation = () => {
                   <select
                     value={donorDetails.identityType}
                     onChange={(e) => {
+                      if (shouldDisableFields()) return;
                       setDonorDetails({
                         ...donorDetails,
                         identityType: e.target.value,
-                        identityNumber: "", // Reset number when type changes
-                      });
-                      setValidationErrors((prev) => ({
-                        ...prev,
                         identityNumber: "",
-                      }));
+                      });
                     }}
+                    disabled={shouldDisableFields()}
+                    className={shouldDisableFields() ? "disabled-input" : ""}
                   >
-                    <option value="">Select ID type</option>
                     <option value="Aadhaar">Aadhaar</option>
                     <option value="PAN">PAN</option>
                     <option value="Passport">Passport</option>
@@ -2651,82 +2638,36 @@ const NewDonation = () => {
                     <option value="DrivingLicense">Driving License</option>
                   </select>
                   <input
-                    ref={identityInputRef}
                     type="text"
                     value={donorDetails.identityNumber}
                     onChange={(e) => {
-                      let value = e.target.value;
-
-                      // Apply specific formatting based on ID type
-                      switch (donorDetails.identityType) {
-                        case "Aadhaar":
-                          value = value.replace(/\D/g, "").slice(0, 12);
-                          break;
-                        case "PAN":
-                          value = value.toUpperCase().slice(0, 10);
-                          break;
-                        case "Passport":
-                          value = value.toUpperCase().slice(0, 8);
-                          break;
-                        case "VoterId":
-                          value = value.toUpperCase().slice(0, 10);
-                          break;
-                        case "DrivingLicense":
-                          value = value.toUpperCase().slice(0, 15);
-                          break;
-                      }
-
+                      if (shouldDisableFields()) return;
                       setDonorDetails({
                         ...donorDetails,
-                        identityNumber: value,
+                        identityNumber: e.target.value,
                       });
-
-                      // Validate based on ID type
-                      let error = "";
-                      switch (donorDetails.identityType) {
-                        case "Aadhaar":
-                          error = validateAadhaar(value);
-                          break;
-                        case "PAN":
-                          error = validatePAN(value);
-                          break;
-                        case "Passport":
-                          error = validatePassport(value);
-                          break;
-                        case "VoterId":
-                          error = validateVoterId(value);
-                          break;
-                        case "DrivingLicense":
-                          error = validateDrivingLicense(value);
-                          break;
-                      }
-
-                      setValidationErrors((prev) => ({
-                        ...prev,
-                        identityNumber: error,
-                      }));
                     }}
-                    className={validationErrors.identityNumber ? "error" : ""}
+                    disabled={shouldDisableFields()}
+                    className={shouldDisableFields() ? "disabled-input" : ""}
                   />
                 </div>
-                {validationErrors.identityNumber && (
-                  <span className="error-message">
-                    {validationErrors.identityNumber}
-                  </span>
-                )}
               </div>
 
+              {/* Guest House Room No. */}
               <div className="form-group">
                 <label>Guest House Room No.</label>
                 <input
                   type="text"
                   value={donorDetails.roomNumber}
-                  onChange={(e) =>
+                  onChange={(e) => {
+                    if (shouldDisableFields()) return;
                     setDonorDetails({
                       ...donorDetails,
                       roomNumber: e.target.value,
-                    })
-                  }
+                    });
+                  }}
+                  disabled={shouldDisableFields()}
+                  className={shouldDisableFields() ? "disabled-input" : ""}
                 />
               </div>
             </div>
@@ -2741,12 +2682,12 @@ const NewDonation = () => {
                   type="text"
                   value={donorDetails.pincode}
                   onChange={(e) => {
+                    if (shouldDisableFields()) return;
                     const value = e.target.value.replace(/\D/g, "").slice(0, 6);
                     setDonorDetails({ ...donorDetails, pincode: value });
-                    if (value.length === 6) {
-                      fetchPincodeDetails(value);
-                    }
                   }}
+                  disabled={shouldDisableFields()}
+                  className={`${shouldDisableFields() ? "disabled-input" : ""}`}
                 />
               </div>
 
@@ -2757,8 +2698,15 @@ const NewDonation = () => {
                 <input
                   type="text"
                   value={donorDetails.state}
-                  readOnly // Add this line
-                  style={{ backgroundColor: "#f3f4f6" }} // Optional: Add a background color to indicate it's readonly
+                  onChange={(e) => {
+                    if (shouldDisableFields()) return;
+                    setDonorDetails({
+                      ...donorDetails,
+                      state: e.target.value,
+                    });
+                  }}
+                  disabled={shouldDisableFields()}
+                  className={`${shouldDisableFields() ? "disabled-input" : ""}`}
                 />
               </div>
 
@@ -2769,8 +2717,15 @@ const NewDonation = () => {
                 <input
                   type="text"
                   value={donorDetails.district}
-                  readOnly // Add this line
-                  style={{ backgroundColor: "#f3f4f6" }} // Optional: Add a background color to indicate it's readonly
+                  onChange={(e) => {
+                    if (shouldDisableFields()) return;
+                    setDonorDetails({
+                      ...donorDetails,
+                      district: e.target.value,
+                    });
+                  }}
+                  disabled={shouldDisableFields()}
+                  className={`${shouldDisableFields() ? "disabled-input" : ""}`}
                 />
               </div>
             </div>
@@ -2782,12 +2737,15 @@ const NewDonation = () => {
                 <input
                   type="text"
                   value={donorDetails.houseNumber}
-                  onChange={(e) =>
+                  onChange={(e) => {
+                    if (shouldDisableFields()) return;
                     setDonorDetails({
                       ...donorDetails,
                       houseNumber: e.target.value,
-                    })
-                  }
+                    });
+                  }}
+                  disabled={shouldDisableFields()}
+                  className={`${shouldDisableFields() ? "disabled-input" : ""}`}
                 />
               </div>
 
@@ -2796,12 +2754,15 @@ const NewDonation = () => {
                 <input
                   type="text"
                   value={donorDetails.streetName}
-                  onChange={(e) =>
+                  onChange={(e) => {
+                    if (shouldDisableFields()) return;
                     setDonorDetails({
                       ...donorDetails,
                       streetName: e.target.value,
-                    })
-                  }
+                    });
+                  }}
+                  disabled={shouldDisableFields()}
+                  className={`${shouldDisableFields() ? "disabled-input" : ""}`}
                 />
               </div>
 
@@ -2809,13 +2770,16 @@ const NewDonation = () => {
                 <label>Post Office</label>
                 <input
                   type="text"
-                  value={donorDetails.postOffice || ""}
-                  onChange={(e) =>
+                  value={donorDetails.postOffice}
+                  onChange={(e) => {
+                    if (shouldDisableFields()) return;
                     setDonorDetails({
                       ...donorDetails,
                       postOffice: e.target.value,
-                    })
-                  }
+                    });
+                  }}
+                  disabled={shouldDisableFields()}
+                  className={`${shouldDisableFields() ? "disabled-input" : ""}`}
                 />
               </div>
             </div>
@@ -3072,22 +3036,13 @@ const NewDonation = () => {
               <select
                 value={currentReceipt?.donationDetails?.purpose || ""}
                 onChange={(e) => {
-                  const newPurpose = e.target.value;
+                  if (shouldDisableFields()) return;
                   handleDonationDetailsUpdate({
-                    purpose: newPurpose,
-                    donationType:
-                      currentReceipt?.donationDetails?.donationType ||
-                      "Others (Revenue)", // Ensure donation type is set
+                    purpose: e.target.value,
                   });
-                  // Clear the purpose validation error when a value is selected
-                  if (newPurpose) {
-                    setValidationErrors((prev) => ({
-                      ...prev,
-                      purpose: "",
-                    }));
-                  }
                 }}
-                className={validationErrors.purpose ? "error" : ""}
+                disabled={shouldDisableFields()}
+                className={`${shouldDisableFields() ? "disabled-input" : ""}`}
               >
                 <option value="">Select Purpose</option>
                 {selectedTab === "Math" ? (
@@ -3132,11 +3087,6 @@ const NewDonation = () => {
                   </>
                 )}
               </select>
-              {validationErrors.purpose && (
-                <span className="error-message">
-                  {validationErrors.purpose}
-                </span>
-              )}
             </div>
 
             {/* Add this conditional input field for both Math and Mission */}
@@ -3178,10 +3128,13 @@ const NewDonation = () => {
                   "Others (Revenue)"
                 }
                 onChange={(e) => {
+                  if (shouldDisableFields()) return;
                   handleDonationDetailsUpdate({
                     donationType: e.target.value,
                   });
                 }}
+                disabled={shouldDisableFields()}
+                className={`${shouldDisableFields() ? "disabled-input" : ""}`}
               >
                 <option value="Others (Revenue)">Others (Revenue)</option>
                 <option value="CORPUS">CORPUS</option>
@@ -3194,12 +3147,15 @@ const NewDonation = () => {
               <input
                 type="text"
                 value={currentReceipt?.donationDetails?.amount || ""}
-                onChange={(e) => handleDonationAmountChange(e.target.value)}
-                className={validationErrors.amount ? "error" : ""}
+                onChange={(e) => {
+                  if (shouldDisableFields()) return;
+                  handleDonationAmountChange(e.target.value);
+                }}
+                disabled={shouldDisableFields()}
+                className={`${validationErrors.amount ? "error" : ""} ${
+                  shouldDisableFields() ? "disabled-input" : ""
+                }`}
               />
-              {validationErrors.amount && (
-                <span className="error-message">{validationErrors.amount}</span>
-              )}
             </div>
             {showPANField && (
               <div className="form-group">
@@ -3235,12 +3191,13 @@ const NewDonation = () => {
                   currentReceipt?.donationDetails?.transactionType || "Cash"
                 }
                 onChange={(e) => {
-                  const newType = e.target.value;
+                  if (shouldDisableFields()) return;
                   handleDonationDetailsUpdate({
-                    ...currentReceipt?.donationDetails,
-                    transactionType: newType,
+                    transactionType: e.target.value,
                   });
                 }}
+                disabled={shouldDisableFields()}
+                className={`${shouldDisableFields() ? "disabled-input" : ""}`}
               >
                 <option value="Cash">Cash</option>
                 <option value="M.O">M.O</option>
@@ -3256,10 +3213,13 @@ const NewDonation = () => {
                 type="text"
                 value={currentReceipt?.donationDetails?.inMemoryOf || ""}
                 onChange={(e) => {
+                  if (shouldDisableFields()) return;
                   handleDonationDetailsUpdate({
                     inMemoryOf: e.target.value,
                   });
                 }}
+                disabled={shouldDisableFields()}
+                className={`${shouldDisableFields() ? "disabled-input" : ""}`}
               />
             </div>
           </div>
@@ -3290,21 +3250,18 @@ const NewDonation = () => {
                     currentReceipt?.donationDetails?.transactionDetails
                       ?.ddDate || ""
                   }
-                  onChange={(e) =>
+                  onChange={(e) => {
+                    if (shouldDisableFields()) return;
                     handleDonationDetailsUpdate({
                       transactionDetails: {
                         ...currentReceipt?.donationDetails?.transactionDetails,
                         ddDate: e.target.value,
                       },
-                    })
-                  }
-                  className={transactionValidationErrors.ddDate ? "error" : ""}
+                    });
+                  }}
+                  disabled={shouldDisableFields()}
+                  className={`${shouldDisableFields() ? "disabled-input" : ""}`}
                 />
-                {transactionValidationErrors.ddDate && (
-                  <span className="error-message">
-                    {transactionValidationErrors.ddDate}
-                  </span>
-                )}
               </div>
               <div className="form-group">
                 <label>
@@ -3316,23 +3273,18 @@ const NewDonation = () => {
                     currentReceipt?.donationDetails?.transactionDetails
                       ?.ddNumber || ""
                   }
-                  onChange={(e) =>
+                  onChange={(e) => {
+                    if (shouldDisableFields()) return;
                     handleDonationDetailsUpdate({
                       transactionDetails: {
                         ...currentReceipt?.donationDetails?.transactionDetails,
                         ddNumber: e.target.value,
                       },
-                    })
-                  }
-                  className={
-                    transactionValidationErrors.ddNumber ? "error" : ""
-                  }
+                    });
+                  }}
+                  disabled={shouldDisableFields()}
+                  className={`${shouldDisableFields() ? "disabled-input" : ""}`}
                 />
-                {transactionValidationErrors.ddNumber && (
-                  <span className="error-message">
-                    {transactionValidationErrors.ddNumber}
-                  </span>
-                )}
               </div>
               <div className="form-group">
                 <label>
@@ -3344,23 +3296,18 @@ const NewDonation = () => {
                     currentReceipt?.donationDetails?.transactionDetails
                       ?.bankName || ""
                   }
-                  onChange={(e) =>
+                  onChange={(e) => {
+                    if (shouldDisableFields()) return;
                     handleDonationDetailsUpdate({
                       transactionDetails: {
                         ...currentReceipt?.donationDetails?.transactionDetails,
                         bankName: e.target.value,
                       },
-                    })
-                  }
-                  className={
-                    transactionValidationErrors.bankName ? "error" : ""
-                  }
+                    });
+                  }}
+                  disabled={shouldDisableFields()}
+                  className={`${shouldDisableFields() ? "disabled-input" : ""}`}
                 />
-                {transactionValidationErrors.bankName && (
-                  <span className="error-message">
-                    {transactionValidationErrors.bankName}
-                  </span>
-                )}
               </div>
               <div className="form-group">
                 <label>
@@ -3372,23 +3319,18 @@ const NewDonation = () => {
                     currentReceipt?.donationDetails?.transactionDetails
                       ?.branchName || ""
                   }
-                  onChange={(e) =>
+                  onChange={(e) => {
+                    if (shouldDisableFields()) return;
                     handleDonationDetailsUpdate({
                       transactionDetails: {
                         ...currentReceipt?.donationDetails?.transactionDetails,
                         branchName: e.target.value,
                       },
-                    })
-                  }
-                  className={
-                    transactionValidationErrors.branchName ? "error" : ""
-                  }
+                    });
+                  }}
+                  disabled={shouldDisableFields()}
+                  className={`${shouldDisableFields() ? "disabled-input" : ""}`}
                 />
-                {transactionValidationErrors.branchName && (
-                  <span className="error-message">
-                    {transactionValidationErrors.branchName}
-                  </span>
-                )}
               </div>
             </div>
           )}
@@ -3739,6 +3681,28 @@ const NewDonation = () => {
           </div>
         </div>
       )}
+
+      <style jsx>{`
+        .disabled-input {
+          background-color: #f3f4f6;
+          cursor: not-allowed;
+          opacity: 0.7;
+        }
+
+        .disabled-input:hover {
+          border-color: #d1d5db;
+        }
+
+        .view-only-banner {
+          background-color: #edf2f7;
+          color: #4a5568;
+          padding: 8px 16px;
+          border-radius: 4px;
+          margin-bottom: 16px;
+          text-align: center;
+          font-size: 14px;
+        }
+      `}</style>
     </div>
   );
 };

@@ -113,7 +113,7 @@ const Deeksha = () => {
     { id: 2, title: "Diksha form of Srimat Swami Suhitanandaji Maharaj" },
     { id: 3, title: "Diksha form of Srimat Swami Girishanandaji Maharaj" },
     { id: 4, title: "Diksha form of Srimat Swami Vimalatmanandaji Maharaj" },
-    { id: 5, title: "Diksha form of Srimat Swami Divyanandaji Mahara" },
+    { id: 5, title: "Diksha form of Srimat Swami Divyanandaji Maharaj" },
   ];
 
   const handleStatusUpdate = async (id, newStatus) => {
@@ -277,15 +277,17 @@ const Deeksha = () => {
             <h2>Upcoming Diksha</h2>
             <div className="event-card">
               <div className="event-details">
+                <h2>Srimat Swami Divyanandaji Maharaj</h2>
                 <div className="date">
                   <FaCalendarAlt className="icon" />
-                  <span>25th November 2024, 10:00 AM</span>
+                  <span>15.02.2025, 17.02.2025 & 18.02.2025</span>
                 </div>
                 <div className="location">
                   <FaMapMarkerAlt className="icon" />
                   <span>Main Prayer Hall, Ramakrishna Math, Kolkata</span>
                 </div>
               </div>
+
               <button
                 className="reminder-btn"
                 onClick={() =>
@@ -297,6 +299,7 @@ const Deeksha = () => {
               >
                 Send reminder
               </button>
+              <button className="reminder-btn">view schedule</button>
             </div>
           </div>
         </div>

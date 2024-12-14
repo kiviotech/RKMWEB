@@ -1506,7 +1506,7 @@ const NewDonation = () => {
 
   // Add these validation functions near your other validation functions
   const validateAadhaar = (number) => {
-    if (!number) return "";
+    if (!number) return "Aadhaar number is required";
     if (!/^\d{12}$/.test(number)) {
       return "Aadhaar number must be exactly 12 digits";
     }
@@ -1514,9 +1514,7 @@ const NewDonation = () => {
   };
 
   const validatePAN = (number) => {
-    if (!number) {
-      return "PAN number is required for donations above ₹10,000";
-    }
+    if (!number) return "PAN number is required";
     if (!/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/.test(number)) {
       return "PAN must be in format: ABCDE1234F";
     }
@@ -1524,7 +1522,7 @@ const NewDonation = () => {
   };
 
   const validatePassport = (number) => {
-    if (!number) return "";
+    if (!number) return "Passport number is required";
     if (!/^[A-Z]{1}[0-9]{7}$/.test(number)) {
       return "Passport must be in format: A1234567";
     }
@@ -1533,8 +1531,7 @@ const NewDonation = () => {
 
   // Add these validation functions near your other validation functions
   const validateVoterId = (number) => {
-    if (!number) return "";
-    // Voter ID format: 3 letters followed by 7 numbers
+    if (!number) return "Voter ID is required";
     if (!/^[A-Z]{3}[0-9]{7}$/.test(number)) {
       return "Voter ID must be in format: ABC1234567";
     }
@@ -1542,9 +1539,8 @@ const NewDonation = () => {
   };
 
   const validateDrivingLicense = (number) => {
-    if (!number) return "";
-    // Driving License format: 2 letters, 2 numbers, 4 numbers, 7 numbers
-    if (!/^[A-Z]{2}[0-9]{2}[0-9]{4}[0-9]{7}$/.test(number)) {
+    if (!number) return "Driving License is required";
+    if (!/^[A-Z]{2}[0-9]{13}$/.test(number)) {
       return "Driving License must be in format: DL0120160000000";
     }
     return "";
@@ -2626,8 +2622,12 @@ const NewDonation = () => {
                       setDonorDetails({
                         ...donorDetails,
                         identityType: e.target.value,
-                        identityNumber: "",
+                        identityNumber: "", // Clear the number when type changes
                       });
+                      setValidationErrors((prev) => ({
+                        ...prev,
+                        identityNumber: "", // Clear validation errors when type changes
+                      }));
                     }}
                     disabled={shouldDisableFields()}
                     className={shouldDisableFields() ? "disabled-input" : ""}
@@ -2643,15 +2643,87 @@ const NewDonation = () => {
                     value={donorDetails.identityNumber}
                     onChange={(e) => {
                       if (shouldDisableFields()) return;
+                      const value = e.target.value;
+                      const type = donorDetails.identityType;
+
+                      // Apply validation based on identity type
+                      let validatedValue = value;
+                      switch (type) {
+                        case "Aadhaar":
+                          validatedValue = value
+                            .replace(/[^0-9]/g, "")
+                            .slice(0, 12);
+                          break;
+                        case "PAN":
+                          // Allow both letters and numbers for PAN
+                          validatedValue = value
+                            .replace(/[^A-Za-z0-9]/g, "")
+                            .slice(0, 10)
+                            .toUpperCase();
+                          break;
+                        case "Passport":
+                          validatedValue = value
+                            .replace(/[^A-Za-z0-9]/g, "")
+                            .slice(0, 8)
+                            .toUpperCase();
+                          break;
+                        case "VoterId":
+                          validatedValue = value
+                            .replace(/[^A-Za-z0-9]/g, "")
+                            .slice(0, 10)
+                            .toUpperCase();
+                          break;
+                        case "DrivingLicense":
+                          validatedValue = value
+                            .replace(/[^A-Za-z0-9]/g, "")
+                            .slice(0, 15)
+                            .toUpperCase();
+                          break;
+                        default:
+                          validatedValue = value;
+                      }
+
                       setDonorDetails({
                         ...donorDetails,
-                        identityNumber: e.target.value,
+                        identityNumber: validatedValue,
                       });
+
+                      // Validate the input
+                      let error = "";
+                      switch (type) {
+                        case "Aadhaar":
+                          error = validateAadhaar(validatedValue);
+                          break;
+                        case "PAN":
+                          error = validatePAN(validatedValue);
+                          break;
+                        case "Passport":
+                          error = validatePassport(validatedValue);
+                          break;
+                        case "VoterId":
+                          error = validateVoterId(validatedValue);
+                          break;
+                        case "DrivingLicense":
+                          error = validateDrivingLicense(validatedValue);
+                          break;
+                      }
+
+                      setValidationErrors((prev) => ({
+                        ...prev,
+                        identityNumber: error,
+                      }));
                     }}
                     disabled={shouldDisableFields()}
-                    className={shouldDisableFields() ? "disabled-input" : ""}
+                    className={`${
+                      validationErrors.identityNumber ? "error" : ""
+                    } ${shouldDisableFields() ? "disabled-input" : ""}`}
                   />
                 </div>
+                {validationErrors.identityNumber && (
+                  <span className="error-message">
+                    {validationErrors.identityNumber}
+                  </span>
+                )}
               </div>
 
               {/* Guest House Room No. */}

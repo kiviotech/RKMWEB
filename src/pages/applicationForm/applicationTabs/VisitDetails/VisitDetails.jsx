@@ -78,12 +78,13 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
   // Update handleInputChange to set departure date 2 days after arrival
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    console.log("Time Selection:", { name, value });
+    console.log("Input Change:", { name, value });
 
+    // First set the form data for all fields
+    setVisitFormData(name, value);
+
+    // Special handling for date-related fields
     if (name === "visitDate" || name === "departureDate") {
-      // Update the form data first
-      setVisitFormData(name, value);
-
       // Get both dates
       const visitDate = name === "visitDate" ? value : formData.visitDate;
       const departureDate =
@@ -167,8 +168,6 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
         return;
       }
 
-      setVisitFormData(name, value);
-
       // Modified stay duration calculation
       if (name === "visitDate" || name === "departureDate") {
         let visitDate = name === "visitDate" ? value : formData.visitDate;
@@ -196,10 +195,11 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
           }
         }
       }
+    }
 
-      if (errors[name]) {
-        setErrors(name, "");
-      }
+    // Clear errors if they exist
+    if (errors[name]) {
+      setErrors(name, "");
     }
   };
 

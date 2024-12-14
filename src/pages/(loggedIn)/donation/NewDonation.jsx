@@ -2283,12 +2283,6 @@ const NewDonation = () => {
 
   return (
     <div className="donations-container">
-      {shouldDisableFields() && (
-        <div className="view-only-banner">
-          <span>This donation has been completed and cannot be edited</span>
-        </div>
-      )}
-
       <div className="header">
         <div
           className="donor-tags"
@@ -2427,12 +2421,30 @@ const NewDonation = () => {
             </div>
 
             <div
-              style={{ fontWeight: "bold", fontSize: "14px", color: "#333" }}
+              style={{
+                fontWeight: "bold",
+                fontSize: "14px",
+                color: "#333",
+                display: "flex",
+                alignItems: "center",
+                gap: "10px",
+              }}
             >
-              Receipt Number:{" "}
-              <span style={{ color: "#6B7280", fontWeight: "normal" }}>
-                {receiptNumber}
-              </span>
+              <div>
+                Receipt Number:{" "}
+                <span style={{ color: "#6B7280", fontWeight: "normal" }}>
+                  {receiptNumber}
+                </span>
+              </div>
+              <div>
+                {shouldDisableFields() && (
+                  <div className="view-only-banner">
+                    <span>
+                      This donation has been completed and cannot be edited
+                    </span>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 
@@ -3794,7 +3806,6 @@ const NewDonation = () => {
           color: #4a5568;
           padding: 8px 16px;
           border-radius: 4px;
-          margin-bottom: 16px;
           text-align: center;
           font-size: 14px;
         }

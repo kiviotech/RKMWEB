@@ -712,10 +712,10 @@ const NewDonation = () => {
       amount: amountError,
     });
 
-    if (nameError || phoneError || purposeError || amountError) {
-      alert("Please fill all required fields");
-      return;
-    }
+    // if (nameError || phoneError || purposeError || amountError) {
+    //   alert("Please fill all required fields");
+    //   return;
+    // }
 
     // Validate transaction details if necessary
     if (!validateTransactionDetails()) {
@@ -2602,18 +2602,74 @@ const NewDonation = () => {
                     shouldDisableFields() ? "disabled-input" : ""
                   }`}
                 >
-                  <option value="">Select Deeksha</option>
-                  <option value="Sri Ramakrishna – Life and Teachings">
-                    Sri Ramakrishna – Life and Teachings
+                  <option value="Srimat Swami Atmasthanandaji Maharaj">
+                    Srimat Swami Atmasthanandaji Maharaj
                   </option>
-                  <option value="Sri Sarada Devi – Life and Teachings">
-                    Sri Sarada Devi – Life and Teachings
+                  <option value="Srimat Swami Bhuteshanandaji Maharaj">
+                    Srimat Swami Bhuteshanandaji Maharaj
                   </option>
-                  <option value="Swami Vivekananda – His Life and Legacy">
-                    Swami Vivekananda – His Life and Legacy
+                  <option value="Srimat Swami Divyanandaji Maharaj">
+                    Srimat Swami Divyanandaji Maharaj
                   </option>
-                  <option value="The Gospel of Sri Ramakrishna">
-                    The Gospel of Sri Ramakrishna
+                  <option value="Srimat Swami Gahananandaji Maharaj">
+                    Srimat Swami Gahananandaji Maharaj
+                  </option>
+                  <option value="Srimat Swami Gambhiranandaji Maharaj">
+                    Srimat Swami Gambhiranandaji Maharaj
+                  </option>
+                  <option value="Srimat Swami Gautamanandaji Maharaj">
+                    Srimat Swami Gautamanandaji Maharaj
+                  </option>
+                  <option value="Srimat Swami Girishanandaji Maharaj">
+                    Srimat Swami Girishanandaji Maharaj
+                  </option>
+                  <option value="Srimat Swami Gitanandaji Maharaj">
+                    Srimat Swami Gitanandaji Maharaj
+                  </option>
+                  <option value="Srimat Swami Kailashanandaji Maharaj">
+                    Srimat Swami Kailashanandaji Maharaj
+                  </option>
+                  <option value="Srimat Swami Madhavanandaji Maharaj">
+                    Srimat Swami Madhavanandaji Maharaj
+                  </option>
+                  <option value="Srimat Swami Nirvananandaji Maharaj">
+                    Srimat Swami Nirvananandaji Maharaj
+                  </option>
+                  <option value="Srimat Swami Omkaranandaji Maharaj">
+                    Srimat Swami Omkaranandaji Maharaj
+                  </option>
+                  <option value="Srimat Swami Prabhanandaji Maharaj">
+                    Srimat Swami Prabhanandaji Maharaj
+                  </option>
+                  <option value="Srimat Swami Prameyanandaji Maharaj">
+                    Srimat Swami Prameyanandaji Maharaj
+                  </option>
+                  <option value="Srimat Swami Ranganathanandaji Maharaj">
+                    Srimat Swami Ranganathanandaji Maharaj
+                  </option>
+                  <option value="Srimat Swami Shivamayanandaji Maharaj">
+                    Srimat Swami Shivamayanandaji Maharaj
+                  </option>
+                  <option value="Srimat Swami Smarananandaji Maharaj">
+                    Srimat Swami Smarananandaji Maharaj
+                  </option>
+                  <option value="Srimat Swami Suhitanandaji Maharaj">
+                    Srimat Swami Suhitanandaji Maharaj
+                  </option>
+                  <option value="Srimat Swami Tapasyanandaji Maharaj">
+                    Srimat Swami Tapasyanandaji Maharaj
+                  </option>
+                  <option value="Srimat Swami Vagishanandaji Maharaj">
+                    Srimat Swami Vagishanandaji Maharaj
+                  </option>
+                  <option value="Srimat Swami Vimalatmanandaji Maharaj">
+                    Srimat Swami Vimalatmanandaji Maharaj
+                  </option>
+                  <option value="Srimat Swami Vireshwaranandaji Maharaj">
+                    Srimat Swami Vireshwaranandaji Maharaj
+                  </option>
+                  <option value="Srimat Swami Yatiswaranandaji Maharaj">
+                    Srimat Swami Yatiswaranandaji Maharaj
                   </option>
                   <option value="none">None</option>
                 </select>

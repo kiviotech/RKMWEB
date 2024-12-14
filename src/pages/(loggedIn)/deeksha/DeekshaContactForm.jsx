@@ -1,31 +1,84 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Link, useNavigate } from 'react-router-dom';
-import useDeekshaFormStore from "../../../../deekshaFormStore"
-import "./DeekshaContactForm.scss"
-import { icons } from "../../../constants"
+import { Link, useNavigate } from "react-router-dom";
+import useDeekshaFormStore from "../../../../deekshaFormStore";
+import "./DeekshaContactForm.scss";
+import { icons } from "../../../constants";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 import "@sweetalert2/theme-dark";
-import whatsapp from "../../../assets/icons/whatsapp.png"
-
+import whatsapp from "../../../assets/icons/whatsapp.png";
 
 const MySwal = withReactContent(Swal);
 
+const translations = {
+  english: {
+    enterPhone: "Please enter your phone number:",
+    plus: "+",
+    yourNumber: "your number",
+    isWhatsapp: "Is this your WhatsApp number?",
+    enterEmail: "Please enter your e-mail id:",
+    emailPlaceholder: "noname@nodomain.com",
+    enterAadhaar: "Please enter your Aadhaar number:",
+    aadhaarPlaceholder: "123456789012",
+    skipSubmit: "Skip & Submit",
+    back: "Back",
+    next: "Next",
+    wantToSubmit: "Do you want to submit?",
+    confirm: "Confirm",
+    cancel: "Cancel",
+  },
+  hindi: {
+    enterPhone: "कृपया अपना फोन नंबर दर्ज करें:",
+    plus: "+",
+    yourNumber: "आपका नंबर",
+    isWhatsapp: "क्या यह आपका व्हाट्सएप नंबर है?",
+    enterEmail: "कृपया अपना ईमेल आईडी दर्ज करें:",
+    emailPlaceholder: "noname@nodomain.com",
+    enterAadhaar: "कृपया अपना आधार नंबर दर्ज करें:",
+    aadhaarPlaceholder: "123456789012",
+    skipSubmit: "छोड़ें और जमा करें",
+    back: "वापस",
+    next: "अगला",
+    wantToSubmit: "क्या आप जमा करना चाहते हैं?",
+    confirm: "पुष्टि करें",
+    cancel: "रद्द करें",
+  },
+  bengali: {
+    enterPhone: "অনুগ্রহ করে আপনার ফোন নম্বর লিখুন:",
+    plus: "+",
+    yourNumber: "আপনার নম্বর",
+    isWhatsapp: "এটি কি আপনার হোয়াটসঅ্যাপ নম্বর?",
+    enterEmail: "অনুগ্রহ করে আপনার ইমেল আইডি লিখুন:",
+    emailPlaceholder: "noname@nodomain.com",
+    enterAadhaar: "অনুগ্রহ করে আপনার আধার নম্বর লিখুন:",
+    aadhaarPlaceholder: "123456789012",
+    skipSubmit: "এড়িয়ে যান এবং জমা দিন",
+    back: "পিছনে",
+    next: "পরবর্তী",
+    wantToSubmit: "আপনি জমা দিতে চান?",
+    confirm: "নিশ্চিত করুন",
+    cancel: "বাতিল করুন",
+  },
+};
+
 const DeekshaContactForm = () => {
   const navigate = useNavigate();
-  const { contact, updateContact } = useDeekshaFormStore();
+  const { contact, updateContact, formLanguage } = useDeekshaFormStore();
+
+  // Get translations based on selected language
+  const t = translations[formLanguage || "english"];
 
   // Log entire Zustand store when component mounts
   React.useEffect(() => {
     const fullStore = useDeekshaFormStore.getState();
-    console.log('Full Deeksha Form Store:', fullStore);
+    console.log("Full Deeksha Form Store:", fullStore);
   }, []);
 
   // Add error state
   const [errors, setErrors] = React.useState({
-    phoneNumber: '',
-    email: '',
-    aadhaar: ''
+    phoneNumber: "",
+    email: "",
+    aadhaar: "",
   });
 
   // Add these new state variables
@@ -86,20 +139,20 @@ const DeekshaContactForm = () => {
   // Update handleInputChange to prevent non-numeric input for phone number
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    
+
     // Only allow numeric input for phone number
-    if (name === 'phoneNumber') {
-      const numericValue = value.replace(/[^0-9]/g, '');
+    if (name === "phoneNumber") {
+      const numericValue = value.replace(/[^0-9]/g, "");
       updateContact({ [name]: numericValue });
       validateField(name, numericValue);
     } else {
       updateContact({ [name]: value });
       validateField(name, value);
     }
-    
+
     // Log full store after each update
     const fullStore = useDeekshaFormStore.getState();
-    console.log('Full Store After Update:', fullStore);
+    console.log("Full Store After Update:", fullStore);
   };
 
   // Update the validateField function to be stricter
@@ -107,37 +160,37 @@ const DeekshaContactForm = () => {
     let newErrors = { ...errors };
 
     switch (name) {
-      case 'phoneNumber':
-        if (!value || value.trim() === '') {
-          newErrors.phoneNumber = 'Phone number is required';
+      case "phoneNumber":
+        if (!value || value.trim() === "") {
+          newErrors.phoneNumber = "Phone number is required";
         } else if (value.length !== 10) {
-          newErrors.phoneNumber = 'Phone number must be exactly 10 digits';
+          newErrors.phoneNumber = "Phone number must be exactly 10 digits";
         } else if (!/^\d{10}$/.test(value)) {
-          newErrors.phoneNumber = 'Phone number can only contain digits';
+          newErrors.phoneNumber = "Phone number can only contain digits";
         } else {
-          newErrors.phoneNumber = '';
+          newErrors.phoneNumber = "";
         }
         break;
 
-      case 'email':
-        if (!value || value.trim() === '') {
-          newErrors.email = 'Email is required';
+      case "email":
+        if (!value || value.trim() === "") {
+          newErrors.email = "Email is required";
         } else if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(value)) {
-          newErrors.email = 'Please enter a valid email address';
+          newErrors.email = "Please enter a valid email address";
         } else {
-          newErrors.email = '';
+          newErrors.email = "";
         }
         break;
 
-      case 'aadhaar':
-        if (!value || value.trim() === '') {
-          newErrors.aadhaar = 'Aadhaar number is required';
+      case "aadhaar":
+        if (!value || value.trim() === "") {
+          newErrors.aadhaar = "Aadhaar number is required";
         } else if (value.length !== 12) {
-          newErrors.aadhaar = 'Aadhaar number must be exactly 12 digits';
+          newErrors.aadhaar = "Aadhaar number must be exactly 12 digits";
         } else if (!/^\d{12}$/.test(value)) {
-          newErrors.aadhaar = 'Aadhaar number can only contain digits';
+          newErrors.aadhaar = "Aadhaar number can only contain digits";
         } else {
-          newErrors.aadhaar = '';
+          newErrors.aadhaar = "";
         }
         break;
     }
@@ -149,20 +202,20 @@ const DeekshaContactForm = () => {
   // Update isFormValid to check for required fields
   const isFormValid = () => {
     const { phoneNumber, email, aadhaar } = contact;
-    
+
     // Check if required fields are present
     if (!phoneNumber || !email || !aadhaar) {
       // Validate empty fields to show error messages
-      validateField('phoneNumber', phoneNumber || '');
-      validateField('email', email || '');
-      validateField('aadhaar', aadhaar || '');
+      validateField("phoneNumber", phoneNumber || "");
+      validateField("email", email || "");
+      validateField("aadhaar", aadhaar || "");
       return false;
     }
 
     // Validate all fields
-    const isPhoneValid = validateField('phoneNumber', phoneNumber);
-    const isEmailValid = validateField('email', email);
-    const isAadhaarValid = validateField('aadhaar', aadhaar);
+    const isPhoneValid = validateField("phoneNumber", phoneNumber);
+    const isEmailValid = validateField("email", email);
+    const isAadhaarValid = validateField("aadhaar", aadhaar);
 
     return isPhoneValid && isEmailValid && isAadhaarValid;
   };
@@ -175,19 +228,18 @@ const DeekshaContactForm = () => {
     alert("Proceeding to the next page...");
   };
 
-
   const handlePopup = (e) => {
     e.preventDefault(); // Prevent default navigation
-    
+
     const { phoneNumber, email, aadhaar } = contact;
-    
+
     // Check for empty fields
     if (!phoneNumber || !email || !aadhaar) {
       // Update error states for empty fields
       setErrors({
-        phoneNumber: !phoneNumber ? 'Phone number is required' : '',
-        email: !email ? 'Email is required' : '',
-        aadhaar: !aadhaar ? 'Aadhaar number is required' : ''
+        phoneNumber: !phoneNumber ? "Phone number is required" : "",
+        email: !email ? "Email is required" : "",
+        aadhaar: !aadhaar ? "Aadhaar number is required" : "",
       });
       return; // Stop here if any field is empty
     }
@@ -224,9 +276,9 @@ const DeekshaContactForm = () => {
       },
     }).then((result) => {
       if (result.isConfirmed) {
-        navigate('/deekshaUpasana-form');
+        navigate("/deekshaUpasana-form");
       } else if (result.dismiss === Swal.DismissReason.cancel) {
-        navigate('/deekshaEducation-form');
+        navigate("/deekshaEducation-form");
       }
     });
   };
@@ -235,30 +287,29 @@ const DeekshaContactForm = () => {
 
   const handleSubmit = () => {
     const { phoneNumber, email, aadhaar } = contact;
-    
+
     // Check for empty fields
     if (!phoneNumber || !email || !aadhaar) {
-      // Update error states for empty fields
       setErrors({
-        phoneNumber: !phoneNumber ? 'Phone number is required' : '',
-        email: !email ? 'Email is required' : '',
-        aadhaar: !aadhaar ? 'Aadhaar number is required' : ''
+        phoneNumber: !phoneNumber ? "Phone number is required" : "",
+        email: !email ? "Email is required" : "",
+        aadhaar: !aadhaar ? "Aadhaar number is required" : "",
       });
-      return; // Stop here if any field is empty
+      return;
     }
-    
+
     Swal.fire({
-      text: "Do you want to submit?",
+      text: t.wantToSubmit,
       background: "#ffffff",
-      showCancelButton: true, 
-      confirmButtonText: "Confirm",
-      cancelButtonText: "Cancel", 
+      showCancelButton: true,
+      confirmButtonText: t.confirm,
+      cancelButtonText: t.cancel,
       customClass: {
-        confirmButton: "confirmButton", 
-        cancelButton: "cancelbutton", 
-        popup: "popup", 
+        confirmButton: "confirmButton",
+        cancelButton: "cancelbutton",
+        popup: "popup",
       },
-      buttonsStyling: false, 
+      buttonsStyling: false,
       didOpen: () => {
         const confirmButton = Swal.getConfirmButton();
         const cancelButton = Swal.getCancelButton();
@@ -266,27 +317,22 @@ const DeekshaContactForm = () => {
         const buttonContainer = document.createElement("div");
         buttonContainer.style.display = "flex";
         buttonContainer.style.gap = "25px";
-        buttonContainer.style.justifyContent = "center"; 
+        buttonContainer.style.justifyContent = "center";
         buttonContainer.appendChild(confirmButton);
         buttonContainer.appendChild(cancelButton);
 
         const popup = Swal.getPopup();
-        popup.appendChild(buttonContainer); 
+        popup.appendChild(buttonContainer);
       },
     }).then((result) => {
       if (result.isConfirmed) {
         navigate("/deekshaUpasana-form");
-        console.log("Form submitted!"); 
+        console.log("Form submitted!");
       } else if (result.dismiss === Swal.DismissReason.cancel) {
-        console.log("Cancel clicked!"); 
+        console.log("Cancel clicked!");
       }
     });
   };
-  
-
-
-
-
 
   return (
     <div className="diksha-form-container">
@@ -296,17 +342,19 @@ const DeekshaContactForm = () => {
       </div>
 
       {/* Title */}
-      <h2 className="title">Srimat Swami Gautamanandaji Maharaj’s Diksha Form</h2>
+      <h2 className="title">
+        Srimat Swami Gautamanandaji Maharaj's Diksha Form
+      </h2>
 
       {/* Form */}
       <form>
         {/* Phone Number */}
         <div className="form-group">
-          <label className="form-label">Please enter your phone number:</label>
+          <label className="form-label">{t.enterPhone}</label>
           <div className="phone-input">
             <div className="custom-select" ref={dropdownRef}>
-              <div 
-                className="selected-country" 
+              <div
+                className="selected-country"
                 onClick={() => {
                   setIsDropdownOpen(!isDropdownOpen);
                   setTimeout(() => {
@@ -316,13 +364,16 @@ const DeekshaContactForm = () => {
                   }, 0);
                 }}
               >
-                <span className="prefix">+</span>
+                <span className="prefix">{t.plus}</span>
                 {contact.countryCode && (
                   <>
-                    <img 
-                      src={countryCodes.find(c => c.code === contact.countryCode)?.flagUrl} 
-                      alt="" 
-                      className="flag-icon" 
+                    <img
+                      src={
+                        countryCodes.find((c) => c.code === contact.countryCode)
+                          ?.flagUrl
+                      }
+                      alt=""
+                      className="flag-icon"
                     />
                     <span className="code">{contact.countryCode}</span>
                   </>
@@ -349,7 +400,11 @@ const DeekshaContactForm = () => {
                           setSearchQuery("");
                         }}
                       >
-                        <img src={country.flagUrl} alt="" className="flag-icon" />
+                        <img
+                          src={country.flagUrl}
+                          alt=""
+                          className="flag-icon"
+                        />
                         <span>+{country.code}</span>
                         <span className="country-name">{country.name}</span>
                       </div>
@@ -361,90 +416,89 @@ const DeekshaContactForm = () => {
             <input
               type="text"
               name="phoneNumber"
-              placeholder="your number"
+              placeholder={t.yourNumber}
               value={contact.phoneNumber}
               onChange={handleInputChange}
               onKeyDown={(e) => {
                 // Allow only numbers, backspace, delete, arrow keys, and tab
-                if (!/[\d\b]/.test(e.key) && 
-                    !['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab'].includes(e.key)) {
+                if (
+                  !/[\d\b]/.test(e.key) &&
+                  ![
+                    "Backspace",
+                    "Delete",
+                    "ArrowLeft",
+                    "ArrowRight",
+                    "Tab",
+                  ].includes(e.key)
+                ) {
                   e.preventDefault();
                 }
               }}
-              className={`input-field ${errors.phoneNumber ? 'error' : ''}`}
+              className={`input-field ${errors.phoneNumber ? "error" : ""}`}
             />
-          {errors.phoneNumber && <span className="error-message">{errors.phoneNumber}</span>}
+            {errors.phoneNumber && (
+              <span className="error-message">{errors.phoneNumber}</span>
+            )}
           </div>
           <div className="switch-wrapper">
             <label className="switch">
               <input type="checkbox" />
               <span className="slider"></span>
             </label>
-            { <img
-              src={icons.whatsapp}
-              alt="whatsapp.png"
-              className="whatsapp"
-            /> }
-            <span className="label-text">Is this your WhatsApp number?</span>
+            <img src={icons.whatsapp} alt="whatsapp.png" className="whatsapp" />
+            <span className="label-text">{t.isWhatsapp}</span>
           </div>
         </div>
 
-
-
-
-
         {/* Email ID */}
         <div className="form-group">
-          <label className="form-label">Please enter your e-mail id:</label>
+          <label className="form-label">{t.enterEmail}</label>
           <input
             type="email"
             name="email"
-            placeholder="noname@nodomain.com"
+            placeholder={t.emailPlaceholder}
             value={contact.email}
             onChange={handleInputChange}
-            className={`input-field ${errors.email ? 'error' : ''}`}
+            className={`input-field ${errors.email ? "error" : ""}`}
           />
-          {errors.email && <span className="error-message">{errors.email}</span>}
+          {errors.email && (
+            <span className="error-message">{errors.email}</span>
+          )}
         </div>
 
         {/* Aadhaar Number */}
         <div className="form-group">
-          <label className="form-label">Please enter your Aadhaar number:</label>
+          <label className="form-label">{t.enterAadhaar}</label>
           <input
             maxLength={12}
             type="text"
             name="aadhaar"
-            placeholder="123456789012"
+            placeholder={t.aadhaarPlaceholder}
             value={contact.aadhaar}
             onChange={handleInputChange}
-            className={`input-field ${errors.aadhaar ? 'error' : ''}`}
+            className={`input-field ${errors.aadhaar ? "error" : ""}`}
           />
-          {errors.aadhaar && <span className="error-message">{errors.aadhaar}</span>}
+          {errors.aadhaar && (
+            <span className="error-message">{errors.aadhaar}</span>
+          )}
         </div>
-
-      
       </form>
 
-
       <div className="footer">
-        <span  onClick={handleSubmit}>Skip & Submit</span>
+        <span onClick={handleSubmit}>{t.skipSubmit}</span>
 
         <div className="button-group">
-          <button
-            onClick={handleBack}
-            className="back-button"
-          >
-            Back
+          <button onClick={handleBack} className="back-button">
+            {t.back}
           </button>
           <Link
             to="/deekshaEducation-form"
             className="next-button"
             onClick={handlePopup}
           >
-            Next
+            {t.next}
           </Link>
         </div>
-
       </div>
     </div>
   );

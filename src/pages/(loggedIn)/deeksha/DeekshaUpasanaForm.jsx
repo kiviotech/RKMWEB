@@ -1,8 +1,31 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import useDeekshaFormStore from "../../../../deekshaFormStore"
+import useDeekshaFormStore from "../../../../deekshaFormStore";
 import { createNewDeeksha } from "../../../../services/src/services/deekshaService";
-import "./DeekshaUpasanaForm.scss"
+import "./DeekshaUpasanaForm.scss";
+
+const translations = {
+  english: {
+    selectBookletLanguage:
+      "In which language would you like to take the Upasana Booklet during initiation?",
+    selectLanguage: "Select the language",
+    back: "Back",
+    submit: "Submit",
+  },
+  hindi: {
+    selectBookletLanguage:
+      "दीक्षा के दौरान आप किस भाषा में उपासना पुस्तिका लेना चाहेंगे?",
+    selectLanguage: "भाषा चुनें",
+    back: "वापस",
+    submit: "जमा करें",
+  },
+  bengali: {
+    selectBookletLanguage: "দীক্ষার সময় আপনি কোন ভাষায় উপাসনা বইটি নিতে চান?",
+    selectLanguage: "ভাষা নির্বাচন করুন",
+    back: "পিছনে",
+    submit: "জমা দিন",
+  },
+};
 
 const DeekshaUpasanaForm = () => {
   const navigate = useNavigate();
@@ -10,9 +33,12 @@ const DeekshaUpasanaForm = () => {
   const [isBackClicked, setIsBackClicked] = useState(false);
   const [isSubmitClicked, setIsSubmitClicked] = useState(false);
   const [errors, setErrors] = useState({});
-  
-  const { upasana, updateUpasana } = useDeekshaFormStore();
+
+  const { upasana, updateUpasana, formLanguage } = useDeekshaFormStore();
   const selectedLanguage = upasana.selectedLanguage;
+
+  // Get translations based on selected language
+  const t = translations[formLanguage || "english"];
 
   useEffect(() => {
     // Simulate fetching languages from an API
@@ -27,7 +53,7 @@ const DeekshaUpasanaForm = () => {
         "Punjabi",
         "Tamil",
         "Telugu",
-        "Urdu"
+        "Urdu",
       ];
       setLanguages(availableLanguages);
     };
@@ -36,13 +62,13 @@ const DeekshaUpasanaForm = () => {
   }, []);
 
   useEffect(() => {
-    console.log('Initial Zustand Store State:', useDeekshaFormStore.getState());
+    console.log("Initial Zustand Store State:", useDeekshaFormStore.getState());
   }, []);
 
   // Validation function
   const validateForm = () => {
     const newErrors = {};
-    
+
     if (!selectedLanguage) {
       newErrors.language = "Please select a language";
     }
@@ -52,7 +78,7 @@ const DeekshaUpasanaForm = () => {
   };
 
   const handleBack = () => {
-    navigate('/deekshaBooks-form')
+    navigate("/deekshaBooks-form");
     setIsBackClicked(true);
   };
 
@@ -64,10 +90,19 @@ const DeekshaUpasanaForm = () => {
 
     const state = useDeekshaFormStore.getState();
     const { resetStore } = useDeekshaFormStore.getState();
-    const { 
-      name, gender, maritalStatus, careOf,
-      address, contact, education, consent,
-      relation, duration, books, upasana 
+    const {
+      name,
+      gender,
+      maritalStatus,
+      careOf,
+      address,
+      contact,
+      education,
+      consent,
+      relation,
+      duration,
+      books,
+      upasana,
     } = state;
 
     const payload = {
@@ -84,7 +119,7 @@ const DeekshaUpasanaForm = () => {
         PAN_no: contact.pan,
         Education: education.educationLevel || null,
         Occupation: education.occupation,
-        Languages_known: education.languages.join(', ') || null,
+        Languages_known: education.languages.join(", ") || null,
         Spouse_consent: Boolean(consent.spouseConsent),
         Initiated_by_anyone: Boolean(consent.previousInitiation),
         Family_Deeksha: Boolean(relation.hasInitiatedFamily),
@@ -95,7 +130,7 @@ const DeekshaUpasanaForm = () => {
         Known_Guru_name: duration.selectedSwami || null,
         Known_Guru_centre: duration.selectedCentre || null,
         Waiting_for_Deeksha: parseInt(duration.eagerDuration) || 0,
-        Books_read: books.bookList.join(', '),
+        Books_read: books.bookList.join(", "),
         Practice_Deeksha: Boolean(books.japaMeditation),
         Disabilities: Boolean(books.disability),
         Hearing_Problems: Boolean(books.hearing),
@@ -103,23 +138,23 @@ const DeekshaUpasanaForm = () => {
         Gender: gender,
         Marital_status: maritalStatus,
         Care_Of: careOf,
-        status: "pending"
-      }
+        status: "pending",
+      },
     };
 
     try {
-      console.log('Sending payload:', payload);
+      console.log("Sending payload:", payload);
       const response = await createNewDeeksha(payload);
-      
+
       if (response && response.data) {
         resetStore();
-        alert('Deeksha form submitted successfully!');
-        navigate('/deeksha')
+        alert("Deeksha form submitted successfully!");
+        navigate("/deeksha");
       } else {
-        throw new Error('Invalid response format');
+        throw new Error("Invalid response format");
       }
     } catch (error) {
-      console.error('Error submitting form:', error);
+      console.error("Error submitting form:", error);
       alert(`Error submitting form: ${error.message}`);
     }
   };
@@ -129,7 +164,10 @@ const DeekshaUpasanaForm = () => {
     if (e.target.value) {
       setErrors({ ...errors, language: null });
     }
-    console.log('Zustand Store State after language change:', useDeekshaFormStore.getState());
+    console.log(
+      "Zustand Store State after language change:",
+      useDeekshaFormStore.getState()
+    );
   };
 
   return (
@@ -138,17 +176,15 @@ const DeekshaUpasanaForm = () => {
       <div className="deekshaupasanform-progress-bar">
         <div className="deekshaupasanform-progress-bar-inner"></div>
       </div>
-  
-      {/* Heading */}
+
+      {/* Heading - remains in English */}
       <h1 className="deekshaupasanform-heading">
-        Srimat Swami Gautamanandaji Maharaj’s Diksha Form
+        Srimat Swami Gautamanandaji Maharaj's Diksha Form
       </h1>
-  
+
       {/* Question */}
-      <p className="deekshaupasanform-question">
-        In which language would you like to take the Upasana Booklet during initiation?
-      </p>
-  
+      <p className="deekshaupasanform-question">{t.selectBookletLanguage}</p>
+
       {/* Dropdown */}
       <div className="deekshaupasanform-dropdown-container">
         <div className="deekshaupasansearchContainer">
@@ -157,7 +193,7 @@ const DeekshaUpasanaForm = () => {
             onChange={handleLanguageChange}
             className="deekshaupasanform-dropdown"
           >
-            <option value="">Select the language</option>
+            <option value="">{t.selectLanguage}</option>
             {languages.map((lang, index) => (
               <option key={index} value={lang}>
                 {lang}
@@ -169,23 +205,20 @@ const DeekshaUpasanaForm = () => {
           )}
         </div>
       </div>
-  
+
       {/* Buttons */}
       <div className="deekshaupasanform-buttons-container">
         {/* Back Button */}
-        <button
-          onClick={handleBack}
-          className="deekshaupasanform-back-button"
-        >
-          Back
+        <button onClick={handleBack} className="deekshaupasanform-back-button">
+          {t.back}
         </button>
-  
+
         {/* Submit Button */}
         <button
           onClick={handleSubmit}
           className="deekshaupasanform-submit-button"
         >
-          Submit
+          {t.submit}
         </button>
       </div>
     </div>

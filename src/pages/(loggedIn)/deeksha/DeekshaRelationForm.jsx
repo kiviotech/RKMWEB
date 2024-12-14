@@ -27,6 +27,20 @@ const translations = {
     no: "No",
     back: "Back",
     next: "Next",
+    ifYes: "If Yes :-",
+    enterName: "Enter their Name",
+    selectGuru: "Select the Guru",
+    specifyRelation: "Please specify the relation:",
+    husband: "Husband",
+    wife: "Wife",
+    father: "Father",
+    son: "Son",
+    daughter: "Daughter",
+    mother: "Mother",
+    motherInLaw: "Mother-in-law",
+    fatherInLaw: "Father-in-law",
+    grandFather: "GrandFather",
+    grandMother: "GrandMother",
   },
   hindi: {
     question:
@@ -35,6 +49,20 @@ const translations = {
     no: "नहीं",
     back: "पीछे",
     next: "आगे",
+    ifYes: "यदि हाँ :-",
+    enterName: "उनका नाम दर्ज करें",
+    selectGuru: "गुरु का चयन करें",
+    specifyRelation: "कृप��ा संबंध निर्दिष्ट करें:",
+    husband: "पति",
+    wife: "पत्नी",
+    father: "पिता",
+    son: "बेटा",
+    daughter: "बेटी",
+    mother: "माँ",
+    motherInLaw: "सास",
+    fatherInLaw: "ससुर",
+    grandFather: "दादा",
+    grandMother: "दादी",
   },
   bengali: {
     question:
@@ -43,6 +71,20 @@ const translations = {
     no: "না",
     back: "পিছনে",
     next: "পরবর্তী",
+    ifYes: "যদি হ্যাঁ :-",
+    enterName: "তাদের নাম লিখুন",
+    selectGuru: "গুরু নির্বাচন করুন",
+    specifyRelation: "অনুগ্রহ করে সম্পর্ক উল্লেখ করুন:",
+    husband: "স্বামী",
+    wife: "স্ত্রী",
+    father: "বাবা",
+    son: "ছেলে",
+    daughter: "মেয়ে",
+    mother: "মা",
+    motherInLaw: "শাশুড়ি",
+    fatherInLaw: "শ্বশুর",
+    grandFather: "দাদা",
+    grandMother: "দিদিমা",
   },
 };
 
@@ -56,6 +98,7 @@ const DeekshaRelationForm = () => {
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const formLanguage = useDeekshaFormStore((state) => state.formLanguage);
+  const guruji = useDeekshaFormStore((state) => state.guruji);
 
   // Get translations based on selected language
   const t = translations[formLanguage || "english"];
@@ -190,9 +233,7 @@ const DeekshaRelationForm = () => {
       </div>
 
       {/* Heading */}
-      <h1 className="deekshaRelationForm-heading">
-        Srimat Swami Gautamanandaji Maharaj’s Diksha Form
-      </h1>
+      <h1 className="deekshaRelationForm-heading">{guruji}</h1>
 
       {/* Question */}
       <div className="deekshaRelationForm-yesNoInput">
@@ -229,12 +270,12 @@ const DeekshaRelationForm = () => {
         {isYesSelected && (
           <div className="deekshaRelationForm-yesNoInput-conditionalFields">
             <div className="deekshaRelationForm-yesNoInput-conditionalFields-ifYes">
-              <span style={{ fontWeight: "bold" }}>If Yes :-</span>
+              <span style={{ fontWeight: "bold" }}>{t.ifYes}</span>
 
               <div style={{ width: "100%" }}>
                 <input
                   type="text"
-                  placeholder="Enter their Name"
+                  placeholder={t.enterName}
                   value={relation.familyMemberName}
                   onChange={(e) =>
                     handleFamilyMemberDetails(
@@ -260,7 +301,7 @@ const DeekshaRelationForm = () => {
                   }
                   onBlur={() => handleBlur("guru")}
                 >
-                  <option value="">Select the Guru</option>
+                  <option value="">{t.selectGuru}</option>
                   <option value="Guru1">Guru1</option>
                   <option value="Guru2">Guru2</option>
                   <option value="Guru3">Guru3</option>
@@ -272,7 +313,7 @@ const DeekshaRelationForm = () => {
               </div>
             </div>
 
-            <h3>Please specify the relation:</h3>
+            <h3>{t.specifyRelation}</h3>
             {errors.relationship && (
               <span className="error-message" style={{ textAlign: "center" }}>
                 {errors.relationship}
@@ -281,16 +322,16 @@ const DeekshaRelationForm = () => {
 
             <div className="deekshaRelationForm-yesNoInput-conditionalFields-relationship-icons">
               {[
-                { label: "Husband", icon: HusbandIcon },
-                { label: "Wife", icon: WifeIcon },
-                { label: "Father", icon: FatherIcon },
-                { label: "Son", icon: SonIcon },
-                { label: "Daughter", icon: DaughterIcon },
-                { label: "Mother", icon: MotherIcon },
-                { label: "Mother-in-law", icon: MotherInlawIcon },
-                { label: "Father-in-law", icon: FatherInlawIcon },
-                { label: "GrandFather", icon: GrandFatherIcon },
-                { label: "GrandMother", icon: GrandMotherIcon },
+                { label: t.husband, icon: HusbandIcon },
+                { label: t.wife, icon: WifeIcon },
+                { label: t.father, icon: FatherIcon },
+                { label: t.son, icon: SonIcon },
+                { label: t.daughter, icon: DaughterIcon },
+                { label: t.mother, icon: MotherIcon },
+                { label: t.motherInLaw, icon: MotherInlawIcon },
+                { label: t.fatherInLaw, icon: FatherInlawIcon },
+                { label: t.grandFather, icon: GrandFatherIcon },
+                { label: t.grandMother, icon: GrandMotherIcon },
                 // Add other relations...
               ].map((relation, index) => (
                 <div

@@ -34,7 +34,8 @@ const DeekshaUpasanaForm = () => {
   const [isSubmitClicked, setIsSubmitClicked] = useState(false);
   const [errors, setErrors] = useState({});
 
-  const { upasana, updateUpasana, formLanguage } = useDeekshaFormStore();
+  const { upasana, updateUpasana, formLanguage, guruji } =
+    useDeekshaFormStore();
   const selectedLanguage = upasana.selectedLanguage;
 
   // Get translations based on selected language
@@ -178,9 +179,7 @@ const DeekshaUpasanaForm = () => {
       </div>
 
       {/* Heading - remains in English */}
-      <h1 className="deekshaupasanform-heading">
-        Srimat Swami Gautamanandaji Maharaj's Diksha Form
-      </h1>
+      <h1 className="deekshaupasanform-heading">{guruji}</h1>
 
       {/* Question */}
       <p className="deekshaupasanform-question">{t.selectBookletLanguage}</p>

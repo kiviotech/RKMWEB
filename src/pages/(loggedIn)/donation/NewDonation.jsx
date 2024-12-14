@@ -930,7 +930,7 @@ const NewDonation = () => {
               }
 
               .receipt-details {
-                margin: 100px 0px;
+                margin: 70px 0px;
                 line-height: 2;
                 font-size: 16px;  /* Increased from 14px */
               }
@@ -938,12 +938,8 @@ const NewDonation = () => {
               .receipt-row {
                 display: flex;
                 justify-content: space-between;
-                margin-bottom: 20px;
+                margin-bottom: 5px;
                 font-size: 16px;  /* Increased from 14px */
-              }
-
-              .donor-details {
-                margin-bottom: 25px;
               }
 
               .donor-details p {
@@ -956,10 +952,6 @@ const NewDonation = () => {
                 margin-left: 40px;  /* Reduced from 160px to 40px */
               }
 
-              .payment-details {
-                margin-top: 25px;
-              }
-
               .payment-details p {
                 margin: 0;
                 line-height: 2;
@@ -967,7 +959,6 @@ const NewDonation = () => {
               }
 
               .amount {
-                margin-top: 5px;
                 font-size: 18px;  /* Increased from 14px */
                 font-weight: bold;  /* Changed from normal */
               }
@@ -1029,35 +1020,38 @@ const NewDonation = () => {
                     }
                   </div>
                 </div>
-                <div class="payment-details">
-                  <p>The sum of Rupees <b>${numberToWords(
-                    parseFloat(currentReceipt?.donationDetails?.amount || 0)
-                  )} Only</b></p>
+<div class="payment-details">
+  <p style="margin: 10px 0">
+    The sum of Rupees
+    <b
+      >${numberToWords(
+        parseFloat(currentReceipt?.donationDetails?.amount || 0)
+      )} Only</b
+    >
+  </p>
 
-                  <div style="display: flex; gap: 10px; align-items: center;">
-                    <p style="margin: 0;">By ${
-                      currentReceipt?.donationDetails?.transactionType || "Cash"
-                    }</p>
-                    ${
-                      currentReceipt?.donationDetails?.transactionType?.toLowerCase() !==
-                      "cash"
-                        ? `
-                      <p style="margin: 0;">Dt.  ${
-                        currentReceipt?.donationDetails?.transactionDetails
-                          ?.ddDate || ""
-                      }</p>
-                      <p style="margin: 0;">Bank: ${
-                        currentReceipt?.donationDetails?.transactionDetails
-                          ?.bankName || ""
-                      }</p>
-                    `
-                        : ""
-                    }
-                  </div>
+  <div style="display: flex; gap: 10px; align-items: center">
+    <p style="margin: 0">
+      By ${currentReceipt?.donationDetails?.transactionType || "Cash"}
+    </p>
+    ${
+      currentReceipt?.donationDetails?.transactionType?.toLowerCase() !== "cash"
+        ? `
+    <p style="margin: 0">
+      Dt. ${currentReceipt?.donationDetails?.transactionDetails?.ddDate || ""}
+    </p>
+    <p style="margin: 0">
+      Bank: ${
+        currentReceipt?.donationDetails?.transactionDetails?.bankName || ""
+      }
+    </p>
+    `
+        : ""
+    }
+  </div>
 
-                  <p>As Donation for ${
-                    currentReceipt?.donationDetails?.donationType
-                  } for ${
+  <p>
+    As Donation for ${currentReceipt?.donationDetails?.donationType} for ${
         currentReceipt?.donationDetails?.purpose === "Other"
           ? currentReceipt?.donationDetails?.otherPurpose
           : currentReceipt?.donationDetails?.purpose
@@ -1065,14 +1059,20 @@ const NewDonation = () => {
         currentReceipt?.donationDetails?.inMemoryOf
           ? ` in memory of ${currentReceipt?.donationDetails?.inMemoryOf}`
           : ""
-      }</p>
-                  <p class="amount"><b>Rs. ${parseFloat(
-                    currentReceipt?.donationDetails?.amount || 0
-                  ).toLocaleString("en-IN", {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2,
-                  })}</b></p>
-                </div>
+      }
+  </p>
+  <p class="amount">
+    <b
+      >Rs. ${parseFloat(
+        currentReceipt?.donationDetails?.amount || 0
+      ).toLocaleString("en-IN", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      })}</b
+    >
+  </p>
+</div>
+
               </div>
             </div>
             <script>

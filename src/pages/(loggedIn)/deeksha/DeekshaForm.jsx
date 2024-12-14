@@ -77,6 +77,7 @@ const translations = {
 
 const DikshaForm = () => {
   const {
+    guruji,
     gender,
     prefix,
     name,
@@ -188,9 +189,7 @@ const DikshaForm = () => {
         </div>
 
         {/* Form Header */}
-        <h2 className="deekshaform-header">
-          Srimat Swami Gautamanandaji Maharaj's Diksha Form
-        </h2>
+        <h2 className="deekshaform-header">{guruji}</h2>
 
         {/* Updated Gender Selection */}
         <div className="deekshaform-gender-container">

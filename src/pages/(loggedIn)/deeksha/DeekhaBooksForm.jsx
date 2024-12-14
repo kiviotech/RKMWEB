@@ -53,7 +53,7 @@ const translations = {
 
 const DeekshaBooksForm = () => {
   const navigate = useNavigate();
-  const { books, updateBooks, formLanguage } = useDeekshaFormStore();
+  const { books, updateBooks, formLanguage, guruji } = useDeekshaFormStore();
 
   // Get translations based on selected language
   const t = translations[formLanguage || "english"];
@@ -156,9 +156,7 @@ const DeekshaBooksForm = () => {
         <div className="deekshabooks-progress-bar-inner"></div>
       </div>
 
-      <h1 className="deekshabooks-heading">
-        Srimat Swami Gautamanandaji Maharaj's Diksha Form
-      </h1>
+      <h1 className="deekshabooks-heading">{guruji}</h1>
 
       <p className="deekshabooks-question">{t.booksQuestion}</p>
 

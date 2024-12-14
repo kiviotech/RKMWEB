@@ -38,7 +38,8 @@ const translations = {
 };
 
 const DeekshaAddressForm = () => {
-  const { address, updateAddress, formLanguage } = useDeekshaFormStore();
+  const { address, updateAddress, formLanguage, guruji } =
+    useDeekshaFormStore();
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({}); // Change 1: Added 'errors' state to track field validation
   const navigate = useNavigate();
@@ -150,7 +151,7 @@ const DeekshaAddressForm = () => {
       </div>
 
       {/* Title */}
-      <h2>Srimat Swami Gautamanandaji Maharaj's Diksha Form</h2>
+      <h2>{guruji}</h2>
 
       {/* Form */}
       <form className="deekshaAddressform-form">

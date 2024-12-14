@@ -10,9 +10,13 @@ import {
 } from "../../../../services/src/services/deekshaService";
 import { useNavigate } from "react-router-dom";
 import * as XLSX from "xlsx";
+import useDeekshaFormStore from "../../../../deekshaFormStore";
 
 const Deeksha = () => {
   const navigate = useNavigate();
+  const updatePersonalDetails = useDeekshaFormStore(
+    (state) => state.updatePersonalDetails
+  );
 
   const [stats, setStats] = useState({
     total: 0,
@@ -272,6 +276,13 @@ const Deeksha = () => {
     }, 3000);
   };
 
+  const handleFormClick = (guruName) => {
+    // Update the store with the selected guru's name
+    updatePersonalDetails({ guruji: guruName });
+    // Navigate to the form page
+    navigate("/deeksha-form");
+  };
+
   return (
     <div className="deeksha-page">
       <div className="deeksha-container">
@@ -324,10 +335,7 @@ const Deeksha = () => {
           </div>
         </div>
 
-        <div
-          className="right-section"
-          onClick={() => navigate("/deeksha-form")}
-        >
+        <div className="right-section">
           {/* Diksha Forms Section */}
           <div className="forms-section">
             <h2>Diksha Initiation Forms</h2>
@@ -337,6 +345,9 @@ const Deeksha = () => {
                   key={form.id}
                   className="form-item"
                   style={{ cursor: "pointer" }}
+                  onClick={() =>
+                    handleFormClick(form.title.replace("Diksha form of ", ""))
+                  }
                 >
                   <BsFileEarmarkText
                     className="form-icon"

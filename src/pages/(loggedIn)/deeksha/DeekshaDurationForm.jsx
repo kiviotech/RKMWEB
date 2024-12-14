@@ -88,7 +88,8 @@ const translations = {
 };
 
 const DeekshaDurationForm = () => {
-  const { duration, updateDuration, formLanguage } = useDeekshaFormStore();
+  const { duration, updateDuration, formLanguage, guruji } =
+    useDeekshaFormStore();
   const navigate = useNavigate();
 
   // Initialize state from Zustand store
@@ -221,9 +222,7 @@ const DeekshaDurationForm = () => {
       </div>
 
       {/* Heading */}
-      <h1 className="deekshadurationform-heading">
-        Srimat Swami Gautamanandaji Maharaj's Diksha Form
-      </h1>
+      <h1 className="deekshadurationform-heading">{guruji}</h1>
 
       {/* Question: Are you acquainted? */}
       <p className="deekshadurationform-question">{t.acquaintedQuestion}</p>

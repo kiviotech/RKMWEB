@@ -241,22 +241,47 @@ const NewDonation = () => {
   }, [donationId]);
 
   // Add this helper function to parse address string
-  const parseAddress = (addressString) => {
-    const [
-      houseNumber = "",
-      streetName = "",
-      district = "",
-      state = "",
-      pincode = "",
-    ] = addressString.split(",").map((item) => item.trim());
+  const parseAddress = (address) => {
+    try {
+      console.log("Raw address:", address);
+      // Split by commas and trim whitespace
+      const parts = address.split(",").map((part) => part.trim());
+      console.log("Address parts:", parts);
 
-    return {
-      houseNumber,
-      streetName,
-      district,
-      state,
-      pincode: pincode.replace(/\D/g, ""), // Remove non-digit characters
-    };
+      // Get the last 3 known positions
+      const length = parts.length;
+      const pincode = parts[length - 1] || "";
+      const state = parts[length - 2] || "";
+      const district = parts[length - 3] || "";
+      const postOffice = parts[length - 4] || "";
+
+      // Combine remaining parts for street/house
+      const remainingParts = parts.slice(0, length - 4);
+      const houseNumber = remainingParts[0] || "";
+      const streetName = remainingParts.slice(1).join(", ") || "";
+
+      const parsedAddress = {
+        houseNumber,
+        streetName,
+        postOffice,
+        district,
+        state,
+        pincode: pincode.replace(/\D/g, ""), // Remove non-digits from pincode
+      };
+
+      console.log("Parsed address:", parsedAddress);
+      return parsedAddress;
+    } catch (error) {
+      console.error("Error parsing address:", error);
+      return {
+        houseNumber: "",
+        streetName: "",
+        postOffice: "",
+        district: "",
+        state: "",
+        pincode: "",
+      };
+    }
   };
 
   React.useEffect(() => {
@@ -264,6 +289,8 @@ const NewDonation = () => {
       try {
         console.log("Starting to fetch guest details...");
         const details = await fetchGuestDetails();
+
+        // Log the entire response
         console.log("Raw Guest Details Response:", details);
 
         // Log the structure of the data
@@ -277,11 +304,11 @@ const NewDonation = () => {
         // Log individual guest records
         if (details?.data?.length > 0) {
           details.data.forEach((guest, index) => {
-            // console.log(`Guest ${index + 1}:`, {
-            //   id: guest.id,
-            //   attributes: guest.attributes,
-            //   relationships: guest.relationships
-            // });
+            console.log(`Guest ${index + 1}:`, {
+              id: guest.id,
+              attributes: guest.attributes,
+              relationships: guest.relationships,
+            });
           });
         }
 
@@ -1634,16 +1661,17 @@ const NewDonation = () => {
       });
   }, []);
 
-  // Add this useEffect for handling clicks outside dropdown
+  // Add this useEffect to handle clicks outside the dropdown
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setIsDropdownOpen(false);
-        setSearchQuery("");
+        setShowDropdown(false);
       }
     };
 
     document.addEventListener("mousedown", handleClickOutside);
+
+    // Cleanup the event listener on component unmount
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
@@ -2524,23 +2552,79 @@ const NewDonation = () => {
                     <option value="Kumari">Kumari</option>
                     <option value="Ms">Ms.</option>
                   </select>
-                  <input
-                    ref={donorNameInputRef}
-                    type="text"
-                    value={donorDetails.name}
-                    onChange={(e) => {
-                      if (shouldDisableFields()) return;
-                      const newName = e.target.value.replace(
-                        /[^a-zA-Z\s]/g,
-                        ""
-                      );
-                      setDonorDetails({ ...donorDetails, name: newName });
-                    }}
-                    disabled={shouldDisableFields()}
-                    className={`${validationErrors.name ? "error" : ""} ${
-                      shouldDisableFields() ? "disabled-input" : ""
-                    }`}
-                  />
+
+                  <div className="searchable-dropdown" ref={dropdownRef}>
+                    <input
+                      type="text"
+                      value={searchTerm}
+                      onChange={(e) => {
+                        setSearchTerm(e.target.value);
+                        setShowDropdown(true);
+                      }}
+                      onFocus={() => setShowDropdown(true)}
+                      placeholder="Search or type name"
+                      className={`${validationErrors.name ? "error" : ""} ${
+                        shouldDisableFields() ? "disabled-input" : ""
+                      }`}
+                      disabled={shouldDisableFields()}
+                    />
+
+                    {showDropdown && (
+                      <div className="dropdown-list">
+                        {guestDetails?.data
+                          ?.filter(
+                            (guest) =>
+                              guest.attributes.name
+                                .toLowerCase()
+                                .includes(searchTerm.toLowerCase()) ||
+                              guest.attributes.phone_number.includes(searchTerm)
+                          )
+                          .map((guest) => (
+                            <div
+                              key={guest.id}
+                              className="dropdown-item"
+                              onClick={() => {
+                                // Extract title and name
+                                const fullName = guest.attributes.name;
+                                const [title, ...nameParts] =
+                                  fullName.split(" ");
+                                const name = nameParts.join(" ");
+
+                                // Update all donor details
+                                setDonorDetails({
+                                  ...donorDetails,
+                                  title: title || "Sri",
+                                  name: name,
+                                  phone:
+                                    guest.attributes.phone_number?.replace(
+                                      "+91",
+                                      ""
+                                    ) || "",
+                                  email: guest.attributes.email || "",
+                                  identityType: "Aadhaar",
+                                  identityNumber:
+                                    guest.attributes.aadhaar_number || "",
+                                  guestId: guest.id,
+                                  ...(guest.attributes.address &&
+                                    parseAddress(guest.attributes.address)),
+                                });
+                                setSearchTerm(name);
+                                setShowDropdown(false);
+                              }}
+                            >
+                              <div>
+                                <strong>{guest.attributes.name}</strong>
+                                {guest.attributes.phone_number && (
+                                  <div className="guest-details">
+                                    <span>{guest.attributes.phone_number}</span>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
 
@@ -3892,6 +3976,51 @@ const NewDonation = () => {
         .tab:disabled {
           opacity: 0.5;
           cursor: not-allowed;
+        }
+
+        .searchable-dropdown {
+          position: relative;
+          flex: 1;
+        }
+
+        .searchable-dropdown input {
+          width: 100%;
+          padding: 8px;
+          border: 1px solid #d1d5db;
+          border-radius: 4px;
+        }
+
+        .dropdown-list {
+          position: absolute;
+          top: 100%;
+          left: 0;
+          right: 0;
+          max-height: 200px;
+          overflow-y: auto;
+          background: white;
+          border: 1px solid #d1d5db;
+          border-radius: 4px;
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+          z-index: 1000;
+        }
+
+        .dropdown-item {
+          padding: 8px 12px;
+          cursor: pointer;
+        }
+
+        .dropdown-item:hover {
+          background-color: #f3f4f6;
+        }
+
+        .guest-details {
+          font-size: 0.85em;
+          color: #666;
+          margin-top: 2px;
+        }
+
+        .guest-details span {
+          margin-right: 10px;
         }
       `}</style>
     </div>

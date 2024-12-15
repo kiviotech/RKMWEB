@@ -578,28 +578,30 @@ const NewDonation = () => {
 
   // Modify handleTabClick to update unique donor ID
   const handleTabClick = (tab) => {
-    // Check if there's existing donation data and it's completed
-    if (donationData && donationData.status === "completed") {
-      // Convert tab and donatedFor to lowercase for case-insensitive comparison
-      const normalizedTab = tab.toLowerCase();
-      const normalizedDonatedFor = donationData.donatedFor.toLowerCase();
+    const store = useDonationStore.getState();
+    const existingData = store.getDonorData(donorDetails.guestId, tab);
 
-      // If trying to switch to a different tab than the original donation
-      if (normalizedTab !== normalizedDonatedFor) {
-        alert("Cannot change donation type for a completed donation");
-        return;
-      }
+    if (existingData) {
+      // Load existing data for this donor in the selected tab
+      setDonorDetails(existingData.donorDetails);
+      setCurrentReceipt({
+        ...currentReceipt,
+        donationDetails: existingData.donationDetails,
+        receiptNumber: existingData.receiptNumber,
+      });
+    } else {
+      // Create new receipt only if needed
+      const newReceiptNumber = generateReceiptNumber(tab);
+      const newReceipt = {
+        receiptNumber: newReceiptNumber,
+        type: tab,
+        donorDetails,
+        donationDetails: currentReceipt?.donationDetails,
+      };
+      store.addDonation(newReceipt);
     }
 
-    // If we get here, either there's no donation data, it's not completed,
-    // or we're selecting the same tab as the original donation
     setSelectedTab(tab);
-
-    // Update receipt number based on new tab
-    const prefix = tab === "Math" ? "MT" : "MSN";
-    const nextNumber =
-      tab === "Math" ? highestNumbers.MT + 1 : highestNumbers.MSN + 1;
-    setReceiptNumber(`${prefix} ${nextNumber}`);
   };
 
   // Add handler for donation details updates
@@ -2574,7 +2576,7 @@ const NewDonation = () => {
                         setShowDropdown(true);
                       }}
                       onFocus={() => setShowDropdown(true)}
-                      placeholder="Search or type name"
+                      placeholder=""
                       className={`${validationErrors.name ? "error" : ""} ${
                         shouldDisableFields() ? "disabled-input" : ""
                       }`}

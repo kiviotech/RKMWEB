@@ -30,7 +30,7 @@ const initialDonationDetails = {
   },
 };
 
-export const useDonationStore = create((set) => ({
+export const useDonationStore = create((set, get) => ({
   donations: {
     math: { receipts: [] },
     mission: { receipts: [] },
@@ -57,35 +57,35 @@ export const useDonationStore = create((set) => ({
     set((state) => {
       const type = receipt.type.toLowerCase();
       const currentReceipts = state.donations[type]?.receipts || [];
+
+      // Check if donor already exists in this tab
+      const existingDonorGroup = currentReceipts.find(
+        (group) =>
+          Array.isArray(group) &&
+          group[0]?.donorDetails?.guestId === receipt.donorDetails?.guestId
+      );
+
+      // If donor exists, don't add duplicate
+      if (existingDonorGroup) {
+        return state;
+      }
+
       const receiptWithDetails = {
         ...receipt,
         donationDetails: {
           ...initialDonationDetails,
-          purpose: "",
-          donationType: "Others (Revenue)",
+          purpose: receipt.donationDetails?.purpose || "",
+          donationType:
+            receipt.donationDetails?.donationType || "Others (Revenue)",
         },
       };
-      const donorGroupIndex = currentReceipts.findIndex(
-        (group) =>
-          Array.isArray(group) &&
-          group.length > 0 &&
-          (group[0].donorDetails?.guestId === receipt.donorDetails?.guestId ||
-            group[0].donorId === receipt.donorId)
-      );
-      let newReceipts;
-      if (donorGroupIndex >= 0) {
-        newReceipts = [...currentReceipts];
-        const existingGroup = newReceipts[donorGroupIndex];
-        existingGroup.push(receiptWithDetails);
-      } else {
-        newReceipts = [...currentReceipts, [receiptWithDetails]];
-      }
+
       return {
         donations: {
           ...state.donations,
           [type]: {
             ...state.donations[type],
-            receipts: newReceipts,
+            receipts: [...currentReceipts, [receiptWithDetails]],
           },
         },
       };
@@ -113,10 +113,13 @@ export const useDonationStore = create((set) => ({
         },
       };
     }),
-  updateDonationDetails: (receiptNumber, details, type) =>
+  updateDonationDetails: (receiptNumber, details, type = "") =>
     set((state) => {
+      // Default to math if no type provided
+      const donationType = type.toLowerCase() || "math";
+
       const updatedReceipts = (
-        state.donations[type.toLowerCase()]?.receipts || []
+        state.donations[donationType]?.receipts || []
       ).map((group) =>
         Array.isArray(group)
           ? group.map((receipt) =>
@@ -143,8 +146,8 @@ export const useDonationStore = create((set) => ({
       return {
         donations: {
           ...state.donations,
-          [type.toLowerCase()]: {
-            ...state.donations[type.toLowerCase()],
+          [donationType]: {
+            ...state.donations[donationType],
             receipts: updatedReceipts,
           },
         },
@@ -157,4 +160,13 @@ export const useDonationStore = create((set) => ({
         mission: { receipts: [] },
       },
     }),
+  getDonorData: (guestId, type) => {
+    const state = get();
+    const receipts = state.donations[type.toLowerCase()]?.receipts || [];
+    const donorGroup = receipts.find(
+      (group) =>
+        Array.isArray(group) && group[0]?.donorDetails?.guestId === guestId
+    );
+    return donorGroup ? donorGroup[0] : null;
+  },
 }));

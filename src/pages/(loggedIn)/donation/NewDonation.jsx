@@ -1437,21 +1437,13 @@ const NewDonation = () => {
 
   // Add this function to calculate total donations
   const calculateTotalDonations = () => {
-    if (!donations?.receipts || !selectedDonor) return 0;
+    // If viewing a completed donation, use that amount
+    if (donationData && donationData.amount) {
+      return parseFloat(donationData.amount);
+    }
 
-    const donorReceipts =
-      donations.receipts.find(
-        (group) =>
-          Array.isArray(group) &&
-          group.length > 0 &&
-          (group[0].donorId === selectedDonor ||
-            group[0].donorDetails?.guestId === selectedDonor)
-      ) || [];
-
-    return donorReceipts.reduce((total, receipt) => {
-      const amount = parseFloat(receipt.donationDetails?.amount || 0);
-      return total + (isNaN(amount) ? 0 : amount);
-    }, 0);
+    // Otherwise use the current receipt amount
+    return parseFloat(currentReceipt?.donationDetails?.amount || 0);
   };
 
   const handleReset = () => {
@@ -3057,8 +3049,11 @@ const NewDonation = () => {
             <div className="total-amount">
               <span className="label">Total Donation Amount</span>
               <span className="amount" style={{ paddingLeft: "20px" }}>
-                {" "}
-                ₹ {calculateTotalDonations().toLocaleString("en-IN")}
+                ₹{" "}
+                {parseFloat(calculateTotalDonations()).toLocaleString("en-IN", {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                })}
               </span>
             </div>
             <div className="action-buttons">

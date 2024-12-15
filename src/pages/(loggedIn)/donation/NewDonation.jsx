@@ -2290,21 +2290,36 @@ const NewDonation = () => {
   // Pre-fill form with donation data if available
   useEffect(() => {
     if (donationData) {
-      setDonorDetails({
-        title: donationData.donorName.split(" ")[0] || "Sri",
-        name: donationData.donorName.split(" ").slice(1).join(" "),
-        phoneCode: donationData.phoneNumber.slice(0, 3),
-        phone: donationData.phoneNumber.slice(3),
-        // ... set other fields as needed
-      });
+      // Split the donor name into title and name parts
+      const fullName = donationData.donorName || "";
+      const nameParts = fullName.split(" ");
+      const title = nameParts[0] || "Sri"; // Default to 'Sri' if no title
+      const name = nameParts.slice(1).join(" "); // Join the rest as the name
 
-      setCurrentReceipt({
-        ...currentReceipt,
+      setDonorDetails((prevDetails) => ({
+        ...prevDetails,
+        title: title,
+        name: name,
+        phoneCode: donationData.phoneNumber?.slice(0, 3) || "+91",
+        phone: donationData.phoneNumber?.slice(3) || "",
+        // ... set other fields as needed
+      }));
+
+      setCurrentReceipt((prevReceipt) => ({
+        ...prevReceipt,
+        receiptNumber: donationData.receiptNumber,
         donationDetails: {
           amount: donationData.amount,
           purpose: donationData.donatedFor,
           // ... set other fields as needed
         },
+      }));
+
+      // Log the processed data for debugging
+      console.log("Processed donor details:", {
+        title: title,
+        name: name,
+        fullName: fullName,
       });
     }
   }, [donationData]);
@@ -2556,8 +2571,13 @@ const NewDonation = () => {
                   <div className="searchable-dropdown" ref={dropdownRef}>
                     <input
                       type="text"
-                      value={searchTerm}
+                      value={donorDetails.name} // Make sure we're using donorDetails.name here
                       onChange={(e) => {
+                        if (shouldDisableFields()) return;
+                        setDonorDetails((prev) => ({
+                          ...prev,
+                          name: e.target.value,
+                        }));
                         setSearchTerm(e.target.value);
                         setShowDropdown(true);
                       }}

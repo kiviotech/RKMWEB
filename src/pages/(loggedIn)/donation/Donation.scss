@@ -411,6 +411,8 @@
         }
 
         .view-all {
+          white-space: nowrap;
+          display: inline-block;
           color: #8b5cf6;
           background: none;
           border: none;

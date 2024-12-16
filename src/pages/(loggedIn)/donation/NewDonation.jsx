@@ -2622,7 +2622,7 @@ const NewDonation = () => {
                         setShowDropdown(true);
                       }}
                       onFocus={() => setShowDropdown(true)}
-                      placeholder="Enter donor name"
+                      placeholder=""
                       className={`${validationErrors.name ? "error" : ""} ${
                         shouldDisableFields() ? "disabled-input" : ""
                       }`}
@@ -2749,6 +2749,7 @@ const NewDonation = () => {
                   <div
                     className="dropdown-header"
                     onClick={() => {
+                      if (shouldDisableFields()) return; // Add this line
                       setIsDeekshaDropdownOpen(!isDeekshaDropdownOpen);
                       setTimeout(() => {
                         if (searchInputRef.current) {
@@ -2760,99 +2761,107 @@ const NewDonation = () => {
                       padding: "10px",
                       border: "1px solid #ccc",
                       borderRadius: "4px",
-                      cursor: "pointer",
+                      cursor: shouldDisableFields() ? "not-allowed" : "pointer", // Modify this line
                       display: "flex",
                       justifyContent: "space-between",
                       alignItems: "center",
-                      backgroundColor: "#FFF",
+                      backgroundColor: shouldDisableFields()
+                        ? "#f3f4f6"
+                        : "#FFF", // Add this line
+                      opacity: shouldDisableFields() ? 0.7 : 1, // Add this line
                     }}
                   >
                     <span>{donorDetails.mantraDiksha || "Select Deeksha"}</span>
-                    <svg
-                      width="16"
-                      height="16"
-                      viewBox="0 0 16 16"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
-                      style={{
-                        transform: isDeekshaDropdownOpen
-                          ? "rotate(180deg)"
-                          : "rotate(0deg)",
-                        transition: "transform 0.2s ease",
-                      }}
-                    >
-                      <path
-                        d="M4 6L8 10L12 6"
-                        stroke="#6B7280"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                    </svg>
-                  </div>
-                  {isDeekshaDropdownOpen && (
-                    <div
-                      className="dropdown-options"
-                      style={{
-                        position: "absolute",
-                        top: "100%",
-                        left: 0,
-                        right: 0,
-                        maxHeight: "200px",
-                        overflowY: "auto",
-                        backgroundColor: "white",
-                        border: "1px solid #ccc",
-                        borderRadius: "4px",
-                        zIndex: 1000,
-                        boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
-                      }}
-                    >
-                      <input
-                        ref={searchInputRef}
-                        type="text"
-                        placeholder="Search..."
-                        value={deekshaSearchQuery}
-                        onChange={(e) => setDeekshaSearchQuery(e.target.value)}
+                    {!shouldDisableFields() && ( // Add this condition
+                      <svg
+                        width="16"
+                        height="16"
+                        viewBox="0 0 16 16"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
                         style={{
-                          width: "100%",
-                          padding: "8px",
-                          border: "none",
-                          borderBottom: "1px solid #ccc",
-                          outline: "none",
+                          transform: isDeekshaDropdownOpen
+                            ? "rotate(180deg)"
+                            : "rotate(0deg)",
+                          transition: "transform 0.2s ease",
                         }}
-                        onClick={(e) => e.stopPropagation()}
-                        autoFocus
-                      />
-                      {deekshaOptions
-                        .filter((option) =>
-                          option
-                            .toLowerCase()
-                            .includes(deekshaSearchQuery.toLowerCase())
-                        )
-                        .map((option) => (
-                          <div
-                            key={option}
-                            onClick={() => {
-                              setDonorDetails((prev) => ({
-                                ...prev,
-                                mantraDiksha: option,
-                              }));
-                              setIsDeekshaDropdownOpen(false);
-                              setDeekshaSearchQuery("");
-                            }}
-                            style={{
-                              padding: "10px",
-                              cursor: "pointer",
-                              ":hover": {
-                                backgroundColor: "#f5f5f5",
-                              },
-                            }}
-                          >
-                            {option}
-                          </div>
-                        ))}
-                    </div>
-                  )}
+                      >
+                        <path
+                          d="M4 6L8 10L12 6"
+                          stroke="#6B7280"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                      </svg>
+                    )}
+                  </div>
+                  {isDeekshaDropdownOpen &&
+                    !shouldDisableFields() && ( // Add !shouldDisableFields() check
+                      <div
+                        className="dropdown-options"
+                        style={{
+                          position: "absolute",
+                          top: "100%",
+                          left: 0,
+                          right: 0,
+                          maxHeight: "200px",
+                          overflowY: "auto",
+                          backgroundColor: "white",
+                          border: "1px solid #ccc",
+                          borderRadius: "4px",
+                          zIndex: 1000,
+                          boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+                        }}
+                      >
+                        <input
+                          ref={searchInputRef}
+                          type="text"
+                          placeholder="Search..."
+                          value={deekshaSearchQuery}
+                          onChange={(e) =>
+                            setDeekshaSearchQuery(e.target.value)
+                          }
+                          style={{
+                            width: "100%",
+                            padding: "8px",
+                            border: "none",
+                            borderBottom: "1px solid #ccc",
+                            outline: "none",
+                          }}
+                          onClick={(e) => e.stopPropagation()}
+                          autoFocus
+                        />
+                        {deekshaOptions
+                          .filter((option) =>
+                            option
+                              .toLowerCase()
+                              .includes(deekshaSearchQuery.toLowerCase())
+                          )
+                          .map((option) => (
+                            <div
+                              key={option}
+                              onClick={() => {
+                                setDonorDetails((prev) => ({
+                                  ...prev,
+                                  mantraDiksha: option,
+                                }));
+                                setIsDeekshaDropdownOpen(false);
+                                setDeekshaSearchQuery("");
+                              }}
+                              style={{
+                                padding: "10px",
+                                cursor: "pointer",
+                                ":hover": {
+                                  backgroundColor: "#f5f5f5",
+                                },
+                              }}
+                            >
+                              {option}
+                            </div>
+                          ))}
+                      </div>
+                    )}
                 </div>
                 {validationErrors.mantraDiksha && (
                   <span className="error">{validationErrors.mantraDiksha}</span>

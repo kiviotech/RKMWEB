@@ -27,6 +27,7 @@ const AllDonationDetails = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
   const itemsPerPage = 10;
+  const [showExportDropdown, setShowExportDropdown] = useState(false);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -52,6 +53,19 @@ const AllDonationDetails = () => {
       } catch (error) {
         console.error("Error exporting donations:", error);
       }
+    };
+  }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (!event.target.closest(".dropdown-container")) {
+        setShowExportDropdown(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
 
@@ -104,12 +118,20 @@ const AllDonationDetails = () => {
     setCurrentPage(pageNumber);
   };
 
-  const handleExport = async () => {
+  const handleExport = async (reportType) => {
     try {
       const response = await fetchDonations();
-      const donations = Array.isArray(response)
+      const allDonations = Array.isArray(response)
         ? response
         : response.data || [];
+
+      // Filter donations based on reportType (matching with donationFor field)
+      const donations = allDonations.filter((donation) => {
+        const donationFor = donation.attributes.donationFor?.toUpperCase();
+        return reportType === "MATH"
+          ? donationFor === "MATH"
+          : donationFor === "MISSION";
+      });
 
       // Group donations by receipt mode first
       const groupedByMode = donations.reduce((acc, donation) => {
@@ -161,7 +183,7 @@ const AllDonationDetails = () => {
       const htmlContent = `
         <html>
           <head>
-            <title>Receipt List</title>
+            <title>${reportType} Receipt List</title>
             <style>
               body {
                 font-family: Arial, sans-serif;
@@ -260,11 +282,14 @@ const AllDonationDetails = () => {
                 font-weight: bold;
                 font-size: 16px;
               }
+              .left {
+                padding-left: 10px;
+              }
             </style>
           </head>
           <body>
             <div class="page-title">
-              Receipt List For ${new Date().toLocaleDateString()} - Math Receipt
+              Receipt List For ${new Date().toLocaleDateString()} - ${reportType} Receipt
             </div>
             
             <table class="header-table">
@@ -291,7 +316,7 @@ const AllDonationDetails = () => {
                     ${Object.entries(modeData.types)
                       .map(
                         ([type, typeData]) => `
-                        <div class="mode-line mode-line-top">
+                        <div class="mode-line mode-line-top left">
                           Type: ${type} <span class="amount-right">Rs. ${typeData.total.toFixed(
                           2
                         )}</span>
@@ -300,7 +325,7 @@ const AllDonationDetails = () => {
                           .map(
                             ([purpose, purposeData]) => `
                             <div class="purpose-group">
-                              <div class="purpose-title">
+                              <div class="purpose-title left">
                                 Purpose: ${purpose} <span class="purpose-total">Rs. ${purposeData.total.toFixed(
                               2
                             )}</span>
@@ -308,7 +333,7 @@ const AllDonationDetails = () => {
                               ${purposeData.donations
                                 .map(
                                   (donation) => `
-                                  <div class="receipt-row">
+                                  <div class="receipt-row left">
                                     <div>${
                                       donation.attributes.receipt_detail?.data
                                         ?.attributes?.Receipt_number || ""
@@ -376,9 +401,38 @@ const AllDonationDetails = () => {
     <div className="all-donation-details">
       <div className="header-container">
         <h1 className="page-title">All Donation</h1>
-        <button className="export-btn" onClick={handleExport}>
-          <span className="download-icon">↓</span> Export Donations
-        </button>
+        <div className="export-container">
+          <div className="dropdown-container">
+            <button
+              className="export-btn"
+              onClick={() => setShowExportDropdown(!showExportDropdown)}
+            >
+              <span className="download-icon">↓</span> Export Donations
+            </button>
+            {showExportDropdown && (
+              <div className="export-dropdown">
+                <button
+                  className="export-option"
+                  onClick={() => {
+                    handleExport("MATH");
+                    setShowExportDropdown(false);
+                  }}
+                >
+                  Math Report
+                </button>
+                <button
+                  className="export-option"
+                  onClick={() => {
+                    handleExport("MISSION");
+                    setShowExportDropdown(false);
+                  }}
+                >
+                  Mission Report
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
       </div>
       <div className="donation-header">
         <div className="left-section">

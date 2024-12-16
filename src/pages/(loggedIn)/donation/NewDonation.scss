@@ -1,7 +1,21 @@
+@mixin mobile {
+  @media (max-width: 767px) {
+    @content;
+  }
+}
+
+@mixin tablet {
+  @media (min-width: 768px) and (max-width: 1023px) {
+    @content;
+  }
+}
+
 .donations-container {
-  padding-left: 10px;
+  padding: 10px;
   font-family: Arial, sans-serif;
   position: relative;
+  max-width: 100%;
+  overflow-x: hidden;
 }
 
 .top-right-info {
@@ -33,6 +47,13 @@
       color: #6b7280;
       font-size: 14px;
     }
+  }
+
+  @include mobile {
+    position: static;
+    margin-bottom: 20px;
+    width: 100%;
+    padding: 10px;
   }
 }
 
@@ -74,6 +95,12 @@
     border-radius: 6px;
     cursor: pointer;
     font-size: 14px;
+  }
+
+  @include mobile {
+    flex-wrap: wrap;
+    height: auto;
+    padding: 10px 0;
   }
 }
 
@@ -144,16 +171,47 @@
       font-size: 18px;
     }
   }
+
+  @include mobile {
+    flex-direction: column;
+    gap: 16px;
+
+    .tabs {
+      width: 100%;
+      overflow-x: auto;
+
+      .tab {
+        padding: 8px 16px;
+        white-space: nowrap;
+      }
+    }
+  }
 }
 
 .main-content {
   display: flex;
   gap: 20px;
 
+  @include mobile {
+    flex-direction: column;
+  }
+
+  @include tablet {
+    flex-direction: column;
+  }
+
   .donor-section {
     flex: 0.7;
-    display: flex;
-    flex-direction: column;
+
+    @include mobile {
+      flex: 1;
+      width: 100%;
+    }
+
+    @include tablet {
+      flex: 1;
+      width: 100%;
+    }
 
     .donor-details {
       width: 100%;
@@ -220,9 +278,16 @@
 
   .donation-section {
     flex: 0.3;
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
+
+    @include mobile {
+      flex: 1;
+      width: 100%;
+    }
+
+    @include tablet {
+      flex: 1;
+      width: 100%;
+    }
 
     .details-card {
       margin-bottom: 0;
@@ -289,6 +354,11 @@
         box-shadow: none;
       }
     }
+  }
+
+  @include mobile {
+    padding: 16px;
+    margin-bottom: 16px;
   }
 }
 
@@ -740,6 +810,23 @@ input::placeholder {
         }
       }
     }
+
+    @include mobile {
+      width: 90%;
+      padding: 20px;
+    }
+
+    .dialog-buttons {
+      @include mobile {
+        flex-direction: column;
+        width: 100%;
+
+        button {
+          width: 100%;
+          margin-bottom: 10px;
+        }
+      }
+    }
   }
 
   .modal-content {
@@ -856,6 +943,39 @@ input::placeholder {
         color: white;
       }
     }
+
+    @include mobile {
+      width: 95%;
+      padding: 15px;
+
+      .receipt-content {
+        width: 100%;
+
+        .receipt-info {
+          flex-direction: column;
+          gap: 10px;
+        }
+
+        .receipt-thanks {
+          flex-direction: column;
+
+          .receipt-address {
+            width: 100%;
+            padding-left: 0;
+          }
+        }
+      }
+
+      .print {
+        flex-direction: column;
+        width: 100%;
+        padding: 15px;
+
+        .print-options-container {
+          max-width: 100%;
+        }
+      }
+    }
   }
 }
 
@@ -896,6 +1016,19 @@ input::placeholder {
       color: #9ca3af;
     }
   }
+
+  @include mobile {
+    flex-direction: column;
+    gap: 8px;
+
+    select {
+      width: 100%;
+    }
+
+    input {
+      width: 100%;
+    }
+  }
 }
 
 .phone-unified-input {
@@ -911,6 +1044,19 @@ input::placeholder {
   input {
     flex: 1;
     min-width: 0;
+  }
+
+  @include mobile {
+    flex-direction: column;
+    gap: 8px;
+
+    select {
+      width: 100%;
+    }
+
+    input {
+      width: 100%;
+    }
   }
 }
 
@@ -1471,6 +1617,16 @@ input[type="email"].borderless-input {
         border-radius: 4px;
       }
     }
+
+    @include mobile {
+      flex-direction: column;
+      gap: 10px;
+
+      .filter-select,
+      .date-range {
+        width: 100%;
+      }
+    }
   }
 
   .transaction-table {
@@ -1525,6 +1681,12 @@ input[type="email"].borderless-input {
       svg {
         vertical-align: middle;
       }
+    }
+
+    @include mobile {
+      display: block;
+      overflow-x: auto;
+      white-space: nowrap;
     }
   }
 }

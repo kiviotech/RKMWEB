@@ -111,20 +111,48 @@ const AllDonationDetails = () => {
         ? response
         : response.data || [];
 
-      // Group donations by receipt mode and type
-      const groupedDonations = donations.reduce((acc, donation) => {
-        const mode = donation.attributes.transactionType;
-        const type = donation.attributes.type;
-        const key = `${mode}-${type}`;
+      // Group donations by receipt mode first
+      const groupedByMode = donations.reduce((acc, donation) => {
+        const mode = donation.attributes.transactionType || "Unknown";
+        if (!acc[mode]) {
+          acc[mode] = {
+            total: 0,
+            types: {},
+          };
+        }
 
-        if (!acc[key]) {
-          acc[key] = {
-            mode,
-            type,
+        // Calculate mode total
+        acc[mode].total += parseFloat(donation.attributes.donationAmount || 0);
+
+        // Group by type within each mode
+        const type = donation.attributes.type || "Unknown";
+        if (!acc[mode].types[type]) {
+          acc[mode].types[type] = {
+            total: 0,
+            purposes: {},
+          };
+        }
+
+        // Calculate type total
+        acc[mode].types[type].total += parseFloat(
+          donation.attributes.donationAmount || 0
+        );
+
+        // Group by purpose within each type
+        const purpose = donation.attributes.purpose || "General";
+        if (!acc[mode].types[type].purposes[purpose]) {
+          acc[mode].types[type].purposes[purpose] = {
+            total: 0,
             donations: [],
           };
         }
-        acc[key].donations.push(donation);
+
+        // Calculate purpose total and store donation
+        acc[mode].types[type].purposes[purpose].total += parseFloat(
+          donation.attributes.donationAmount || 0
+        );
+        acc[mode].types[type].purposes[purpose].donations.push(donation);
+
         return acc;
       }, {});
 
@@ -145,6 +173,8 @@ const AllDonationDetails = () => {
                 font-size: 16px;
                 margin-bottom: 15px;
                 line-height: 1.4;
+                border: 1px solid #eee;
+                padding: 5px;
               }
               .header-table {
                 width: 100%;
@@ -226,6 +256,10 @@ const AllDonationDetails = () => {
                 float: right;
                 font-weight: bold;
               }
+              .mode-line-top {
+                font-weight: bold;
+                font-size: 16px;
+              }
             </style>
           </head>
           <body>
@@ -244,83 +278,72 @@ const AllDonationDetails = () => {
               </tr>
             </table>
 
-            ${Object.values(groupedDonations)
+            ${Object.entries(groupedByMode)
               .map(
-                ({ mode, type, donations }) => `
-              <div class="section">
-                <div class="mode-type">
-                  <div class="mode-line">
-                    Receipt Mode: ${mode} <span class="amount-right">Rs. ${donations
-                  .reduce(
-                    (sum, donation) =>
-                      sum + parseFloat(donation.attributes.donationAmount || 0),
-                    0
-                  )
-                  .toFixed(2)}</span>
-                  </div>
-                  <div class="mode-line">
-                    Type: ${type} <span class="amount-right">Rs. ${donations
-                  .reduce(
-                    (sum, donation) =>
-                      sum + parseFloat(donation.attributes.donationAmount || 0),
-                    0
-                  )
-                  .toFixed(2)}</span>
-                  </div>
-                </div>
-                
-                ${Object.entries(
-                  donations.reduce((acc, curr) => {
-                    const purpose = curr.attributes.purpose || "General";
-                    if (!acc[purpose]) {
-                      acc[purpose] = [];
-                    }
-                    acc[purpose].push(curr);
-                    return acc;
-                  }, {})
-                )
-                  .map(
-                    ([purpose, purposeGroup]) => `
-                  <div class="purpose-group">
-                    <div class="purpose-title">Purpose: ${purpose} <span class="purpose-total">Rs. ${purposeGroup
-                      .reduce(
-                        (sum, donation) =>
-                          sum +
-                          parseFloat(donation.attributes.donationAmount || 0),
-                        0
-                      )
-                      .toFixed(2)}</span></div>
-                    ${purposeGroup
+                ([mode, modeData]) => `
+                <div class="section">
+                  <div class="mode-type">
+                    <div class="mode-line mode-line-top">
+                      Receipt Mode: ${mode} <span class="amount-right">Rs. ${modeData.total.toFixed(
+                  2
+                )}</span>
+                    </div>
+                    ${Object.entries(modeData.types)
                       .map(
-                        (donation) => `
-                      <div class="receipt-row">
-                        <div>${
-                          donation.attributes.receipt_detail?.data?.attributes
-                            ?.Receipt_number || ""
-                        }</div>
-                        <div>${new Date(
-                          donation.attributes.createdAt
-                        ).toLocaleDateString()}</div>
-                        <div>${donation.attributes.ddch_date || ""}</div>
-                        <div>${
-                          donation.attributes.bankName
-                            ? `${donation.attributes.bankName} - ${donation.attributes.ddch_number}`
-                            : ""
-                        }</div>
-                        <div>${donation.attributes.donorName || ""}</div>
-                        <div class="amount">Rs. ${
-                          donation.attributes.donationAmount
-                        }</div>
-                      </div>
-                    `
+                        ([type, typeData]) => `
+                        <div class="mode-line mode-line-top">
+                          Type: ${type} <span class="amount-right">Rs. ${typeData.total.toFixed(
+                          2
+                        )}</span>
+                        </div>
+                        ${Object.entries(typeData.purposes)
+                          .map(
+                            ([purpose, purposeData]) => `
+                            <div class="purpose-group">
+                              <div class="purpose-title">
+                                Purpose: ${purpose} <span class="purpose-total">Rs. ${purposeData.total.toFixed(
+                              2
+                            )}</span>
+                              </div>
+                              ${purposeData.donations
+                                .map(
+                                  (donation) => `
+                                  <div class="receipt-row">
+                                    <div>${
+                                      donation.attributes.receipt_detail?.data
+                                        ?.attributes?.Receipt_number || ""
+                                    }</div>
+                                    <div>${new Date(
+                                      donation.attributes.createdAt
+                                    ).toLocaleDateString()}</div>
+                                    <div>${
+                                      donation.attributes.ddch_date || ""
+                                    }</div>
+                                    <div>${
+                                      donation.attributes.bankName
+                                        ? `${donation.attributes.bankName} - ${donation.attributes.ddch_number}`
+                                        : ""
+                                    }</div>
+                                    <div>${
+                                      donation.attributes.donorName || ""
+                                    }</div>
+                                    <div class="amount">Rs. ${
+                                      donation.attributes.donationAmount
+                                    }</div>
+                                  </div>
+                                `
+                                )
+                                .join("")}
+                            </div>
+                          `
+                          )
+                          .join("")}
+                      `
                       )
                       .join("")}
                   </div>
-                `
-                  )
-                  .join("")}
-              </div>
-            `
+                </div>
+              `
               )
               .join("")}
 

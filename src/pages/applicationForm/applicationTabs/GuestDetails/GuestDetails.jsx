@@ -912,6 +912,27 @@ const GuestDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
                           {formData.guests[index].guestDeeksha ||
                             "Select Deeksha"}
                         </span>
+                        <svg
+                          width="16"
+                          height="16"
+                          viewBox="0 0 16 16"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                          style={{
+                            transform: isDeekshaDropdownOpen
+                              ? "rotate(180deg)"
+                              : "rotate(0deg)",
+                            transition: "transform 0.2s ease",
+                          }}
+                        >
+                          <path
+                            d="M4 6L8 10L12 6"
+                            stroke="#6B7280"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                        </svg>
                       </div>
                       {isDeekshaDropdownOpen && (
                         <div

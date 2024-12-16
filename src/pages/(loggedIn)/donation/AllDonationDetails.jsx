@@ -178,8 +178,6 @@ const AllDonationDetails = () => {
         return acc;
       }, {});
 
-      const printWindow = window.open("", "_blank");
-
       const htmlContent = `
         <html>
           <head>
@@ -386,11 +384,27 @@ const AllDonationDetails = () => {
         </html>
       `;
 
-      printWindow.document.write(htmlContent);
-      printWindow.document.close();
+      // Create a hidden iframe
+      const iframe = document.createElement("iframe");
+      iframe.style.display = "none";
+      document.body.appendChild(iframe);
 
-      printWindow.onload = function () {
-        printWindow.print();
+      // Write the content to the iframe
+      iframe.contentWindow.document.write(htmlContent);
+      iframe.contentWindow.document.close();
+
+      // Wait for images/resources to load
+      iframe.onload = function () {
+        try {
+          iframe.contentWindow.print();
+
+          // Remove the iframe after printing
+          setTimeout(() => {
+            document.body.removeChild(iframe);
+          }, 1000);
+        } catch (error) {
+          console.error("Print error:", error);
+        }
       };
     } catch (error) {
       console.error("Error printing donations:", error);

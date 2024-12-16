@@ -229,19 +229,19 @@ const BedDetailsPanel = ({ bedData }) => {
 
 // Add this new component for the list view
 const RoomListView = ({ rooms, activeTab, onRoomSelect, selectedGuests }) => {
-  // Group rooms by category
+  // Group rooms by category, ensuring case-insensitive matching
   const roomsByCategory = rooms.reduce((acc, room) => {
-    const category = room.category?.toLowerCase() || "";
+    const category = room.category?.toLowerCase()?.trim() || "";
     let normalizedCategory;
 
     if (category.includes("guest")) {
-      normalizedCategory = "Guest House";
+      normalizedCategory = "guest house";
     } else if (category === "f") {
-      normalizedCategory = "Peerless Flat";
+      normalizedCategory = "f";
     } else if (category.includes("yatri")) {
-      normalizedCategory = "Yatri Niwas";
+      normalizedCategory = "yatri niwas";
     } else {
-      normalizedCategory = "Other";
+      normalizedCategory = "other";
     }
 
     if (!acc[normalizedCategory]) {
@@ -251,13 +251,18 @@ const RoomListView = ({ rooms, activeTab, onRoomSelect, selectedGuests }) => {
     return acc;
   }, {});
 
+  const normalizedActiveTab = activeTab?.toLowerCase().trim();
+
+  // Filter rooms based on the normalized activeTab
+  const filteredRooms = roomsByCategory[normalizedActiveTab] || [];
+
   const getCategoryColor = (category) => {
-    switch (category) {
-      case "Guest House":
+    switch (category.toLowerCase()) {
+      case "guest house":
         return "#7ACD06";
-      case "Peerless Flat":
+      case "peerless flat":
         return "#F2930D";
-      case "Yatri Niwas":
+      case "yatri niwas":
         return "#FF4B4B";
       default:
         return "#000000";
@@ -266,16 +271,16 @@ const RoomListView = ({ rooms, activeTab, onRoomSelect, selectedGuests }) => {
 
   return (
     <div className="room-list-view">
-      {Object.entries(roomsByCategory).map(([category, categoryRooms]) => (
-        <div key={category} className="category-section">
+      {filteredRooms.length > 0 ? (
+        <div className="category-section">
           <div
             className="room-category-header"
-            style={{ color: getCategoryColor(category) }}
+            style={{ color: getCategoryColor(normalizedActiveTab) }}
           >
-            {category}
+            {activeTab}
           </div>
           <div className="room-list-grid">
-            {categoryRooms.map((room, index) => {
+            {filteredRooms.map((room, index) => {
               const canAllocate = room.availableBeds > 0;
               const selectedGuestsCount =
                 selectedGuests?.filter(Boolean).length || 0;
@@ -305,7 +310,9 @@ const RoomListView = ({ rooms, activeTab, onRoomSelect, selectedGuests }) => {
             })}
           </div>
         </div>
-      ))}
+      ) : (
+        <div>No rooms available for this category.</div>
+      )}
     </div>
   );
 };
@@ -612,6 +619,7 @@ const BookRoom = () => {
     if (isFilled) return;
 
     const isCurrentlySelected = clickedBeds[activeTab]?.[bedId];
+
     const arrivalDateTime = new Date(arrivalDate);
     const departureDateTime = new Date(departureDate);
 
@@ -1218,7 +1226,17 @@ const BookRoom = () => {
       <div className="booking-header-panel">
         <div className="booking-controls-group">
           {isToggled ? (
-            <h2 className="room-allocation-heading">Room Allocation</h2>
+            <div className="booking-tab-group">
+              {["Guest house", "F", "Yatri Niwas"].map((tab) => (
+                <button
+                  key={tab}
+                  className={`tab ${activeTab === tab ? "active" : ""}`}
+                  onClick={() => setActiveTab(tab)}
+                >
+                  {tab}
+                </button>
+              ))}
+            </div>
           ) : (
             <div className="booking-tab-group">
               {["Guest house", "F", "Yatri Niwas"].map((tab) => (

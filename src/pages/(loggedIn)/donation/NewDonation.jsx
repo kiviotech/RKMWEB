@@ -2335,55 +2335,60 @@ const NewDonation = () => {
           }}
         >
           <h1>New Donation</h1>
-          <div
-            style={{
-              display: "flex",
-              gap: "10px",
-              alignItems: "center",
-              flexWrap: "wrap",
-            }}
-          >
-            {donorTags.map((tag) => (
-              <div
-                key={tag.id}
-                className={`tag ${selectedDonor === tag.id ? "selected" : ""}`}
-                onClick={() => handleTagClick(tag.id)}
-              >
-                {tag.name}
-                <span
-                  className="close"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleRemoveTag(tag.id);
-                  }}
-                >
-                  ×
-                </span>
-              </div>
-            ))}
-            <button className="add-donation-btn" onClick={handleAddDonation}>
-              + Add Donation
-            </button>
-            <button
-              onClick={() => navigate("/donation#tomorrows-guests")}
-              className="tomorrows-guest-btn"
+          {/* Only show donor tags and Add Donation button if no donation details exist */}
+          {!donationData && (
+            <div
               style={{
-                backgroundColor: "#8C52FF",
-                color: "white",
-                border: "none",
-                borderRadius: "4px",
-                padding: "8px 16px",
-                cursor: "pointer",
-                fontSize: "14px",
-                fontWeight: "500",
                 display: "flex",
+                gap: "10px",
                 alignItems: "center",
-                gap: "8px",
+                flexWrap: "wrap",
               }}
             >
-              Tomorrow's Leaving Guest
-            </button>
-          </div>
+              {donorTags.map((tag) => (
+                <div
+                  key={tag.id}
+                  className={`tag ${
+                    selectedDonor === tag.id ? "selected" : ""
+                  }`}
+                  onClick={() => handleTagClick(tag.id)}
+                >
+                  {tag.name}
+                  <span
+                    className="close"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleRemoveTag(tag.id);
+                    }}
+                  >
+                    ×
+                  </span>
+                </div>
+              ))}
+              <button className="add-donation-btn" onClick={handleAddDonation}>
+                + Add Donation
+              </button>
+            </div>
+          )}
+          <button
+            onClick={() => navigate("/donation#tomorrows-guests")}
+            className="tomorrows-guest-btn"
+            style={{
+              backgroundColor: "#8C52FF",
+              color: "white",
+              border: "none",
+              borderRadius: "4px",
+              padding: "8px 16px",
+              cursor: "pointer",
+              fontSize: "14px",
+              fontWeight: "500",
+              display: "flex",
+              alignItems: "center",
+              gap: "8px",
+            }}
+          >
+            Tomorrow's Leaving Guest
+          </button>
         </div>
         <div>
           {" "}
@@ -3177,56 +3182,76 @@ const NewDonation = () => {
               >
                 Pending
               </button>
-              <button
-                className="print-receipt-btn"
-                type="button"
-                onClick={handlePrintReceipt}
-                disabled={isDonationCompleted(donationData)}
-                style={{
-                  opacity: isDonationCompleted(donationData) ? 0.5 : 1,
-                  cursor: isDonationCompleted(donationData)
-                    ? "not-allowed"
-                    : "pointer",
-                }}
-              >
-                <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
+              {isDonationCompleted(donationData) ? (
+                <button
+                  className="cancel-btn"
+                  type="button"
+                  onClick={() => setShowCancelConfirm(true)}
+                  style={{
+                    backgroundColor: "#FEE5E5",
+                    color: "#DC2626",
+                    border: "1px solid #DC2626",
+                    borderRadius: "4px",
+                    padding: "8px 16px",
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "8px",
+                  }}
                 >
-                  <path
-                    d="M7 17H17V22H7V17Z"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                  <path
-                    d="M17 3H7V8H17V3Z"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                  <path
-                    d="M17 8H19C20.1046 8 21 8.89543 21 10V16C21 17.1046 20.1046 18 19 18H17"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                  <path
-                    d="M7 8H5C3.89543 8 3 8.89543 3 10V16C3 17.1046 3.89543 18 5 18H7"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-                Print Receipt
-              </button>
+                  Cancel Donation
+                </button>
+              ) : (
+                <button
+                  className="print-receipt-btn"
+                  type="button"
+                  onClick={handlePrintReceipt}
+                  style={{
+                    opacity: isDonationCompleted(donationData) ? 0.5 : 1,
+                    cursor: isDonationCompleted(donationData)
+                      ? "not-allowed"
+                      : "pointer",
+                  }}
+                >
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M7 17H17V22H7V17Z"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                    <path
+                      d="M17 3H7V8H17V3Z"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                    <path
+                      d="M17 8H19C20.1046 8 21 8.89543 21 10V16C21 17.1046 20.1046 18 19 18H17"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                    <path
+                      d="M7 8H5C3.89543 8 3 8.89543 3 10V16C3 17.1046 3.89543 18 5 18H7"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                  Print Receipt
+                </button>
+              )}
             </div>
           </div>
 

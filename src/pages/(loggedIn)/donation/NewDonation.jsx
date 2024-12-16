@@ -172,6 +172,39 @@ const NewDonation = () => {
     MSN: 0,
   });
 
+  // Add these state declarations
+  const [isDeekshaDropdownOpen, setIsDeekshaDropdownOpen] = useState(false);
+  const [deekshaSearchQuery, setDeekshaSearchQuery] = useState("");
+  const deekshaDropdownRef = useRef(null);
+
+  // Add the deeksha options array
+  const deekshaOptions = [
+    "Srimat Swami Atmasthanandaji Maharaj",
+    "Srimat Swami Bhuteshanandaji Maharaj",
+    "Srimat Swami Divyanandaji Maharaj",
+    "Srimat Swami Gahananandaji Maharaj",
+    "Srimat Swami Gambhiranandaji Maharaj",
+    "Srimat Swami Gautamanandaji Maharaj",
+    "Srimat Swami Girishanandaji Maharaj",
+    "Srimat Swami Gitanandaji Maharaj",
+    "Srimat Swami Kailashanandaji Maharaj",
+    "Srimat Swami Madhavanandaji Maharaj",
+    "Srimat Swami Nirvananandaji Maharaj",
+    "Srimat Swami Omkaranandaji Maharaj",
+    "Srimat Swami Prabhanandaji Maharaj",
+    "Srimat Swami Prameyanandaji Maharaj",
+    "Srimat Swami Ranganathanandaji Maharaj",
+    "Srimat Swami Shivamayanandaji Maharaj",
+    "Srimat Swami Smarananandaji Maharaj",
+    "Srimat Swami Suhitanandaji Maharaj",
+    "Srimat Swami Tapasyanandaji Maharaj",
+    "Srimat Swami Vagishanandaji Maharaj",
+    "Srimat Swami Vimalatmanandaji Maharaj",
+    "Srimat Swami Vireshwaranandaji Maharaj",
+    "Srimat Swami Yatiswaranandaji Maharaj",
+    "none",
+  ];
+
   console.log("Zustand Store Data:", {
     // auth: { user },
     donations,
@@ -1664,14 +1697,15 @@ const NewDonation = () => {
   // Add this useEffect to handle clicks outside the dropdown
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setShowDropdown(false);
+      if (
+        deekshaDropdownRef.current &&
+        !deekshaDropdownRef.current.contains(event.target)
+      ) {
+        setIsDeekshaDropdownOpen(false);
       }
     };
 
     document.addEventListener("mousedown", handleClickOutside);
-
-    // Cleanup the event listener on component unmount
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
@@ -2706,94 +2740,123 @@ const NewDonation = () => {
 
               {/* Mantra Diksha */}
               <div className="form-group">
-                <label>
-                  Mantra Diksha <span className="required">*</span>
-                </label>
-                <select
-                  value={donorDetails.mantraDiksha}
-                  onChange={(e) => {
-                    if (shouldDisableFields()) return;
-                    setDonorDetails({
-                      ...donorDetails,
-                      mantraDiksha: e.target.value,
-                    });
-                  }}
-                  disabled={shouldDisableFields()}
-                  className={`mantra-diksha-select ${
-                    shouldDisableFields() ? "disabled-input" : ""
-                  }`}
+                <label>Initiation / Mantra Diksha from</label>
+                <div
+                  className="custom-dropdown"
+                  style={{ position: "relative" }}
+                  ref={deekshaDropdownRef}
                 >
-                  <option value="Srimat Swami Atmasthanandaji Maharaj">
-                    Srimat Swami Atmasthanandaji Maharaj
-                  </option>
-                  <option value="Srimat Swami Bhuteshanandaji Maharaj">
-                    Srimat Swami Bhuteshanandaji Maharaj
-                  </option>
-                  <option value="Srimat Swami Divyanandaji Maharaj">
-                    Srimat Swami Divyanandaji Maharaj
-                  </option>
-                  <option value="Srimat Swami Gahananandaji Maharaj">
-                    Srimat Swami Gahananandaji Maharaj
-                  </option>
-                  <option value="Srimat Swami Gambhiranandaji Maharaj">
-                    Srimat Swami Gambhiranandaji Maharaj
-                  </option>
-                  <option value="Srimat Swami Gautamanandaji Maharaj">
-                    Srimat Swami Gautamanandaji Maharaj
-                  </option>
-                  <option value="Srimat Swami Girishanandaji Maharaj">
-                    Srimat Swami Girishanandaji Maharaj
-                  </option>
-                  <option value="Srimat Swami Gitanandaji Maharaj">
-                    Srimat Swami Gitanandaji Maharaj
-                  </option>
-                  <option value="Srimat Swami Kailashanandaji Maharaj">
-                    Srimat Swami Kailashanandaji Maharaj
-                  </option>
-                  <option value="Srimat Swami Madhavanandaji Maharaj">
-                    Srimat Swami Madhavanandaji Maharaj
-                  </option>
-                  <option value="Srimat Swami Nirvananandaji Maharaj">
-                    Srimat Swami Nirvananandaji Maharaj
-                  </option>
-                  <option value="Srimat Swami Omkaranandaji Maharaj">
-                    Srimat Swami Omkaranandaji Maharaj
-                  </option>
-                  <option value="Srimat Swami Prabhanandaji Maharaj">
-                    Srimat Swami Prabhanandaji Maharaj
-                  </option>
-                  <option value="Srimat Swami Prameyanandaji Maharaj">
-                    Srimat Swami Prameyanandaji Maharaj
-                  </option>
-                  <option value="Srimat Swami Ranganathanandaji Maharaj">
-                    Srimat Swami Ranganathanandaji Maharaj
-                  </option>
-                  <option value="Srimat Swami Shivamayanandaji Maharaj">
-                    Srimat Swami Shivamayanandaji Maharaj
-                  </option>
-                  <option value="Srimat Swami Smarananandaji Maharaj">
-                    Srimat Swami Smarananandaji Maharaj
-                  </option>
-                  <option value="Srimat Swami Suhitanandaji Maharaj">
-                    Srimat Swami Suhitanandaji Maharaj
-                  </option>
-                  <option value="Srimat Swami Tapasyanandaji Maharaj">
-                    Srimat Swami Tapasyanandaji Maharaj
-                  </option>
-                  <option value="Srimat Swami Vagishanandaji Maharaj">
-                    Srimat Swami Vagishanandaji Maharaj
-                  </option>
-                  <option value="Srimat Swami Vimalatmanandaji Maharaj">
-                    Srimat Swami Vimalatmanandaji Maharaj
-                  </option>
-                  <option value="Srimat Swami Vireshwaranandaji Maharaj">
-                    Srimat Swami Vireshwaranandaji Maharaj
-                  </option>
-                  <option value="Srimat Swami Yatiswaranandaji Maharaj">
-                    Srimat Swami Yatiswaranandaji Maharaj
-                  </option>
-                  <option value="none">None</option>
-                </select>
+                  <div
+                    className="dropdown-header"
+                    onClick={() => {
+                      setIsDeekshaDropdownOpen(!isDeekshaDropdownOpen);
+                      setTimeout(() => {
+                        if (searchInputRef.current) {
+                          searchInputRef.current.focus();
+                        }
+                      }, 100);
+                    }}
+                    style={{
+                      padding: "10px",
+                      border: "1px solid #ccc",
+                      borderRadius: "4px",
+                      cursor: "pointer",
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      backgroundColor: "#FFF",
+                    }}
+                  >
+                    <span>{donorDetails.mantraDiksha || "Select Deeksha"}</span>
+                    <svg
+                      width="16"
+                      height="16"
+                      viewBox="0 0 16 16"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                      style={{
+                        transform: isDeekshaDropdownOpen
+                          ? "rotate(180deg)"
+                          : "rotate(0deg)",
+                        transition: "transform 0.2s ease",
+                      }}
+                    >
+                      <path
+                        d="M4 6L8 10L12 6"
+                        stroke="#6B7280"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  </div>
+                  {isDeekshaDropdownOpen && (
+                    <div
+                      className="dropdown-options"
+                      style={{
+                        position: "absolute",
+                        top: "100%",
+                        left: 0,
+                        right: 0,
+                        maxHeight: "200px",
+                        overflowY: "auto",
+                        backgroundColor: "white",
+                        border: "1px solid #ccc",
+                        borderRadius: "4px",
+                        zIndex: 1000,
+                        boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+                      }}
+                    >
+                      <input
+                        ref={searchInputRef}
+                        type="text"
+                        placeholder="Search..."
+                        value={deekshaSearchQuery}
+                        onChange={(e) => setDeekshaSearchQuery(e.target.value)}
+                        style={{
+                          width: "100%",
+                          padding: "8px",
+                          border: "none",
+                          borderBottom: "1px solid #ccc",
+                          outline: "none",
+                        }}
+                        onClick={(e) => e.stopPropagation()}
+                        autoFocus
+                      />
+                      {deekshaOptions
+                        .filter((option) =>
+                          option
+                            .toLowerCase()
+                            .includes(deekshaSearchQuery.toLowerCase())
+                        )
+                        .map((option) => (
+                          <div
+                            key={option}
+                            onClick={() => {
+                              setDonorDetails((prev) => ({
+                                ...prev,
+                                mantraDiksha: option,
+                              }));
+                              setIsDeekshaDropdownOpen(false);
+                              setDeekshaSearchQuery("");
+                            }}
+                            style={{
+                              padding: "10px",
+                              cursor: "pointer",
+                              ":hover": {
+                                backgroundColor: "#f5f5f5",
+                              },
+                            }}
+                          >
+                            {option}
+                          </div>
+                        ))}
+                    </div>
+                  )}
+                </div>
+                {validationErrors.mantraDiksha && (
+                  <span className="error">{validationErrors.mantraDiksha}</span>
+                )}
               </div>
             </div>
 
@@ -4081,6 +4144,65 @@ const NewDonation = () => {
 
         .guest-details span {
           margin-right: 10px;
+        }
+
+        .custom-dropdown {
+          width: 100%;
+          height: 40px; // Set a fixed height
+        }
+
+        .dropdown-header {
+          height: 38px; // Slightly less than container to account for borders
+          min-height: 38px;
+          max-height: 38px;
+          overflow: hidden;
+          white-space: nowrap;
+          text-overflow: ellipsis;
+          padding: 0 10px !important; // Adjust padding to maintain height
+          line-height: 38px; // Center text vertically
+        }
+
+        .dropdown-options {
+          position: absolute;
+          top: calc(100% + 2px);
+          left: 0;
+          right: 0;
+          max-height: 200px;
+          overflow-y: auto;
+          background-color: white;
+          border: 1px solid #ccc;
+          border-radius: 4px;
+          z-index: 1000;
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .dropdown-options input {
+          width: 100%;
+          height: 36px;
+          padding: 8px;
+          border: none;
+          border-bottom: 1px solid #ccc;
+          outline: none;
+        }
+
+        .dropdown-options div {
+          padding: 8px 10px;
+          cursor: pointer;
+          height: 36px;
+          line-height: 20px;
+          overflow: hidden;
+          white-space: nowrap;
+          text-overflow: ellipsis;
+        }
+
+        .dropdown-options div:hover {
+          background-color: #f5f5f5;
+        }
+
+        // Ensure form groups maintain consistent height
+        .form-group {
+          min-height: 70px; // Adjust this value based on your layout
+          margin-bottom: 15px;
         }
       `}</style>
     </div>

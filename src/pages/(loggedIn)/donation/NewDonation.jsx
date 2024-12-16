@@ -822,6 +822,9 @@ const NewDonation = () => {
           donationDate: getCurrentFormattedDate(),
           guest: guestId,
           receipt_detail: receiptResponse.data.id,
+          purpose: currentReceipt?.donationDetails?.purpose || "General",
+          type:
+            currentReceipt?.donationDetails?.donationType || "Others (Revenue)",
           ...(currentReceipt?.donationDetails?.transactionType?.toLowerCase() !==
             "cash" && {
             ddch_number:
@@ -1201,6 +1204,10 @@ const NewDonation = () => {
             donationFor: selectedTab,
             status: "pending",
             donationDate: getCurrentFormattedDate(),
+            purpose: currentReceipt?.donationDetails?.purpose || "General",
+            type:
+              currentReceipt?.donationDetails?.donationType ||
+              "Others (Revenue)",
             ...(currentReceipt?.donationDetails?.transactionType?.toLowerCase() !==
               "cash" && {
               ddch_number:

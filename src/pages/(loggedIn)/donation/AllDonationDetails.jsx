@@ -107,31 +107,186 @@ const AllDonationDetails = () => {
   const handleExport = async () => {
     try {
       const response = await fetchDonations();
-      console.log("Raw Receipt Details:", response);
+      const donations = Array.isArray(response)
+        ? response
+        : response.data || [];
 
-      const data = response.data.map((item) => ({
-        ID: item.id,
-        InMemoryOf: item.attributes?.InMemoryOf || "N/A",
-        BankName: item.attributes?.bankName || "N/A",
-        CreatedAt: item.attributes?.createdAt || "N/A",
-        Date: item.attributes?.ddch_date || "N/A",
-        Number: item.attributes?.ddch_number || "N/A",
-        Amount: item.attributes?.donationAmount || "N/A",
-        For: item.attributes?.donationFor || "N/A",
-        Status: item.attributes?.status || "N/A",
-        TransactionType: item.attributes?.transactionType || "N/A",
-        UpdatedAt: item.attributes?.updatedAt || "N/A",
-      }));
+      // Group donations by transactionType and purpose
+      const groupedDonations = donations.reduce((acc, donation) => {
+        const type = donation.attributes.transactionType;
+        if (!acc[type]) {
+          acc[type] = [];
+        }
+        acc[type].push(donation);
+        return acc;
+      }, {});
 
-      console.log("Transformed Data:", data);
+      const printWindow = window.open("", "_blank");
 
-      const worksheet = XLSX.utils.json_to_sheet(data);
-      const workbook = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(workbook, worksheet, "Donations");
+      const htmlContent = `
+        <html>
+          <head>
+            <title>Receipt List</title>
+            <style>
+              body {
+                font-family: Arial, sans-serif;
+                padding: 20px;
+                line-height: 1.2;
+              }
+              .page-title {
+                text-align: center;
+                font-size: 16px;
+                margin-bottom: 15px;
+              }
+              .header-table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-bottom: 20px;
+              }
+              .header-table th {
+                border: 1px solid #000;
+                padding: 6px;
+                text-align: left;
+              }
+              .section {
+                margin-bottom: 15px;
+              }
+              .mode-type {
+                margin-bottom: 10px;
+              }
+              .purpose-group {
+                margin-bottom: 15px;
+              }
+              .purpose-title {
+                margin-bottom: 5px;
+              }
+              .receipt-row {
+                display: grid;
+                grid-template-columns: 80px 100px 120px 120px 200px auto;
+                margin-bottom: 3px;
+                border-bottom: 1px solid #eee;
+              }
+              .amount {
+                text-align: right;
+              }
+              .total {
+                text-align: right;
+                margin-top: 5px;
+                margin-bottom: 10px;
+                font-weight: bold;
+              }
+              .grand-total {
+                text-align: right;
+                margin-top: 20px;
+                font-weight: bold;
+                border-top: 1px solid #000;
+                padding-top: 10px;
+              }
+            </style>
+          </head>
+          <body>
+            <div class="page-title">
+              Receipt List For ${new Date().toLocaleDateString()} - Math Receipt
+            </div>
+            
+            <table class="header-table">
+              <tr>
+                <th>Receipt No</th>
+                <th>Receipt Date</th>
+                <th>DD/CH No</th>
+                <th>DD/CH/Bank Tr. Date</th>
+                <th>Bank Name</th>
+                <th>Amount</th>
+              </tr>
+            </table>
 
-      XLSX.writeFile(workbook, "Donations.xlsx");
+            ${Object.entries(groupedDonations)
+              .map(
+                ([mode, donations]) => `
+              <div class="section">
+                <div class="mode-type">
+                  Receipt Mode: ${mode}
+                  <br>
+                  Type: ${donations[0].attributes.type}
+                </div>
+                
+                ${Object.entries(
+                  donations.reduce((acc, curr) => {
+                    const purpose = curr.attributes.purpose || "General";
+                    if (!acc[purpose]) {
+                      acc[purpose] = [];
+                    }
+                    acc[purpose].push(curr);
+                    return acc;
+                  }, {})
+                )
+                  .map(
+                    ([purpose, purposeGroup]) => `
+                  <div class="purpose-group">
+                    <div class="purpose-title">Purpose: ${purpose}</div>
+                    ${purposeGroup
+                      .map(
+                        (donation) => `
+                      <div class="receipt-row">
+                        <div>${
+                          donation.attributes.receipt_detail?.data?.attributes
+                            ?.Receipt_number || ""
+                        }</div>
+                        <div>${new Date(
+                          donation.attributes.createdAt
+                        ).toLocaleDateString()}</div>
+                        <div>${donation.attributes.ddch_date || ""}</div>
+                        <div>${donation.attributes.bankName} - ${
+                          donation.attributes.ddch_number
+                        }</div>
+                        <div class="amount">Rs. ${
+                          donation.attributes.donationAmount
+                        }</div>
+                      </div>
+                    `
+                      )
+                      .join("")}
+                    <div class="total">
+                      Total: Rs. ${purposeGroup
+                        .reduce(
+                          (sum, donation) =>
+                            sum +
+                            parseFloat(donation.attributes.donationAmount || 0),
+                          0
+                        )
+                        .toFixed(2)}
+                    </div>
+                  </div>
+                `
+                  )
+                  .join("")}
+              </div>
+            `
+              )
+              .join("")}
+
+            <div class="grand-total">
+              Grand Total (Including all payment modes):
+              Rs. ${donations
+                .reduce(
+                  (sum, donation) =>
+                    sum + parseFloat(donation.attributes.donationAmount || 0),
+                  0
+                )
+                .toFixed(2)}
+            </div>
+          </body>
+        </html>
+      `;
+
+      printWindow.document.write(htmlContent);
+      printWindow.document.close();
+
+      printWindow.onload = function () {
+        printWindow.print();
+      };
     } catch (error) {
-      console.error("Error exporting donations:", error);
+      console.error("Error printing donations:", error);
     }
   };
 

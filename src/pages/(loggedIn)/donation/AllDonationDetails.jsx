@@ -111,13 +111,20 @@ const AllDonationDetails = () => {
         ? response
         : response.data || [];
 
-      // Group donations by transactionType and purpose
+      // Group donations by receipt mode and type
       const groupedDonations = donations.reduce((acc, donation) => {
-        const type = donation.attributes.transactionType;
-        if (!acc[type]) {
-          acc[type] = [];
+        const mode = donation.attributes.transactionType;
+        const type = donation.attributes.type;
+        const key = `${mode}-${type}`;
+
+        if (!acc[key]) {
+          acc[key] = {
+            mode,
+            type,
+            donations: [],
+          };
         }
-        acc[type].push(donation);
+        acc[key].donations.push(donation);
         return acc;
       }, {});
 
@@ -131,12 +138,13 @@ const AllDonationDetails = () => {
               body {
                 font-family: Arial, sans-serif;
                 padding: 20px;
-                line-height: 1.2;
+                line-height: 1.6;
               }
               .page-title {
                 text-align: center;
                 font-size: 16px;
                 margin-bottom: 15px;
+                line-height: 1.4;
               }
               .header-table {
                 width: 100%;
@@ -145,29 +153,49 @@ const AllDonationDetails = () => {
               }
               .header-table th {
                 border: 1px solid #000;
-                padding: 6px;
+                padding: 8px;
                 text-align: left;
+                line-height: 1.4;
               }
               .section {
                 margin-bottom: 15px;
               }
               .mode-type {
                 margin-bottom: 10px;
+                line-height: 1.8;
+              }
+              .mode-line {
+                position: relative;
+                padding-right: 150px; /* Space for the amount */
+              }
+              .amount-right {
+                position: absolute;
+                right: 0;
+                font-weight: bold;
               }
               .purpose-group {
                 margin-bottom: 15px;
               }
               .purpose-title {
-                margin-bottom: 5px;
+                margin-bottom: 8px;
+                line-height: 1.4;
+                font-weight: bold;
               }
               .receipt-row {
                 display: grid;
-                grid-template-columns: 80px 100px 120px 120px 200px auto;
-                margin-bottom: 3px;
+                grid-template-columns: 80px 100px 120px 120px 200px 100px;
+                margin-bottom: 5px;
                 border-bottom: 1px solid #eee;
+                gap: 10px;
+                line-height: 1.6;
+                padding: 4px 0;
               }
               .amount {
-                text-align: right;
+                text-align: center;
+                font-weight: bold;
+                width: 100%;
+                white-space: nowrap;
+                padding-right: 10px;
               }
               .total {
                 text-align: right;
@@ -176,11 +204,27 @@ const AllDonationDetails = () => {
                 font-weight: bold;
               }
               .grand-total {
-                text-align: right;
+                text-align: center;
                 margin-top: 20px;
                 font-weight: bold;
                 border-top: 1px solid #000;
-                padding-top: 10px;
+                border-bottom: 1px solid #000;
+                padding: 15px 0;
+                line-height: 1.4;
+              }
+              .grand-total-amount {
+                float: right;
+              }
+              .mode-type-total {
+                margin-top: 10px;
+                margin-bottom: 20px;
+                padding: 5px;
+                font-weight: bold;
+                text-align: right;
+              }
+              .purpose-total {
+                float: right;
+                font-weight: bold;
               }
             </style>
           </head>
@@ -200,14 +244,29 @@ const AllDonationDetails = () => {
               </tr>
             </table>
 
-            ${Object.entries(groupedDonations)
+            ${Object.values(groupedDonations)
               .map(
-                ([mode, donations]) => `
+                ({ mode, type, donations }) => `
               <div class="section">
                 <div class="mode-type">
-                  Receipt Mode: ${mode}
-                  <br>
-                  Type: ${donations[0].attributes.type}
+                  <div class="mode-line">
+                    Receipt Mode: ${mode} <span class="amount-right">Rs. ${donations
+                  .reduce(
+                    (sum, donation) =>
+                      sum + parseFloat(donation.attributes.donationAmount || 0),
+                    0
+                  )
+                  .toFixed(2)}</span>
+                  </div>
+                  <div class="mode-line">
+                    Type: ${type} <span class="amount-right">Rs. ${donations
+                  .reduce(
+                    (sum, donation) =>
+                      sum + parseFloat(donation.attributes.donationAmount || 0),
+                    0
+                  )
+                  .toFixed(2)}</span>
+                  </div>
                 </div>
                 
                 ${Object.entries(
@@ -223,7 +282,14 @@ const AllDonationDetails = () => {
                   .map(
                     ([purpose, purposeGroup]) => `
                   <div class="purpose-group">
-                    <div class="purpose-title">Purpose: ${purpose}</div>
+                    <div class="purpose-title">Purpose: ${purpose} <span class="purpose-total">Rs. ${purposeGroup
+                      .reduce(
+                        (sum, donation) =>
+                          sum +
+                          parseFloat(donation.attributes.donationAmount || 0),
+                        0
+                      )
+                      .toFixed(2)}</span></div>
                     ${purposeGroup
                       .map(
                         (donation) => `
@@ -236,9 +302,12 @@ const AllDonationDetails = () => {
                           donation.attributes.createdAt
                         ).toLocaleDateString()}</div>
                         <div>${donation.attributes.ddch_date || ""}</div>
-                        <div>${donation.attributes.bankName} - ${
-                          donation.attributes.ddch_number
+                        <div>${
+                          donation.attributes.bankName
+                            ? `${donation.attributes.bankName} - ${donation.attributes.ddch_number}`
+                            : ""
                         }</div>
+                        <div>${donation.attributes.donorName || ""}</div>
                         <div class="amount">Rs. ${
                           donation.attributes.donationAmount
                         }</div>
@@ -246,16 +315,6 @@ const AllDonationDetails = () => {
                     `
                       )
                       .join("")}
-                    <div class="total">
-                      Total: Rs. ${purposeGroup
-                        .reduce(
-                          (sum, donation) =>
-                            sum +
-                            parseFloat(donation.attributes.donationAmount || 0),
-                          0
-                        )
-                        .toFixed(2)}
-                    </div>
                   </div>
                 `
                   )
@@ -267,13 +326,13 @@ const AllDonationDetails = () => {
 
             <div class="grand-total">
               Grand Total (Including all payment modes):
-              Rs. ${donations
+              <span class="grand-total-amount">Rs. ${donations
                 .reduce(
                   (sum, donation) =>
                     sum + parseFloat(donation.attributes.donationAmount || 0),
                   0
                 )
-                .toFixed(2)}
+                .toFixed(2)}</span>
             </div>
           </body>
         </html>

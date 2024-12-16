@@ -1033,7 +1033,6 @@ const NewDonation = () => {
                       }${
         donorDetails.pincode ? `Pin: ${donorDetails.pincode}` : ""
       }
-                    </p>
                     ${
                       donorDetails.identityNumber
                         ? `
@@ -2565,34 +2564,43 @@ const NewDonation = () => {
                   <div className="searchable-dropdown" ref={dropdownRef}>
                     <input
                       type="text"
-                      value={donorDetails.name} // Make sure we're using donorDetails.name here
+                      value={donorDetails.name}
                       onChange={(e) => {
                         if (shouldDisableFields()) return;
+                        const newValue = e.target.value;
                         setDonorDetails((prev) => ({
                           ...prev,
-                          name: e.target.value,
+                          name: newValue,
                         }));
-                        setSearchTerm(e.target.value);
+                        setSearchTerm(newValue);
                         setShowDropdown(true);
                       }}
                       onFocus={() => setShowDropdown(true)}
-                      placeholder=""
+                      placeholder="Enter donor name"
                       className={`${validationErrors.name ? "error" : ""} ${
                         shouldDisableFields() ? "disabled-input" : ""
                       }`}
                       disabled={shouldDisableFields()}
                     />
 
-                    {showDropdown && (
+                    {showDropdown && searchTerm && (
                       <div className="dropdown-list">
                         {guestDetails?.data
-                          ?.filter(
-                            (guest) =>
-                              guest.attributes.name
-                                .toLowerCase()
-                                .includes(searchTerm.toLowerCase()) ||
+                          ?.filter((guest) => {
+                            // Remove title (Sri, Smt., etc.) from the guest name for better matching
+                            const guestNameWithoutTitle = guest.attributes.name
+                              .split(" ")
+                              .slice(1)
+                              .join(" ")
+                              .toLowerCase();
+
+                            return (
+                              guestNameWithoutTitle.includes(
+                                searchTerm.toLowerCase()
+                              ) ||
                               guest.attributes.phone_number.includes(searchTerm)
-                          )
+                            );
+                          })
                           .map((guest) => (
                             <div
                               key={guest.id}
@@ -2604,7 +2612,7 @@ const NewDonation = () => {
                                   fullName.split(" ");
                                 const name = nameParts.join(" ");
 
-                                // Update all donor details
+                                // Update donor details
                                 setDonorDetails({
                                   ...donorDetails,
                                   title: title || "Sri",
@@ -2626,13 +2634,16 @@ const NewDonation = () => {
                                 setShowDropdown(false);
                               }}
                             >
-                              <div>
+                              <div className="dropdown-item-content">
                                 <strong>{guest.attributes.name}</strong>
-                                {guest.attributes.phone_number && (
-                                  <div className="guest-details">
-                                    <span>{guest.attributes.phone_number}</span>
-                                  </div>
-                                )}
+                                <div className="guest-details">
+                                  <span>{guest.attributes.phone_number}</span>
+                                  {guest.attributes.email && (
+                                    <span className="email">
+                                      {guest.attributes.email}
+                                    </span>
+                                  )}
+                                </div>
                               </div>
                             </div>
                           ))}

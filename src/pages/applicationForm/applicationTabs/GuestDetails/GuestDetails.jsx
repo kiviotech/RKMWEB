@@ -26,6 +26,36 @@ const GuestDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const searchInputRef = useRef(null);
   const dropdownRef = useRef(null);
+  const [isDeekshaDropdownOpen, setIsDeekshaDropdownOpen] = useState(false);
+  const [deekshaSearchQuery, setDeekshaSearchQuery] = useState("");
+  const deekshaDropdownRef = useRef(null);
+
+  const deekshaOptions = [
+    "Srimat Swami Atmasthanandaji Maharaj",
+    "Srimat Swami Bhuteshanandaji Maharaj",
+    "Srimat Swami Divyanandaji Maharaj",
+    "Srimat Swami Gahananandaji Maharaj",
+    "Srimat Swami Gambhiranandaji Maharaj",
+    "Srimat Swami Gautamanandaji Maharaj",
+    "Srimat Swami Girishanandaji Maharaj",
+    "Srimat Swami Gitanandaji Maharaj",
+    "Srimat Swami Kailashanandaji Maharaj",
+    "Srimat Swami Madhavanandaji Maharaj",
+    "Srimat Swami Nirvananandaji Maharaj",
+    "Srimat Swami Omkaranandaji Maharaj",
+    "Srimat Swami Prabhanandaji Maharaj",
+    "Srimat Swami Prameyanandaji Maharaj",
+    "Srimat Swami Ranganathanandaji Maharaj",
+    "Srimat Swami Shivamayanandaji Maharaj",
+    "Srimat Swami Smarananandaji Maharaj",
+    "Srimat Swami Suhitanandaji Maharaj",
+    "Srimat Swami Tapasyanandaji Maharaj",
+    "Srimat Swami Vagishanandaji Maharaj",
+    "Srimat Swami Vimalatmanandaji Maharaj",
+    "Srimat Swami Vireshwaranandaji Maharaj",
+    "Srimat Swami Yatiswaranandaji Maharaj",
+    "none",
+  ];
 
   useEffect(() => {
     // Initialize empty guests array if needed
@@ -134,6 +164,23 @@ const GuestDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setIsDropdownOpen(false);
         setSearchQuery("");
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        deekshaDropdownRef.current &&
+        !deekshaDropdownRef.current.contains(event.target)
+      ) {
+        setIsDeekshaDropdownOpen(false);
+        setDeekshaSearchQuery("");
       }
     };
 
@@ -835,26 +882,108 @@ const GuestDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
 
                   <div className="form-group">
                     <label>Initiation / Mantra Diksha from</label>
-                    <select
-                      name="guestDeeksha"
-                      value={formData.guests[index].guestDeeksha || ""}
-                      onChange={(e) => handleGuestInputChange(e, index)}
+                    <div
+                      className="custom-dropdown"
+                      style={{ position: "relative" }}
+                      ref={deekshaDropdownRef}
                     >
-                      <option value="">Select Deeksha</option>
-                      <option value="Sri Ramakrishna – Life and Teachings">
-                        Sri Ramakrishna – Life and Teachings
-                      </option>
-                      <option value="Sri Sarada Devi – Life and Teachings">
-                        Sri Sarada Devi – Life and Teachings
-                      </option>
-                      <option value="Swami Vivekananda – His Life and Legacy">
-                        Swami Vivekananda – His Life and Legacy
-                      </option>
-                      <option value="The Gospel of Sri Ramakrishna">
-                        The Gospel of Sri Ramakrishna
-                      </option>
-                      <option value="none">None</option>
-                    </select>
+                      <div
+                        className="dropdown-header"
+                        onClick={() => {
+                          setIsDeekshaDropdownOpen(!isDeekshaDropdownOpen);
+                          setTimeout(() => {
+                            if (searchInputRef.current) {
+                              searchInputRef.current.focus();
+                            }
+                          }, 100);
+                        }}
+                        style={{
+                          padding: "10px",
+                          border: "1px solid #ccc",
+                          borderRadius: "4px",
+                          cursor: "pointer",
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "center",
+                          backgroundColor: "#FFF",
+                        }}
+                      >
+                        <span>
+                          {formData.guests[index].guestDeeksha ||
+                            "Select Deeksha"}
+                        </span>
+                      </div>
+                      {isDeekshaDropdownOpen && (
+                        <div
+                          className="dropdown-options"
+                          style={{
+                            position: "absolute",
+                            top: "100%",
+                            left: 0,
+                            right: 0,
+                            maxHeight: "200px",
+                            overflowY: "auto",
+                            backgroundColor: "white",
+                            border: "1px solid #ccc",
+                            borderRadius: "4px",
+                            zIndex: 1000,
+                            boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+                          }}
+                        >
+                          <input
+                            ref={searchInputRef}
+                            type="text"
+                            placeholder="Search..."
+                            value={deekshaSearchQuery}
+                            onChange={(e) =>
+                              setDeekshaSearchQuery(e.target.value)
+                            }
+                            style={{
+                              width: "100%",
+                              padding: "8px",
+                              border: "none",
+                              borderBottom: "1px solid #ccc",
+                              outline: "none",
+                            }}
+                            onClick={(e) => e.stopPropagation()}
+                            autoFocus
+                          />
+                          {deekshaOptions
+                            .filter((option) =>
+                              option
+                                .toLowerCase()
+                                .includes(deekshaSearchQuery.toLowerCase())
+                            )
+                            .map((option) => (
+                              <div
+                                key={option}
+                                onClick={() => {
+                                  handleGuestInputChange(
+                                    {
+                                      target: {
+                                        name: "guestDeeksha",
+                                        value: option,
+                                      },
+                                    },
+                                    index
+                                  );
+                                  setIsDeekshaDropdownOpen(false);
+                                  setDeekshaSearchQuery("");
+                                }}
+                                style={{
+                                  padding: "10px",
+                                  cursor: "pointer",
+                                  ":hover": {
+                                    backgroundColor: "#f5f5f5",
+                                  },
+                                }}
+                              >
+                                {option}
+                              </div>
+                            ))}
+                        </div>
+                      )}
+                    </div>
                     {errors[`guestDeeksha${index}`] && (
                       <span className="error">
                         {errors[`guestDeeksha${index}`]}

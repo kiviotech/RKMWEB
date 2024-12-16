@@ -53,17 +53,20 @@ const GuestDetailsPopup = ({
         const response = await getCelebrations();
         console.log("Celebrations response:", response.data);
 
-        // Get current date
-        const currentDate = new Date();
+        // Convert arrival and departure dates to Date objects
+        const arrivalDate = new Date(guestDetails?.userDetails?.arrivalDate);
+        const departureDate = new Date(
+          guestDetails?.userDetails?.departureDate
+        );
 
-        // Find celebrations that are 3 days away
+        // Find celebrations that fall within the stay period
         const upcoming = response?.data?.data?.find((celebration) => {
           const celebrationDate = new Date(
             celebration.attributes.gregorian_date
           );
-          const timeDiff = celebrationDate.getTime() - currentDate.getTime();
-          const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
-          return daysDiff === 3;
+          return (
+            celebrationDate >= arrivalDate && celebrationDate <= departureDate
+          );
         });
 
         if (upcoming) {
@@ -75,7 +78,7 @@ const GuestDetailsPopup = ({
     };
 
     fetchCelebrations();
-  }, []);
+  }, [guestDetails]);
 
   console.log("GuestDetailsPopup - Full guestDetails:", guestDetails);
   console.log("GuestDetailsPopup - User Details:", guestDetails?.userDetails);
@@ -530,7 +533,7 @@ const GuestDetailsPopup = ({
             </div>
 
             {/* Alert and Action Buttons */}
-            <div className="footer">
+            <div className="footer" style={{ background: "#fff" }}>
               <div className="alert">
                 {/* There is a Revisit within 6 months of Guest name */}
               </div>

@@ -816,6 +816,34 @@
       }
     }
   }
+
+  table {
+    tr {
+      transition: background-color 0.3s ease;
+
+      &.selected-guest-visit {
+        background-color: #f0f0f0; // or any color you prefer
+      }
+
+      &.highlighted {
+        background-color: rgba(
+          152,
+          103,
+          233,
+          0.1
+        ); // your existing highlight color
+      }
+
+      &.selected-guest-visit.highlighted {
+        background-color: rgba(
+          152,
+          103,
+          233,
+          0.2
+        ); // slightly darker highlight for selected guest
+      }
+    }
+  }
 }
 
 .confirmation-overlay {

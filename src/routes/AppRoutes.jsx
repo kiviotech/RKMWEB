@@ -16,6 +16,7 @@ import Donation from "../pages/(loggedIn)/donation/Donation";
 import DonationDetail from "../pages/(loggedIn)/donation/DonationDetail";
 import DeekshaForm from "../pages/(loggedIn)/deeksha/DeekshaForm";
 import Deeksha from "../pages/(loggedIn)/deeksha/Deeksha";
+import PrintWithoutPreview from "../pages/(loggedIn)/donation/printWithoutPreview";
 import {
   DeekshaRoute,
   SharedRoute,
@@ -261,6 +262,7 @@ const AppRoutes = () => {
         element={<DormitoryApplicationForm />}
       />
       <Route path="/consent-letter" element={<ConsentLetter />} />
+      <Route path="/print-without-preview" element={<PrintWithoutPreview />} />
       <Route
         path="/allDonation"
         element={

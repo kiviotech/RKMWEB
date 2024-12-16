@@ -2569,7 +2569,6 @@ const NewDonation = () => {
                 display: "flex",
                 justifyContent: "space-between",
                 alignItems: "center",
-                marginBottom: "20px",
               }}
             >
               <h2>Donor Details</h2>
@@ -3406,9 +3405,10 @@ const NewDonation = () => {
                   : selectedTab === "Mission"
                   ? "#99fb98"
                   : "white",
+              marginBottom: "10px",
             }}
           >
-            <h2>Donations Details</h2>
+            <h2 style={{ margin: "0px" }}>Donations Details</h2>
             <div className="form-group">
               <label>
                 Purpose <span className="required">*</span>
@@ -3616,9 +3616,11 @@ const NewDonation = () => {
                     : "white",
               }}
             >
-              <div className="card-header" style={{ margin: "0px" }}>
+              <div
+                className="card-header"
+                style={{ margin: "0px", border: "none", padding: "0px" }}
+              >
                 <h2>Transaction details</h2>
-                <button className="consent-btn">Get Consent</button>
               </div>
               <div className="form-group">
                 <label>

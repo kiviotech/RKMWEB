@@ -223,6 +223,12 @@ const AllDonationDetails = () => {
                 right: 0;
                 font-weight: bold;
               }
+              .amount-middle {
+                position: absolute;
+                right: 0;
+                font-weight: bold;
+                margin-right: 150px;
+              }
               .purpose-group {
                 margin-bottom: 15px;
               }
@@ -307,7 +313,7 @@ const AllDonationDetails = () => {
                 <div class="section">
                   <div class="mode-type">
                     <div class="mode-line mode-line-top">
-                      Receipt Mode: ${mode} <span class="amount-right">Rs. ${modeData.total.toFixed(
+                      Receipt Mode: ${mode} <span class="amount-middle">Total:</span> <span class="amount-right">Rs. ${modeData.total.toFixed(
                   2
                 )}</span>
                     </div>
@@ -315,7 +321,7 @@ const AllDonationDetails = () => {
                       .map(
                         ([type, typeData]) => `
                         <div class="mode-line mode-line-top left">
-                          Type: ${type} <span class="amount-right">Rs. ${typeData.total.toFixed(
+                          Type: ${type} <span class="amount-middle">Total:</span> <span class="amount-right">Rs. ${typeData.total.toFixed(
                           2
                         )}</span>
                         </div>

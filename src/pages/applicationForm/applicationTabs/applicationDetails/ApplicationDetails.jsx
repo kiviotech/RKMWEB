@@ -20,6 +20,8 @@ const ApplicationDetails = ({ goToNextStep, tabName }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [isDeekshaDropdownOpen, setIsDeekshaDropdownOpen] = useState(false);
   const [deekshaSearchQuery, setDeekshaSearchQuery] = useState("");
+  const [showCustomDeeksha, setShowCustomDeeksha] = useState(false);
+  const [customDeeksha, setCustomDeeksha] = useState("");
 
   const filteredCountryCodes = countryCodes.filter(
     (country) =>
@@ -55,6 +57,7 @@ const ApplicationDetails = ({ goToNextStep, tabName }) => {
     "Srimat Swami Vimalatmanandaji Maharaj",
     "Srimat Swami Vireshwaranandaji Maharaj",
     "Srimat Swami Yatiswaranandaji Maharaj",
+    "Others",
     "none",
   ];
 
@@ -665,11 +668,20 @@ const ApplicationDetails = ({ goToNextStep, tabName }) => {
                           <div
                             key={option}
                             onClick={() => {
-                              handleInputChange({
-                                target: { name: "deeksha", value: option },
-                              });
+                              if (option === "Others") {
+                                setShowCustomDeeksha(true);
+                                setCustomDeeksha("");
+                                handleInputChange({
+                                  target: { name: "deeksha", value: "" },
+                                });
+                              } else {
+                                setShowCustomDeeksha(false);
+                                handleInputChange({
+                                  target: { name: "deeksha", value: option },
+                                });
+                              }
                               setIsDeekshaDropdownOpen(false);
-                              setDeekshaSearchQuery(""); // Clear search when option is selected
+                              setDeekshaSearchQuery("");
                             }}
                             style={{
                               padding: "10px",
@@ -685,6 +697,20 @@ const ApplicationDetails = ({ goToNextStep, tabName }) => {
                     </div>
                   )}
                 </div>
+                {showCustomDeeksha && (
+                  <input
+                    type="text"
+                    placeholder="Please specify your Mantra Diksha"
+                    value={customDeeksha}
+                    onChange={(e) => {
+                      setCustomDeeksha(e.target.value);
+                      handleInputChange({
+                        target: { name: "deeksha", value: e.target.value },
+                      });
+                    }}
+                    style={{ marginTop: "10px" }}
+                  />
+                )}
                 {errors.deeksha && (
                   <span className="error">{errors.deeksha}</span>
                 )}

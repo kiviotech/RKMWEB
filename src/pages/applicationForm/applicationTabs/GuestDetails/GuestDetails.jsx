@@ -30,6 +30,10 @@ const GuestDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
   const [deekshaSearchQuery, setDeekshaSearchQuery] = useState("");
   const deekshaDropdownRef = useRef(null);
 
+  // Add new state for managing custom deeksha inputs for each guest
+  const [showCustomDeekshas, setShowCustomDeekshas] = useState({});
+  const [customDeekshas, setCustomDeekshas] = useState({});
+
   const deekshaOptions = [
     "Srimat Swami Atmasthanandaji Maharaj",
     "Srimat Swami Bhuteshanandaji Maharaj",
@@ -54,6 +58,7 @@ const GuestDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
     "Srimat Swami Vimalatmanandaji Maharaj",
     "Srimat Swami Vireshwaranandaji Maharaj",
     "Srimat Swami Yatiswaranandaji Maharaj",
+    "Others",
     "none",
   ];
 
@@ -979,15 +984,23 @@ const GuestDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
                               <div
                                 key={option}
                                 onClick={() => {
-                                  handleGuestInputChange(
-                                    {
-                                      target: {
-                                        name: "guestDeeksha",
-                                        value: option,
-                                      },
-                                    },
-                                    index
-                                  );
+                                  if (option === "Others") {
+                                    setShowCustomDeekshas((prev) => ({
+                                      ...prev,
+                                      [index]: true,
+                                    }));
+                                    setCustomDeekshas((prev) => ({
+                                      ...prev,
+                                      [index]: "",
+                                    }));
+                                    setGuestData(index, "guestDeeksha", "");
+                                  } else {
+                                    setShowCustomDeekshas((prev) => ({
+                                      ...prev,
+                                      [index]: false,
+                                    }));
+                                    setGuestData(index, "guestDeeksha", option);
+                                  }
                                   setIsDeekshaDropdownOpen(false);
                                   setDeekshaSearchQuery("");
                                 }}
@@ -1005,6 +1018,24 @@ const GuestDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
                         </div>
                       )}
                     </div>
+
+                    {/* Add custom deeksha input field for guests */}
+                    {showCustomDeekshas[index] && (
+                      <input
+                        type="text"
+                        placeholder="Please specify your Mantra Diksha"
+                        value={customDeekshas[index] || ""}
+                        onChange={(e) => {
+                          setCustomDeekshas((prev) => ({
+                            ...prev,
+                            [index]: e.target.value,
+                          }));
+                          setGuestData(index, "guestDeeksha", e.target.value);
+                        }}
+                        style={{ marginTop: "10px" }}
+                      />
+                    )}
+
                     {errors[`guestDeeksha${index}`] && (
                       <span className="error">
                         {errors[`guestDeeksha${index}`]}

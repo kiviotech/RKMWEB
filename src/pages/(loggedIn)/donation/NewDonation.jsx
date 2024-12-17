@@ -17,6 +17,7 @@ import {
   fetchDonationById,
 } from "../../../../services/src/services/donationsService";
 import { useNavigate, useLocation } from "react-router-dom";
+import ExportDonations from "./ExportDonations";
 
 const NewDonation = () => {
   useEffect(() => {
@@ -152,12 +153,12 @@ const NewDonation = () => {
       "http://localhost:1337/uploads/medium_Whats_App_Image_2024_12_09_at_10_31_00_AM_d828ff9d49.jpeg",
   });
 
-  // Add this near the top of the component with other state declarations
+  // Add these refs at the top of your component with other refs
   const donorNameInputRef = useRef(null);
   const phoneInputRef = useRef(null);
-
-  // Add this ref near the top with other refs
-  const identityInputRef = useRef(null);
+  const deekshaDropdownRef = useRef(null);
+  const emailInputRef = useRef(null); // Add this line
+  const identityInputRef = useRef(null); // Add this line
 
   // Add this with your other state declarations at the top
   const [uniqueDonorId, setUniqueDonorId] = useState(() => {
@@ -173,7 +174,6 @@ const NewDonation = () => {
   // Add these state declarations
   const [isDeekshaDropdownOpen, setIsDeekshaDropdownOpen] = useState(false);
   const [deekshaSearchQuery, setDeekshaSearchQuery] = useState("");
-  const deekshaDropdownRef = useRef(null);
 
   // Add state for custom deeksha
   const [showCustomDeeksha, setShowCustomDeeksha] = useState(false);
@@ -642,27 +642,38 @@ const NewDonation = () => {
   };
 
   // Add handler for donation details updates
-  const handleDonationDetailsUpdate = (details) => {
-    if (currentReceipt?.receiptNumber) {
+  const handleDonationDetailsUpdate = (updates) => {
+    setCurrentReceipt((prev) => {
       const updatedDonationDetails = {
-        ...currentReceipt.donationDetails,
-        ...details,
-        // Ensure we preserve transaction details
-        transactionDetails: {
-          ...(currentReceipt.donationDetails?.transactionDetails || {}),
-          ...(details.transactionDetails || {}),
-        },
+        ...prev?.donationDetails,
+        ...updates,
       };
 
-      setCurrentReceipt({
-        ...currentReceipt,
-        donationDetails: updatedDonationDetails,
-      });
+      // If purpose is being updated and it's not "Other", clear otherPurpose
+      if (updates.purpose && updates.purpose !== "Other") {
+        updatedDonationDetails.otherPurpose = "";
+      }
 
-      updateDonationDetails(
-        currentReceipt.receiptNumber,
-        updatedDonationDetails
-      );
+      const updatedReceipt = {
+        ...prev,
+        donationDetails: updatedDonationDetails,
+      };
+
+      // If there's a receipt number, update the donation details
+      if (prev?.receiptNumber) {
+        updateDonationDetails(prev.receiptNumber, updatedDonationDetails);
+      }
+
+      return updatedReceipt;
+    });
+
+    // Clear validation errors when updating purpose
+    if (updates.purpose) {
+      setValidationErrors((prev) => ({
+        ...prev,
+        purpose: "",
+        otherPurpose: "",
+      }));
     }
   };
 
@@ -1522,10 +1533,7 @@ const NewDonation = () => {
   };
 
   const handleReset = () => {
-    // Generate new unique ID
-    setUniqueDonorId(`C${Math.floor(100000 + Math.random() * 900000)}`);
-
-    // Rest of your existing handleReset code...
+    // Reset donor details
     setDonorDetails({
       title: "Sri",
       name: "",
@@ -1542,9 +1550,52 @@ const NewDonation = () => {
       district: "",
       state: "",
       postOffice: "",
+      guestId: null,
+      panNumber: "",
     });
-    // ... rest of reset code
+
+    // Reset current receipt
+    setCurrentReceipt({
+      receiptNumber: null,
+      donationDetails: {
+        purpose: "",
+        donationType: "Others (Revenue)",
+        amount: "",
+        transactionType: "Cash",
+        inMemoryOf: "",
+        otherPurpose: "",
+        transactionDetails: {
+          ddDate: "",
+          ddNumber: "",
+          bankName: "",
+          branchName: "",
+        },
+      },
+    });
+
+    // Reset validation errors
+    setValidationErrors({});
+    setTransactionValidationErrors({
+      ddDate: "",
+      ddNumber: "",
+      bankName: "",
+      branchName: "",
+    });
+
+    // Reset other states
+    setShowPANField(false);
+    setSearchTerm("");
+    setShowDropdown(false);
+    setIsDeekshaDropdownOpen(false);
+    setDeekshaSearchQuery("");
+    setShowCustomDeeksha(false);
+    setCustomDeeksha("");
   };
+
+  // Add this useEffect to reset fields on navigation
+  useEffect(() => {
+    handleReset();
+  }, [location]);
 
   // Add this useEffect to fetch donation history when donor changes
   React.useEffect(() => {
@@ -1883,37 +1934,37 @@ const NewDonation = () => {
   };
 
   // Modify the donation amount change handler
-  const handleDonationAmountChange = (value) => {
-    // Only allow numbers and one decimal point
-    if (/^\d*\.?\d*$/.test(value)) {
-      const amount = parseFloat(value) || 0;
+  const handleDonationAmountChange = (e) => {
+    const value = e.target.value;
 
-      // Check if amount exceeds 9,999
-      setShowPANField(amount > 9999);
+    // Allow empty string or valid number with up to 2 decimal places
+    if (value === "" || /^\d*\.?\d{0,2}$/.test(value)) {
+      const numericValue = parseFloat(value) || 0;
+      setShowPANField(numericValue > 9999);
 
       const updatedDonationDetails = {
         ...currentReceipt?.donationDetails,
         amount: value,
       };
 
+      setCurrentReceipt((prev) => ({
+        ...prev,
+        donationDetails: updatedDonationDetails,
+      }));
+
       if (currentReceipt?.receiptNumber) {
-        const updatedReceipt = {
-          ...currentReceipt,
-          donationDetails: updatedDonationDetails,
-        };
-        setCurrentReceipt(updatedReceipt);
         updateDonationDetails(
           currentReceipt.receiptNumber,
           updatedDonationDetails
         );
       }
 
-      // Add amount validation
+      // Validate amount
       setValidationErrors((prev) => ({
         ...prev,
         amount: !value
           ? "Amount is required"
-          : amount <= 0
+          : numericValue <= 0
           ? "Amount must be greater than 0"
           : "",
       }));
@@ -2392,6 +2443,29 @@ const NewDonation = () => {
     }
   }, [donationData]);
 
+  // Add this useEffect to handle tab key navigation
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === "Tab") {
+        if (document.activeElement === donorNameInputRef.current) {
+          e.preventDefault();
+          phoneInputRef.current?.focus();
+        } else if (document.activeElement === phoneInputRef.current) {
+          e.preventDefault();
+          deekshaDropdownRef.current
+            ?.querySelector(".dropdown-header")
+            ?.focus();
+        } else if (document.activeElement === emailInputRef.current) {
+          e.preventDefault();
+          identityInputRef.current?.focus();
+        }
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
   return (
     <div className="donations-container">
       <div className="header">
@@ -2457,6 +2531,7 @@ const NewDonation = () => {
           >
             Recent Donations
           </button>
+          <ExportDonations />
         </div>
         <div>
           {" "}
@@ -2565,22 +2640,24 @@ const NewDonation = () => {
           </div>
 
           <div style={{ display: "flex", alignItems: "center", gap: "20px" }}>
-            <button
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "5px",
-                background: "transparent",
-                border: "none",
-                color: "#8C52FF",
-                cursor: "pointer",
-                fontSize: "14px",
-                fontWeight: "bold",
-              }}
-              onClick={handleReset}
-            >
-              <span style={{ fontSize: "16px" }}>↻</span> Reset
-            </button>
+            {!donationData && ( // Only show reset button if there's no donation data
+              <button
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "5px",
+                  background: "transparent",
+                  border: "none",
+                  color: "#8C52FF",
+                  cursor: "pointer",
+                  fontSize: "14px",
+                  fontWeight: "bold",
+                }}
+                onClick={handleReset}
+              >
+                <span style={{ fontSize: "16px" }}>↻</span> Reset
+              </button>
+            )}
           </div>
         </div>
       </div>
@@ -2642,6 +2719,7 @@ const NewDonation = () => {
 
                   <div className="searchable-dropdown" ref={dropdownRef}>
                     <input
+                      ref={donorNameInputRef}
                       type="text"
                       value={donorDetails.name}
                       onChange={(e) => {
@@ -2790,6 +2868,16 @@ const NewDonation = () => {
                         }
                       }, 100);
                     }}
+                    tabIndex="0" // Add this line
+                    onKeyDown={(e) => {
+                      // Add this handler
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        if (!shouldDisableFields()) {
+                          setIsDeekshaDropdownOpen(!isDeekshaDropdownOpen);
+                        }
+                      }
+                    }}
                     style={{
                       padding: "10px",
                       border: "1px solid #ccc",
@@ -2802,6 +2890,7 @@ const NewDonation = () => {
                         ? "#f3f4f6"
                         : "#FFF", // Add this line
                       opacity: shouldDisableFields() ? 0.7 : 1, // Add this line
+                      outline: "none", // Add this line to improve focus visibility
                     }}
                   >
                     <span>{donorDetails.mantraDiksha || "Select Deeksha"}</span>
@@ -2934,6 +3023,7 @@ const NewDonation = () => {
               <div className="form-group">
                 <label>Email ID</label>
                 <input
+                  ref={emailInputRef}
                   type="email"
                   value={donorDetails.email}
                   onChange={(e) => {
@@ -2975,6 +3065,7 @@ const NewDonation = () => {
                     <option value="DrivingLicense">Driving License</option>
                   </select>
                   <input
+                    ref={identityInputRef}
                     type="text"
                     value={donorDetails.identityNumber}
                     onChange={(e) => {
@@ -3483,7 +3574,9 @@ const NewDonation = () => {
                   });
                 }}
                 disabled={shouldDisableFields()}
-                className={`${shouldDisableFields() ? "disabled-input" : ""}`}
+                className={`${validationErrors.purpose ? "error" : ""} ${
+                  shouldDisableFields() ? "disabled-input" : ""
+                }`}
               >
                 <option value="">Select Purpose</option>
                 {selectedTab === "Math" ? (
@@ -3528,6 +3621,11 @@ const NewDonation = () => {
                   </>
                 )}
               </select>
+              {validationErrors.purpose && (
+                <span className="error-message">
+                  {validationErrors.purpose}
+                </span>
+              )}
             </div>
 
             {/* Add this conditional input field for both Math and Mission */}
@@ -3588,14 +3686,12 @@ const NewDonation = () => {
               <input
                 type="text"
                 value={currentReceipt?.donationDetails?.amount || ""}
-                onChange={(e) => {
-                  if (shouldDisableFields()) return;
-                  handleDonationAmountChange(e.target.value);
-                }}
+                onChange={handleDonationAmountChange}
                 disabled={shouldDisableFields()}
                 className={`${validationErrors.amount ? "error" : ""} ${
                   shouldDisableFields() ? "disabled-input" : ""
                 }`}
+                placeholder=""
               />
             </div>
             {showPANField && (

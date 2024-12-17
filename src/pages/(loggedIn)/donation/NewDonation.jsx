@@ -177,6 +177,10 @@ const NewDonation = () => {
   const [deekshaSearchQuery, setDeekshaSearchQuery] = useState("");
   const deekshaDropdownRef = useRef(null);
 
+  // Add state for custom deeksha
+  const [showCustomDeeksha, setShowCustomDeeksha] = useState(false);
+  const [customDeeksha, setCustomDeeksha] = useState("");
+
   // Add the deeksha options array
   const deekshaOptions = [
     "Srimat Swami Atmasthanandaji Maharaj",
@@ -202,6 +206,7 @@ const NewDonation = () => {
     "Srimat Swami Vimalatmanandaji Maharaj",
     "Srimat Swami Vireshwaranandaji Maharaj",
     "Srimat Swami Yatiswaranandaji Maharaj",
+    "Others",
     "none",
   ];
 
@@ -2871,10 +2876,20 @@ const NewDonation = () => {
                             <div
                               key={option}
                               onClick={() => {
-                                setDonorDetails((prev) => ({
-                                  ...prev,
-                                  mantraDiksha: option,
-                                }));
+                                if (option === "Others") {
+                                  setShowCustomDeeksha(true);
+                                  setCustomDeeksha("");
+                                  setDonorDetails({
+                                    ...donorDetails,
+                                    mantraDiksha: "",
+                                  });
+                                } else {
+                                  setShowCustomDeeksha(false);
+                                  setDonorDetails({
+                                    ...donorDetails,
+                                    mantraDiksha: option,
+                                  });
+                                }
                                 setIsDeekshaDropdownOpen(false);
                                 setDeekshaSearchQuery("");
                               }}
@@ -2892,6 +2907,24 @@ const NewDonation = () => {
                       </div>
                     )}
                 </div>
+
+                {/* Add custom deeksha input field */}
+                {showCustomDeeksha && (
+                  <input
+                    type="text"
+                    placeholder="Please specify your Mantra Diksha"
+                    value={customDeeksha}
+                    onChange={(e) => {
+                      setCustomDeeksha(e.target.value);
+                      setDonorDetails({
+                        ...donorDetails,
+                        mantraDiksha: e.target.value,
+                      });
+                    }}
+                    style={{ marginTop: "10px" }}
+                  />
+                )}
+
                 {validationErrors.mantraDiksha && (
                   <span className="error">{validationErrors.mantraDiksha}</span>
                 )}

@@ -1112,20 +1112,18 @@ const NewDonation = () => {
     >
   </p>
 
-  <div style="display: flex; gap: 10px; align-items: center">
-    <p style="margin: 0">
+  <div style="display: flex; align-items: center; flex-wrap: wrap;">
+    <p style="margin: 0;">
       By ${currentReceipt?.donationDetails?.transactionType || "Cash"}
     </p>
     ${
       currentReceipt?.donationDetails?.transactionType?.toLowerCase() !== "cash"
         ? `
-    <p style="margin: 0">
+    <p style="margin: 0; padding-left: 10px;">
       Dt. ${currentReceipt?.donationDetails?.transactionDetails?.ddDate || ""}
     </p>
-    <p style="margin: 0">
-      Bank: ${
-        currentReceipt?.donationDetails?.transactionDetails?.bankName || ""
-      }
+    <p style="margin: 0; width: 100%;">
+      On ${currentReceipt?.donationDetails?.transactionDetails?.bankName || ""}
     </p>
     `
         : ""

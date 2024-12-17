@@ -1152,7 +1152,7 @@ const NewDonation = () => {
     >
   </p>
    ${
-     ["Bank Transfer", "Cheque"].includes(
+     ["Bank Transfer", "Cheque", "DD", "Electronic Modes"].includes(
        currentReceipt?.donationDetails?.transactionType
      )
        ? `<div class="stamp-container">

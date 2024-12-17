@@ -465,15 +465,64 @@ const GuestDetailsPopup = ({
                         {guestDetails?.guests?.map((guest) => (
                           <tr
                             key={guest.id}
-                            className={
-                              selectedRow === guest.id ? "selected" : ""
-                            }
                             onClick={() => handleRowClick(guest.id)}
                           >
-                            <td>{guest.name || "N/A"}</td>
-                            <td>{guest.age || "N/A"}</td>
-                            <td>{guest.gender || "N/A"}</td>
-                            <td>{guest.relation || "N/A"}</td>
+                            <td
+                              style={{
+                                backgroundColor:
+                                  selectedRow === guest.id
+                                    ? "#fff2ea"
+                                    : "transparent",
+                                color:
+                                  selectedRow === guest.id
+                                    ? "black"
+                                    : "#4b4b4b",
+                              }}
+                            >
+                              {guest.name || "N/A"}
+                            </td>
+                            <td
+                              style={{
+                                backgroundColor:
+                                  selectedRow === guest.id
+                                    ? "#fff2ea"
+                                    : "transparent",
+                                color:
+                                  selectedRow === guest.id
+                                    ? "black"
+                                    : "#4b4b4b",
+                              }}
+                            >
+                              {guest.age || "N/A"}
+                            </td>
+                            <td
+                              style={{
+                                backgroundColor:
+                                  selectedRow === guest.id
+                                    ? "#fff2ea"
+                                    : "transparent",
+                                color:
+                                  selectedRow === guest.id
+                                    ? "black"
+                                    : "#4b4b4b",
+                              }}
+                            >
+                              {guest.gender || "N/A"}
+                            </td>
+                            <td
+                              style={{
+                                backgroundColor:
+                                  selectedRow === guest.id
+                                    ? "#fff2ea"
+                                    : "transparent",
+                                color:
+                                  selectedRow === guest.id
+                                    ? "black"
+                                    : "#4b4b4b",
+                              }}
+                            >
+                              {guest.relation || "N/A"}
+                            </td>
                           </tr>
                         ))}
                       </tbody>

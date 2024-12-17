@@ -821,6 +821,27 @@ const BookRoom = () => {
       return count;
     }, 0);
 
+    const handleBedClick = (bedIndex, isFilled) => {
+      if (isFilled) {
+        // Log all guest details for the room
+        console.log("Room Occupancy Details:", {
+          roomNumber: currentRoom.name,
+          date: currentDate,
+          totalBeds: beds,
+          occupiedBeds: roomGuests.length,
+          allGuests: roomGuests.map((guest) => ({
+            ...guest.attributes,
+            guestId: guest.id,
+          })),
+        });
+        return;
+      }
+
+      // Existing bed allocation logic for unoccupied beds
+      const bedId = `${roomIndex}-${dateIndex}-${bedIndex}`;
+      handleBedAllocation(bedIndex, bedId, isFilled, roomIndex, dateIndex);
+    };
+
     return (
       <div className={`bed-grid beds-${beds}`}>
         {[...Array(beds)].map((_, bedIndex) => {
@@ -844,15 +865,7 @@ const BookRoom = () => {
               key={bedId}
               className={`bed-icon ${isFilled ? "filled" : "empty"}`}
               title={isFilled ? "Occupied" : "Available"}
-              onClick={() =>
-                handleBedAllocation(
-                  bedIndex,
-                  bedId,
-                  isFilled,
-                  roomIndex,
-                  dateIndex
-                )
-              }
+              onClick={() => handleBedClick(bedIndex, isFilled)}
               onMouseEnter={(e) => {
                 if (isFilled) {
                   handleBedHover(e, bedIndex);

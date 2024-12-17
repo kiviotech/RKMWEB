@@ -289,6 +289,9 @@ const AllDonationDetails = () => {
               .left {
                 padding-left: 10px;
               }
+              .right {
+                padding-right: 10px;
+              }
             </style>
           </head>
           <body>

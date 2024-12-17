@@ -528,6 +528,22 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
               <div className="form-group">
                 <label>
                   Departure Time <span className="required"> *</span>
+                  {Math.ceil(
+                    (new Date(formData.departureDate) -
+                      new Date(formData.visitDate)) /
+                      (1000 * 60 * 60 * 24)
+                  ) === 3 && (
+                    <span
+                      style={{
+                        marginLeft: "5px",
+                        fontSize: "14px",
+                        color: "#666",
+                      }}
+                    >
+                      (You have to depart by 7:30 a.m, as only 3 nights are
+                      allowed for accommodation)
+                    </span>
+                  )}
                 </label>
                 <select
                   name="departureTime"

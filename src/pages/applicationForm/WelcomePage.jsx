@@ -29,7 +29,7 @@ const WelcomePage = () => {
               className="book-button"
               onClick={() => navigate("/application-form")}
             >
-              Please Proceed For Accommodation Request
+              Click Here For Accommodation Request
             </button>
           </div>
         </div>

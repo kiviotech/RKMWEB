@@ -12,6 +12,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { BsListUl } from "react-icons/bs";
 import { IoGrid } from "react-icons/io5";
 import { updateBookingRequestById } from "../../../../services/src/services/bookingRequestService";
+import ConfirmationEmailModal from "../Email/ConfirmationEmailModal";
 
 // Add these new components at the top of the file
 const AllocatedGuestsTable = ({
@@ -252,8 +253,6 @@ const RoomListView = ({ rooms, activeTab, onRoomSelect, selectedGuests }) => {
   }, {});
 
   const normalizedActiveTab = activeTab?.toLowerCase().trim();
-
-  // Filter rooms based on the normalized activeTab
   const filteredRooms = roomsByCategory[normalizedActiveTab] || [];
 
   const getCategoryColor = (category) => {
@@ -303,8 +302,12 @@ const RoomListView = ({ rooms, activeTab, onRoomSelect, selectedGuests }) => {
                   }}
                   style={{ cursor: isDisabled ? "not-allowed" : "pointer" }}
                 >
-                  <div className="room-number">{room.name}</div>
-                  <div className="available-count">{room.availableBeds}</div>
+                  <div className="room-info">
+                    <div className="room-number">{room.name}</div>
+                    <div className="bed-count" style={{ textAlign: "center" }}>
+                      {room.availableBeds}/{room.beds}
+                    </div>
+                  </div>
                 </div>
               );
             })}
@@ -314,119 +317,6 @@ const RoomListView = ({ rooms, activeTab, onRoomSelect, selectedGuests }) => {
         <div>No rooms available for this category.</div>
       )}
     </div>
-  );
-};
-
-// Remove the Modal import and add this custom modal component
-const CustomModal = ({ isOpen, onClose, children }) => {
-  if (!isOpen) return null;
-
-  const handleBackdropClick = (e) => {
-    if (e.target === e.currentTarget) {
-      onClose();
-    }
-  };
-
-  return (
-    <div className="modal-backdrop" onClick={handleBackdropClick}>
-      <div className="modal-content">{children}</div>
-    </div>
-  );
-};
-
-// Update the email modal component
-const ConfirmationEmailModal = ({
-  isOpen,
-  onClose,
-  guestData,
-  arrivalDate,
-  departureDate,
-  onSend,
-}) => {
-  const navigate = useNavigate();
-  const [emailContent, setEmailContent] = useState(`Dear Devotee,
-
-Namoskar,
-
-We have received, the below email and noted the contents. You are welcome to stay at our Guest House during the mentioned period i.e arrival - ${arrivalDate} and departure - ${departureDate} after breakfast at 07.30 a.m. The accommodation will be kept reserved for - devotees
-
-Please bring a hard copy of this letter for ready reference along with your ID Proof or copy of your ID Proof (Aadhaar/ PAN/ Voter Card/Passport) Also, try to reach the Math Office to do the registration formalities between 09.00 to 11.00 a.m. on the day of arrival
-
-May Sri Ramakrishna, Holy Mother Sri Sarada Devi and Swami Vivekananda bless you all !
-
-Pranam and namaskar again.
-
-Yours sincerely,
-
-Swami Lokahanananda
-Adhyaksha
-RAMAKRISHNA MATH & RAMAKRISHNA MISSION, KAMANKUNUR`);
-
-  useEffect(() => {
-    setEmailContent((prevContent) => {
-      return prevContent.replace(
-        /arrival - .* and departure - .*/,
-        `arrival - ${arrivalDate} and departure - ${departureDate}`
-      );
-    });
-  }, [arrivalDate, departureDate]);
-
-  const handleSend = async () => {
-    try {
-      // Call the onSend prop function and wait for it to complete
-      await onSend();
-      onClose();
-      navigate("/Requests");
-    } catch (error) {
-      console.error("Error sending email:", error);
-      alert("Failed to send email and allocate rooms. Please try again.");
-    }
-  };
-
-  return (
-    <CustomModal isOpen={isOpen} onClose={onClose}>
-      <div className="email-template">
-        <div className="email-header">
-          <span className="close-button" onClick={onClose}>
-            ×
-          </span>
-          <div className="email-fields">
-            <div className="field">
-              <span>From:</span>
-              <span className="email-address">emailaddress@gmail.com</span>
-            </div>
-            <div className="field">
-              <span>To:</span>
-              <div className="recipient-tags">
-                {guestData?.additionalGuests?.map((guest, index) => (
-                  <div key={index} className="recipient-chip">
-                    <div className="avatar">A</div>
-                    <span className="name">{guest.name}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="email-content">
-          <textarea
-            value={emailContent}
-            onChange={(e) => setEmailContent(e.target.value)}
-            className="email-content-textarea"
-          />
-        </div>
-
-        <div className="email-footer">
-          <button onClick={onClose} className="cancel-button">
-            Cancel
-          </button>
-          <button onClick={handleSend} className="send-button">
-            Send
-          </button>
-        </div>
-      </div>
-    </CustomModal>
   );
 };
 

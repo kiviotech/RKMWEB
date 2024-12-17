@@ -199,6 +199,32 @@ const AllDonation = ({
           createdBy:
             donation.attributes.receipt_detail?.data?.attributes?.createdBy
               ?.data?.id || donation.attributes.createdBy?.data?.id,
+          // Additional fields
+          inMemoryOf: donation.attributes.InMemoryOf,
+          bankName: donation.attributes.bankName,
+          ddchDate: donation.attributes.ddch_date,
+          ddchNumber: donation.attributes.ddch_number,
+          purpose: donation.attributes.purpose,
+          transactionType: donation.attributes.transactionType,
+          type: donation.attributes.type,
+          // Guest details
+          guestDetails: {
+            aadhaarNumber:
+              donation.attributes.guest?.data?.attributes?.aadhaar_number,
+            address: donation.attributes.guest?.data?.attributes?.address,
+            age: donation.attributes.guest?.data?.attributes?.age,
+            arrivalDate:
+              donation.attributes.guest?.data?.attributes?.arrival_date,
+            departureDate:
+              donation.attributes.guest?.data?.attributes?.departure_date,
+            deeksha: donation.attributes.guest?.data?.attributes?.deeksha,
+            email: donation.attributes.guest?.data?.attributes?.email,
+            gender: donation.attributes.guest?.data?.attributes?.gender,
+            occupation: donation.attributes.guest?.data?.attributes?.occupation,
+            relationship:
+              donation.attributes.guest?.data?.attributes?.relationship,
+            guestStatus: donation.attributes.guest?.data?.attributes?.status,
+          },
         },
       },
     });

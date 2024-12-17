@@ -512,15 +512,6 @@ const modalStyles = `
     background-color: rgba(0,0,0,0.4);
 }
 
-.modal-content {
-    background-color: #fefefe;
-    padding: 30px;
-    border-radius: 8px;
-    width: 400px;
-    text-align: center;
-    position: relative;
-}
-
 .animate-slide {
     animation: slideIn 0.3s ease-out forwards;
 }

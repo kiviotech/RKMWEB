@@ -19,14 +19,12 @@ import {
 import { useNavigate, useLocation } from "react-router-dom";
 
 const NewDonation = () => {
-  // Add this useEffect at the top of your component, after all the state declarations
   useEffect(() => {
-    // Delay the scroll slightly to ensure the DOM is ready
     const timeoutId = setTimeout(() => {
       window.scrollTo({
         top: 0,
         left: 0,
-        behavior: "instant", // Force immediate scroll
+        behavior: "instant",
       });
 
       // Backup scroll
@@ -256,12 +254,13 @@ const NewDonation = () => {
         setCurrentReceipt({
           receiptNumber: receiptData.Receipt_number,
           donationDetails: {
-            donationType: "Others (Revenue)", // Set appropriate donation type if available
+            donationType: donationData.attributes.type || "Others (Revenue)", // Use type field here
+            purpose: donationData.attributes.purpose || "General", // Add purpose field
             amount: donationData.attributes.donationAmount,
             transactionType:
               donationData.attributes.transactionType.toLowerCase(),
             inMemoryOf:
-              donationData.attributes.InMemoryOf || "Others (Revenue)", // Set default value here
+              donationData.attributes.InMemoryOf || "Others (Revenue)",
             transactionDetails: {
               ddNumber: donationData.attributes.ddch_number || "",
               ddDate: donationData.attributes.ddch_date || "",
@@ -4221,18 +4220,18 @@ const NewDonation = () => {
 
         .custom-dropdown {
           width: 100%;
-          height: 40px; // Set a fixed height
+          height: 40px;
         }
 
         .dropdown-header {
-          height: 38px; // Slightly less than container to account for borders
+          height: 38px;
           min-height: 38px;
           max-height: 38px;
           overflow: hidden;
           white-space: nowrap;
           text-overflow: ellipsis;
-          padding: 0 10px !important; // Adjust padding to maintain height
-          line-height: 38px; // Center text vertically
+          padding: 0 10px !important;
+          line-height: 38px;
         }
 
         .dropdown-options {
@@ -4272,9 +4271,8 @@ const NewDonation = () => {
           background-color: #f5f5f5;
         }
 
-        // Ensure form groups maintain consistent height
         .form-group {
-          min-height: 70px; // Adjust this value based on your layout
+          min-height: 70px;
           margin-bottom: 15px;
         }
       `}</style>

@@ -3,8 +3,12 @@ import AllDonation from "./AllDonation";
 import "./AllDonationDetails.scss";
 import { fetchDonations } from "../../../../services/src/services/donationsService";
 import * as XLSX from "xlsx";
+import { useLocation } from "react-router-dom";
 
 const AllDonationDetails = () => {
+  const location = useLocation();
+  const donationData = location.state?.donationData;
+
   const [searchTerm, setSearchTerm] = useState("");
   const [dateRange, setDateRange] = useState({
     startDate: "",

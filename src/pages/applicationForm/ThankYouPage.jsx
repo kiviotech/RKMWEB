@@ -11,6 +11,15 @@ const ThankYouPage = () => {
       top: 0,
       behavior: "smooth",
     });
+
+    window.history.pushState(null, null, window.location.href);
+    window.onpopstate = function () {
+      window.history.pushState(null, null, window.location.href);
+    };
+
+    return () => {
+      window.onpopstate = null;
+    };
   }, []);
 
   return (

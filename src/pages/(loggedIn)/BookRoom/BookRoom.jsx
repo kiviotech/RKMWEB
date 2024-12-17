@@ -430,6 +430,47 @@ RAMAKRISHNA MATH & RAMAKRISHNA MISSION, KAMANKUNUR`);
   );
 };
 
+// Add this new date formatting helper function
+const formatDateDDMMYYYY = (dateString) => {
+  const date = new Date(dateString);
+  const day = date.getDate().toString().padStart(2, "0");
+  const month = (date.getMonth() + 1).toString().padStart(2, "0");
+  const year = date.getFullYear();
+  return `${day}-${month}-${year}`;
+};
+
+// Add this new component for the guest popup
+const GuestDetailsPopup = ({ guest, position }) => {
+  if (!guest) return null;
+
+  return (
+    <div
+      className="guest-popup"
+      style={{
+        position: "absolute",
+        left: `${position.x}px`,
+        top: `${position.y}px`,
+        zIndex: 1000,
+        backgroundColor: "white",
+        padding: "10px",
+        borderRadius: "4px",
+        boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+        minWidth: "200px",
+      }}
+    >
+      <h4>{guest.attributes.name}</h4>
+      <div>Age: {guest.attributes.age}</div>
+      <div>Gender: {guest.attributes.gender}</div>
+      <div>Phone: {guest.attributes.phone_number}</div>
+      <div>Email: {guest.attributes.email}</div>
+      <div>Arrival: {formatDateDDMMYYYY(guest.attributes.arrival_date)}</div>
+      <div>
+        Departure: {formatDateDDMMYYYY(guest.attributes.departure_date)}
+      </div>
+    </div>
+  );
+};
+
 const BookRoom = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -462,6 +503,8 @@ const BookRoom = () => {
   const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
   const [confirmedGuestsForAllocation, setConfirmedGuestsForAllocation] =
     useState([]);
+  const [hoveredGuestData, setHoveredGuestData] = useState(null);
+  const [popupPosition, setPopupPosition] = useState({ x: 0, y: 0 });
 
   useEffect(() => {
     if (guestData) {
@@ -741,6 +784,7 @@ const BookRoom = () => {
     setSelectedBedData(bedData);
   };
 
+  // Update the getBeds function
   const getBeds = (beds, roomIndex, dateIndex) => {
     const currentRoom = filteredRooms[roomIndex];
     const originalRoomData = roomsData.find((r) => r.id === currentRoom.id);
@@ -748,6 +792,22 @@ const BookRoom = () => {
 
     // Get all guests for this room
     const roomGuests = originalRoomData?.attributes?.guests?.data || [];
+
+    const handleBedHover = (event, bedIndex) => {
+      if (bedIndex < roomGuests.length) {
+        const guest = roomGuests[bedIndex];
+        const rect = event.currentTarget.getBoundingClientRect();
+        setPopupPosition({
+          x: rect.right - 30,
+          y: rect.top - 200,
+        });
+        setHoveredGuestData(guest);
+      }
+    };
+
+    const handleBedLeave = () => {
+      setHoveredGuestData(null);
+    };
 
     // Calculate occupied beds for the current date
     const occupiedBedsCount = roomGuests.reduce((count, guest) => {
@@ -779,54 +839,38 @@ const BookRoom = () => {
             bedImage = emptyBedImage;
           }
 
-          const handleBedClick = () => {
-            if (isFilled) {
-              // Only handle occupied beds
-              const roomData = {
-                roomNumber: currentRoom.name,
-                roomType: currentRoom.type,
-                roomCategory: currentRoom.category,
-                totalBeds: currentRoom.beds,
-                availableBeds: currentRoom.availableBeds,
-                bedIndex: bedIndex,
-                date: currentDate,
-                isOccupied: true,
-                rawAttributes: originalRoomData?.attributes || {},
-                guests: roomGuests,
-              };
-              console.log("Occupied Bed Data:", roomData);
-
-              const bedData = {
-                bed: {
-                  index: bedIndex,
-                  id: bedId,
-                  status: "occupied",
-                  date: currentDate,
-                },
-                room: originalRoomData,
-              };
-              setSelectedBedData(bedData);
-            } else {
-              // For unoccupied beds, call the original allocation logic
-              handleBedAllocation(
-                bedIndex,
-                bedId,
-                isFilled,
-                roomIndex,
-                dateIndex
-              );
-            }
-          };
-
           return (
             <div
               key={bedId}
               className={`bed-icon ${isFilled ? "filled" : "empty"}`}
               title={isFilled ? "Occupied" : "Available"}
-              onClick={handleBedClick}
-              onMouseEnter={() => !isFilled && handleMouseEnter(bedId)}
-              onMouseLeave={() => !isFilled && handleMouseLeave(bedId)}
-              style={{ cursor: "pointer" }}
+              onClick={() =>
+                handleBedAllocation(
+                  bedIndex,
+                  bedId,
+                  isFilled,
+                  roomIndex,
+                  dateIndex
+                )
+              }
+              onMouseEnter={(e) => {
+                if (isFilled) {
+                  handleBedHover(e, bedIndex);
+                } else {
+                  !isFilled && handleMouseEnter(bedId);
+                }
+              }}
+              onMouseLeave={() => {
+                if (isFilled) {
+                  handleBedLeave();
+                } else {
+                  !isFilled && handleMouseLeave(bedId);
+                }
+              }}
+              style={{
+                cursor: isFilled ? "default" : "pointer",
+                position: "relative",
+              }}
             >
               <img
                 src={bedImage}
@@ -838,6 +882,12 @@ const BookRoom = () => {
             </div>
           );
         })}
+        {hoveredGuestData && (
+          <GuestDetailsPopup
+            guest={hoveredGuestData}
+            position={popupPosition}
+          />
+        )}
       </div>
     );
   };
@@ -927,6 +977,7 @@ const BookRoom = () => {
     const getRooms = async () => {
       try {
         const response = await fetchRooms();
+        console.log("Response:", response.data);
         const processedRooms = response.data.map((room) => ({
           ...room,
           attributes: {

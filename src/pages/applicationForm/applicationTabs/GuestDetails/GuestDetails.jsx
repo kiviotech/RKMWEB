@@ -243,10 +243,12 @@ const GuestDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
       case "guestNumber":
         if (!value) {
           setErrors(`guestNumber${index}`, "Phone number is required");
+        } else if (value.length < 10) {
+          setErrors(`guestNumber${index}`, "Phone number must be 10 digits");
         } else if (!/^\d{10}$/.test(value)) {
           setErrors(
             `guestNumber${index}`,
-            "Phone number must be 10 digits long"
+            "Phone number must contain exactly 10 digits"
           );
         } else {
           setErrors(`guestNumber${index}`, "");
@@ -406,6 +408,14 @@ const GuestDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
         }
       }
     } else {
+      if (name === "guestNumber") {
+        // Only allow digits and limit to 10 characters
+        const numericValue = value.replace(/\D/g, "").slice(0, 10);
+        setGuestData(index, name, numericValue);
+        validateGuestField(index, name, numericValue);
+        return;
+      }
+
       setGuestData(index, name, value);
       console.log("Guest Input Change:", {
         guestIndex: index,
@@ -857,7 +867,10 @@ const GuestDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
                             index
                           );
                         }}
-                        placeholder="921234902"
+                        placeholder="Phone Number"
+                        maxLength="10"
+                        pattern="\d{10}"
+                        title="Please enter exactly 10 digits"
                       />
                     </div>
                     {errors[`guestNumber${index}`] && (
@@ -896,11 +909,6 @@ const GuestDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
                         className="dropdown-header"
                         onClick={() => {
                           setIsDeekshaDropdownOpen(!isDeekshaDropdownOpen);
-                          setTimeout(() => {
-                            if (searchInputRef.current) {
-                              searchInputRef.current.focus();
-                            }
-                          }, 100);
                         }}
                         style={{
                           padding: "10px",
@@ -910,34 +918,13 @@ const GuestDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
                           display: "flex",
                           justifyContent: "space-between",
                           alignItems: "center",
-                          backgroundColor: "#FFF",
                         }}
                       >
                         <span>
                           {formData.guests[index].guestDeeksha ||
                             "Select Deeksha"}
                         </span>
-                        <svg
-                          width="16"
-                          height="16"
-                          viewBox="0 0 16 16"
-                          fill="none"
-                          xmlns="http://www.w3.org/2000/svg"
-                          style={{
-                            transform: isDeekshaDropdownOpen
-                              ? "rotate(180deg)"
-                              : "rotate(0deg)",
-                            transition: "transform 0.2s ease",
-                          }}
-                        >
-                          <path
-                            d="M4 6L8 10L12 6"
-                            stroke="#6B7280"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                          />
-                        </svg>
+                        <span>▼</span>
                       </div>
                       {isDeekshaDropdownOpen && (
                         <div
@@ -993,6 +980,7 @@ const GuestDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
                                       ...prev,
                                       [index]: "",
                                     }));
+                                    // Don't set deeksha value here, wait for custom input
                                     setGuestData(index, "guestDeeksha", "");
                                   } else {
                                     setShowCustomDeekshas((prev) => ({
@@ -1019,18 +1007,20 @@ const GuestDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
                       )}
                     </div>
 
-                    {/* Add custom deeksha input field for guests */}
+                    {/* Custom deeksha input - this value will be stored in the database */}
                     {showCustomDeekshas[index] && (
                       <input
                         type="text"
                         placeholder="Please specify your Mantra Diksha"
                         value={customDeekshas[index] || ""}
                         onChange={(e) => {
+                          const value = e.target.value;
                           setCustomDeekshas((prev) => ({
                             ...prev,
-                            [index]: e.target.value,
+                            [index]: value,
                           }));
-                          setGuestData(index, "guestDeeksha", e.target.value);
+                          // Directly set the custom value as guestDeeksha
+                          setGuestData(index, "guestDeeksha", value);
                         }}
                         style={{ marginTop: "10px" }}
                       />

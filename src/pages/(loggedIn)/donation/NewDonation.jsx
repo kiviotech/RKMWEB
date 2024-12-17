@@ -2879,10 +2879,7 @@ const NewDonation = () => {
                                 if (option === "Others") {
                                   setShowCustomDeeksha(true);
                                   setCustomDeeksha("");
-                                  setDonorDetails({
-                                    ...donorDetails,
-                                    mantraDiksha: "",
-                                  });
+                                  // Don't set mantraDiksha here, wait for custom input
                                 } else {
                                   setShowCustomDeeksha(false);
                                   setDonorDetails({
@@ -2908,17 +2905,19 @@ const NewDonation = () => {
                     )}
                 </div>
 
-                {/* Add custom deeksha input field */}
+                {/* Custom deeksha input - this value will be stored in the database */}
                 {showCustomDeeksha && (
                   <input
                     type="text"
                     placeholder="Please specify your Mantra Diksha"
                     value={customDeeksha}
                     onChange={(e) => {
-                      setCustomDeeksha(e.target.value);
+                      const value = e.target.value;
+                      setCustomDeeksha(value);
+                      // Directly set the custom value as mantraDiksha
                       setDonorDetails({
                         ...donorDetails,
-                        mantraDiksha: e.target.value,
+                        mantraDiksha: value, // This is what gets stored in the database
                       });
                     }}
                     style={{ marginTop: "10px" }}

@@ -212,11 +212,10 @@ const ApplicationDetails = ({ goToNextStep, tabName }) => {
       case "phoneNumber":
         if (!value) {
           setErrors(name, "Phone number is required");
-        } else if (!/^\d{1,10}$/.test(value)) {
-          setErrors(
-            name,
-            "Phone number must contain only digits and be up to 10 digits long"
-          );
+        } else if (value.length < 10) {
+          setErrors(name, "Phone number must be 10 digits");
+        } else if (!/^\d{10}$/.test(value)) {
+          setErrors(name, "Phone number must contain exactly 10 digits");
         } else {
           setErrors(name, "");
         }
@@ -262,6 +261,15 @@ const ApplicationDetails = ({ goToNextStep, tabName }) => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
+
+    if (name === "phoneNumber") {
+      // Only allow digits and limit to 10 characters
+      const numericValue = value.replace(/\D/g, "").slice(0, 10);
+      setFormData(name, numericValue);
+      validateField(name, numericValue);
+      return;
+    }
+
     setFormData(name, value);
     console.log("Input Change:", { field: name, value });
 
@@ -538,18 +546,11 @@ const ApplicationDetails = ({ goToNextStep, tabName }) => {
                     type="text"
                     name="phoneNumber"
                     value={formData.phoneNumber}
-                    onChange={(e) => {
-                      const value = e.target.value
-                        .replace(/\D/g, "")
-                        .slice(0, 10);
-                      handleInputChange({
-                        target: {
-                          name: "phoneNumber",
-                          value,
-                        },
-                      });
-                    }}
+                    onChange={handleInputChange}
                     placeholder="921234902"
+                    maxLength="10"
+                    pattern="\d{10}"
+                    title="Please enter exactly 10 digits"
                   />
                 </div>
                 {errors.phoneNumber && (
@@ -703,9 +704,10 @@ const ApplicationDetails = ({ goToNextStep, tabName }) => {
                     placeholder="Please specify your Mantra Diksha"
                     value={customDeeksha}
                     onChange={(e) => {
-                      setCustomDeeksha(e.target.value);
+                      const value = e.target.value;
+                      setCustomDeeksha(value);
                       handleInputChange({
-                        target: { name: "deeksha", value: e.target.value },
+                        target: { name: "deeksha", value: value },
                       });
                     }}
                     style={{ marginTop: "10px" }}

@@ -997,40 +997,58 @@ const NewDonation = () => {
               .receipt-details {
                 margin: 70px 0px;
                 line-height: 2;
-                font-size: 16px;  /* Increased from 14px */
+                font-size: 16px;
               }
 
               .receipt-row {
                 display: flex;
                 justify-content: space-between;
                 margin-bottom: 5px;
-                font-size: 16px;  /* Increased from 14px */
+                font-size: 16px;
               }
 
               .donor-details p {
                 margin: 0;
                 line-height: 2;
-                font-size: 16px;  /* Increased from 14px */
+                font-size: 16px;
               }
 
               .donor-details p:not(:first-child) {
-                margin-left: 40px;  /* Reduced from 160px to 40px */
+                margin-left: 40px;
               }
 
               .payment-details p {
                 margin: 0;
                 line-height: 2;
-                font-size: 16px;  /* Increased from 14px */
+                font-size: 16px;
               }
 
               .amount {
-                font-size: 18px;  /* Increased from 14px */
-                font-weight: bold;  /* Changed from normal */
+                font-size: 18px;
+                font-weight: bold;
               }
 
-              /* Add styles for emphasized text */
               b {
-                font-size: 18px;  /* Make bold text slightly larger */
+                font-size: 18px;
+              }
+              .stamp-container {
+                position: relative;
+                width: 100%;
+              }
+
+              .it-stamp {
+                position: absolute;
+                right: 20px;
+                top: -95px;
+                transform: translateY(-50%);
+                border: 2px solid #000;
+                padding: 8px;
+                font-size: 11px;
+                font-weight: 600;
+                line-height: 1.2;
+                max-width: 400px;
+                text-align: center;
+                background-color: transparent;
               }
             </style>
           </head>
@@ -1135,6 +1153,20 @@ const NewDonation = () => {
       })}</b
     >
   </p>
+   ${
+     ["Bank Transfer", "Cheque"].includes(
+       currentReceipt?.donationDetails?.transactionType
+     )
+       ? `<div class="stamp-container">
+                <div class="it-stamp">
+                  Donations are exempt under Clause (i) of first proviso to<br>
+                  sub-section (5) of Section 80G of Income Tax Act 1961,<br>
+                  vide Provisional Approval No. AAAJR1017PF2021A<br>
+                  dated 24-05-2021 valid from AY 2022-23 to AY 2026-27
+                </div>
+              </div>`
+       : ""
+   }
 </div>
 
               </div>

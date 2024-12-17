@@ -237,7 +237,7 @@ const RoomListView = ({ rooms, activeTab, onRoomSelect, selectedGuests }) => {
     if (category.includes("guest")) {
       normalizedCategory = "guest house";
     } else if (category === "f") {
-      normalizedCategory = "f";
+      normalizedCategory = "peerless flat";
     } else if (category.includes("yatri")) {
       normalizedCategory = "yatri niwas";
     } else {
@@ -486,7 +486,7 @@ const BookRoom = () => {
   const [sortType, setSortType] = useState(""); // State to store the selected room type
   const [clickedBeds, setClickedBeds] = useState({
     "Guest house": {},
-    F: {},
+    "Peerless Flat": {},
     "Yatri Niwas": {},
   });
   const [hoveredBeds, setHoveredBeds] = useState({});
@@ -1009,8 +1009,8 @@ const BookRoom = () => {
         .toLowerCase();
       const activeTabLower = activeTab.toLowerCase();
 
-      // Special handling for F category
-      if (activeTabLower === "f") {
+      // Special handling for Peerless Flat category
+      if (activeTabLower === "peerless flat") {
         return roomCategory === "f";
       }
 
@@ -1038,7 +1038,10 @@ const BookRoom = () => {
       beds: parseInt(room.attributes.beds) || 0,
       availableBeds: parseInt(room.attributes.available_beds) || 0,
       type: room.attributes.room_type,
-      category: room.attributes.room_category,
+      category:
+        room.attributes.room_category === "f"
+          ? "Peerless Flat"
+          : room.attributes.room_category,
       id: room.id,
       rawAttributes: room.attributes,
     }));
@@ -1257,7 +1260,7 @@ const BookRoom = () => {
     // Reset all bed selections
     setClickedBeds({
       "Guest house": {},
-      F: {},
+      "Peerless Flat": {},
       "Yatri Niwas": {},
     });
 
@@ -1278,7 +1281,7 @@ const BookRoom = () => {
         <div className="booking-controls-group">
           {isToggled ? (
             <div className="booking-tab-group">
-              {["Guest house", "F", "Yatri Niwas"].map((tab) => (
+              {["Guest house", "Peerless Flat", "Yatri Niwas"].map((tab) => (
                 <button
                   key={tab}
                   className={`tab ${activeTab === tab ? "active" : ""}`}
@@ -1290,7 +1293,7 @@ const BookRoom = () => {
             </div>
           ) : (
             <div className="booking-tab-group">
-              {["Guest house", "F", "Yatri Niwas"].map((tab) => (
+              {["Guest house", "Peerless Flat", "Yatri Niwas"].map((tab) => (
                 <button
                   key={tab}
                   className={`tab ${activeTab === tab ? "active" : ""}`}

@@ -352,6 +352,15 @@ const AllDonationDetails = () => {
                                     <div>${new Date(
                                       donation.attributes.createdAt
                                     ).toLocaleDateString()}</div>
+                                    <div>
+                                      ${donation.attributes.donorName || ""}
+                                      ${
+                                        donation.attributes.status ===
+                                        "cancelled"
+                                          ? " Cancelled"
+                                          : ""
+                                      }
+                                    </div>
                                     <div>${
                                       donation.attributes.ddch_date || ""
                                     }</div>
@@ -359,9 +368,6 @@ const AllDonationDetails = () => {
                                       donation.attributes.bankName
                                         ? `${donation.attributes.bankName} - ${donation.attributes.ddch_number}`
                                         : ""
-                                    }</div>
-                                    <div>${
-                                      donation.attributes.donorName || ""
                                     }</div>
                                     <div class="amount">Rs. ${
                                       donation.attributes.donationAmount

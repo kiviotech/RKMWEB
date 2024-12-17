@@ -1015,52 +1015,7 @@ const Donation = () => {
             </div>
             <button
               className="view-all"
-              onClick={() => {
-                navigate("/allDonationDetails", {
-                  state: {
-                    donationData: {
-                      receiptNumber:
-                        donation.attributes.receipt_detail?.data?.attributes
-                          ?.Receipt_number,
-                      donorName:
-                        donation.attributes.guest?.data?.attributes?.name,
-                      donationDate: donation.attributes.createdAt,
-                      phoneNumber:
-                        donation.attributes.guest?.data?.attributes
-                          ?.phone_number,
-                      donatedFor: donation.attributes.donationFor,
-                      donationStatus: donation.attributes.status,
-                      donationAmount: donation.attributes.donationAmount,
-                      transactionType: donation.attributes.transactionType,
-                      purpose: donation.attributes.purpose,
-                      inMemoryOf: donation.attributes.InMemoryOf,
-                      bankName: donation.attributes.bankName,
-                      ddchDate: donation.attributes.ddch_date,
-                      ddchNumber: donation.attributes.ddch_number,
-                      type: donation.attributes.type,
-                      guestDetails: {
-                        address:
-                          donation.attributes.guest?.data?.attributes?.address,
-                        aadhaarNumber:
-                          donation.attributes.guest?.data?.attributes
-                            ?.aadhaar_number,
-                        email:
-                          donation.attributes.guest?.data?.attributes?.email,
-                        deeksha:
-                          donation.attributes.guest?.data?.attributes?.deeksha,
-                      },
-                      receiptDetails: {
-                        uniqueNo:
-                          donation.attributes.receipt_detail?.data?.attributes
-                            ?.unique_no,
-                        counter:
-                          donation.attributes.receipt_detail?.data?.attributes
-                            ?.counter,
-                      },
-                    },
-                  },
-                });
-              }}
+              onClick={() => navigate("/allDonationDetails")}
             >
               View All
             </button>

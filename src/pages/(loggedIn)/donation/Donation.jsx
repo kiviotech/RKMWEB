@@ -467,16 +467,25 @@ const Donation = () => {
     console.log("Print Receipt for:", donation);
   };
 
-  // Add this at the top with other useEffects
+  // Add this new ref
+  const recentDonationsRef = useRef(null);
+
+  // Update the useEffect for hash navigation
   useEffect(() => {
-    // Check if URL has the tomorrows-guests hash
-    if (window.location.hash === "#tomorrows-guests") {
-      // Find the element and scroll to it
-      const element = document.getElementById("tomorrows-guests");
-      if (element) {
-        element.scrollIntoView({ behavior: "smooth" });
+    // Small delay to ensure the component is fully rendered
+    const timeoutId = setTimeout(() => {
+      if (
+        window.location.hash === "#recent-donations" &&
+        recentDonationsRef.current
+      ) {
+        recentDonationsRef.current.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
       }
-    }
+    }, 100);
+
+    return () => clearTimeout(timeoutId);
   }, []);
 
   return (
@@ -935,7 +944,11 @@ const Donation = () => {
         </div>
       </div>
 
-      <div className="recent-donations-section">
+      <div
+        id="recent-donations"
+        ref={recentDonationsRef}
+        className="recent-donations-section"
+      >
         <div className="section-header">
           <h3>Recent Donations</h3>
           <div className="header-actions">

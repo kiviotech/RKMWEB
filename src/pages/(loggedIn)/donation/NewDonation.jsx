@@ -2439,7 +2439,7 @@ const NewDonation = () => {
             </div>
           )}
           <button
-            onClick={() => navigate("/donation#tomorrows-guests")}
+            onClick={() => navigate("/donation#recent-donations")}
             className="tomorrows-guest-btn"
             style={{
               backgroundColor: "#8C52FF",
@@ -2455,7 +2455,7 @@ const NewDonation = () => {
               gap: "8px",
             }}
           >
-            Tomorrow's Leaving Guest
+            Recent Donations
           </button>
         </div>
         <div>

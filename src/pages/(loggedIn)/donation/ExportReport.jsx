@@ -100,7 +100,9 @@ const ExportReport = ({ guestData }) => {
             </tr>
             <tr>
             <tr class="date">
-                <th colspan="6">DATE: ${new Date().toLocaleDateString()}</th>
+                <th colspan="6">DATE: ${new Date().toLocaleDateString(
+                  "en-GB"
+                )}</th>
                 <th colspan="1" rowspan="2">No. of Devotees</th>
                 <th colspan="2">Donation Details</th>
             </tr>
@@ -126,8 +128,12 @@ const ExportReport = ({ guestData }) => {
                   <td class="booking">${
                     guest.address || guest.bookingDescription || "-"
                   }</td>
-                  <td class="date-col">${guest.arrivalDate}</td>
-                  <td class="date-col">${guest.arrivalDate}</td>
+                  <td class="date-col">${new Date(
+                    guest.arrivalDate
+                  ).toLocaleDateString("en-GB")}</td>
+                  <td class="date-col">${new Date(
+                    guest.arrivalDate
+                  ).toLocaleDateString("en-GB")}</td>
                   <td class="persons">1</td>
                   <td class="receipt">${guest.receiptNo || ""}</td>
                   <td class="amount">${guest.donationAmount || ""}</td>

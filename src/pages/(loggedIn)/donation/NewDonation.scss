@@ -1105,6 +1105,20 @@ input::placeholder {
       flex: 1.2;
     }
   }
+
+  @media (max-width: 1000px) {
+    flex-direction: column;
+    gap: 16px;
+
+    .form-group {
+      width: 100%;
+      flex: none;
+
+      &:nth-child(2) {
+        flex: none;
+      }
+    }
+  }
 }
 
 .error-message {
@@ -1917,6 +1931,19 @@ select {
       outline: none;
       border-color: #7c5cfc !important;
       box-shadow: none !important;
+    }
+  }
+
+  @media (max-width: 1000px) {
+    flex-direction: column;
+    gap: 8px;
+
+    select {
+      width: 100% !important;
+    }
+
+    input {
+      width: 100%;
     }
   }
 }

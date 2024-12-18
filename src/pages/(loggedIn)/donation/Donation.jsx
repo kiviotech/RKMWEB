@@ -70,6 +70,7 @@ const Donation = () => {
     const getGuestDetails = async () => {
       try {
         const response = await fetchGuestDetails();
+        console.log("guest data", response.data);
 
         // Get tomorrow's date
         const tomorrow = new Date();
@@ -79,9 +80,18 @@ const Donation = () => {
         // Transform and filter the data for tomorrow's departures
         const formattedData = response.data
           .filter((guest) => {
+            // First check if booking request is confirmed
+            const isConfirmed =
+              guest.attributes.booking_request?.data?.attributes?.status ===
+              "confirmed";
+
+            // Then check departure date
             const departureDate = new Date(guest.attributes.departure_date);
             departureDate.setHours(0, 0, 0, 0);
-            return departureDate.getTime() === tomorrow.getTime();
+
+            return (
+              isConfirmed && departureDate.getTime() === tomorrow.getTime()
+            );
           })
           .map((guest) => {
             // Calculate stay duration
@@ -114,6 +124,10 @@ const Donation = () => {
                 .join(", ");
             };
 
+            // Get donation amount from the first donation if it exists
+            const donationAmount =
+              guest.attributes.donations?.data?.[0]?.attributes?.donationAmount;
+
             return {
               roomNumber:
                 guest.attributes.room?.data?.attributes?.room_number || "-",
@@ -128,14 +142,9 @@ const Donation = () => {
                 guest.attributes.donations?.data?.length > 0
                   ? "Donated"
                   : "Not yet donated",
-              donationAmount:
-                guest.attributes.donations?.data?.length > 0
-                  ? `₹${
-                      guest.attributes.donations.data[0]?.attributes?.amount?.toLocaleString(
-                        "en-IN"
-                      ) || 0
-                    }`
-                  : null,
+              donationAmount: donationAmount
+                ? `₹${parseInt(donationAmount).toLocaleString("en-IN")}`
+                : null,
             };
           });
 

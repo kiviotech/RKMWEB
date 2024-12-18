@@ -197,7 +197,7 @@ const ExportReport = ({ guestData }) => {
       >
         arrow_downward
       </span>
-      Export Donations
+      Export Report
     </button>
   );
 };

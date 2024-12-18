@@ -6,6 +6,8 @@ import {
 import "./AllDonation.scss";
 import * as XLSX from "xlsx";
 import { useNavigate } from "react-router-dom";
+import { loginUser } from "../../../../services/auth";
+import { useAuthStore } from "../../../../store/authStore";
 
 const AllDonation = ({
   searchTerm = "",
@@ -30,6 +32,11 @@ const AllDonation = ({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [password, setPassword] = useState("");
+  const [passwordError, setPasswordError] = useState("");
+  const [selectedDonationId, setSelectedDonationId] = useState(null);
+  const user = useAuthStore((state) => state.user);
 
   useEffect(() => {
     const loadDonations = async () => {
@@ -141,16 +148,29 @@ const AllDonation = ({
     return currentData;
   };
 
+  const handleCancelClick = (donationId) => {
+    setSelectedDonationId(donationId);
+    setShowPasswordModal(true);
+    setPassword("");
+    setPasswordError("");
+  };
+
   const handleCancelDonation = async (donationId) => {
-    console.log("Cancelling donation:", donationId);
     try {
+      // Verify password using stored username
+      await loginUser({
+        identifier: user.username,
+        password: password,
+      });
+
+      // If password verification succeeds, proceed with cancellation
       await updateDonationById(donationId, {
         data: {
           status: "cancelled",
         },
       });
 
-      // Update the local state to reflect the change
+      // Update local state
       setDonations(
         donations.map((donation) =>
           donation.id === donationId
@@ -161,9 +181,15 @@ const AllDonation = ({
             : donation
         )
       );
+
+      // Close modal and reset states
+      setShowPasswordModal(false);
+      setPassword("");
+      setPasswordError("");
+      setSelectedDonationId(null);
     } catch (error) {
-      console.error("Cancel Donation Error:", error);
-      // Optionally add error handling UI feedback here
+      console.error("Error:", error);
+      setPasswordError("Invalid password");
     }
   };
 
@@ -243,6 +269,88 @@ const AllDonation = ({
     });
   };
 
+  const renderPasswordModal = () => {
+    return (
+      <div
+        className="modal-overlay"
+        style={{
+          display: showPasswordModal ? "flex" : "none",
+          position: "fixed",
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: "rgba(0, 0, 0, 0.5)",
+          justifyContent: "center",
+          alignItems: "center",
+          zIndex: 1000,
+        }}
+      >
+        <div
+          style={{
+            backgroundColor: "white",
+            padding: "20px",
+            borderRadius: "8px",
+            width: "500px",
+          }}
+        >
+          <h3>Enter Password to Confirm</h3>
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="Enter your password"
+            style={{
+              width: "100%",
+              padding: "8px",
+              marginTop: "10px",
+              marginBottom: "10px",
+            }}
+          />
+          {passwordError && <p style={{ color: "red" }}>{passwordError}</p>}
+          <div
+            style={{
+              display: "flex",
+              gap: "10px",
+              marginTop: "10px",
+              justifyContent: "flex-end",
+            }}
+          >
+            <button
+              onClick={() => {
+                setShowPasswordModal(false);
+                setPassword("");
+                setPasswordError("");
+              }}
+              style={{
+                padding: "8px 16px",
+                backgroundColor: "#gray",
+                border: "none",
+                borderRadius: "4px",
+                cursor: "pointer",
+              }}
+            >
+              Cancel
+            </button>
+            <button
+              onClick={() => handleCancelDonation(selectedDonationId)}
+              style={{
+                padding: "8px 16px",
+                backgroundColor: "#ea7704",
+                color: "white",
+                border: "none",
+                borderRadius: "4px",
+                cursor: "pointer",
+              }}
+            >
+              Confirm
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error}</div>;
   if (!Array.isArray(donations)) return <div>No donations available</div>;
@@ -251,6 +359,7 @@ const AllDonation = ({
 
   return (
     <div className="all-donations-container">
+      {renderPasswordModal()}
       <div className="donations-section">
         <div className="table-container">
           {currentDonations.length > 0 ? (
@@ -328,7 +437,7 @@ const AllDonation = ({
                           <>
                             <button
                               className="cancel-btn"
-                              onClick={() => handleCancelDonation(donation.id)}
+                              onClick={() => handleCancelClick(donation.id)}
                             >
                               Cancel
                             </button>

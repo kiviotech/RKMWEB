@@ -175,15 +175,32 @@
   @include mobile {
     flex-direction: column;
     gap: 16px;
+    align-items: stretch;
 
     .tabs {
       width: 100%;
       overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      &::-webkit-scrollbar {
+        display: none;
+      }
+
+      display: flex;
+      justify-content: flex-start;
 
       .tab {
+        flex: 1;
+        min-width: 120px;
         padding: 8px 16px;
         white-space: nowrap;
+        text-align: center;
       }
+    }
+
+    .reset-btn {
+      width: 100%;
+      justify-content: center;
     }
   }
 }

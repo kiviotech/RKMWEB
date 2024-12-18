@@ -1134,8 +1134,8 @@ const NewDonation = () => {
                 <div class="it-stamp">
                   Donations are exempt under Clause (i) of first proviso to<br>
                   sub-section (5) of Section 80G of Income Tax Act 1961,<br>
-                  vide Provisional Approval No. AAAJR1017PF2021A<br>
-                  dated 24-05-2021 valid from AY 2022-23 to AY 2026-27
+                  vide Provisional Approval No. AAATR3497PF2021A<br>
+                  dated 28-05-2021 valid from AY 2022-23 to AY 2026-27
                 </div>
               </div>`
        : ""
@@ -4213,7 +4213,9 @@ const NewDonation = () => {
                       "cash" && (
                       <p style={{ margin: "0" }}>
                         {currentReceipt?.donationDetails?.transactionDetails
-                          ?.bankName || ""}
+                          ?.bankName || ""}{" "}
+                        {currentReceipt?.donationDetails?.transactionDetails
+                          ?.branchName || ""}
                       </p>
                     )}
                   </div>

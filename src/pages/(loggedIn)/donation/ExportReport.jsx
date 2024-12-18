@@ -99,7 +99,7 @@ const ExportReport = ({ guestData }) => {
                 <th class="booking">Booking Description</th>
                 <th class="date-col">From</th>
                 <th class="date-col">To</th>
-                <th class="persons">No. of Persons</th>
+                <th class="persons">No. of Devotees</th>
                 <th class="receipt">Receipt No.</th>
                 <th class="amount">Amount</th>
               </tr>
@@ -112,7 +112,9 @@ const ExportReport = ({ guestData }) => {
                   <td class="sl-no">${index + 1}</td>
                   <td class="room-no">${guest.roomNumber}</td>
                   <td class="name">${guest.guestName.replace("Mr. ", "")}</td>
-                  <td class="booking">${guest.bookingDescription || "-"}</td>
+                  <td class="booking">${
+                    guest.address || guest.bookingDescription || "-"
+                  }</td>
                   <td class="date-col">${guest.arrivalDate}</td>
                   <td class="date-col">${guest.arrivalDate}</td>
                   <td class="persons">1</td>

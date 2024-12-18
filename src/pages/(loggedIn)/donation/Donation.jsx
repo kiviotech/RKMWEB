@@ -93,6 +93,27 @@ const Donation = () => {
               diffDays === 1 ? "day" : "days"
             }`;
 
+            // Log the complete guest object for debugging
+            console.log("Complete Guest Data:", {
+              originalData: guest,
+              attributes: guest.attributes,
+              room: guest.attributes.room?.data,
+              donations: guest.attributes.donations?.data,
+              address: guest.attributes.address,
+              contact: guest.attributes.contact,
+              email: guest.attributes.email,
+            });
+
+            // Clean up address by removing empty segments
+            const cleanAddress = (address) => {
+              if (!address) return "-";
+              return address
+                .split(",")
+                .map((segment) => segment.trim())
+                .filter((segment) => segment.length > 0)
+                .join(", ");
+            };
+
             return {
               roomNumber:
                 guest.attributes.room?.data?.attributes?.room_number || "-",
@@ -102,6 +123,7 @@ const Donation = () => {
               ).toLocaleDateString(),
               noOfGuests: 1,
               stayDuration: stayDuration,
+              address: cleanAddress(guest.attributes.address),
               donation:
                 guest.attributes.donations?.data?.length > 0
                   ? "Donated"

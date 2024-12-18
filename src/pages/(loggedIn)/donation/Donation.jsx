@@ -484,6 +484,23 @@ const Donation = () => {
     }
   }, []);
 
+  // Add useEffect to handle scroll behavior
+  useEffect(() => {
+    // Check if URL has #recent-donations hash
+    if (
+      window.location.hash === "#recent-donations" &&
+      recentDonationsRef.current
+    ) {
+      // Add a small delay to ensure the component is fully rendered
+      setTimeout(() => {
+        recentDonationsRef.current.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
+      }, 100);
+    }
+  }, [location]); // Depend on location to handle navigation changes
+
   return (
     <div className="donation-container">
       <div className="header">

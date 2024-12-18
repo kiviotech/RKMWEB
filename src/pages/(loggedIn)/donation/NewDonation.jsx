@@ -795,6 +795,16 @@ const NewDonation = () => {
 
     // Show the modal if validation passes
     setIsModalOpen(true);
+
+    try {
+      // ... existing receipt creation code ...
+
+      // Navigate to donation page with a hash to indicate scrolling to recent donations
+      navigate("/donation#recent-donations");
+    } catch (error) {
+      console.error("Error creating receipt:", error);
+      alert("Error creating receipt. Please try again.");
+    }
   };
 
   // Modify handleConfirmPrint function
@@ -1506,7 +1516,7 @@ const NewDonation = () => {
       // Reset form and close modal
       resetFormData();
       setShowCancelConfirm(false);
-      navigate("/donation");
+      navigate("/donation#recent-donations");
     } catch (error) {
       console.error("Error processing cancelled donation:", error);
       console.error("Error details:", error.response?.data || error.message);

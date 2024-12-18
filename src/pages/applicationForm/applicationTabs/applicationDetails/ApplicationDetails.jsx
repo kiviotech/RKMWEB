@@ -139,10 +139,13 @@ const ApplicationDetails = ({ goToNextStep, tabName }) => {
         break;
 
       case "name":
+        const nameRegex = /^[A-Za-z\s]+$/;
         if (!value) {
           setErrors(name, "Name is required");
         } else if (value.length < 2) {
           setErrors(name, "Name must be at least 2 characters long");
+        } else if (!nameRegex.test(value)) {
+          setErrors(name, "Name can only contain letters and spaces");
         } else {
           setErrors(name, "");
         }
@@ -261,6 +264,13 @@ const ApplicationDetails = ({ goToNextStep, tabName }) => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
+
+    if (name === "name") {
+      const sanitizedValue = value.replace(/[^A-Za-z\s]/g, "");
+      setFormData(name, sanitizedValue);
+      validateField(name, sanitizedValue);
+      return;
+    }
 
     if (name === "phoneNumber") {
       // Only allow digits and limit to 10 characters

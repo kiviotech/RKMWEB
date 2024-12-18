@@ -206,8 +206,19 @@ const GuestDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
         break;
 
       case "guestName":
+        const nameRegex = /^[A-Za-z\s]+$/; // Only letters and spaces allowed
         if (!value) {
           setErrors(`guestName${index}`, "Name is required");
+        } else if (value.length < 2) {
+          setErrors(
+            `guestName${index}`,
+            "Name must be at least 2 characters long"
+          );
+        } else if (!nameRegex.test(value)) {
+          setErrors(
+            `guestName${index}`,
+            "Name can only contain letters and spaces"
+          );
         } else {
           setErrors(`guestName${index}`, "");
         }
@@ -350,6 +361,21 @@ const GuestDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
     // Ensure guests array exists
     const guests = formData.guests || [];
     if (!guests[index]) {
+      return;
+    }
+
+    if (name === "guestName") {
+      // Only allow letters and spaces
+      const sanitizedValue = value.replace(/[^A-Za-z\s]/g, "");
+      setGuestData(index, name, sanitizedValue);
+      console.log("Guest Input Change:", {
+        guestIndex: index,
+        field: name,
+        value: sanitizedValue,
+        currentGuest: formData.guests[index],
+      });
+      validateGuestField(index, name, sanitizedValue);
+      setActiveTab(sanitizedValue || `Guest ${index + 1}`);
       return;
     }
 

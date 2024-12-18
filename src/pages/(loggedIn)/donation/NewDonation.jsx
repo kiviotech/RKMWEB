@@ -424,7 +424,7 @@ const NewDonation = () => {
   const handleAddDonation = () => {
     // If donation data exists, navigate to new donation page
     if (donationData) {
-      navigate("/newdonation");
+      navigate("/newDonation");
       return;
     }
 

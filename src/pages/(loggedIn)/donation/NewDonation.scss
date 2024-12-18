@@ -1828,55 +1828,17 @@ input[type="email"].borderless-input {
   width: 100%;
   margin-bottom: 10px;
 
-  .total-donation-amount {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 18px;
-    font-weight: bold;
-    color: #333;
-  }
+  @media (max-width: 1000px) {
+    flex-direction: column;
+    gap: 16px;
 
-  .action-buttons {
-    display: flex;
-    gap: 10px;
-    margin-left: auto;
-
-    .cancel-btn {
-      background-color: #ffbdcb;
-      color: #fd7490;
-      border: 1px solid #fd7490;
-      padding: 10px 20px;
-      border-radius: 5px;
-      cursor: pointer;
-      font-weight: bold;
-    }
-
-    .pending-btn {
-      background-color: #fff4b2;
-      color: #f7c174;
-      border: 1px solid #f7c174;
-      padding: 10px 20px;
-      border-radius: 5px;
-      cursor: pointer;
-      font-weight: bold;
-    }
-
-    .print-receipt-btn {
-      background-color: #9867e9;
-      color: white;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 5px;
-      cursor: pointer;
-      font-weight: bold;
-      display: flex;
+    .total-amount {
+      width: 100%;
       align-items: center;
-      gap: 5px;
+    }
 
-      .print-icon {
-        font-size: 16px;
-      }
+    .action-buttons {
+      width: 100%;
     }
   }
 }

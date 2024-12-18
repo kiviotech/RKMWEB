@@ -567,8 +567,8 @@ const NewDonation = () => {
     // Extract address components
     const addressParts = guestData.address?.split(", ") || [];
     const houseNumber = addressParts[0] || "";
-    const streetAddress = addressParts.slice(1, -4).join(", ") || ""; // Updated slice
-    const postOffice = addressParts[addressParts.length - 4] || ""; // Added postOffice
+    const streetAddress = addressParts.slice(1, -4).join(", ") || "";
+    const postOffice = addressParts[addressParts.length - 4] || "";
     const district = addressParts[addressParts.length - 3] || "";
     const state = addressParts[addressParts.length - 2] || "";
     const pincode =
@@ -592,7 +592,7 @@ const NewDonation = () => {
       pincode: pincode,
       houseNumber: houseNumber,
       streetName: streetAddress,
-      postOffice: postOffice, // Added postOffice
+      postOffice: postOffice,
       district: district,
       state: state,
       guestId: guest.id,

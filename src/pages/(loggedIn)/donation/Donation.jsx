@@ -14,6 +14,7 @@ import { useNavigate } from "react-router-dom";
 import AllDonation from "./AllDonation";
 import { fetchGuestDetails } from "../../../../services/src/services/guestDetailsService";
 import { fetchDonations } from "../../../../services/src/services/donationsService";
+import ExportReport from "./ExportReport";
 
 const Donation = () => {
   const navigate = useNavigate();
@@ -794,13 +795,14 @@ const Donation = () => {
                   </div>
                 )}
               </div>
+              {/* <ExportReport /> */}
             </div>
           </div>
         </div>
 
         <div className="table-container">
           {getPaginatedGuestData().length > 0 ? (
-            <table>
+            <table style={{ background: "#fff" }}>
               <thead>
                 <tr>
                   {tomorrowFilterOptions.roomNumber && <th>Room number</th>}

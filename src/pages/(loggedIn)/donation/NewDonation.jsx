@@ -18,6 +18,8 @@ import {
 } from "../../../../services/src/services/donationsService";
 import { useNavigate, useLocation } from "react-router-dom";
 import ExportDonations from "./ExportDonations";
+import CancelDonation from "./CancelDonation";
+import styles from "./NewDonation.module.css";
 
 const NewDonation = () => {
   useEffect(() => {
@@ -439,6 +441,13 @@ const NewDonation = () => {
   };
 
   const handleAddDonation = () => {
+    // If donation data exists, navigate to new donation page
+    if (donationData) {
+      navigate("/newdonation");
+      return;
+    }
+
+    // Existing logic for adding new donation
     const newReceiptNumber = generateReceiptNumber(selectedTab);
     setReceiptNumber(newReceiptNumber);
 
@@ -2507,11 +2516,11 @@ const NewDonation = () => {
                   </span>
                 </div>
               ))}
-              <button className="add-donation-btn" onClick={handleAddDonation}>
-                + Add Donation
-              </button>
             </div>
           )}
+          <button className="add-donation-btn" onClick={handleAddDonation}>
+            + Add Donation
+          </button>
           <button
             onClick={() => navigate("/donation#recent-donations")}
             className="tomorrows-guest-btn"
@@ -2532,6 +2541,7 @@ const NewDonation = () => {
             Recent Donations
           </button>
           <ExportDonations />
+          <CancelDonation />
         </div>
         <div>
           {" "}
@@ -2703,7 +2713,7 @@ const NewDonation = () => {
                     }
                     disabled={shouldDisableFields()}
                     className={`${
-                      shouldDisableFields() ? "disabled-input" : ""
+                      shouldDisableFields() ? styles["disabled-input"] : ""
                     }`}
                   >
                     <option value="Sri">Sri</option>
@@ -2735,7 +2745,7 @@ const NewDonation = () => {
                       onFocus={() => setShowDropdown(true)}
                       placeholder=""
                       className={`${validationErrors.name ? "error" : ""} ${
-                        shouldDisableFields() ? "disabled-input" : ""
+                        shouldDisableFields() ? styles["disabled-input"] : ""
                       }`}
                       disabled={shouldDisableFields()}
                     />
@@ -2825,7 +2835,7 @@ const NewDonation = () => {
                     }
                     disabled={shouldDisableFields()}
                     className={`${
-                      shouldDisableFields() ? "disabled-input" : ""
+                      shouldDisableFields() ? styles["disabled-input"] : ""
                     }`}
                   >
                     <option value="+91">+91</option>
@@ -2843,7 +2853,7 @@ const NewDonation = () => {
                     }}
                     disabled={shouldDisableFields()}
                     className={`${validationErrors.phone ? "error" : ""} ${
-                      shouldDisableFields() ? "disabled-input" : ""
+                      shouldDisableFields() ? styles["disabled-input"] : ""
                     }`}
                   />
                 </div>
@@ -3031,7 +3041,9 @@ const NewDonation = () => {
                     setDonorDetails({ ...donorDetails, email: e.target.value });
                   }}
                   disabled={shouldDisableFields()}
-                  className={`${shouldDisableFields() ? "disabled-input" : ""}`}
+                  className={`${
+                    shouldDisableFields() ? styles["disabled-input"] : ""
+                  }`}
                 />
               </div>
 
@@ -3056,7 +3068,9 @@ const NewDonation = () => {
                       }));
                     }}
                     disabled={shouldDisableFields()}
-                    className={shouldDisableFields() ? "disabled-input" : ""}
+                    className={
+                      shouldDisableFields() ? styles["disabled-input"] : ""
+                    }
                   >
                     <option value="Aadhaar">Aadhaar</option>
                     <option value="PAN">PAN</option>
@@ -3143,7 +3157,7 @@ const NewDonation = () => {
                     disabled={shouldDisableFields()}
                     className={`${
                       validationErrors.identityNumber ? "error" : ""
-                    } ${shouldDisableFields() ? "disabled-input" : ""}`}
+                    } ${shouldDisableFields() ? styles["disabled-input"] : ""}`}
                   />
                 </div>
                 {validationErrors.identityNumber && (
@@ -3167,7 +3181,9 @@ const NewDonation = () => {
                     });
                   }}
                   disabled={shouldDisableFields()}
-                  className={shouldDisableFields() ? "disabled-input" : ""}
+                  className={
+                    shouldDisableFields() ? styles["disabled-input"] : ""
+                  }
                 />
               </div>
             </div>
@@ -3192,7 +3208,9 @@ const NewDonation = () => {
                     }
                   }}
                   disabled={shouldDisableFields()}
-                  className={`${shouldDisableFields() ? "disabled-input" : ""}`}
+                  className={`${
+                    shouldDisableFields() ? styles["disabled-input"] : ""
+                  }`}
                 />
                 {isLoadingPincode && (
                   <span className="loading-indicator">Loading...</span>
@@ -3214,7 +3232,9 @@ const NewDonation = () => {
                     });
                   }}
                   disabled={shouldDisableFields()}
-                  className={`${shouldDisableFields() ? "disabled-input" : ""}`}
+                  className={`${
+                    shouldDisableFields() ? styles["disabled-input"] : ""
+                  }`}
                 />
               </div>
 
@@ -3233,7 +3253,9 @@ const NewDonation = () => {
                     });
                   }}
                   disabled={shouldDisableFields()}
-                  className={`${shouldDisableFields() ? "disabled-input" : ""}`}
+                  className={`${
+                    shouldDisableFields() ? styles["disabled-input"] : ""
+                  }`}
                 />
               </div>
             </div>
@@ -3253,7 +3275,9 @@ const NewDonation = () => {
                     });
                   }}
                   disabled={shouldDisableFields()}
-                  className={`${shouldDisableFields() ? "disabled-input" : ""}`}
+                  className={`${
+                    shouldDisableFields() ? styles["disabled-input"] : ""
+                  }`}
                 />
               </div>
 
@@ -3270,7 +3294,9 @@ const NewDonation = () => {
                     });
                   }}
                   disabled={shouldDisableFields()}
-                  className={`${shouldDisableFields() ? "disabled-input" : ""}`}
+                  className={`${
+                    shouldDisableFields() ? styles["disabled-input"] : ""
+                  }`}
                 />
               </div>
 
@@ -3287,7 +3313,9 @@ const NewDonation = () => {
                     });
                   }}
                   disabled={shouldDisableFields()}
-                  className={`${shouldDisableFields() ? "disabled-input" : ""}`}
+                  className={`${
+                    shouldDisableFields() ? styles["disabled-input"] : ""
+                  }`}
                 />
               </div>
             </div>
@@ -3575,7 +3603,7 @@ const NewDonation = () => {
                 }}
                 disabled={shouldDisableFields()}
                 className={`${validationErrors.purpose ? "error" : ""} ${
-                  shouldDisableFields() ? "disabled-input" : ""
+                  shouldDisableFields() ? styles["disabled-input"] : ""
                 }`}
               >
                 <option value="">Select Purpose</option>
@@ -3673,7 +3701,9 @@ const NewDonation = () => {
                   });
                 }}
                 disabled={shouldDisableFields()}
-                className={`${shouldDisableFields() ? "disabled-input" : ""}`}
+                className={`${
+                  shouldDisableFields() ? styles["disabled-input"] : ""
+                }`}
               >
                 <option value="Others (Revenue)">Others (Revenue)</option>
                 <option value="CORPUS">CORPUS</option>
@@ -3689,7 +3719,7 @@ const NewDonation = () => {
                 onChange={handleDonationAmountChange}
                 disabled={shouldDisableFields()}
                 className={`${validationErrors.amount ? "error" : ""} ${
-                  shouldDisableFields() ? "disabled-input" : ""
+                  shouldDisableFields() ? styles["disabled-input"] : ""
                 }`}
                 placeholder=""
               />
@@ -3734,7 +3764,9 @@ const NewDonation = () => {
                   });
                 }}
                 disabled={shouldDisableFields()}
-                className={`${shouldDisableFields() ? "disabled-input" : ""}`}
+                className={`${
+                  shouldDisableFields() ? styles["disabled-input"] : ""
+                }`}
               >
                 <option value="Cash">Cash</option>
                 <option value="M.O">M.O</option>
@@ -3756,7 +3788,9 @@ const NewDonation = () => {
                   });
                 }}
                 disabled={shouldDisableFields()}
-                className={`${shouldDisableFields() ? "disabled-input" : ""}`}
+                className={`${
+                  shouldDisableFields() ? styles["disabled-input"] : ""
+                }`}
               />
             </div>
           </div>
@@ -3799,7 +3833,9 @@ const NewDonation = () => {
                     });
                   }}
                   disabled={shouldDisableFields()}
-                  className={`${shouldDisableFields() ? "disabled-input" : ""}`}
+                  className={`${
+                    shouldDisableFields() ? styles["disabled-input"] : ""
+                  }`}
                 />
               </div>
               <div className="form-group">
@@ -3822,7 +3858,9 @@ const NewDonation = () => {
                     });
                   }}
                   disabled={shouldDisableFields()}
-                  className={`${shouldDisableFields() ? "disabled-input" : ""}`}
+                  className={`${
+                    shouldDisableFields() ? styles["disabled-input"] : ""
+                  }`}
                 />
               </div>
               <div className="form-group">
@@ -3845,7 +3883,9 @@ const NewDonation = () => {
                     });
                   }}
                   disabled={shouldDisableFields()}
-                  className={`${shouldDisableFields() ? "disabled-input" : ""}`}
+                  className={`${
+                    shouldDisableFields() ? styles["disabled-input"] : ""
+                  }`}
                 />
               </div>
               <div className="form-group">
@@ -3868,7 +3908,9 @@ const NewDonation = () => {
                     });
                   }}
                   disabled={shouldDisableFields()}
-                  className={`${shouldDisableFields() ? "disabled-input" : ""}`}
+                  className={`${
+                    shouldDisableFields() ? styles["disabled-input"] : ""
+                  }`}
                 />
               </div>
             </div>

@@ -227,24 +227,8 @@ const Header = ({ hideElements }) => {
                     to="/check-in"
                     className={({ isActive }) => (isActive ? "active" : "")}
                   >
-                    Check-in Details
+                    Reports
                     {location.pathname === "/check-in" && (
-                      <button
-                        className="close-button"
-                        style={{ fontSize: "18px" }}
-                      >
-                        &times;
-                      </button>
-                    )}
-                  </NavLink>
-                </li>
-                <li>
-                  <NavLink
-                    to="/check-out"
-                    className={({ isActive }) => (isActive ? "active" : "")}
-                  >
-                    Check-out Details
-                    {location.pathname === "/check-out" && (
                       <button
                         className="close-button"
                         style={{ fontSize: "18px" }}

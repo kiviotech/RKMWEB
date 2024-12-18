@@ -100,6 +100,7 @@ const ExportReport = ({ guestData }) => {
 
           <table>
             <thead>
+            <tr>
             <tr class="date">
                 <th colspan="6">DATE: ${new Date().toLocaleDateString()}</th>
                 <th colspan="1" rowspan="2">No. of Devotees</th>

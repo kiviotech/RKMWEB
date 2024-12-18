@@ -735,76 +735,33 @@ const NewDonation = () => {
   };
 
   // Modify handlePrintReceipt to only show the modal
-  const handlePrintReceipt = async () => {
-    // Check if purpose exists before validation
-    if (!currentReceipt?.donationDetails?.purpose) {
-      setValidationErrors((prev) => ({
-        ...prev,
-        purpose: "Purpose is required",
-      }));
+  const handlePrintReceipt = () => {
+    // Validate required fields before showing preview
+    if (!validateFields()) {
       return;
     }
 
-    // Add validation for other purpose
-    if (
-      currentReceipt?.donationDetails?.purpose === "Other" &&
-      !currentReceipt?.donationDetails?.otherPurpose
-    ) {
-      setValidationErrors((prev) => ({
-        ...prev,
-        otherPurpose: "Please specify the purpose",
-      }));
-      return;
-    }
-
-    // Rest of your validation checks
-    if (validateDonationAmount(currentReceipt?.donationDetails?.amount)) {
-      alert("Enter the amount");
-      return;
-    }
-
-    // Validate form fields
-    const nameError = validateName(donorDetails.name);
-    const phoneError = validatePhone(donorDetails.phone);
-    const emailError = validateEmail(donorDetails.email);
-    const purposeError = !currentReceipt?.donationDetails?.donationType
-      ? "Purpose is required"
-      : "";
-    const amountError = validateDonationAmount(
-      currentReceipt?.donationDetails?.amount
-    );
-
-    setValidationErrors({
-      name: nameError,
-      phone: phoneError,
-      email: emailError,
-      purpose: purposeError,
-      amount: amountError,
-    });
-
-    // if (nameError || phoneError || purposeError || amountError) {
-    //   alert("Please fill all required fields");
-    //   return;
-    // }
-
-    // Validate transaction details if necessary
-    if (!validateTransactionDetails()) {
-      alert("Please fill all required transaction details");
-      return;
-    }
-
-    // Show the modal if validation passes
+    // Open the modal
     setIsModalOpen(true);
+  };
 
-    try {
-      // ... existing receipt creation code ...
+  // Add this function to validate fields
+  const validateFields = () => {
+    const errors = {};
 
-      // Navigate to donation page with a hash to indicate scrolling to recent donations
-      navigate("/donation#recent-donations");
-    } catch (error) {
-      console.error("Error creating receipt:", error);
-      alert("Error creating receipt. Please try again.");
-    }
+    // Basic validation for required fields
+    if (!donorDetails.name) errors.name = "Name is required";
+    if (!donorDetails.phone) errors.phone = "Phone number is required";
+    if (!currentReceipt?.donationDetails?.amount)
+      errors.amount = "Amount is required";
+    if (!currentReceipt?.donationDetails?.purpose)
+      errors.purpose = "Purpose is required";
+
+    // Update validation errors
+    setValidationErrors(errors);
+
+    // Return true if no errors, false otherwise
+    return Object.keys(errors).length === 0;
   };
 
   // Modify handleConfirmPrint function
@@ -4114,8 +4071,33 @@ const NewDonation = () => {
       )}
 
       {isModalOpen && (
-        <div className="confirmation-dialog">
-          <div className="modal-content">
+        <div
+          className="confirmation-dialog"
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: "rgba(0, 0, 0, 0.5)",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            zIndex: 1000,
+          }}
+        >
+          <div
+            className="modal-content"
+            style={{
+              backgroundColor: "white",
+              padding: "20px",
+              borderRadius: "8px",
+              maxWidth: "600px",
+              width: "90%",
+              maxHeight: "90vh",
+              overflowY: "auto",
+            }}
+          >
             <div className="model-header">
               <h4>Receipt Preview</h4>
               <button

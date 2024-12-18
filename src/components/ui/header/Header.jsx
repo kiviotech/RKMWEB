@@ -12,32 +12,19 @@ const Header = ({ hideElements }) => {
   const logout = useAuthStore((state) => state.logout);
   const [showDropdown, setShowDropdown] = React.useState(false);
   const [showNotification, setShowNotification] = React.useState(false);
-  const [showCancelDropdown, setShowCancelDropdown] = React.useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
 
-  // Add ref for dropdown container
-  const dropdownRef = React.useRef(null);
   // Add ref for notification popup
   const notificationRef = React.useRef(null);
-  const cancelDropdownRef = React.useRef(null);
 
   // Update effect to handle outside clicks for both dropdowns
   React.useEffect(() => {
     const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setShowDropdown(false);
-      }
       if (
         notificationRef.current &&
         !notificationRef.current.contains(event.target)
       ) {
         setShowNotification(false);
-      }
-      if (
-        cancelDropdownRef.current &&
-        !cancelDropdownRef.current.contains(event.target)
-      ) {
-        setShowCancelDropdown(false);
       }
       if (isMobileMenuOpen && !event.target.closest(".navbar")) {
         setIsMobileMenuOpen(false);
@@ -56,22 +43,15 @@ const Header = ({ hideElements }) => {
     navigate("/");
   };
 
-  // Add handleExport function
-  const handleExport = async (reportType) => {
+  // Update handleExport function to not require reportType
+  const handleExport = async () => {
     try {
       const response = await fetchDonations();
       const allDonations = Array.isArray(response)
         ? response
         : response.data || [];
 
-      const donations = allDonations.filter((donation) => {
-        const donationFor = donation.attributes.donationFor?.toUpperCase();
-        return reportType === "MATH"
-          ? donationFor === "MATH"
-          : donationFor === "MISSION";
-      });
-
-      const htmlContent = cancelDonationReport(donations, reportType);
+      const htmlContent = cancelDonationReport(allDonations, "ALL");
 
       const iframe = document.createElement("iframe");
       iframe.style.display = "none";
@@ -183,7 +163,7 @@ const Header = ({ hideElements }) => {
                 Reports
               </NavLink>
             </li>
-            <li ref={cancelDropdownRef} className="dropdown-container">
+            <li>
               <NavLink
                 to="#"
                 className={({ isActive }) =>
@@ -191,33 +171,11 @@ const Header = ({ hideElements }) => {
                 }
                 onClick={(e) => {
                   e.preventDefault();
-                  setShowCancelDropdown(!showCancelDropdown);
+                  handleExport();
                 }}
               >
                 Canceled Donation
               </NavLink>
-              {showCancelDropdown && (
-                <div className="export-dropdown">
-                  <button
-                    className="export-option"
-                    onClick={() => {
-                      handleExport("MATH");
-                      setShowCancelDropdown(false);
-                    }}
-                  >
-                    Math Report
-                  </button>
-                  <button
-                    className="export-option"
-                    onClick={() => {
-                      handleExport("MISSION");
-                      setShowCancelDropdown(false);
-                    }}
-                  >
-                    Mission Report
-                  </button>
-                </div>
-              )}
             </li>
           </>
         ) : (
@@ -312,7 +270,7 @@ const Header = ({ hideElements }) => {
             </div>
           )}
         </div>
-        <div className="user-profile" ref={dropdownRef}>
+        <div className="user-profile">
           <img
             className="user-image"
             src={icons.dummyUser}

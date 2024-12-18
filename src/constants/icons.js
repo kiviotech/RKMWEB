@@ -26,7 +26,6 @@ import informationIcon from "../assets/icons/informationIcon.png";
 import down_arrow from "../assets/icons/down_arrow.png";
 import edit_icon from "../assets/icons/edit_icon.png";
 
-
 import checkCircleMarked from "../assets/icons/checkCircleMarked.png";
 import checkCircle from "../assets/icons/checkCircle.png";
 import markedYellow from "../assets/icons/markedYellow.png";
@@ -39,6 +38,9 @@ import togglerGridView from "../assets/icons/togglerGridView.png";
 import toggglerDashboardWite from "../assets/icons/toggglerDashboardWite.png";
 import togglerGridViewWhite from "../assets/icons/togglerGridViewWhite.png";
 import warning from "../assets/icons/warning.png";
+import Home from "../assets/icons/Home.png";
+import Donation from "../assets/icons/Donation.png";
+import Deeksha from "../assets/icons/Deeksha.png";
 
 import Paperclip from "../assets/icons/Paperclip.png";
 import Trash from "../assets/icons/Trash.png";
@@ -91,5 +93,8 @@ export default {
   whatsapp,
   informationIcon,
   down_arrow,
-  edit_icon
+  edit_icon,
+  Home,
+  Donation,
+  Deeksha,
 };

@@ -4,53 +4,15 @@ import "./ExportDonations.scss";
 import { cancelDonationReport } from "./cancelDonationReport";
 
 const CancelDonation = () => {
-  const [showExportDropdown, setShowExportDropdown] = useState(false);
-
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (!event.target.closest(".dropdown-container")) {
-        setShowExportDropdown(false);
-      }
-    };
-
-    // Listen for custom event from ExportDonations
-    const handleExportDropdownOpen = () => {
-      setShowExportDropdown(false);
-    };
-    document.addEventListener("exportDropdownOpened", handleExportDropdownOpen);
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-      document.removeEventListener(
-        "exportDropdownOpened",
-        handleExportDropdownOpen
-      );
-    };
-  }, []);
-
-  const handleCancelClick = () => {
-    // Dispatch event to close export dropdown
-    document.dispatchEvent(new Event("cancelDropdownOpened"));
-    setShowExportDropdown(!showExportDropdown);
-  };
-
-  const handleExport = async (reportType) => {
+  const handleCancelClick = async () => {
     try {
       const response = await fetchDonations();
       const allDonations = Array.isArray(response)
         ? response
         : response.data || [];
 
-      // Filter donations based on reportType
-      const donations = allDonations.filter((donation) => {
-        const donationFor = donation.attributes.donationFor?.toUpperCase();
-        return reportType === "MATH"
-          ? donationFor === "MATH"
-          : donationFor === "MISSION";
-      });
-
-      const htmlContent = cancelDonationReport(donations, reportType);
+      // Generate both reports
+      const htmlContent = cancelDonationReport(allDonations, "ALL");
 
       // Create and handle iframe for printing
       const iframe = document.createElement("iframe");
@@ -93,30 +55,8 @@ const CancelDonation = () => {
               d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"
             />
           </svg>{" "}
-          Cancel Donations
+          Cancel Donations Report
         </button>
-        {showExportDropdown && (
-          <div className="export-dropdown">
-            <button
-              className="export-option"
-              onClick={() => {
-                handleExport("MATH");
-                setShowExportDropdown(false);
-              }}
-            >
-              Math Report
-            </button>
-            <button
-              className="export-option"
-              onClick={() => {
-                handleExport("MISSION");
-                setShowExportDropdown(false);
-              }}
-            >
-              Mission Report
-            </button>
-          </div>
-        )}
       </div>
     </div>
   );

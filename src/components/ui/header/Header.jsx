@@ -3,6 +3,8 @@ import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import "./Header.scss";
 import icons from "../../../constants/icons";
 import { useAuthStore } from "../../../../store/authStore";
+import { fetchDonations } from "../../../../services/src/services/donationsService";
+import { cancelDonationReport } from "../../../pages/(loggedIn)/donation/cancelDonationReport";
 
 const Header = ({ hideElements }) => {
   const location = useLocation();
@@ -10,11 +12,13 @@ const Header = ({ hideElements }) => {
   const logout = useAuthStore((state) => state.logout);
   const [showDropdown, setShowDropdown] = React.useState(false);
   const [showNotification, setShowNotification] = React.useState(false);
+  const [showCancelDropdown, setShowCancelDropdown] = React.useState(false);
 
   // Add ref for dropdown container
   const dropdownRef = React.useRef(null);
   // Add ref for notification popup
   const notificationRef = React.useRef(null);
+  const cancelDropdownRef = React.useRef(null);
 
   // Update effect to handle outside clicks for both dropdowns
   React.useEffect(() => {
@@ -27,6 +31,12 @@ const Header = ({ hideElements }) => {
         !notificationRef.current.contains(event.target)
       ) {
         setShowNotification(false);
+      }
+      if (
+        cancelDropdownRef.current &&
+        !cancelDropdownRef.current.contains(event.target)
+      ) {
+        setShowCancelDropdown(false);
       }
     };
 
@@ -42,14 +52,55 @@ const Header = ({ hideElements }) => {
     navigate("/");
   };
 
+  // Add handleExport function
+  const handleExport = async (reportType) => {
+    try {
+      const response = await fetchDonations();
+      const allDonations = Array.isArray(response)
+        ? response
+        : response.data || [];
+
+      const donations = allDonations.filter((donation) => {
+        const donationFor = donation.attributes.donationFor?.toUpperCase();
+        return reportType === "MATH"
+          ? donationFor === "MATH"
+          : donationFor === "MISSION";
+      });
+
+      const htmlContent = cancelDonationReport(donations, reportType);
+
+      const iframe = document.createElement("iframe");
+      iframe.style.display = "none";
+      document.body.appendChild(iframe);
+
+      iframe.contentWindow.document.write(htmlContent);
+      iframe.contentWindow.document.close();
+
+      iframe.onload = function () {
+        try {
+          iframe.contentWindow.print();
+          setTimeout(() => {
+            document.body.removeChild(iframe);
+          }, 1000);
+        } catch (error) {
+          console.error("Print error:", error);
+        }
+      };
+    } catch (error) {
+      console.error("Error printing donations:", error);
+    }
+  };
+
   return (
     <nav className="navbar">
       <div className="logo">
         <img src={icons.RMK_Logo} alt="Logo" />
       </div>
       <ul className="nav-links">
-        {location.pathname === "/newDonation" ? (
-          // New donation path navigation items
+        {location.pathname === "/newDonation" ||
+        location.pathname === "/allDonationDetails" ||
+        location.pathname === "/donation" ? (
+          // New donation and Donation path navigation items
           <>
             <li>
               <NavLink
@@ -75,13 +126,16 @@ const Header = ({ hideElements }) => {
             <li>
               <NavLink
                 to="/donation#tomorrows-guests"
-                className={({ isActive }) => (isActive ? "active" : "")}
+                className={({ isActive }) =>
+                  (isActive && location.hash === "#tomorrows-guests") ||
+                  (location.pathname === "/donation" &&
+                    location.hash === "#tomorrows-guests")
+                    ? "active"
+                    : ""
+                }
                 onClick={(e) => {
-                  // Prevent default navigation
                   e.preventDefault();
-                  // Navigate programmatically
                   navigate("/donation");
-                  // Add small delay to ensure component is mounted
                   setTimeout(() => {
                     const element = document.getElementById("tomorrows-guests");
                     if (element) {
@@ -96,13 +150,16 @@ const Header = ({ hideElements }) => {
             <li>
               <NavLink
                 to="/donation#recent-donations"
-                className={({ isActive }) => (isActive ? "active" : "")}
+                className={({ isActive }) =>
+                  (isActive && location.hash === "#recent-donations") ||
+                  (location.pathname === "/donation" &&
+                    location.hash === "#recent-donations")
+                    ? "active"
+                    : ""
+                }
                 onClick={(e) => {
-                  // Prevent default navigation
                   e.preventDefault();
-                  // Navigate programmatically
                   navigate("/donation");
-                  // Add small delay to ensure component is mounted
                   setTimeout(() => {
                     const element = document.getElementById("recent-donations");
                     if (element) {
@@ -114,13 +171,39 @@ const Header = ({ hideElements }) => {
                 Recent Donation
               </NavLink>
             </li>
-            <li>
+            <li ref={cancelDropdownRef} className="dropdown-container">
               <NavLink
-                to="/canceled-donation"
+                to="#"
                 className={({ isActive }) => (isActive ? "active" : "")}
+                onClick={(e) => {
+                  e.preventDefault();
+                  setShowCancelDropdown(!showCancelDropdown);
+                }}
               >
                 Canceled Donation
               </NavLink>
+              {showCancelDropdown && (
+                <div className="export-dropdown">
+                  <button
+                    className="export-option"
+                    onClick={() => {
+                      handleExport("MATH");
+                      setShowCancelDropdown(false);
+                    }}
+                  >
+                    Math Report
+                  </button>
+                  <button
+                    className="export-option"
+                    onClick={() => {
+                      handleExport("MISSION");
+                      setShowCancelDropdown(false);
+                    }}
+                  >
+                    Mission Report
+                  </button>
+                </div>
+              )}
             </li>
           </>
         ) : (
@@ -134,7 +217,7 @@ const Header = ({ hideElements }) => {
                 Home
               </NavLink>
             </li>
-            {/* Conditionally render Home, Check-in, Check-out, and Requests based on hideElements prop */}
+            {/* Conditionally render other navigation items */}
             {!hideElements && (
               <>
                 <li>
@@ -188,7 +271,7 @@ const Header = ({ hideElements }) => {
               </>
             )}
 
-            {/* Allocate Rooms item, shown conditionally based on path */}
+            {/* Allocate Rooms item */}
             {location.pathname === "/book-room" && (
               <li>
                 <NavLink

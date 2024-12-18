@@ -192,6 +192,10 @@
   display: flex;
   gap: 20px;
 
+  @media (max-width: 1200px) {
+    flex-direction: column;
+  }
+
   @include mobile {
     flex-direction: column;
   }
@@ -202,6 +206,11 @@
 
   .donor-section {
     flex: 0.7;
+
+    @media (max-width: 1200px) {
+      flex: 1;
+      width: 100%;
+    }
 
     @include mobile {
       flex: 1;
@@ -278,6 +287,11 @@
 
   .donation-section {
     flex: 0.3;
+
+    @media (max-width: 1200px) {
+      flex: 1;
+      width: 100%;
+    }
 
     @include mobile {
       flex: 1;

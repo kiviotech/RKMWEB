@@ -174,7 +174,9 @@ const Header = ({ hideElements }) => {
             <li ref={cancelDropdownRef} className="dropdown-container">
               <NavLink
                 to="#"
-                className={({ isActive }) => (isActive ? "active" : "")}
+                className={({ isActive }) =>
+                  location.pathname === "/canceled-donation" ? "active" : ""
+                }
                 onClick={(e) => {
                   e.preventDefault();
                   setShowCancelDropdown(!showCancelDropdown);

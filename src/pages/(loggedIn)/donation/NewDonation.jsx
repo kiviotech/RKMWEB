@@ -22,53 +22,37 @@ import CancelDonation from "./CancelDonation";
 import styles from "./NewDonation.module.css";
 
 const NewDonation = () => {
+  // Add this useEffect at the top of your component
   useEffect(() => {
-    const timeoutId = setTimeout(() => {
+    // Try multiple scroll methods to ensure it works across different browsers
+    const scrollToTop = () => {
+      // Method 1: Using window.scrollTo
       window.scrollTo({
         top: 0,
         left: 0,
-        behavior: "instant",
+        behavior: "smooth",
       });
 
-      // Backup scroll
+      // Method 2: Using document.documentElement
       document.documentElement.scrollTop = 0;
-      document.body.scrollTop = 0;
-    }, 0);
 
-    // Add a second timeout as a fallback
-    const backupTimeoutId = setTimeout(() => {
-      if (window.pageYOffset > 0) {
-        window.scrollTo(0, 0);
-        document.documentElement.scrollTop = 0;
-        document.body.scrollTop = 0;
-      }
-    }, 100);
+      // Method 3: Using document.body
+      document.body.scrollTop = 0;
+    };
+
+    // Execute scroll immediately
+    scrollToTop();
+
+    // Also try after a small delay to ensure content is loaded
+    setTimeout(scrollToTop, 100);
 
     return () => {
-      clearTimeout(timeoutId);
-      clearTimeout(backupTimeoutId);
+      // Reset scroll restoration when component unmounts
+      if ("scrollRestoration" in history) {
+        history.scrollRestoration = "auto";
+      }
     };
-  }, []); // Empty dependency array for mount only
-
-  // Also add this to handle route changes
-  useEffect(() => {
-    const handleRouteChange = () => {
-      window.scrollTo(0, 0);
-      document.documentElement.scrollTop = 0;
-      document.body.scrollTop = 0;
-    };
-
-    window.addEventListener("popstate", handleRouteChange);
-    return () => window.removeEventListener("popstate", handleRouteChange);
-  }, []);
-
-  // Add this useEffect near the top of your component, with other useEffects
-  useEffect(() => {
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth",
-    });
-  }, []); // Empty dependency array means this runs once when component mounts
+  }, []); // Empty dependency array means this runs once on mount
 
   const [selectedTab, setSelectedTab] = useState("Math");
   const [receiptNumber, setReceiptNumber] = useState("");
@@ -2553,8 +2537,28 @@ const NewDonation = () => {
     };
   }, []);
 
+  useEffect(() => {
+    // Find the donations container element
+    const element = document.getElementById("donations-container");
+
+    if (element) {
+      // Scroll the element into view with a slight delay to ensure rendering
+      setTimeout(() => {
+        element.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+          inline: "start",
+        });
+      }, 100);
+    }
+  }, [location]); // Run when location changes
+
   return (
-    <div className="donations-container">
+    <div
+      id="donations-container"
+      className="donations-container"
+      style={{ scrollMarginTop: "0px" }}
+    >
       <div className="header">
         <div
           className="donor-tags"

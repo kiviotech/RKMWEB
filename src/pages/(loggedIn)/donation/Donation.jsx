@@ -795,7 +795,7 @@ const Donation = () => {
                   </div>
                 )}
               </div>
-              {/* <ExportReport /> */}
+              <ExportReport guestData={getPaginatedGuestData()} />
             </div>
           </div>
         </div>

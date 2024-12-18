@@ -394,10 +394,24 @@ const GuestDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
               ...updatedAddress,
               state: postOffice.State,
               district: postOffice.District,
+              postOffice: postOffice.Name,
             };
             setGuestData(index, parent, updatedAddressWithLocation);
+            console.log("Address Details Updated:", {
+              state: postOffice.State,
+              district: postOffice.District,
+              postOffice: postOffice.Name,
+            });
           } else {
             setErrors(`guestAddressPinCode${index}`, "Invalid pincode");
+            // Clear the fields on invalid pincode
+            const clearedAddress = {
+              ...updatedAddress,
+              state: "",
+              district: "",
+              postOffice: "",
+            };
+            setGuestData(index, parent, clearedAddress);
           }
         } catch (error) {
           console.error("Error fetching address details:", error);
@@ -405,6 +419,14 @@ const GuestDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
             `guestAddressPinCode${index}`,
             "Error fetching address details"
           );
+          // Clear the fields on error
+          const clearedAddress = {
+            ...updatedAddress,
+            state: "",
+            district: "",
+            postOffice: "",
+          };
+          setGuestData(index, parent, clearedAddress);
         }
       }
     } else {
@@ -918,13 +940,34 @@ const GuestDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
                           display: "flex",
                           justifyContent: "space-between",
                           alignItems: "center",
+                          backgroundColor: "#fff",
                         }}
                       >
                         <span>
                           {formData.guests[index].guestDeeksha ||
                             "Select Deeksha"}
                         </span>
-                        <span>▼</span>
+                        <svg
+                          width="16"
+                          height="16"
+                          viewBox="0 0 16 16"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                          style={{
+                            transform: isDeekshaDropdownOpen
+                              ? "rotate(180deg)"
+                              : "rotate(0deg)",
+                            transition: "transform 0.2s ease",
+                          }}
+                        >
+                          <path
+                            d="M4 6L8 10L12 6"
+                            stroke="#6B7280"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                        </svg>
                       </div>
                       {isDeekshaDropdownOpen && (
                         <div

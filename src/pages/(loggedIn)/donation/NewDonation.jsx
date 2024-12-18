@@ -2475,12 +2475,75 @@ const NewDonation = () => {
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, []);
 
-  const [showPhoneDropdown, setShowPhoneDropdown] = useState(false);
+  // Add this state to track which dropdown is active
+  const [activeDropdown, setActiveDropdown] = useState(null);
 
+  // Modify the name input section
+  <input
+    ref={donorNameInputRef}
+    type="text"
+    value={donorDetails.name}
+    onChange={(e) => {
+      if (shouldDisableFields()) return;
+      // Only allow letters, spaces, and dots
+      const newValue = e.target.value.replace(/[^A-Za-z\s.]/g, "");
+      setDonorDetails((prev) => ({
+        ...prev,
+        name: newValue,
+      }));
+      setSearchTerm(newValue);
+      setActiveDropdown("name"); // Set active dropdown to name
+    }}
+    onFocus={() => setActiveDropdown("name")} // Set active dropdown on focus
+    placeholder=""
+    className={`${validationErrors.name ? "error" : ""} ${
+      shouldDisableFields() ? styles["disabled-input"] : ""
+    }`}
+    disabled={shouldDisableFields()}
+  />;
+
+  {
+    activeDropdown === "name" && searchTerm && (
+      <div className="dropdown-list">
+        {/* ... existing name dropdown content ... */}
+      </div>
+    );
+  }
+
+  // Modify the phone input section
+  <input
+    ref={phoneInputRef}
+    type="text"
+    value={donorDetails.phone}
+    onChange={(e) => {
+      if (shouldDisableFields()) return;
+      const newPhone = e.target.value.replace(/\D/g, "").slice(0, 10);
+      setDonorDetails({ ...donorDetails, phone: newPhone });
+      setActiveDropdown("phone"); // Set active dropdown to phone
+    }}
+    onFocus={() => setActiveDropdown("phone")} // Set active dropdown on focus
+    disabled={shouldDisableFields()}
+    className={`${validationErrors.phone ? "error" : ""} ${
+      shouldDisableFields() ? styles["disabled-input"] : ""
+    }`}
+  />;
+
+  {
+    activeDropdown === "phone" && donorDetails.phone && (
+      <div className="dropdown-list">
+        {/* ... existing phone dropdown content ... */}
+      </div>
+    );
+  }
+
+  // Modify the click outside handler useEffect
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (!event.target.closest(".phone-unified-input")) {
-        setShowPhoneDropdown(false);
+      if (
+        !event.target.closest(".phone-unified-input") &&
+        !event.target.closest(".searchable-dropdown")
+      ) {
+        setActiveDropdown(null); // Clear active dropdown when clicking outside
       }
     };
 
@@ -2759,9 +2822,9 @@ const NewDonation = () => {
                           name: newValue,
                         }));
                         setSearchTerm(newValue);
-                        setShowDropdown(true);
+                        setActiveDropdown("name"); // Set active dropdown to name
                       }}
-                      onFocus={() => setShowDropdown(true)}
+                      onFocus={() => setActiveDropdown("name")} // Set active dropdown on focus
                       placeholder=""
                       className={`${validationErrors.name ? "error" : ""} ${
                         shouldDisableFields() ? styles["disabled-input"] : ""
@@ -2769,7 +2832,7 @@ const NewDonation = () => {
                       disabled={shouldDisableFields()}
                     />
 
-                    {showDropdown && searchTerm && (
+                    {activeDropdown === "name" && searchTerm && (
                       <div className="dropdown-list">
                         {guestDetails?.data
                           ?.filter((guest) => {
@@ -2865,16 +2928,16 @@ const NewDonation = () => {
                           .replace(/\D/g, "")
                           .slice(0, 10);
                         setDonorDetails({ ...donorDetails, phone: newPhone });
-                        setShowPhoneDropdown(true);
+                        setActiveDropdown("phone"); // Set active dropdown to phone
                       }}
-                      onFocus={() => setShowPhoneDropdown(true)}
+                      onFocus={() => setActiveDropdown("phone")} // Set active dropdown on focus
                       disabled={shouldDisableFields()}
                       className={`${validationErrors.phone ? "error" : ""} ${
                         shouldDisableFields() ? styles["disabled-input"] : ""
                       }`}
                     />
 
-                    {showPhoneDropdown && donorDetails.phone && (
+                    {activeDropdown === "phone" && donorDetails.phone && (
                       <div className="dropdown-list">
                         {guestDetails?.data
                           ?.filter((guest) =>

@@ -298,19 +298,23 @@ const ApplicationDetails = ({ goToNextStep, tabName }) => {
           const postOffice = data[0].PostOffice[0];
           setAddressData("state", postOffice.State);
           setAddressData("district", postOffice.District);
+          setAddressData("postOffice", postOffice.Name);
           console.log("Pincode API Response:", {
             state: postOffice.State,
             district: postOffice.District,
+            postOffice: postOffice.Name,
           });
         } else {
           setAddressData("state", "");
           setAddressData("district", "");
+          setAddressData("postOffice", "");
           console.log("Invalid Pincode Response");
         }
       } catch (error) {
         console.error("Error fetching address details:", error);
         setAddressData("state", "");
         setAddressData("district", "");
+        setAddressData("postOffice", "");
       }
     }
   };
@@ -837,7 +841,6 @@ const ApplicationDetails = ({ goToNextStep, tabName }) => {
                     value={formData.address.state}
                     onChange={handleAddressInputChange}
                     placeholder="Enter your state"
-                    readOnly
                   />
                   {errors.state && (
                     <span className="error">{errors.state}</span>
@@ -867,7 +870,6 @@ const ApplicationDetails = ({ goToNextStep, tabName }) => {
                     value={formData.address.district}
                     onChange={handleAddressInputChange}
                     placeholder="Enter your district"
-                    readOnly
                   />
                   {errors.district && (
                     <span className="error">{errors.district}</span>

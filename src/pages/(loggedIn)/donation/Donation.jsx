@@ -472,20 +472,16 @@ const Donation = () => {
 
   // Update the useEffect for hash navigation
   useEffect(() => {
-    // Small delay to ensure the component is fully rendered
-    const timeoutId = setTimeout(() => {
-      if (
-        window.location.hash === "#recent-donations" &&
-        recentDonationsRef.current
-      ) {
-        recentDonationsRef.current.scrollIntoView({
-          behavior: "smooth",
-          block: "start",
-        });
-      }
-    }, 100);
-
-    return () => clearTimeout(timeoutId);
+    // Check if there's a hash in the URL
+    if (window.location.hash) {
+      // Small delay to ensure the component is fully rendered
+      setTimeout(() => {
+        const element = document.getElementById(window.location.hash.slice(1));
+        if (element) {
+          element.scrollIntoView({ behavior: "smooth" });
+        }
+      }, 100);
+    }
   }, []);
 
   return (

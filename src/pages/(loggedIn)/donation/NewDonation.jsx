@@ -1014,7 +1014,7 @@ const NewDonation = () => {
               .it-stamp {
                 position: absolute;
                 right: 20px;
-                top: -95px;
+                top: -130px;
                 transform: translateY(-50%);
                 border: 2px solid #000;
                 padding: 8px;

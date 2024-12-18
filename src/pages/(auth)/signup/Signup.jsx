@@ -98,7 +98,11 @@ const Signup = () => {
     <div className="signup">
       <div className="signup-box">
         <div className="logo">
-          <img src="https://kamarpukur.rkmm.org/Logo%201-2.png" alt="" />
+          <img
+            width="150px"
+            src="https://kamarpukur.rkmm.org/Logo%201-2.png"
+            alt=""
+          />
         </div>
         <form onSubmit={handleSignup}>
           <div className="input-group">
@@ -243,7 +247,7 @@ const Signup = () => {
             buttonName="Sign Up"
             buttonWidth="100%"
             style={{
-              backgroundColor: "#9866E9",
+              backgroundColor: "#ea7704",
               fontSize: "16px",
               borderRadius: "16px",
               borderWidth: 0,
@@ -260,7 +264,7 @@ const Signup = () => {
               onClick={() => navigate("/")}
               style={{
                 cursor: "pointer",
-                color: "#9866E9",
+                color: "#ea7704",
                 fontWeight: "bold",
               }}
             >

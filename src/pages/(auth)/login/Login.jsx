@@ -82,7 +82,11 @@ const Login = () => {
     <div className="login">
       <div className="login-box">
         <div className="logo">
-          <img src="https://kamarpukur.rkmm.org/Logo%201-2.png" alt="" />
+          <img
+            width="150px"
+            src="https://kamarpukur.rkmm.org/Logo%201-2.png"
+            alt=""
+          />
         </div>
         <form onSubmit={handleSubmit}>
           <div className="input-group">
@@ -151,7 +155,7 @@ const Login = () => {
             buttonWidth="100%"
             disabled={isLoading}
             style={{
-              backgroundColor: "#9866E9",
+              backgroundColor: "#ea7704",
               fontSize: "16px",
               borderRadius: "16px",
               borderWidth: 0,
@@ -167,7 +171,7 @@ const Login = () => {
             <span
               style={{
                 cursor: "pointer",
-                color: "#9866E9",
+                color: "#ea7704",
                 fontWeight: "bold",
               }}
               onClick={() => navigate("/signup")}

@@ -537,7 +537,7 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
                       style={{
                         marginLeft: "5px",
                         fontSize: "14px",
-                        color: "#666",
+                        color: "red",
                       }}
                     >
                       (You have to depart by 7:30 a.m, as only 3 nights are

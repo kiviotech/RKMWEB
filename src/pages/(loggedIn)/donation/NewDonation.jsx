@@ -2805,11 +2805,6 @@ const NewDonation = () => {
                                 <strong>{guest.attributes.name}</strong>
                                 <div className="guest-details">
                                   <span>{guest.attributes.phone_number}</span>
-                                  {guest.attributes.email && (
-                                    <span className="email">
-                                      {guest.attributes.email}
-                                    </span>
-                                  )}
                                 </div>
                               </div>
                             </div>

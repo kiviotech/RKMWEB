@@ -18,10 +18,7 @@ const ExportReport = ({ guestData }) => {
                 border-bottom: 0px;
             }
             .email {
-                border-top: 0px;
-                border-left: 1px solid #000;
-                border-right: 1px solid #000;
-                border-bottom: 1px solid #000;
+                border: 1px solid #000;
             }
             .email p {
                 font-size: 12px;
@@ -79,8 +76,7 @@ const ExportReport = ({ guestData }) => {
               text-align: right;
             }
             .po {
-                text-align: center;
-                border-top: 0px;
+                font-size: 10px;
             }
           </style>
         </head>
@@ -88,10 +84,7 @@ const ExportReport = ({ guestData }) => {
           <table>
             <thead>
             <tr>
-                <th class="header" colspan="10">RAMAKRISHNA MATH & RAMAKRISHNA MISSION KANKURGACHI</th>
-            </tr>
-            <tr>
-                <th class="po" colspan="10">P.O.: Kankurgachi, Dist.: Hooghly, West Bengal-712012, India, Phone-03325-348343 / 9732850544</th>
+                <th class="header" colspan="10">RAMAKRISHNA MATH & RAMAKRISHNA MISSION KANKURGACHI <br> <span class="po">P.O.: Kankurgachi, Dist.: Hooghly, West Bengal-712012, India, Phone-03325-348343 / 9732850544</span></th>
             </tr>
             <tr>
                 <th class="email" colspan="10">

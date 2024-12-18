@@ -81,7 +81,9 @@ const Login = () => {
   return (
     <div className="login">
       <div className="login-box">
-        <div className="logo">LOGO</div>
+        <div className="logo">
+          <img src="https://kamarpukur.rkmm.org/Logo%201-2.png" alt="" />
+        </div>
         <form onSubmit={handleSubmit}>
           <div className="input-group">
             <label htmlFor="username">Username</label>

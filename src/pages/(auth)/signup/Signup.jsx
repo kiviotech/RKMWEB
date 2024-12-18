@@ -97,7 +97,9 @@ const Signup = () => {
   return (
     <div className="signup">
       <div className="signup-box">
-        <div className="logo">LOGO</div>
+        <div className="logo">
+          <img src="https://kamarpukur.rkmm.org/Logo%201-2.png" alt="" />
+        </div>
         <form onSubmit={handleSignup}>
           <div className="input-group">
             <label htmlFor="username">Username</label>

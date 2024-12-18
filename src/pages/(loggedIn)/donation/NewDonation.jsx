@@ -2475,6 +2475,21 @@ const NewDonation = () => {
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, []);
 
+  const [showPhoneDropdown, setShowPhoneDropdown] = useState(false);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (!event.target.closest(".phone-unified-input")) {
+        setShowPhoneDropdown(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
   return (
     <div className="donations-container">
       <div className="header">
@@ -2734,7 +2749,11 @@ const NewDonation = () => {
                       value={donorDetails.name}
                       onChange={(e) => {
                         if (shouldDisableFields()) return;
-                        const newValue = e.target.value;
+                        // Only allow letters, spaces, and dots
+                        const newValue = e.target.value.replace(
+                          /[^A-Za-z\s.]/g,
+                          ""
+                        );
                         setDonorDetails((prev) => ({
                           ...prev,
                           name: newValue,
@@ -2835,22 +2854,77 @@ const NewDonation = () => {
                   >
                     <option value="+91">+91</option>
                   </select>
-                  <input
-                    ref={phoneInputRef}
-                    type="text"
-                    value={donorDetails.phone}
-                    onChange={(e) => {
-                      if (shouldDisableFields()) return;
-                      const newPhone = e.target.value
-                        .replace(/\D/g, "")
-                        .slice(0, 10);
-                      setDonorDetails({ ...donorDetails, phone: newPhone });
-                    }}
-                    disabled={shouldDisableFields()}
-                    className={`${validationErrors.phone ? "error" : ""} ${
-                      shouldDisableFields() ? styles["disabled-input"] : ""
-                    }`}
-                  />
+                  <div className="searchable-dropdown">
+                    <input
+                      ref={phoneInputRef}
+                      type="text"
+                      value={donorDetails.phone}
+                      onChange={(e) => {
+                        if (shouldDisableFields()) return;
+                        const newPhone = e.target.value
+                          .replace(/\D/g, "")
+                          .slice(0, 10);
+                        setDonorDetails({ ...donorDetails, phone: newPhone });
+                        setShowPhoneDropdown(true);
+                      }}
+                      onFocus={() => setShowPhoneDropdown(true)}
+                      disabled={shouldDisableFields()}
+                      className={`${validationErrors.phone ? "error" : ""} ${
+                        shouldDisableFields() ? styles["disabled-input"] : ""
+                      }`}
+                    />
+
+                    {showPhoneDropdown && donorDetails.phone && (
+                      <div className="dropdown-list">
+                        {guestDetails?.data
+                          ?.filter((guest) =>
+                            guest.attributes.phone_number.includes(
+                              donorDetails.phone
+                            )
+                          )
+                          .map((guest) => (
+                            <div
+                              key={guest.id}
+                              className="dropdown-item"
+                              onClick={() => {
+                                // Extract title and name
+                                const fullName = guest.attributes.name;
+                                const [title, ...nameParts] =
+                                  fullName.split(" ");
+                                const name = nameParts.join(" ");
+
+                                // Update donor details
+                                setDonorDetails({
+                                  ...donorDetails,
+                                  title: title || "Sri",
+                                  name: name,
+                                  phone:
+                                    guest.attributes.phone_number?.replace(
+                                      "+91",
+                                      ""
+                                    ) || "",
+                                  email: guest.attributes.email || "",
+                                  identityType: "Aadhaar",
+                                  identityNumber:
+                                    guest.attributes.aadhaar_number || "",
+                                  guestId: guest.id,
+                                  ...(guest.attributes.address &&
+                                    parseAddress(guest.attributes.address)),
+                                });
+                                setShowPhoneDropdown(false);
+                              }}
+                            >
+                              <div className="dropdown-item-content">
+                                <strong>{guest.attributes.name}</strong>
+                                <div className="guest-details">
+                                  <span>{guest.attributes.phone_number}</span>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
 

@@ -426,7 +426,7 @@ const AllDonation = ({
                       </td>
                     )}
                     {filterOptions.donationAmount && (
-                      <td>{donation.attributes.donationAmount}</td>
+                      <td>₹ {donation.attributes.donationAmount}</td>
                     )}
                     {filterOptions.action && (
                       <td className="action-cell">

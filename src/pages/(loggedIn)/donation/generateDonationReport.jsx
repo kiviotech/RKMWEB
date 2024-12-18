@@ -1,3 +1,11 @@
+const formatDate = (dateString) => {
+  if (!dateString) return "";
+  const date = new Date(dateString);
+  return `${date.getDate().toString().padStart(2, "0")}/${(date.getMonth() + 1)
+    .toString()
+    .padStart(2, "0")}/${date.getFullYear()}`;
+};
+
 export const generateDonationReport = (donations, reportType) => {
   // Group donations based on mode first
   const groupedByMode = donations.reduce((acc, donation) => {
@@ -168,7 +176,7 @@ export const generateDonationReport = (donations, reportType) => {
       </head>
       <body>
         <div class="page-title">
-          Receipt List For ${new Date().toLocaleDateString()} - ${reportType} Receipt
+          Receipt List For ${formatDate(new Date())} - ${reportType} Receipt
         </div>
         
         <table class="header-table">
@@ -217,9 +225,9 @@ export const generateDonationReport = (donations, reportType) => {
                                   donation.attributes.receipt_detail?.data
                                     ?.attributes?.Receipt_number || ""
                                 }</div>
-                                <div>${new Date(
+                                <div>${formatDate(
                                   donation.attributes.createdAt
-                                ).toLocaleDateString()}</div>
+                                )}</div>
                                 <div>
                                   ${donation.attributes.donorName || ""}
                                   ${
@@ -228,9 +236,9 @@ export const generateDonationReport = (donations, reportType) => {
                                       : ""
                                   }
                                 </div>
-                                <div>${
-                                  donation.attributes.ddch_date || ""
-                                }</div>
+                                <div>${formatDate(
+                                  donation.attributes.ddch_date
+                                )}</div>
                                 <div>${
                                   donation.attributes.bankName
                                     ? `${donation.attributes.bankName} - ${donation.attributes.ddch_number}`

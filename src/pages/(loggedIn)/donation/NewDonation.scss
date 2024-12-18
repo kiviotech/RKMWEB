@@ -1910,6 +1910,10 @@ select {
 .donor-unified-input,
 .phone-unified-input,
 .identity-unified-input {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+
   select,
   input {
     border: 1px solid #98a2af !important;
@@ -1935,15 +1939,18 @@ select {
   }
 
   @media (max-width: 1000px) {
-    flex-direction: column;
-    gap: 8px;
+    flex-direction: row;
+    gap: 10px;
 
     select {
-      width: 100% !important;
+      width: auto !important;
+      min-width: 80px;
+      flex-shrink: 0;
     }
 
     input {
-      width: 100%;
+      flex: 1;
+      min-width: 0;
     }
   }
 }

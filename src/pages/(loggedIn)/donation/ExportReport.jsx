@@ -15,9 +15,7 @@ const ExportReport = ({ guestData }) => {
             }
             .header {
               text-align: center;
-              border-bottom: 1px solid #000;
-              padding-bottom: 10px;
-              margin-bottom: 20px;
+              border: 1px solid #000;
             }
             .header h1 {
               font-size: 14px;
@@ -26,10 +24,21 @@ const ExportReport = ({ guestData }) => {
             }
             .header p {
               font-size: 12px;
-              margin: 5px 0 0;
+              margin: 0;
             }
-            .date {
-              text-align: left;
+            .email {
+                border-top: 0px;
+                border-left: 1px solid #000;
+                border-right: 1px solid #000;
+                border-bottom: 1px solid #000;
+            }
+            .email p {
+                font-size: 12px;
+                margin: 0;
+                text-align: center;
+            }
+            .date th {
+              text-align: center;
               margin: 10px 0;
               font-size: 12px;
             }
@@ -85,13 +94,17 @@ const ExportReport = ({ guestData }) => {
             <h1>RAMAKRISHNA MATH & RAMAKRISHNA MISSION KANKURGACHI</h1>
             <p>P.O.: Kankurgachi, Dist.: Hooghly, West Bengal-712012, India, Phone-03325-348343 / 9732850544</p>
           </div>
-          
-          <div class="date">
-            DATE: ${new Date().toLocaleDateString()}
+          <div class="email">
+            <p>Email: kamarpukur@rkmm.org</p>
           </div>
 
           <table>
             <thead>
+            <tr class="date">
+                <th colspan="6">DATE: ${new Date().toLocaleDateString()}</th>
+                <th colspan="1" rowspan="2">No. of Devotees</th>
+                <th colspan="2">Donation Details</th>
+            </tr>
               <tr>
                 <th class="sl-no">Sl. No.</th>
                 <th class="room-no">Room No.</th>
@@ -99,7 +112,6 @@ const ExportReport = ({ guestData }) => {
                 <th class="booking">Booking Description</th>
                 <th class="date-col">From</th>
                 <th class="date-col">To</th>
-                <th class="persons">No. of Devotees</th>
                 <th class="receipt">Receipt No.</th>
                 <th class="amount">Amount</th>
               </tr>
@@ -124,6 +136,13 @@ const ExportReport = ({ guestData }) => {
               `
                 )
                 .join("")}
+              <tr>
+                <td colspan="6" style="text-align: right; font-weight: bold;">Total Devotees:</td>
+                <td class="persons" style="font-weight: bold;">${
+                  guestData.length
+                }</td>
+                <td colspan="2"></td>
+              </tr>
             </tbody>
           </table>
         </body>

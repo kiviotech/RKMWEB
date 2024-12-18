@@ -121,9 +121,22 @@ const AllDonation = ({
 
   // Get current page data
   const getCurrentPageData = () => {
+    // Sort donations by date in descending order (newest first)
+    const sortedDonations = [...filteredDonations].sort((a, b) => {
+      const dateA = new Date(
+        a.attributes.receipt_detail?.data?.attributes?.donation_date ||
+          a.attributes.updatedAt
+      );
+      const dateB = new Date(
+        b.attributes.receipt_detail?.data?.attributes?.donation_date ||
+          b.attributes.updatedAt
+      );
+      return dateB - dateA;
+    });
+
     const startIndex = (currentPage - 1) * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
-    const currentData = filteredDonations.slice(startIndex, endIndex);
+    const currentData = sortedDonations.slice(startIndex, endIndex);
     console.log("Current Page Data:", currentData);
     return currentData;
   };

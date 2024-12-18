@@ -17,9 +17,6 @@ import {
   fetchDonationById,
 } from "../../../../services/src/services/donationsService";
 import { useNavigate, useLocation } from "react-router-dom";
-import ExportDonations from "./ExportDonations";
-import CancelDonation from "./CancelDonation";
-import styles from "./NewDonation.module.css";
 
 const NewDonation = () => {
   // Add this useEffect at the top of your component
@@ -2570,27 +2567,6 @@ const NewDonation = () => {
           <button className="add-donation-btn" onClick={handleAddDonation}>
             + Add Donation
           </button>
-          <button
-            onClick={() => navigate("/donation#recent-donations")}
-            className="tomorrows-guest-btn"
-            style={{
-              backgroundColor: "#8C52FF",
-              color: "white",
-              border: "none",
-              borderRadius: "4px",
-              padding: "8px 16px",
-              cursor: "pointer",
-              fontSize: "14px",
-              fontWeight: "500",
-              display: "flex",
-              alignItems: "center",
-              gap: "8px",
-            }}
-          >
-            Recent Donations
-          </button>
-          <ExportDonations />
-          <CancelDonation />
         </div>
         <div>
           {" "}

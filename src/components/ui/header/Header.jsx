@@ -13,6 +13,7 @@ const Header = ({ hideElements }) => {
   const [showDropdown, setShowDropdown] = React.useState(false);
   const [showNotification, setShowNotification] = React.useState(false);
   const [showCancelDropdown, setShowCancelDropdown] = React.useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
 
   // Add ref for dropdown container
   const dropdownRef = React.useRef(null);
@@ -38,13 +39,16 @@ const Header = ({ hideElements }) => {
       ) {
         setShowCancelDropdown(false);
       }
+      if (isMobileMenuOpen && !event.target.closest(".navbar")) {
+        setIsMobileMenuOpen(false);
+      }
     };
 
     document.addEventListener("mousedown", handleClickOutside);
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, []);
+  }, [isMobileMenuOpen]);
 
   const handleLogout = () => {
     logout();
@@ -96,7 +100,15 @@ const Header = ({ hideElements }) => {
       <div className="logo">
         <img src={icons.RMK_Logo} alt="Logo" />
       </div>
-      <ul className="nav-links">
+
+      <button
+        className="menu-toggle"
+        onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+      >
+        ☰
+      </button>
+
+      <ul className={`nav-links ${isMobileMenuOpen ? "show" : ""}`}>
         {location.pathname === "/newDonation" ||
         location.pathname === "/allDonationDetails" ||
         location.pathname === "/donation" ? (
@@ -159,7 +171,7 @@ const Header = ({ hideElements }) => {
                 }
                 onClick={(e) => {
                   e.preventDefault();
-                  navigate("/donation");
+                  navigate("/allDonationDetails");
                   setTimeout(() => {
                     const element = document.getElementById("recent-donations");
                     if (element) {
@@ -168,7 +180,7 @@ const Header = ({ hideElements }) => {
                   }, 100);
                 }}
               >
-                Recent Donation
+                Reports
               </NavLink>
             </li>
             <li ref={cancelDropdownRef} className="dropdown-container">

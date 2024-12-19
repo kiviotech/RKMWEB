@@ -152,12 +152,13 @@ const ReceiptTemplate = ({
               .stamp-container {
                 position: relative;
                 width: 100%;
+                margin-bottom: -35px;
               }
 
               .it-stamp {
                 position: absolute;
-                right: 20px;
-                top: -130px;
+                right: -80px;
+                top: -115px;
                 transform: translateY(-50%);
                 border: 2px solid #000;
                 padding: 8px;

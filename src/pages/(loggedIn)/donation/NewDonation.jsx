@@ -1628,14 +1628,11 @@ const NewDonation = () => {
         );
       }
 
-      // Validate amount
+      // Update validation error immediately
       setValidationErrors((prev) => ({
         ...prev,
-        amount: !value
-          ? "Amount is required"
-          : numericValue <= 0
-          ? "Amount must be greater than 0"
-          : "",
+        amount:
+          !value || numericValue <= 0 ? "Amount must be greater than 0" : "",
       }));
     }
   };
@@ -2153,8 +2150,21 @@ const NewDonation = () => {
       }));
       setSearchTerm(newValue);
       setActiveDropdown("name"); // Set active dropdown to name
+      // Clear validation error when user types
+      setValidationErrors((prev) => ({
+        ...prev,
+        name: "",
+      }));
     }}
-    onFocus={() => setActiveDropdown("name")} // Set active dropdown on focus
+    onBlur={() => {
+      // Show validation error if field is empty when focus is lost
+      if (!donorDetails.name.trim()) {
+        setValidationErrors((prev) => ({
+          ...prev,
+          name: "Donor name is required",
+        }));
+      }
+    }}
     placeholder=""
     className={`${validationErrors.name ? "error" : ""} ${
       shouldDisableFields() ? "disabled-input" : ""
@@ -2180,8 +2190,26 @@ const NewDonation = () => {
       const newPhone = e.target.value.replace(/\D/g, "").slice(0, 10);
       setDonorDetails({ ...donorDetails, phone: newPhone });
       setActiveDropdown("phone"); // Set active dropdown to phone
+      // Clear validation error when user types
+      setValidationErrors((prev) => ({
+        ...prev,
+        phone: "",
+      }));
     }}
-    onFocus={() => setActiveDropdown("phone")} // Set active dropdown on focus
+    onBlur={() => {
+      // Show validation error if field is empty or invalid when focus is lost
+      if (!donorDetails.phone) {
+        setValidationErrors((prev) => ({
+          ...prev,
+          phone: "Phone number is required",
+        }));
+      } else if (donorDetails.phone.length !== 10) {
+        setValidationErrors((prev) => ({
+          ...prev,
+          phone: "Phone number must be 10 digits",
+        }));
+      }
+    }}
     disabled={shouldDisableFields()}
     className={`${validationErrors.phone ? "error" : ""} ${
       shouldDisableFields() ? "disabled-input" : ""
@@ -2228,6 +2256,58 @@ const NewDonation = () => {
       }, 100);
     }
   }, [location]); // Run when location changes
+
+  // Pincode input section with corrected error message positioning
+  <div className="form-group">
+    <label>
+      Pincode <span className="required">*</span>
+    </label>
+    <div className="input-wrapper">
+      <input
+        type="text"
+        value={donorDetails.pincode}
+        onChange={(e) => {
+          if (shouldDisableFields()) return;
+          const value = e.target.value.replace(/\D/g, "").slice(0, 6);
+          setDonorDetails({ ...donorDetails, pincode: value });
+          // Clear validation error when user types
+          setValidationErrors((prev) => ({
+            ...prev,
+            pincode: "",
+          }));
+
+          // Call fetchPincodeDetails when pincode length is 6
+          if (value.length === 6) {
+            fetchPincodeDetails(value);
+          }
+        }}
+        onBlur={() => {
+          // Show validation error if field is empty or invalid when focus is lost
+          if (!donorDetails.pincode) {
+            setValidationErrors((prev) => ({
+              ...prev,
+              pincode: "Pincode is required",
+            }));
+          } else if (donorDetails.pincode.length !== 6) {
+            setValidationErrors((prev) => ({
+              ...prev,
+              pincode: "Pincode must be 6 digits",
+            }));
+          }
+        }}
+        disabled={shouldDisableFields()}
+        className={`${validationErrors.pincode ? "error" : ""} ${
+          shouldDisableFields() ? "disabled-input" : ""
+        }`}
+      />
+      {isLoadingPincode && (
+        <span className="loading-indicator">Loading...</span>
+      )}
+    </div>
+    {validationErrors.pincode && (
+      <div className="error-message">{validationErrors.pincode}</div>
+    )}
+  </div>;
 
   return (
     <div
@@ -2480,14 +2560,32 @@ const NewDonation = () => {
                         }));
                         setSearchTerm(newValue);
                         setActiveDropdown("name"); // Set active dropdown to name
+                        // Clear validation error when user types
+                        setValidationErrors((prev) => ({
+                          ...prev,
+                          name: "",
+                        }));
                       }}
-                      onFocus={() => setActiveDropdown("name")} // Set active dropdown on focus
+                      onBlur={() => {
+                        // Show validation error if field is empty when focus is lost
+                        if (!donorDetails.name.trim()) {
+                          setValidationErrors((prev) => ({
+                            ...prev,
+                            name: "Donor name is required",
+                          }));
+                        }
+                      }}
                       placeholder=""
                       className={`${validationErrors.name ? "error" : ""} ${
                         shouldDisableFields() ? "disabled-input" : ""
                       }`}
                       disabled={shouldDisableFields()}
                     />
+                    {validationErrors.name && (
+                      <div className="error-message">
+                        {validationErrors.name}
+                      </div>
+                    )}
 
                     {activeDropdown === "name" && searchTerm && (
                       <div className="dropdown-list">
@@ -2583,63 +2681,35 @@ const NewDonation = () => {
                           .replace(/\D/g, "")
                           .slice(0, 10);
                         setDonorDetails({ ...donorDetails, phone: newPhone });
-                        setActiveDropdown("phone"); // Set active dropdown to phone
+                        setActiveDropdown("phone");
+                        // Clear validation error when user types
+                        setValidationErrors((prev) => ({
+                          ...prev,
+                          phone: "",
+                        }));
                       }}
-                      onFocus={() => setActiveDropdown("phone")} // Set active dropdown on focus
+                      onBlur={() => {
+                        // Show validation error if field is empty or invalid when focus is lost
+                        if (!donorDetails.phone) {
+                          setValidationErrors((prev) => ({
+                            ...prev,
+                            phone: "Phone number is required",
+                          }));
+                        } else if (donorDetails.phone.length !== 10) {
+                          setValidationErrors((prev) => ({
+                            ...prev,
+                            phone: "Phone number must be 10 digits",
+                          }));
+                        }
+                      }}
                       disabled={shouldDisableFields()}
                       className={`${validationErrors.phone ? "error" : ""} ${
                         shouldDisableFields() ? "disabled-input" : ""
                       }`}
                     />
-
-                    {activeDropdown === "phone" && donorDetails.phone && (
-                      <div className="dropdown-list">
-                        {guestDetails?.data
-                          ?.filter((guest) =>
-                            guest.attributes.phone_number.includes(
-                              donorDetails.phone
-                            )
-                          )
-                          .map((guest) => (
-                            <div
-                              key={guest.id}
-                              className="dropdown-item"
-                              onClick={() => {
-                                // Extract title and name
-                                const fullName = guest.attributes.name;
-                                const [title, ...nameParts] =
-                                  fullName.split(" ");
-                                const name = nameParts.join(" ");
-
-                                // Update donor details
-                                setDonorDetails({
-                                  ...donorDetails,
-                                  title: title || "Sri",
-                                  name: name,
-                                  phone:
-                                    guest.attributes.phone_number?.replace(
-                                      "+91",
-                                      ""
-                                    ) || "",
-                                  email: guest.attributes.email || "",
-                                  identityType: "Aadhaar",
-                                  identityNumber:
-                                    guest.attributes.aadhaar_number || "",
-                                  guestId: guest.id,
-                                  ...(guest.attributes.address &&
-                                    parseAddress(guest.attributes.address)),
-                                });
-                                setShowPhoneDropdown(false);
-                              }}
-                            >
-                              <div className="dropdown-item-content">
-                                <strong>{guest.attributes.name}</strong>
-                                <div className="guest-details">
-                                  <span>{guest.attributes.phone_number}</span>
-                                </div>
-                              </div>
-                            </div>
-                          ))}
+                    {validationErrors.phone && (
+                      <div className="error-message">
+                        {validationErrors.phone}
                       </div>
                     )}
                   </div>
@@ -2657,7 +2727,7 @@ const NewDonation = () => {
                   <div
                     className="dropdown-header"
                     onClick={() => {
-                      if (shouldDisableFields()) return; // Add this line
+                      if (shouldDisableFields()) return;
                       setIsDeekshaDropdownOpen(!isDeekshaDropdownOpen);
                       setTimeout(() => {
                         if (searchInputRef.current) {
@@ -2665,9 +2735,8 @@ const NewDonation = () => {
                         }
                       }, 100);
                     }}
-                    tabIndex="0" // Add this line
+                    tabIndex="0"
                     onKeyDown={(e) => {
-                      // Add this handler
                       if (e.key === "Enter" || e.key === " ") {
                         e.preventDefault();
                         if (!shouldDisableFields()) {
@@ -2679,19 +2748,19 @@ const NewDonation = () => {
                       padding: "10px",
                       border: "1px solid #ccc",
                       borderRadius: "4px",
-                      cursor: shouldDisableFields() ? "not-allowed" : "pointer", // Modify this line
+                      cursor: shouldDisableFields() ? "not-allowed" : "pointer",
                       display: "flex",
                       justifyContent: "space-between",
                       alignItems: "center",
                       backgroundColor: shouldDisableFields()
                         ? "#f3f4f6"
-                        : "#FFF", // Add this line
-                      opacity: shouldDisableFields() ? 0.7 : 1, // Add this line
-                      outline: "none", // Add this line to improve focus visibility
+                        : "#FFF",
+                      opacity: shouldDisableFields() ? 0.7 : 1,
+                      outline: "none",
                     }}
                   >
                     <span>{donorDetails.mantraDiksha || "Select Deeksha"}</span>
-                    {!shouldDisableFields() && ( // Add this condition
+                    {!shouldDisableFields() && (
                       <svg
                         width="16"
                         height="16"
@@ -2715,79 +2784,75 @@ const NewDonation = () => {
                       </svg>
                     )}
                   </div>
-                  {isDeekshaDropdownOpen &&
-                    !shouldDisableFields() && ( // Add !shouldDisableFields() check
-                      <div
-                        className="dropdown-options"
+                  {isDeekshaDropdownOpen && !shouldDisableFields() && (
+                    <div
+                      className="dropdown-options"
+                      style={{
+                        position: "absolute",
+                        top: "100%",
+                        left: 0,
+                        right: 0,
+                        maxHeight: "200px",
+                        overflowY: "auto",
+                        backgroundColor: "white",
+                        border: "1px solid #ccc",
+                        borderRadius: "4px",
+                        zIndex: 1000,
+                        boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+                      }}
+                    >
+                      <input
+                        ref={searchInputRef}
+                        type="text"
+                        placeholder="Search..."
+                        value={deekshaSearchQuery}
+                        onChange={(e) => setDeekshaSearchQuery(e.target.value)}
                         style={{
-                          position: "absolute",
-                          top: "100%",
-                          left: 0,
-                          right: 0,
-                          maxHeight: "200px",
-                          overflowY: "auto",
-                          backgroundColor: "white",
-                          border: "1px solid #ccc",
-                          borderRadius: "4px",
-                          zIndex: 1000,
-                          boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+                          width: "100%",
+                          padding: "8px",
+                          border: "none",
+                          borderBottom: "1px solid #ccc",
+                          outline: "none",
                         }}
-                      >
-                        <input
-                          ref={searchInputRef}
-                          type="text"
-                          placeholder="Search..."
-                          value={deekshaSearchQuery}
-                          onChange={(e) =>
-                            setDeekshaSearchQuery(e.target.value)
-                          }
-                          style={{
-                            width: "100%",
-                            padding: "8px",
-                            border: "none",
-                            borderBottom: "1px solid #ccc",
-                            outline: "none",
-                          }}
-                          onClick={(e) => e.stopPropagation()}
-                          autoFocus
-                        />
-                        {deekshaOptions
-                          .filter((option) =>
-                            option
-                              .toLowerCase()
-                              .includes(deekshaSearchQuery.toLowerCase())
-                          )
-                          .map((option) => (
-                            <div
-                              key={option}
-                              onClick={() => {
-                                if (option === "Others") {
-                                  setShowCustomDeeksha(true);
-                                  setCustomDeeksha("");
-                                  // Don't set mantraDiksha here, wait for custom input
-                                } else {
-                                  setShowCustomDeeksha(false);
-                                  setDonorDetails({
-                                    ...donorDetails,
-                                    mantraDiksha: option,
-                                  });
-                                }
-                                setIsDeekshaDropdownOpen(false);
-                                setDeekshaSearchQuery("");
-                              }}
-                              style={{
-                                padding: "10px",
-                                cursor: "pointer",
-                                ":hover": {
-                                  backgroundColor: "#f5f5f5",
-                                },
-                              }}
-                            >
-                              {option}
-                            </div>
-                          ))}
-                      </div>
-                    )}
+                        onClick={(e) => e.stopPropagation()}
+                        autoFocus
+                      />
+                      {deekshaOptions
+                        .filter((option) =>
+                          option
+                            .toLowerCase()
+                            .includes(deekshaSearchQuery.toLowerCase())
+                        )
+                        .map((option) => (
+                          <div
+                            key={option}
+                            onClick={() => {
+                              if (option === "Others") {
+                                setShowCustomDeeksha(true);
+                                setCustomDeeksha("");
+                              } else {
+                                setShowCustomDeeksha(false);
+                                setDonorDetails({
+                                  ...donorDetails,
+                                  mantraDiksha: option,
+                                });
+                              }
+                              setIsDeekshaDropdownOpen(false);
+                              setDeekshaSearchQuery("");
+                            }}
+                            style={{
+                              padding: "10px",
+                              cursor: "pointer",
+                              ":hover": {
+                                backgroundColor: "#f5f5f5",
+                              },
+                            }}
+                          >
+                            {option}
+                          </div>
+                        ))}
+                    </div>
+                  )}
                 </div>
 
                 {/* Custom deeksha input - this value will be stored in the database */}
@@ -2982,15 +3047,41 @@ const NewDonation = () => {
                     if (shouldDisableFields()) return;
                     const value = e.target.value.replace(/\D/g, "").slice(0, 6);
                     setDonorDetails({ ...donorDetails, pincode: value });
+                    // Clear validation error when user types
+                    setValidationErrors((prev) => ({
+                      ...prev,
+                      pincode: "",
+                    }));
 
                     // Call fetchPincodeDetails when pincode length is 6
                     if (value.length === 6) {
                       fetchPincodeDetails(value);
                     }
                   }}
+                  onBlur={() => {
+                    // Show validation error if field is empty or invalid when focus is lost
+                    if (!donorDetails.pincode) {
+                      setValidationErrors((prev) => ({
+                        ...prev,
+                        pincode: "Pincode is required",
+                      }));
+                    } else if (donorDetails.pincode.length !== 6) {
+                      setValidationErrors((prev) => ({
+                        ...prev,
+                        pincode: "Pincode must be 6 digits",
+                      }));
+                    }
+                  }}
                   disabled={shouldDisableFields()}
-                  className={`${shouldDisableFields() ? "disabled-input" : ""}`}
+                  className={`${validationErrors.pincode ? "error" : ""} ${
+                    shouldDisableFields() ? "disabled-input" : ""
+                  }`}
                 />
+                {validationErrors.pincode && (
+                  <div className="error-message">
+                    {validationErrors.pincode}
+                  </div>
+                )}
                 {isLoadingPincode && (
                   <span className="loading-indicator">Loading...</span>
                 )}
@@ -3490,6 +3581,9 @@ const NewDonation = () => {
                 }`}
                 placeholder=""
               />
+              {validationErrors.amount && (
+                <div className="error-message">{validationErrors.amount}</div>
+              )}
             </div>
             {showPANField && (
               <div className="form-group">
@@ -4194,6 +4288,53 @@ const NewDonation = () => {
         .form-group {
           min-height: 70px;
           margin-bottom: 15px;
+        }
+
+        .error-message {
+          color: #dc2626;
+          font-size: 0.875rem;
+          margin-top: 0.25rem;
+        }
+
+        .error {
+          border-color: #dc2626 !important;
+          &:focus {
+            border-color: #dc2626 !important;
+            box-shadow: 0 0 0 1px #dc2626 !important;
+          }
+        }
+        .form-group {
+          position: relative;
+          margin-bottom: 24px;
+        }
+
+        .input-wrapper {
+          position: relative;
+        }
+
+        .error-message {
+          color: #dc2626;
+          font-size: 0.875rem;
+          position: absolute;
+          top: 100%;
+          left: 0;
+          margin-top: 4px;
+        }
+
+        input.error {
+          border-color: #dc2626 !important;
+        }
+
+        .loading-indicator {
+          position: absolute;
+          right: 8px;
+          top: 50%;
+          transform: translateY(-50%);
+        }
+        :global(.error-message) {
+          display: block !important;
+          visibility: visible !important;
+          opacity: 1 !important;
         }
       `}</style>
     </div>

@@ -297,7 +297,7 @@ const ReceiptTemplate = ({
 
               </div>
               <div class="footer">
-                <p>Rock</p>
+                <p>${user?.username}</p>
               </div>
             </div>
             <script>

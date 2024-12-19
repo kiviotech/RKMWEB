@@ -21,13 +21,15 @@ const ReceiptTemplate = ({
                 background-color: #fff;
                 font-family: Arial, sans-serif;
                 height: 100%;
+                border: 1px solid #000;
               }
 
               .letterhead {
                 width: 77%;
                 height: 100%;
-                margin-top: 5%;
+                margin-top: 5.3%;
                 margin-left: 7%;
+                border: 1px solid red;
               }
 
               .header {
@@ -167,9 +169,13 @@ const ReceiptTemplate = ({
                 background-color: transparent;
               }
             .footer {
-                text-align: center;
-                margin: 0;
+                width: 39%;
+                float: right;
+                right: 0;
                 border: 1px solid red;
+            }
+            .footer p {
+                text-align: left;
             }
             </style>
           </head>

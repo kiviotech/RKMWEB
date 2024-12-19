@@ -17,15 +17,19 @@ const ReceiptTemplate = ({
             <title>Ramakrishna Math Letterhead</title>
             <style>
               body {
-                margin: 0;
-                padding: 20px;
+                margin: 0
                 background-color: #fff;
                 font-family: Arial, sans-serif;
+                border: 1px solid red;
+                height: 100%;
               }
 
               .letterhead {
-                width: 672 px;
-                margin: 0 auto;
+                width: 77%;
+                height: 100%;
+                margin-top: 5%;
+                margin-left: 7%;
+                border: 1px solid #000;
               }
 
               .header {
@@ -47,27 +51,27 @@ const ReceiptTemplate = ({
               h1 {
                 margin: 0;
                 color: #4b3968;
-                font-size: 24px;
+                font-size: 28px;
                 text-align: center;
               }
 
               .subtitle {
                 margin: 5px 0;
-                font-size: 14px;
+                font-size: 16px;
                 text-align: center;
                 color: #4b3968;
               }
 
               .address {
                 margin: 5px 0;
-                font-size: 14px;
+                font-size: 16px;
                 text-align: center;
                 color: #4b3968;
               }
 
               .contact {
                 margin: 5px 0;
-                font-size: 12px;
+                font-size: 14px;
                 text-align: center;
                 color: #4b3968;
               }
@@ -84,7 +88,7 @@ const ReceiptTemplate = ({
               .received {
                 margin: 0 0 5px 0;
                 color: #4b3968;
-                font-size: 14px;
+                font-size: 16px;
               }
 
               .adhyaksha {
@@ -95,11 +99,11 @@ const ReceiptTemplate = ({
                 min-width: 150px;
                 text-align: center;
                 color: #4b3968;
-                font-size: 14px;
+                font-size: 16px;
               }
 
               .donation-text {
-                font-size: 14px;
+                font-size: 16px;
                 color: #4b3968;
                 line-height: 1.6;
                 margin: 20px 0 0 0;
@@ -112,20 +116,20 @@ const ReceiptTemplate = ({
               .receipt-details {
                 margin: 70px 0px;
                 line-height: 2;
-                font-size: 16px;
+                font-size: 18px;
               }
 
               .receipt-row {
                 display: flex;
                 justify-content: space-between;
                 margin-bottom: 5px;
-                font-size: 16px;
+                font-size: 18px;
               }
 
               .donor-details p {
                 margin: 0;
-                line-height: 2;
-                font-size: 16px;
+                font-size: 18px;
+                line-height: 1.5;
               }
 
               .donor-details p:not(:first-child) {
@@ -134,17 +138,16 @@ const ReceiptTemplate = ({
 
               .payment-details p {
                 margin: 0;
-                line-height: 2;
-                font-size: 16px;
+                font-size: 18px;
               }
 
               .amount {
-                font-size: 18px;
+                font-size: 20px;
                 font-weight: bold;
               }
 
               b {
-                font-size: 18px;
+                font-size: 20px;
               }
               .stamp-container {
                 position: relative;
@@ -158,13 +161,16 @@ const ReceiptTemplate = ({
                 transform: translateY(-50%);
                 border: 2px solid #000;
                 padding: 8px;
-                font-size: 11px;
+                font-size: 13px;
                 font-weight: 600;
                 line-height: 1.2;
                 max-width: 400px;
                 text-align: center;
                 background-color: transparent;
               }
+            .footer {
+                text-align: center;
+            }
             </style>
           </head>
           <body>
@@ -175,17 +181,17 @@ const ReceiptTemplate = ({
                   <span class="date">Date: <b>${formattedDate}</b></span>
                 </div>
                 <div class="donor-details">
-                  <p style="margin: 0 0 5px 0;">
+                  <p style="margin: 0;">
                     Received with thanks from
                     <b>${donorDetails.title} ${donorDetails.name}</b>
                   </p>
-                  <div style="margin-left: 190px; font-weight: bold;">
-                    <p style="margin: 0 0 5px 0;">
+                  <div style="margin-left: 215px; font-weight: bold;">
+                    <p style="margin: 0;">
                       ${donorDetails.houseNumber || ""}${
     donorDetails.streetName ? `, ${donorDetails.streetName}` : ""
   }
                     </p>
-                    <p style="margin: 0 0 5px 0;">
+                    <p style="margin: 0;">
                       ${
                         donorDetails.postOffice
                           ? `PO: ${donorDetails.postOffice}, `
@@ -194,7 +200,7 @@ const ReceiptTemplate = ({
     donorDetails.district ? `Dist: ${donorDetails.district}` : ""
   }
                     </p>
-                    <p style="margin: 0 0 5px 0;">
+                    <p style="margin: 0;">
                       ${
                         donorDetails.state
                           ? `State: ${donorDetails.state}, `
@@ -205,7 +211,7 @@ const ReceiptTemplate = ({
                     ${
                       donorDetails.identityNumber
                         ? `
-                    <p style="margin: 0 0 5px 0;">
+                    <p style="margin: 0;">
                       ${
                         donorDetails.identityType === "PAN"
                           ? `PAN: ${donorDetails.identityNumber}`
@@ -282,6 +288,9 @@ const ReceiptTemplate = ({
    }
 </div>
 
+              </div>
+              <div class="footer">
+                <p>Received by Rock</p>
               </div>
             </div>
             <script>

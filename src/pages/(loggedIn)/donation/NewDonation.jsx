@@ -789,18 +789,19 @@ const NewDonation = () => {
 
       // ... rest of your existing code ...
 
-      // Create receipt details
+      // Create receipt details with counter number
       console.log("Creating new receipt");
       const receiptPayload = {
         Receipt_number: receiptNumber,
         status: "completed",
         amount: currentReceipt?.donationDetails?.amount,
         unique_no: uniqueDonorId,
+        counter: user?.counter || "N/A", // Add counter number from user data
       };
       const receiptResponse = await createNewReceiptDetail(receiptPayload);
       console.log("Created new receipt:", receiptResponse);
 
-      // Create donation
+      // Create donation with counter number
       console.log("Creating new donation record");
       const donationPayload = {
         data: {
@@ -821,6 +822,7 @@ const NewDonation = () => {
           purpose: currentReceipt?.donationDetails?.purpose || "General",
           type:
             currentReceipt?.donationDetails?.donationType || "Others (Revenue)",
+          counter: user?.counter || "N/A", // Add counter number from user data
           ...(currentReceipt?.donationDetails?.transactionType?.toLowerCase() !==
             "cash" && {
             ddch_number:
@@ -970,6 +972,7 @@ const NewDonation = () => {
                 currentReceipt?.donationDetails?.transactionDetails
                   ?.branchName || "",
             }),
+            counter: user?.counter || "N/A", // Add counter number
           },
         };
 
@@ -995,17 +998,18 @@ const NewDonation = () => {
           console.log("Created new guest with ID:", guestId);
         }
 
-        // Create receipt details
+        // Create receipt details with counter
         console.log("Creating new receipt with pending status");
         const receiptPayload = {
           Receipt_number: receiptNumber,
           status: "pending",
           amount: currentReceipt?.donationDetails?.amount,
+          counter: user?.counter || "N/A", // Add counter number
         };
         const receiptResponse = await createNewReceiptDetail(receiptPayload);
         console.log("Created new receipt:", receiptResponse);
 
-        // Create donation
+        // Create donation with counter
         console.log("Creating new donation record with pending status");
         const donationPayload = {
           data: {
@@ -1038,6 +1042,7 @@ const NewDonation = () => {
                 currentReceipt?.donationDetails?.transactionDetails
                   ?.branchName || "",
             }),
+            counter: user?.counter || "N/A", // Add counter number
           },
         };
 
@@ -1101,6 +1106,7 @@ const NewDonation = () => {
                 currentReceipt?.donationDetails?.transactionDetails
                   ?.branchName || "",
             }),
+            counter: user?.counter || "N/A", // Add counter number
           },
         };
 
@@ -1129,17 +1135,18 @@ const NewDonation = () => {
           console.log("Created new guest with ID:", guestId);
         }
 
-        // Create receipt details
+        // Create receipt details with counter
         console.log("Creating new receipt with cancelled status");
         const receiptPayload = {
           Receipt_number: receiptNumber,
           status: "cancelled",
           amount: currentReceipt?.donationDetails?.amount,
+          counter: user?.counter || "N/A", // Add counter number
         };
         const receiptResponse = await createNewReceiptDetail(receiptPayload);
         console.log("Created new receipt:", receiptResponse);
 
-        // Create donation
+        // Create donation with counter
         console.log("Creating new donation record with cancelled status");
         const donationPayload = {
           data: {
@@ -1172,6 +1179,7 @@ const NewDonation = () => {
                 currentReceipt?.donationDetails?.transactionDetails
                   ?.branchName || "",
             }),
+            counter: user?.counter || "N/A", // Add counter number
           },
         };
 

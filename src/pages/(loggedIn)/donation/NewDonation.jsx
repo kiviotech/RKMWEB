@@ -865,6 +865,7 @@ const NewDonation = () => {
         donorDetails,
         currentReceipt,
         numberToWords,
+        user,
       });
 
       // Write content to iframe and print

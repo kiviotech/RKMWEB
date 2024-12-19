@@ -7,6 +7,7 @@ const ReceiptTemplate = ({
   donorDetails,
   currentReceipt,
   numberToWords,
+  user,
 }) => {
   return `
         <!DOCTYPE html>

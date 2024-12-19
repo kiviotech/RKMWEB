@@ -161,8 +161,8 @@ const ReceiptTemplate = ({
                 top: -115px;
                 transform: translateY(-50%);
                 border: 2px solid #000;
-                padding: 8px;
-                font-size: 13px;
+                padding: 2px;
+                font-size: 14px;
                 font-weight: 600;
                 line-height: 1.2;
                 max-width: 400px;
@@ -173,6 +173,7 @@ const ReceiptTemplate = ({
                 width: 39%;
                 float: right;
                 right: 0;
+                padding-top: 8px;
             }
             .footer p {
                 text-align: left;
@@ -230,7 +231,7 @@ const ReceiptTemplate = ({
                   </div>
                 </div>
 <div class="payment-details">
-  <p style="margin: 10px 0">
+  <p style="margin: 10px 0 0 0">
     The sum of Rupees
     <b
       >${numberToWords(

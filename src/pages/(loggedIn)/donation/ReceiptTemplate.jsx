@@ -20,7 +20,6 @@ const ReceiptTemplate = ({
                 margin: 0
                 background-color: #fff;
                 font-family: Arial, sans-serif;
-                border: 1px solid red;
                 height: 100%;
               }
 
@@ -29,7 +28,6 @@ const ReceiptTemplate = ({
                 height: 100%;
                 margin-top: 5%;
                 margin-left: 7%;
-                border: 1px solid #000;
               }
 
               .header {
@@ -170,6 +168,8 @@ const ReceiptTemplate = ({
               }
             .footer {
                 text-align: center;
+                margin: 0;
+                border: 1px solid red;
             }
             </style>
           </head>
@@ -290,7 +290,7 @@ const ReceiptTemplate = ({
 
               </div>
               <div class="footer">
-                <p>Received by Rock</p>
+                <p>Rock</p>
               </div>
             </div>
             <script>

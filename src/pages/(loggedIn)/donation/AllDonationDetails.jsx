@@ -106,7 +106,7 @@ const AllDonationDetails = () => {
       </div>
       <div className="donation-header">
         <div className="left-section">
-          <span className="sort-by">Sort by</span>
+          <span className="sort-by">Filtered by</span>
           <select
             className="status-dropdown"
             value={selectedStatus}
@@ -148,7 +148,7 @@ const AllDonationDetails = () => {
           <div className="search-container">
             <input
               type="text"
-              placeholder="Search in table"
+              placeholder="Search"
               className="search-input"
               value={searchTerm}
               onChange={handleSearch}

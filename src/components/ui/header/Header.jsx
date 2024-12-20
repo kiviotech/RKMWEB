@@ -163,20 +163,6 @@ const Header = ({ hideElements }) => {
                 Reports
               </NavLink>
             </li>
-            <li>
-              <NavLink
-                to="#"
-                className={({ isActive }) =>
-                  location.pathname === "/canceled-donation" ? "active" : ""
-                }
-                onClick={(e) => {
-                  e.preventDefault();
-                  handleExport();
-                }}
-              >
-                Canceled Donation
-              </NavLink>
-            </li>
           </>
         ) : (
           // Original navigation items

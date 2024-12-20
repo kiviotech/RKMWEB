@@ -35,6 +35,7 @@ export const useDonationStore = create((set, get) => ({
     math: { receipts: [] },
     mission: { receipts: [] },
   },
+  donorTabs: {},
   receiptNumbers: {
     Math: 1,
     Mission: 1,
@@ -56,94 +57,53 @@ export const useDonationStore = create((set, get) => ({
   addDonation: (receipt) =>
     set((state) => {
       const type = receipt.type.toLowerCase();
+      console.log("Adding donation to store:", receipt);
+
       const currentReceipts = state.donations[type]?.receipts || [];
-
-      // Check if donor already exists in this tab
-      const existingDonorGroup = currentReceipts.find(
-        (group) =>
-          Array.isArray(group) &&
-          group[0]?.donorDetails?.guestId === receipt.donorDetails?.guestId
-      );
-
-      // If donor exists, don't add duplicate
-      if (existingDonorGroup) {
-        return state;
-      }
-
-      const receiptWithDetails = {
-        ...receipt,
-        donationDetails: {
-          ...initialDonationDetails,
-          purpose: receipt.donationDetails?.purpose || "",
-          donationType:
-            receipt.donationDetails?.donationType || "Others (Revenue)",
-        },
-      };
+      const newReceiptGroup = [receipt];
 
       return {
         donations: {
           ...state.donations,
           [type]: {
             ...state.donations[type],
-            receipts: [...currentReceipts, [receiptWithDetails]],
+            receipts: [...currentReceipts, newReceiptGroup],
           },
         },
       };
     }),
-  updateDonorDetails: (receiptNumber, details, type) =>
+  updateDonorDetails: (receiptNumber, details, type = "math") =>
     set((state) => {
-      const updatedReceipts = (
-        state.donations[type.toLowerCase()]?.receipts || []
-      ).map((group) =>
-        Array.isArray(group)
-          ? group.map((receipt) =>
-              receipt.receiptNumber === receiptNumber
-                ? { ...receipt, donorDetails: details }
-                : receipt
-            )
-          : []
-      );
-      return {
-        donations: {
-          ...state.donations,
-          [type.toLowerCase()]: {
-            ...state.donations[type.toLowerCase()],
-            receipts: updatedReceipts,
-          },
-        },
-      };
-    }),
-  updateDonationDetails: (receiptNumber, details, type = "") =>
-    set((state) => {
-      // Default to math if no type provided
-      const donationType = type.toLowerCase() || "math";
+      console.log("Updating donor details in store:", {
+        receiptNumber,
+        details,
+        type,
+      });
 
-      const updatedReceipts = (
-        state.donations[donationType]?.receipts || []
-      ).map((group) =>
-        Array.isArray(group)
-          ? group.map((receipt) =>
-              receipt.receiptNumber === receiptNumber
-                ? {
-                    ...receipt,
-                    donationDetails: {
-                      ...receipt.donationDetails,
-                      ...details,
-                      donationType:
-                        details.donationType ||
-                        receipt.donationDetails?.donationType ||
-                        "Others (Revenue)",
-                      transactionDetails: {
-                        ...(receipt.donationDetails?.transactionDetails || {}),
-                        ...(details.transactionDetails || {}),
-                      },
-                    },
-                  }
-                : receipt
-            )
-          : []
+      const donationType = type.toLowerCase();
+      const updatedReceipts = state.donations[donationType]?.receipts.map(
+        (group) => {
+          if (!Array.isArray(group)) return group;
+
+          return group.map((receipt) => {
+            if (receipt.receiptNumber === receiptNumber) {
+              const updatedDonorDetails = {
+                ...receipt.donorDetails,
+                ...details,
+              };
+              console.log("Updated donor details:", updatedDonorDetails);
+
+              return {
+                ...receipt,
+                donorDetails: updatedDonorDetails,
+              };
+            }
+            return receipt;
+          });
+        }
       );
-      return {
+
+      const newState = {
         donations: {
           ...state.donations,
           [donationType]: {
@@ -152,6 +112,57 @@ export const useDonationStore = create((set, get) => ({
           },
         },
       };
+
+      console.log("New store state:", newState);
+      return newState;
+    }),
+  updateDonationDetails: (receiptNumber, details, type = "math") =>
+    set((state) => {
+      console.log("Updating donation details in store:", {
+        receiptNumber,
+        details,
+        type,
+      });
+
+      const donationType = type.toLowerCase();
+      const updatedReceipts = state.donations[donationType]?.receipts.map(
+        (group) => {
+          if (!Array.isArray(group)) return group;
+
+          return group.map((receipt) => {
+            if (receipt.receiptNumber === receiptNumber) {
+              const updatedDonationDetails = {
+                ...receipt.donationDetails,
+                ...details,
+                transactionDetails: {
+                  ...(receipt.donationDetails?.transactionDetails || {}),
+                  ...(details.transactionDetails || {}),
+                },
+              };
+              console.log("Updated donation details:", updatedDonationDetails);
+
+              return {
+                ...receipt,
+                donationDetails: updatedDonationDetails,
+              };
+            }
+            return receipt;
+          });
+        }
+      );
+
+      const newState = {
+        donations: {
+          ...state.donations,
+          [donationType]: {
+            ...state.donations[donationType],
+            receipts: updatedReceipts,
+          },
+        },
+      };
+
+      console.log("New store state:", newState);
+      return newState;
     }),
   clearDonations: () =>
     set({
@@ -168,5 +179,16 @@ export const useDonationStore = create((set, get) => ({
         Array.isArray(group) && group[0]?.donorDetails?.guestId === guestId
     );
     return donorGroup ? donorGroup[0] : null;
+  },
+  setDonorTab: (donorId, tabType) =>
+    set((state) => ({
+      donorTabs: {
+        ...state.donorTabs,
+        [donorId]: tabType,
+      },
+    })),
+  getState: () => get(),
+  debugStore: () => {
+    console.log("Current store state:", get());
   },
 }));

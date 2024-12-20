@@ -8,6 +8,7 @@ import {
   getReceiptDetailsByUserId,
   getReceiptDetailsByDateRange,
   getUniqueNumbers,
+  getReceiptNumbers,
 } from "../api/repositories/receiptDetailsRepository";
 
 // Fetch all receipt details
@@ -108,6 +109,17 @@ export const fetchUniqueNumbers = async () => {
     return response.data;
   } catch (error) {
     console.error("Error fetching unique numbers:", error);
+    throw error;
+  }
+};
+
+// Fetch receipt numbers
+export const fetchReceiptNumbers = async () => {
+  try {
+    const response = await getReceiptNumbers();
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching receipt numbers:", error);
     throw error;
   }
 };

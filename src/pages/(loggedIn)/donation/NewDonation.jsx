@@ -9,6 +9,7 @@ import {
 import {
   createNewReceiptDetail,
   fetchUniqueNumbers,
+  fetchReceiptNumbers,
 } from "../../../../services/src/services/receiptDetailsService";
 import {
   createNewDonation,
@@ -147,9 +148,7 @@ const NewDonation = () => {
   const identityInputRef = useRef(null); // Add this line
 
   // Add this with your other state declarations at the top
-  const [uniqueDonorId, setUniqueDonorId] = useState(() => {
-    return `C${Math.floor(100000 + Math.random() * 900000)}`;
-  });
+  const [uniqueDonorId, setUniqueDonorId] = useState("");
 
   // Add this state to store the highest numbers
   const [highestNumbers, setHighestNumbers] = useState({
@@ -310,53 +309,68 @@ const NewDonation = () => {
   React.useEffect(() => {
     const loadGuestDetails = async () => {
       try {
-        console.log("Starting to fetch guest details...");
-        const details = await fetchGuestDetails();
-
-        // Log the entire response
-        console.log("Raw Guest Details Response:", details);
+        const response = await fetchGuestDetails();
+        console.log("tmp", response.data);
+        // Log the raw response
+        console.log("Raw API Response:", response);
 
         // Log the structure of the data
-        console.log("Guest Details Data Structure:", {
-          hasData: Boolean(details?.data),
-          dataLength: details?.data?.length,
-          firstRecord: details?.data?.[0],
-          meta: details?.meta,
+        console.log("Guest Details Structure:", {
+          hasData: Boolean(response?.data),
+          dataLength: response?.data?.length,
+          firstRecord: response?.data?.[0],
+          attributes: response?.data?.[0]?.attributes,
+          meta: response?.meta,
         });
 
         // Log individual guest records
-        if (details?.data?.length > 0) {
-          details.data.forEach((guest, index) => {
+        if (response?.data?.length > 0) {
+          console.log("\nGuest Records:");
+          response.data.forEach((guest, index) => {
             console.log(`Guest ${index + 1}:`, {
               id: guest.id,
-              attributes: guest.attributes,
-              relationships: guest.relationships,
+              name: guest.attributes?.name,
+              phone: guest.attributes?.phone_number,
+              email: guest.attributes?.email,
+              address: guest.attributes?.address,
+              deeksha: guest.attributes?.deeksha,
+              status: guest.attributes?.status,
             });
           });
+        } else {
+          console.log("No guest records found");
         }
 
-        setGuestDetails(details);
+        // Store the data in state
+        setGuestDetails(response);
       } catch (error) {
         console.error("Error loading guest details:", error);
         console.error("Error stack:", error.stack);
+
+        // Log additional error details if available
+        if (error.response) {
+          console.error("Error response:", {
+            status: error.response.status,
+            data: error.response.data,
+          });
+        }
       }
     };
 
     loadGuestDetails();
-  }, []);
+  }, []); // Empty dependency array means this runs once on mount
 
-  const generateReceiptNumber = (tab) => {
-    const randomNum = Math.floor(1000 + Math.random() * 9000);
-    const prefix = tab === "Mission" ? "MSN" : "MT";
-    return `${prefix} ${randomNum}`;
-  };
-
+  // Modify this useEffect to use sequential numbers instead of random ones
   React.useEffect(() => {
     // Skip if no selected donor
     if (!selectedDonor) return;
 
-    // Generate new receipt number when tab changes
-    const generatedNumber = generateReceiptNumber(selectedTab);
+    // Generate receipt number based on highest number + 1
+    const prefix = selectedTab === "Mission" ? "MSN" : "MT";
+    const currentHighest =
+      selectedTab === "Mission" ? highestNumbers.MSN : highestNumbers.MT;
+    const nextNumber = currentHighest + 1;
+    const generatedNumber = `${prefix} ${nextNumber}`;
 
     const receiptData = {
       receiptNumber: generatedNumber,
@@ -370,7 +384,7 @@ const NewDonation = () => {
       donationDetails: {
         amount: "",
         transactionType: "cash",
-        inMemoryOf: "", // Remove default value
+        inMemoryOf: "",
         transactionDetails: {
           ddNumber: "",
           ddDate: "",
@@ -424,6 +438,7 @@ const NewDonation = () => {
     });
   };
 
+  // Modify handleAddDonation to use sequential numbers
   const handleAddDonation = () => {
     // If donation data exists, navigate to new donation page
     if (donationData) {
@@ -431,12 +446,17 @@ const NewDonation = () => {
       return;
     }
 
-    // Existing logic for adding new donation
-    const newReceiptNumber = generateReceiptNumber(selectedTab);
+    // Generate next receipt number based on current highest number
+    const prefix = selectedTab === "Mission" ? "MSN" : "MT";
+    const currentHighest =
+      selectedTab === "Mission" ? highestNumbers.MSN : highestNumbers.MT;
+    const nextNumber = currentHighest + 1;
+    const newReceiptNumber = `${prefix} ${nextNumber}`;
+
     setReceiptNumber(newReceiptNumber);
 
-    // Generate new unique ID
-    const newUniqueId = `C${Math.floor(100000 + Math.random() * 900000)}`;
+    // Generate next unique ID
+    const newUniqueId = `C${nextNumber}`;
     setUniqueDonorId(newUniqueId);
 
     setCurrentReceipt({
@@ -565,6 +585,19 @@ const NewDonation = () => {
       fullData: guest,
     });
 
+    // Check if guest has donations with receipt details
+    const guestDonations = guest.attributes.donations?.data || [];
+    let existingUniqueNo = null;
+
+    // Look for a receipt with unique_no
+    for (const donation of guestDonations) {
+      const receiptDetail = donation.attributes.receipt_detail?.data;
+      if (receiptDetail && receiptDetail.attributes.unique_no) {
+        existingUniqueNo = receiptDetail.attributes.unique_no;
+        break;
+      }
+    }
+
     const guestData = guest.attributes;
 
     // Extract address components
@@ -602,36 +635,53 @@ const NewDonation = () => {
     };
 
     handleDonorDetailsUpdate(donorDetailsData);
+
+    // Update unique donor ID if found in receipt details
+    if (existingUniqueNo) {
+      setUniqueDonorId(existingUniqueNo);
+    } else {
+      // Generate new unique ID based on current highest number
+      const nextNumber =
+        selectedTab === "Math" ? highestNumbers.MT + 1 : highestNumbers.MSN + 1;
+      setUniqueDonorId(`C${nextNumber}`);
+    }
+
     setSearchTerm("");
     setShowDropdown(false);
   };
 
-  // Modify handleTabClick to update unique donor ID
+  // Modify the handleTabClick function
   const handleTabClick = (tab) => {
-    const store = useDonationStore.getState();
-    const existingData = store.getDonorData(donorDetails.guestId, tab);
-
-    if (existingData) {
-      // Load existing data for this donor in the selected tab
-      setDonorDetails(existingData.donorDetails);
-      setCurrentReceipt({
-        ...currentReceipt,
-        donationDetails: existingData.donationDetails,
-        receiptNumber: existingData.receiptNumber,
-      });
-    } else {
-      // Create new receipt only if needed
-      const newReceiptNumber = generateReceiptNumber(tab);
-      const newReceipt = {
-        receiptNumber: newReceiptNumber,
-        type: tab,
-        donorDetails,
-        donationDetails: currentReceipt?.donationDetails,
-      };
-      store.addDonation(newReceipt);
+    // Only allow changing tabs if there's no donation data or if it's not completed
+    if (donationData && donationData.status === "completed") {
+      return;
     }
 
     setSelectedTab(tab);
+
+    // Update receipt number based on new tab
+    const prefix = tab === "Mission" ? "MSN" : "MT";
+    const currentHighest =
+      tab === "Mission" ? highestNumbers.MSN : highestNumbers.MT;
+    const nextNumber = currentHighest + 1;
+    const newReceiptNumber = `${prefix} ${nextNumber}`;
+
+    setReceiptNumber(newReceiptNumber);
+
+    // Update unique donor ID
+    setUniqueDonorId(`C${nextNumber}`);
+
+    // Clear current receipt if it exists
+    if (currentReceipt) {
+      setCurrentReceipt({
+        ...currentReceipt,
+        receiptNumber: newReceiptNumber,
+        donationDetails: {
+          ...currentReceipt.donationDetails,
+          purpose: "", // Reset purpose when changing tabs
+        },
+      });
+    }
   };
 
   // Add handler for donation details updates
@@ -734,14 +784,200 @@ const NewDonation = () => {
     return "";
   };
 
-  // Modify handlePrintReceipt to only show the modal
-  const handlePrintReceipt = () => {
-    // Validate required fields before showing preview
-    if (!validateFields()) {
+  // Modify handlePrintReceipt function
+  const handlePrintReceipt = async () => {
+    // Clear all previous validation errors immediately
+    setValidationErrors({});
+
+    let hasErrors = false;
+    let errorMessage = "Please enter";
+    let errorFields = [];
+
+    // Check all required fields and build error message
+    if (!donorDetails.name.trim()) {
+      errorFields.push("donor name");
+      hasErrors = true;
+    }
+
+    if (!donorDetails.phone || donorDetails.phone.length !== 10) {
+      errorFields.push("phone number");
+      hasErrors = true;
+    }
+
+    if (!donorDetails.mantraDiksha) {
+      errorFields.push("mantra diksha");
+      hasErrors = true;
+    }
+
+    if (!donorDetails.identityNumber) {
+      errorFields.push("identity proof");
+      hasErrors = true;
+    }
+
+    if (!donorDetails.pincode || donorDetails.pincode.length !== 6) {
+      errorFields.push("pincode");
+      hasErrors = true;
+    }
+
+    // Check donation details
+    if (!currentReceipt?.donationDetails?.purpose) {
+      errorFields.push("purpose");
+      hasErrors = true;
+    }
+
+    if (
+      !currentReceipt?.donationDetails?.amount ||
+      parseFloat(currentReceipt?.donationDetails?.amount) <= 0
+    ) {
+      errorFields.push("donation amount");
+      hasErrors = true;
+    }
+
+    // Check transaction details if not cash
+    const transactionType =
+      currentReceipt?.donationDetails?.transactionType?.toLowerCase();
+    if (
+      ["cheque", "bank transfer", "dd", "m.o", "electronic modes"].includes(
+        transactionType
+      )
+    ) {
+      const details = currentReceipt?.donationDetails?.transactionDetails;
+
+      if (!details?.ddDate) {
+        errorFields.push("date");
+        hasErrors = true;
+      }
+      if (!details?.ddNumber) {
+        errorFields.push("number");
+        hasErrors = true;
+      }
+      if (!details?.bankName) {
+        errorFields.push("bank name");
+        hasErrors = true;
+      }
+      if (!details?.branchName) {
+        errorFields.push("branch name");
+        hasErrors = true;
+      }
+    }
+
+    if (hasErrors) {
+      // Format error message with proper grammar
+      errorMessage +=
+        " " + errorFields.join(errorFields.length > 1 ? ", " : "");
+      if (errorFields.length > 1) {
+        const lastIndex = errorMessage.lastIndexOf(",");
+        errorMessage =
+          errorMessage.slice(0, lastIndex) +
+          " and" +
+          errorMessage.slice(lastIndex + 1);
+      }
+
+      // Show alert and wait for it to be dismissed
+      await new Promise((resolve) => {
+        setTimeout(() => {
+          alert(errorMessage);
+          resolve();
+        }, 0);
+      });
+
+      // After alert is dismissed, set validation errors
+      setTimeout(() => {
+        const newErrors = {};
+        if (!donorDetails.name.trim()) {
+          newErrors.name = "Donor name is required";
+        }
+        if (!donorDetails.phone || donorDetails.phone.length !== 10) {
+          newErrors.phone = "Phone number must be 10 digits";
+        }
+        if (!donorDetails.mantraDiksha) {
+          newErrors.mantraDiksha = "Mantra Diksha is required";
+        }
+        if (!donorDetails.identityNumber) {
+          newErrors.identityNumber = "Identity proof is required";
+        }
+        if (!donorDetails.pincode || donorDetails.pincode.length !== 6) {
+          newErrors.pincode = "Valid 6-digit pincode is required";
+        }
+        if (!currentReceipt?.donationDetails?.purpose) {
+          newErrors.purpose = "Purpose is required";
+        }
+        if (
+          !currentReceipt?.donationDetails?.amount ||
+          parseFloat(currentReceipt?.donationDetails?.amount) <= 0
+        ) {
+          newErrors.amount = "Valid donation amount is required";
+        }
+
+        // Set transaction-related errors if applicable
+        if (
+          ["cheque", "bank transfer", "dd", "m.o", "electronic modes"].includes(
+            transactionType
+          )
+        ) {
+          const details = currentReceipt?.donationDetails?.transactionDetails;
+          if (!details?.ddDate) newErrors.ddDate = "Date is required";
+          if (!details?.ddNumber) newErrors.ddNumber = "Number is required";
+          if (!details?.bankName) newErrors.bankName = "Bank name is required";
+          if (!details?.branchName)
+            newErrors.branchName = "Branch name is required";
+        }
+
+        setValidationErrors(newErrors);
+
+        // Scroll to first empty field (maintaining existing scroll order and adding new fields)
+        if (!donorDetails.name.trim()) {
+          donorNameInputRef.current?.scrollIntoView({ behavior: "smooth" });
+        } else if (!donorDetails.phone || donorDetails.phone.length !== 10) {
+          phoneInputRef.current?.scrollIntoView({ behavior: "smooth" });
+        } else if (!donorDetails.mantraDiksha) {
+          deekshaDropdownRef.current?.scrollIntoView({ behavior: "smooth" });
+        } else if (!donorDetails.identityNumber) {
+          identityInputRef.current?.scrollIntoView({ behavior: "smooth" });
+        } else if (!donorDetails.pincode || donorDetails.pincode.length !== 6) {
+          document
+            .querySelector('input[name="pincode"]')
+            ?.scrollIntoView({ behavior: "smooth" });
+        } else if (!currentReceipt?.donationDetails?.purpose) {
+          document
+            .querySelector('[name="purpose"]')
+            ?.scrollIntoView({ behavior: "smooth" });
+        } else if (
+          !currentReceipt?.donationDetails?.amount ||
+          parseFloat(currentReceipt?.donationDetails?.amount) <= 0
+        ) {
+          document
+            .querySelector('[name="amount"]')
+            ?.scrollIntoView({ behavior: "smooth" });
+        } else if (
+          ["cheque", "bank transfer", "dd", "m.o", "electronic modes"].includes(
+            transactionType
+          )
+        ) {
+          // Scroll to first empty transaction field
+          if (!details?.ddDate) {
+            document
+              .querySelector('[name="ddDate"]')
+              ?.scrollIntoView({ behavior: "smooth" });
+          } else if (!details?.ddNumber) {
+            document
+              .querySelector('[name="ddNumber"]')
+              ?.scrollIntoView({ behavior: "smooth" });
+          } else if (!details?.bankName) {
+            document
+              .querySelector('[name="bankName"]')
+              ?.scrollIntoView({ behavior: "smooth" });
+          } else if (!details?.branchName) {
+            document
+              .querySelector('[name="branchName"]')
+              ?.scrollIntoView({ behavior: "smooth" });
+          }
+        }
+      }, 100);
+
       return;
     }
 
-    // Open the modal
     setIsModalOpen(true);
   };
 
@@ -906,31 +1142,195 @@ const NewDonation = () => {
 
   // Modify the handlePending function
   const handlePending = async () => {
-    // Check donation amount first
-    if (validateDonationAmount(currentReceipt?.donationDetails?.amount)) {
-      alert("Enter the amount");
-      return;
+    // Clear all previous validation errors immediately
+    setValidationErrors({});
+
+    let hasErrors = false;
+    let errorMessage = "Please enter";
+    let errorFields = [];
+
+    // Check all required fields and build error message
+    if (!donorDetails.name.trim()) {
+      errorFields.push("donor name");
+      hasErrors = true;
     }
 
-    // Validate form fields
-    const nameError = validateName(donorDetails.name);
-    const phoneError = validatePhone(donorDetails.phone);
-    const emailError = validateEmail(donorDetails.email);
-
-    setValidationErrors({
-      name: nameError,
-      phone: phoneError,
-      email: emailError,
-    });
-
-    if (nameError || phoneError || emailError) {
-      alert("Please fill required fields");
-      return;
+    if (!donorDetails.phone || donorDetails.phone.length !== 10) {
+      errorFields.push("phone number");
+      hasErrors = true;
     }
 
-    // Validate transaction details if necessary
-    if (!validateTransactionDetails()) {
-      alert("Please fill all required transaction details");
+    if (!donorDetails.mantraDiksha) {
+      errorFields.push("mantra diksha");
+      hasErrors = true;
+    }
+
+    if (!donorDetails.identityNumber) {
+      errorFields.push("identity proof");
+      hasErrors = true;
+    }
+
+    if (!donorDetails.pincode || donorDetails.pincode.length !== 6) {
+      errorFields.push("pincode");
+      hasErrors = true;
+    }
+
+    // Check donation details
+    if (!currentReceipt?.donationDetails?.purpose) {
+      errorFields.push("purpose");
+      hasErrors = true;
+    }
+
+    if (
+      !currentReceipt?.donationDetails?.amount ||
+      parseFloat(currentReceipt?.donationDetails?.amount) <= 0
+    ) {
+      errorFields.push("donation amount");
+      hasErrors = true;
+    }
+
+    // Check transaction details if not cash
+    const transactionType =
+      currentReceipt?.donationDetails?.transactionType?.toLowerCase();
+    if (
+      ["cheque", "bank transfer", "dd", "m.o", "electronic modes"].includes(
+        transactionType
+      )
+    ) {
+      const details = currentReceipt?.donationDetails?.transactionDetails;
+
+      if (!details?.ddDate) {
+        errorFields.push("date");
+        hasErrors = true;
+      }
+      if (!details?.ddNumber) {
+        errorFields.push("number");
+        hasErrors = true;
+      }
+      if (!details?.bankName) {
+        errorFields.push("bank name");
+        hasErrors = true;
+      }
+      if (!details?.branchName) {
+        errorFields.push("branch name");
+        hasErrors = true;
+      }
+    }
+
+    if (hasErrors) {
+      // Format error message with proper grammar
+      errorMessage +=
+        " " + errorFields.join(errorFields.length > 1 ? ", " : "");
+      if (errorFields.length > 1) {
+        const lastIndex = errorMessage.lastIndexOf(",");
+        errorMessage =
+          errorMessage.slice(0, lastIndex) +
+          " and" +
+          errorMessage.slice(lastIndex + 1);
+      }
+
+      // Show alert and wait for it to be dismissed
+      await new Promise((resolve) => {
+        setTimeout(() => {
+          alert(errorMessage);
+          resolve();
+        }, 0);
+      });
+
+      // After alert is dismissed, set validation errors
+      setTimeout(() => {
+        const newErrors = {};
+        if (!donorDetails.name.trim()) {
+          newErrors.name = "Donor name is required";
+        }
+        if (!donorDetails.phone || donorDetails.phone.length !== 10) {
+          newErrors.phone = "Phone number must be 10 digits";
+        }
+        if (!donorDetails.mantraDiksha) {
+          newErrors.mantraDiksha = "Mantra Diksha is required";
+        }
+        if (!donorDetails.identityNumber) {
+          newErrors.identityNumber = "Identity proof is required";
+        }
+        if (!donorDetails.pincode || donorDetails.pincode.length !== 6) {
+          newErrors.pincode = "Valid 6-digit pincode is required";
+        }
+        if (!currentReceipt?.donationDetails?.purpose) {
+          newErrors.purpose = "Purpose is required";
+        }
+        if (
+          !currentReceipt?.donationDetails?.amount ||
+          parseFloat(currentReceipt?.donationDetails?.amount) <= 0
+        ) {
+          newErrors.amount = "Valid donation amount is required";
+        }
+
+        // Set transaction-related errors if applicable
+        if (
+          ["cheque", "bank transfer", "dd", "m.o", "electronic modes"].includes(
+            transactionType
+          )
+        ) {
+          const details = currentReceipt?.donationDetails?.transactionDetails;
+          if (!details?.ddDate) newErrors.ddDate = "Date is required";
+          if (!details?.ddNumber) newErrors.ddNumber = "Number is required";
+          if (!details?.bankName) newErrors.bankName = "Bank name is required";
+          if (!details?.branchName)
+            newErrors.branchName = "Branch name is required";
+        }
+
+        setValidationErrors(newErrors);
+
+        // Scroll to first empty field (maintaining existing scroll order and adding new fields)
+        if (!donorDetails.name.trim()) {
+          donorNameInputRef.current?.scrollIntoView({ behavior: "smooth" });
+        } else if (!donorDetails.phone || donorDetails.phone.length !== 10) {
+          phoneInputRef.current?.scrollIntoView({ behavior: "smooth" });
+        } else if (!donorDetails.mantraDiksha) {
+          deekshaDropdownRef.current?.scrollIntoView({ behavior: "smooth" });
+        } else if (!donorDetails.identityNumber) {
+          identityInputRef.current?.scrollIntoView({ behavior: "smooth" });
+        } else if (!donorDetails.pincode || donorDetails.pincode.length !== 6) {
+          document
+            .querySelector('input[name="pincode"]')
+            ?.scrollIntoView({ behavior: "smooth" });
+        } else if (!currentReceipt?.donationDetails?.purpose) {
+          document
+            .querySelector('[name="purpose"]')
+            ?.scrollIntoView({ behavior: "smooth" });
+        } else if (
+          !currentReceipt?.donationDetails?.amount ||
+          parseFloat(currentReceipt?.donationDetails?.amount) <= 0
+        ) {
+          document
+            .querySelector('[name="amount"]')
+            ?.scrollIntoView({ behavior: "smooth" });
+        } else if (
+          ["cheque", "bank transfer", "dd", "m.o", "electronic modes"].includes(
+            transactionType
+          )
+        ) {
+          // Scroll to first empty transaction field
+          if (!details?.ddDate) {
+            document
+              .querySelector('[name="ddDate"]')
+              ?.scrollIntoView({ behavior: "smooth" });
+          } else if (!details?.ddNumber) {
+            document
+              .querySelector('[name="ddNumber"]')
+              ?.scrollIntoView({ behavior: "smooth" });
+          } else if (!details?.bankName) {
+            document
+              .querySelector('[name="bankName"]')
+              ?.scrollIntoView({ behavior: "smooth" });
+          } else if (!details?.branchName) {
+            document
+              .querySelector('[name="branchName"]')
+              ?.scrollIntoView({ behavior: "smooth" });
+          }
+        }
+      }, 100);
+
       return;
     }
 
@@ -1659,48 +2059,46 @@ const NewDonation = () => {
   useEffect(() => {
     const fetchNumbers = async () => {
       try {
-        const uniqueNumbers = await fetchUniqueNumbers();
-        console.log("Unique Receipt Numbers:", uniqueNumbers);
-
-        // Filter MT and MSN receipts
-        const mtReceipts = uniqueNumbers.data.filter((receipt) =>
-          receipt.attributes.Receipt_number.startsWith("MT")
-        );
-        const msnReceipts = uniqueNumbers.data.filter((receipt) =>
-          receipt.attributes.Receipt_number.startsWith("MSN")
+        // Get receipt numbers
+        const response = await fetchReceiptNumbers();
+        const receiptNumbers = response.data?.map(
+          (receipt) => receipt.attributes.Receipt_number
         );
 
-        // Get highest unique numbers
-        const highestMT = mtReceipts.reduce((max, receipt) => {
-          const current = parseInt(
-            receipt.attributes.unique_no.replace("C", "")
-          );
-          return Math.max(max, current);
-        }, 0);
+        // Separate MT and MSN numbers
+        const mtNumbers = receiptNumbers
+          .filter((num) => num.startsWith("MT"))
+          .map((num) => parseInt(num.replace("MT", "")));
+        const msnNumbers = receiptNumbers
+          .filter((num) => num.startsWith("MSN"))
+          .map((num) => parseInt(num.replace("MSN", "")));
 
-        const highestMSN = msnReceipts.reduce((max, receipt) => {
-          const current = parseInt(
-            receipt.attributes.unique_no.replace("C", "")
-          );
-          return Math.max(max, current);
-        }, 0);
+        // Find highest numbers
+        const highestMT = Math.max(...mtNumbers);
+        const highestMSN = Math.max(...msnNumbers);
+
+        // Set the next receipt number based on selected tab
+        const nextNumber =
+          selectedTab === "Math" ? highestMT + 1 : highestMSN + 1;
+        const prefix = selectedTab === "Math" ? "MT" : "MSN";
+        setReceiptNumber(`${prefix} ${nextNumber}`);
 
         setHighestNumbers({
           MT: highestMT,
           MSN: highestMSN,
         });
 
-        // Set initial unique donor ID based on selected tab
-        setUniqueDonorId(
-          `C${selectedTab === "Math" ? highestMT + 1 : highestMSN + 1}`
-        );
+        // Set initial unique donor ID based on selected tab without leading zeros
+        const nextDonorNumber =
+          selectedTab === "Math" ? highestMT + 1 : highestMSN + 1;
+        setUniqueDonorId(`C${nextDonorNumber}`);
       } catch (error) {
         console.error("Error fetching unique numbers:", error);
       }
     };
 
     fetchNumbers();
-  }, []); // Empty dependency array means this runs once when component mounts
+  }, [selectedTab]); // Add selectedTab as dependency
 
   // Add this helper function near your other utility functions
   const isDonationCompleted = (donationData) => {
@@ -1870,41 +2268,67 @@ const NewDonation = () => {
   const [activeDropdown, setActiveDropdown] = useState(null);
 
   // Modify the name input section
-  <input
-    ref={donorNameInputRef}
-    type="text"
-    value={donorDetails.name}
-    onChange={(e) => {
-      if (shouldDisableFields()) return;
-      // Only allow letters, spaces, and dots
-      const newValue = e.target.value.replace(/[^A-Za-z\s.]/g, "");
-      setDonorDetails((prev) => ({
-        ...prev,
-        name: newValue,
-      }));
-      setSearchTerm(newValue);
-      setActiveDropdown("name"); // Set active dropdown to name
-      // Clear validation error when user types
-      setValidationErrors((prev) => ({
-        ...prev,
-        name: "",
-      }));
-    }}
-    onBlur={() => {
-      // Show validation error if field is empty when focus is lost
-      if (!donorDetails.name.trim()) {
-        setValidationErrors((prev) => ({
-          ...prev,
-          name: "Donor name is required",
-        }));
-      }
-    }}
-    placeholder=""
-    className={`${validationErrors.name ? "error" : ""} ${
-      shouldDisableFields() ? "disabled-input" : ""
-    }`}
-    disabled={shouldDisableFields()}
-  />;
+  <div className="form-group">
+    <label>
+      Name of Donor <span className="required">*</span>
+    </label>
+    <div className="donor-unified-input">
+      <select
+        value={donorDetails.title}
+        onChange={(e) =>
+          setDonorDetails({
+            ...donorDetails,
+            title: e.target.value,
+          })
+        }
+        disabled={shouldDisableFields()}
+        className={shouldDisableFields() ? "disabled-input" : ""}
+      >
+        <option value="Sri">Sri</option>
+        <option value="Smt">Smt.</option>
+        <option value="Mr">Mr.</option>
+        <option value="Mrs">Mrs.</option>
+        <option value="Swami">Swami</option>
+        <option value="Dr">Dr.</option>
+        <option value="Prof">Prof.</option>
+        <option value="Kumari">Kumari</option>
+        <option value="Ms">Ms.</option>
+      </select>
+
+      <div className="searchable-dropdown">
+        <input
+          ref={donorNameInputRef}
+          type="text"
+          value={donorDetails.name}
+          onChange={(e) => {
+            if (shouldDisableFields()) return;
+            const newValue = e.target.value.replace(/[^A-Za-z\s.]/g, "");
+            setDonorDetails((prev) => ({
+              ...prev,
+              name: newValue,
+            }));
+            setSearchTerm(newValue);
+            setShowDropdown(true);
+            // Remove the validation error setting from here
+          }}
+          onBlur={() => {
+            setTimeout(() => {
+              setShowDropdown(false);
+            }, 200);
+            // Remove the validation error setting from here
+          }}
+          placeholder="Enter donor name"
+          className={`${validationErrors.name ? "error" : ""} ${
+            shouldDisableFields() ? "disabled-input" : ""
+          }`}
+          disabled={shouldDisableFields()}
+        />
+        {validationErrors.name && (
+          <div className="error-message">{validationErrors.name}</div>
+        )}
+      </div>
+    </div>
+  </div>;
 
   {
     activeDropdown === "name" && searchTerm && (
@@ -1931,18 +2355,10 @@ const NewDonation = () => {
       }));
     }}
     onBlur={() => {
-      // Show validation error if field is empty or invalid when focus is lost
-      if (!donorDetails.phone) {
-        setValidationErrors((prev) => ({
-          ...prev,
-          phone: "Phone number is required",
-        }));
-      } else if (donorDetails.phone.length !== 10) {
-        setValidationErrors((prev) => ({
-          ...prev,
-          phone: "Phone number must be 10 digits",
-        }));
-      }
+      // Remove validation on blur
+      setTimeout(() => {
+        setActiveDropdown(null);
+      }, 200);
     }}
     disabled={shouldDisableFields()}
     className={`${validationErrors.phone ? "error" : ""} ${
@@ -2043,6 +2459,41 @@ const NewDonation = () => {
     )}
   </div>;
 
+  // Add this useEffect after your other useEffects
+  useEffect(() => {
+    const getReceiptNumbers = async () => {
+      try {
+        const response = await fetchReceiptNumbers();
+        const receiptNumbers = response.data?.map(
+          (receipt) => receipt.attributes.Receipt_number
+        );
+
+        // Separate MT and MSN numbers
+        const mtNumbers = receiptNumbers
+          .filter((num) => num.startsWith("MT"))
+          .map((num) => parseInt(num.replace("MT", "")));
+        const msnNumbers = receiptNumbers
+          .filter((num) => num.startsWith("MSN"))
+          .map((num) => parseInt(num.replace("MSN", "")));
+
+        // Find highest numbers
+        const highestMT = Math.max(...mtNumbers);
+        const highestMSN = Math.max(...msnNumbers);
+
+        console.log("Receipt Numbers Analysis:", {
+          highestMT: `MT ${highestMT}`,
+          highestMSN: `MSN ${highestMSN}`,
+          nextMT: `MT ${highestMT + 1}`,
+          nextMSN: `MSN ${highestMSN + 1}`,
+        });
+      } catch (error) {
+        console.error("Error fetching receipt numbers:", error);
+      }
+    };
+
+    getReceiptNumbers();
+  }, []);
+
   return (
     <div
       id="donations-container"
@@ -2139,33 +2590,23 @@ const NewDonation = () => {
           >
             <div className="tabs">
               <button
-                className={`tab ${selectedTab === "Math" ? "active" : ""} ${
-                  donationData?.status === "completed" &&
-                  donationData?.donatedFor.toLowerCase() !== "math"
-                    ? "disabled"
-                    : ""
-                }`}
+                className={`tab ${selectedTab === "Math" ? "active" : ""}`}
                 onClick={() => handleTabClick("Math")}
                 data-tab="Math"
                 disabled={
                   donationData?.status === "completed" &&
-                  donationData?.donatedFor.toLowerCase() !== "math"
+                  donationData?.donatedFor?.toLowerCase() !== "math"
                 }
               >
                 Math
               </button>
               <button
-                className={`tab ${selectedTab === "Mission" ? "active" : ""} ${
-                  donationData?.status === "completed" &&
-                  donationData?.donatedFor.toLowerCase() !== "mission"
-                    ? "disabled"
-                    : ""
-                }`}
+                className={`tab ${selectedTab === "Mission" ? "active" : ""}`}
                 onClick={() => handleTabClick("Mission")}
                 data-tab="Mission"
                 disabled={
                   donationData?.status === "completed" &&
-                  donationData?.donatedFor.toLowerCase() !== "mission"
+                  donationData?.donatedFor?.toLowerCase() !== "mission"
                 }
               >
                 Mission
@@ -2276,14 +2717,13 @@ const NewDonation = () => {
                     <option value="Ms">Ms.</option>
                   </select>
 
-                  <div className="searchable-dropdown" ref={dropdownRef}>
+                  <div className="searchable-dropdown">
                     <input
                       ref={donorNameInputRef}
                       type="text"
                       value={donorDetails.name}
                       onChange={(e) => {
                         if (shouldDisableFields()) return;
-                        // Only allow letters, spaces, and dots
                         const newValue = e.target.value.replace(
                           /[^A-Za-z\s.]/g,
                           ""
@@ -2293,15 +2733,15 @@ const NewDonation = () => {
                           name: newValue,
                         }));
                         setSearchTerm(newValue);
-                        setActiveDropdown("name"); // Set active dropdown to name
-                        // Clear validation error when user types
-                        setValidationErrors((prev) => ({
-                          ...prev,
-                          name: "",
-                        }));
+                        setShowDropdown(true);
+                        // Remove the validation error setting from here
                       }}
                       onBlur={() => {
-                        // Show validation error if field is empty when focus is lost
+                        // Delay hiding dropdown to allow for click events
+                        setTimeout(() => {
+                          setShowDropdown(false);
+                        }, 200);
+
                         if (!donorDetails.name.trim()) {
                           setValidationErrors((prev) => ({
                             ...prev,
@@ -2309,48 +2749,59 @@ const NewDonation = () => {
                           }));
                         }
                       }}
-                      placeholder=""
+                      placeholder="Enter donor name"
                       className={`${validationErrors.name ? "error" : ""} ${
                         shouldDisableFields() ? "disabled-input" : ""
                       }`}
                       disabled={shouldDisableFields()}
                     />
-                    {validationErrors.name && (
-                      <div className="error-message">
-                        {validationErrors.name}
-                      </div>
-                    )}
 
-                    {activeDropdown === "name" && searchTerm && (
+                    {showDropdown && searchTerm && (
                       <div className="dropdown-list">
                         {guestDetails?.data
                           ?.filter((guest) => {
-                            // Remove title (Sri, Smt., etc.) from the guest name for better matching
-                            const guestNameWithoutTitle = guest.attributes.name
-                              .split(" ")
-                              .slice(1)
-                              .join(" ")
-                              .toLowerCase();
-
-                            return (
-                              guestNameWithoutTitle.includes(
-                                searchTerm.toLowerCase()
-                              ) ||
-                              guest.attributes.phone_number.includes(searchTerm)
-                            );
+                            const guestName =
+                              guest.attributes.name.toLowerCase();
+                            return guestName.includes(searchTerm.toLowerCase());
                           })
                           .map((guest) => (
                             <div
                               key={guest.id}
                               className="dropdown-item"
                               onClick={() => {
+                                // Log full guest details
+                                console.log("Selected Guest Details:", {
+                                  id: guest.id,
+                                  ...guest.attributes,
+                                });
+
+                                // Check for and log unique receipt number
+                                const uniqueReceiptNo =
+                                  guest.attributes.donations?.data?.[0]
+                                    ?.attributes?.receipt_detail?.data
+                                    ?.attributes?.unique_no;
+                                if (uniqueReceiptNo) {
+                                  console.log(
+                                    "Unique Receipt Number:",
+                                    uniqueReceiptNo
+                                  );
+                                  // You can also set this in your state if needed
+                                  setUniqueDonorId(uniqueReceiptNo);
+                                }
+
                                 // Extract title and name
                                 const fullName = guest.attributes.name;
-                                const [title, ...nameParts] =
-                                  fullName.split(" ");
-                                const name = nameParts.join(" ");
+                                const nameParts = fullName.split(" ");
+                                const title = nameParts[0];
+                                const name = nameParts.slice(1).join(" ");
 
-                                // Update donor details
+                                // Log the processed name details
+                                console.log("Processed donor details:", {
+                                  title: title,
+                                  name: name,
+                                  fullName: fullName,
+                                });
+
                                 setDonorDetails({
                                   ...donorDetails,
                                   title: title || "Sri",
@@ -2361,21 +2812,27 @@ const NewDonation = () => {
                                       ""
                                     ) || "",
                                   email: guest.attributes.email || "",
-                                  identityType: "Aadhaar",
+                                  mantraDiksha: guest.attributes.deeksha || "",
+                                  guestId: guest.id,
+                                  // Add Aadhaar details
+                                  identityType: guest.attributes.aadhaar_number
+                                    ? "Aadhaar"
+                                    : "PAN",
                                   identityNumber:
                                     guest.attributes.aadhaar_number || "",
-                                  guestId: guest.id,
+                                  // Parse and set address fields if available
                                   ...(guest.attributes.address &&
                                     parseAddress(guest.attributes.address)),
                                 });
-                                setSearchTerm(name);
                                 setShowDropdown(false);
                               }}
                             >
-                              <div className="dropdown-item-content">
-                                <strong>{guest.attributes.name}</strong>
-                                <div className="guest-details">
-                                  <span>{guest.attributes.phone_number}</span>
+                              <div className="guest-info">
+                                <div className="guest-name">
+                                  {guest.attributes.name}
+                                </div>
+                                <div className="guest-phone">
+                                  {guest.attributes.phone_number}
                                 </div>
                               </div>
                             </div>
@@ -2384,6 +2841,9 @@ const NewDonation = () => {
                     )}
                   </div>
                 </div>
+                {validationErrors.name && (
+                  <div className="error-message">{validationErrors.name}</div>
+                )}
               </div>
 
               <div className="form-group">
@@ -2423,18 +2883,10 @@ const NewDonation = () => {
                         }));
                       }}
                       onBlur={() => {
-                        // Show validation error if field is empty or invalid when focus is lost
-                        if (!donorDetails.phone) {
-                          setValidationErrors((prev) => ({
-                            ...prev,
-                            phone: "Phone number is required",
-                          }));
-                        } else if (donorDetails.phone.length !== 10) {
-                          setValidationErrors((prev) => ({
-                            ...prev,
-                            phone: "Phone number must be 10 digits",
-                          }));
-                        }
+                        // Remove validation on blur
+                        setTimeout(() => {
+                          setActiveDropdown(null);
+                        }, 200);
                       }}
                       disabled={shouldDisableFields()}
                       className={`${validationErrors.phone ? "error" : ""} ${
@@ -4069,6 +4521,61 @@ const NewDonation = () => {
           display: block !important;
           visibility: visible !important;
           opacity: 1 !important;
+        }
+
+        .dropdown-item {
+          padding: 8px 12px;
+          cursor: pointer;
+        }
+
+        .dropdown-item:hover {
+          background-color: #f3f4f6;
+        }
+
+        .guest-info {
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+        }
+
+        .guest-name {
+          font-weight: 500;
+          color: #111827;
+        }
+
+        .guest-phone {
+          font-size: 0.875rem;
+          color: #6b7280;
+        }
+
+        .tabs {
+          display: flex;
+          gap: 10px;
+        }
+
+        .tab {
+          padding: 8px 16px;
+          border: none;
+          border-radius: 4px;
+          cursor: pointer;
+          background-color: #f3f4f6;
+          color: #6b7280;
+          font-weight: 500;
+          transition: all 0.2s;
+        }
+
+        .tab.active {
+          background-color: ${selectedTab === "Math" ? "#ffb888" : "#99fb98"};
+          color: #1f2937;
+        }
+
+        .tab:disabled {
+          opacity: 0.5;
+          cursor: not-allowed;
+        }
+
+        .tab:not(:disabled):hover {
+          background-color: ${selectedTab === "Math" ? "#ffa677" : "#88ea87"};
         }
       `}</style>
     </div>

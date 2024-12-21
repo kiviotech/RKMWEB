@@ -755,8 +755,8 @@ const NewDonation = () => {
         transactionType: "cash",
         inMemoryOf: "",
         transactionDetails: {
-          ddNumber: "",
           ddDate: "",
+          ddNumber: "",
           bankName: "",
           branchName: "",
         },
@@ -2699,7 +2699,7 @@ const NewDonation = () => {
 
             {/* First row with Name and Phone */}
             <div className="form-row">
-              <div className="form-group">
+              <div className="form-group" style={{ flex: 1 }}>
                 <label>
                   Name of Donor <span className="required">*</span>
                 </label>
@@ -2855,7 +2855,7 @@ const NewDonation = () => {
                 )}
               </div>
 
-              <div className="form-group">
+              <div className="form-group" style={{ flex: 1 }}>
                 <label>
                   Phone No. <span className="required">*</span>
                 </label>
@@ -2914,7 +2914,7 @@ const NewDonation = () => {
 
             {/* New row for Mantra Diksha and Guest House Room No. */}
             <div className="form-row">
-              <div className="form-group" style={{ flex: 2 }}>
+              <div className="form-group" style={{ flex: 1 }}>
                 <label>Initiation / Mantra Diksha from</label>
                 <div
                   className="custom-dropdown"
@@ -3096,8 +3096,8 @@ const NewDonation = () => {
 
             {/* Second row with Email, Identity Proof */}
             <div className="form-row">
-              <div className="form-group">
-                <label>Email ID</label>
+              <div className="form-group half-width">
+                <label>Email</label>
                 <input
                   ref={emailInputRef}
                   type="email"
@@ -3105,18 +3105,31 @@ const NewDonation = () => {
                   onChange={(e) => {
                     if (shouldDisableFields()) return;
                     setDonorDetails({ ...donorDetails, email: e.target.value });
+                    // Clear validation error when user types
+                    setValidationErrors((prev) => ({ ...prev, email: "" }));
                   }}
+                  onBlur={() => {
+                    // Validate email on blur
+                    const error = validateEmail(donorDetails.email);
+                    setValidationErrors((prev) => ({ ...prev, email: error }));
+                  }}
+                  placeholder="Enter email address"
+                  className={`${validationErrors.email ? "error" : ""} ${
+                    shouldDisableFields() ? "disabled-input" : ""
+                  }`}
                   disabled={shouldDisableFields()}
-                  className={`${shouldDisableFields() ? "disabled-input" : ""}`}
                 />
+                {validationErrors.email && (
+                  <div className="error-message">{validationErrors.email}</div>
+                )}
               </div>
 
-              {/* Identity Proof */}
-              <div className="form-group">
+              {/* Identity proof field */}
+              <div className="form-group half-width">
                 <label>
                   Identity Proof <span className="required">*</span>
                 </label>
-                <div className="identity-unified-input">
+                <div className="identity-input-group">
                   <select
                     value={donorDetails.identityType}
                     onChange={(e) => {
@@ -3126,9 +3139,10 @@ const NewDonation = () => {
                         identityType: e.target.value,
                         identityNumber: "", // Clear the number when type changes
                       });
+                      // Clear validation error when type changes
                       setValidationErrors((prev) => ({
                         ...prev,
-                        identityNumber: "", // Clear validation errors when type changes
+                        identityNumber: "",
                       }));
                     }}
                     disabled={shouldDisableFields()}
@@ -3137,8 +3151,8 @@ const NewDonation = () => {
                     <option value="Aadhaar">Aadhaar</option>
                     <option value="PAN">PAN</option>
                     <option value="Passport">Passport</option>
-                    <option value="VoterId">Voter ID</option>
-                    <option value="DrivingLicense">Driving License</option>
+                    <option value="Voter ID">Voter ID</option>
+                    <option value="Driving License">Driving License</option>
                   </select>
                   <input
                     ref={identityInputRef}
@@ -3146,86 +3160,54 @@ const NewDonation = () => {
                     value={donorDetails.identityNumber}
                     onChange={(e) => {
                       if (shouldDisableFields()) return;
-                      const value = e.target.value;
-                      const type = donorDetails.identityType;
-
-                      // Apply validation based on identity type
-                      let validatedValue = value;
-                      switch (type) {
-                        case "Aadhaar":
-                          validatedValue = value
-                            .replace(/[^0-9]/g, "")
-                            .slice(0, 12);
-                          break;
-                        case "PAN":
-                          // Allow both letters and numbers for PAN
-                          validatedValue = value
-                            .replace(/[^A-Za-z0-9]/g, "")
-                            .slice(0, 10)
-                            .toUpperCase();
-                          break;
-                        case "Passport":
-                          validatedValue = value
-                            .replace(/[^A-Za-z0-9]/g, "")
-                            .slice(0, 8)
-                            .toUpperCase();
-                          break;
-                        case "VoterId":
-                          validatedValue = value
-                            .replace(/[^A-Za-z0-9]/g, "")
-                            .slice(0, 10)
-                            .toUpperCase();
-                          break;
-                        case "DrivingLicense":
-                          validatedValue = value
-                            .replace(/[^A-Za-z0-9]/g, "")
-                            .slice(0, 15)
-                            .toUpperCase();
-                          break;
-                        default:
-                          validatedValue = value;
-                      }
-
                       setDonorDetails({
                         ...donorDetails,
-                        identityNumber: validatedValue,
+                        identityNumber: e.target.value.toUpperCase(),
                       });
-
-                      // Validate the input
+                      // Clear validation error when user types
+                      setValidationErrors((prev) => ({
+                        ...prev,
+                        identityNumber: "",
+                      }));
+                    }}
+                    onBlur={() => {
+                      // Validate based on selected identity type
                       let error = "";
-                      switch (type) {
+                      switch (donorDetails.identityType) {
                         case "Aadhaar":
-                          error = validateAadhaar(validatedValue);
+                          error = validateAadhaar(donorDetails.identityNumber);
                           break;
                         case "PAN":
-                          error = validatePAN(validatedValue);
+                          error = validatePAN(donorDetails.identityNumber);
                           break;
                         case "Passport":
-                          error = validatePassport(validatedValue);
+                          error = validatePassport(donorDetails.identityNumber);
                           break;
-                        case "VoterId":
-                          error = validateVoterId(validatedValue);
+                        case "Voter ID":
+                          error = validateVoterId(donorDetails.identityNumber);
                           break;
-                        case "DrivingLicense":
-                          error = validateDrivingLicense(validatedValue);
+                        case "Driving License":
+                          error = validateDrivingLicense(
+                            donorDetails.identityNumber
+                          );
                           break;
                       }
-
                       setValidationErrors((prev) => ({
                         ...prev,
                         identityNumber: error,
                       }));
                     }}
-                    disabled={shouldDisableFields()}
+                    placeholder={`Enter ${donorDetails.identityType} number`}
                     className={`${
                       validationErrors.identityNumber ? "error" : ""
                     } ${shouldDisableFields() ? "disabled-input" : ""}`}
+                    disabled={shouldDisableFields()}
                   />
                 </div>
                 {validationErrors.identityNumber && (
-                  <span className="error-message">
+                  <div className="error-message">
                     {validationErrors.identityNumber}
-                  </span>
+                  </div>
                 )}
               </div>
             </div>
@@ -3828,7 +3810,6 @@ const NewDonation = () => {
                 <option value="Cheque">Cheque</option>
                 <option value="Bank Transfer">Bank Transfer</option>
                 <option value="DD">DD</option>
-                <option value="Electronic Modes">Electronic Modes</option>
               </select>
             </div>
             <div className="form-group">
@@ -4586,6 +4567,91 @@ const NewDonation = () => {
 
         .tab:not(:disabled):hover {
           background-color: ${selectedTab === "Math" ? "#ffa677" : "#88ea87"};
+        }
+
+        .form-row {
+          display: flex;
+          gap: 20px;
+          margin-bottom: 16px;
+        }
+
+        .donor-unified-input {
+          display: flex;
+          gap: 8px;
+        }
+
+        .donor-unified-input select {
+          width: 80px;
+          flex-shrink: 0;
+        }
+
+        .phone-unified-input {
+          display: flex;
+          gap: 8px;
+        }
+
+        .phone-unified-input select {
+          width: 80px;
+          flex-shrink: 0;
+        }
+
+        .searchable-dropdown {
+          flex: 1;
+        }
+
+        .form-row {
+          display: flex;
+          gap: 20px;
+          margin-bottom: 15px;
+
+          .form-group.half-width {
+            flex: 1;
+            min-width: 0; // Prevents flex items from overflowing
+
+            .identity-input-group {
+              display: flex;
+              gap: 10px;
+
+              select {
+                width: 130px;
+                min-width: 130px;
+              }
+
+              input {
+                flex: 1;
+              }
+            }
+          }
+        }
+
+        // Ensure error messages don't break the layout
+        .error-message {
+          position: absolute;
+          font-size: 12px;
+          color: #dc2626;
+          margin-top: 2px;
+        }
+
+        // Adjust input padding to accommodate error messages
+        .form-group {
+          margin-bottom: 20px; // Increase bottom margin to make room for error messages
+
+          input,
+          select {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+
+            &.error {
+              border-color: #dc2626;
+            }
+
+            &.disabled-input {
+              background-color: #f3f4f6;
+              cursor: not-allowed;
+            }
+          }
         }
       `}</style>
     </div>

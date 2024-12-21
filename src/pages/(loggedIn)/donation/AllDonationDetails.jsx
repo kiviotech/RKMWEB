@@ -32,8 +32,15 @@ const AllDonationDetails = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
   const itemsPerPage = 10;
+  const [timeFilter, setTimeFilter] = useState("today");
 
   useEffect(() => {
+    const today = new Date().toISOString().split("T")[0];
+    setDateRange({
+      startDate: today,
+      endDate: today,
+    });
+
     const handleClickOutside = (event) => {
       if (
         filterDropdownRef.current &&
@@ -98,14 +105,50 @@ const AllDonationDetails = () => {
     setCurrentPage(pageNumber);
   };
 
+  const handleTimeFilterChange = (filter) => {
+    setTimeFilter(filter);
+    if (filter === "today") {
+      const today = new Date().toISOString().split("T")[0];
+      setDateRange({
+        startDate: today,
+        endDate: today,
+      });
+    } else {
+      setDateRange({
+        startDate: "",
+        endDate: "",
+      });
+    }
+  };
+
   return (
     <div className="all-donation-details">
       <div className="header-container">
-        <h1 className="page-title">All Donation</h1>
+        <h1 className="page-title">
+          {timeFilter === "today" ? "Today Donations" : "All Donations"}
+        </h1>
         <ExportDonations />
       </div>
       <div className="donation-header">
         <div className="left-section">
+          <div className="time-filter-buttons">
+            <button
+              className={`filter-button ${
+                timeFilter === "today" ? "active" : ""
+              }`}
+              onClick={() => handleTimeFilterChange("today")}
+            >
+              Today Donations
+            </button>
+            <button
+              className={`filter-button ${
+                timeFilter === "all" ? "active" : ""
+              }`}
+              onClick={() => handleTimeFilterChange("all")}
+            >
+              All Donations
+            </button>
+          </div>
           <span className="sort-by">Filtered by</span>
           <select
             className="status-dropdown"
@@ -129,22 +172,24 @@ const AllDonationDetails = () => {
         </div>
 
         <div className="right-section">
-          <div className="date-range">
-            <span>From</span>
-            <input
-              type="date"
-              name="startDate"
-              value={dateRange.startDate}
-              onChange={handleDateChange}
-            />
-            <span>To</span>
-            <input
-              type="date"
-              name="endDate"
-              value={dateRange.endDate}
-              onChange={handleDateChange}
-            />
-          </div>
+          {timeFilter !== "today" && (
+            <div className="date-range">
+              <span>From</span>
+              <input
+                type="date"
+                name="startDate"
+                value={dateRange.startDate}
+                onChange={handleDateChange}
+              />
+              <span>To</span>
+              <input
+                type="date"
+                name="endDate"
+                value={dateRange.endDate}
+                onChange={handleDateChange}
+              />
+            </div>
+          )}
           <div className="search-container">
             <input
               type="text"

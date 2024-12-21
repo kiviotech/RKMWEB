@@ -320,4 +320,29 @@
       }
     }
   }
+
+  .time-filter-buttons {
+    display: flex;
+    gap: 10px;
+    margin-right: 20px;
+
+    .filter-button {
+      padding: 8px 16px;
+      border: 1px solid #ea7704;
+      border-radius: 4px;
+      background: white;
+      cursor: pointer;
+      transition: all 0.3s ease;
+
+      &.active {
+        background: #ea7704;
+        color: white;
+      }
+
+      &:hover {
+        background: #ea7704;
+        color: white;
+      }
+    }
+  }
 }

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import "./NewDonation.scss";
 import { useAuthStore } from "../../../../store/authStore";
+import { useDonationStore } from "../../../../donationStore";
 import {
   fetchGuestDetails,
   createNewGuestDetails,
@@ -20,40 +21,90 @@ import { useNavigate, useLocation } from "react-router-dom";
 import ReceiptTemplate from "./ReceiptTemplate";
 import ThankLetterTemplate from "./ThankLetterTemplate";
 import ConsentLetterTemplate from "./ConsentLetterTemplate";
-import { useDonationFormStore } from "../../../../store/donationFormStore";
 
 const NewDonation = () => {
-  // Replace local state with Zustand store
-  const {
-    donorDetails,
-    setDonorDetails,
-    mathDonationDetails,
-    missionDonationDetails,
-    setDonationDetails,
-    activeTab,
-    setActiveTab,
-    resetForm,
-    resetTabDonationDetails,
-  } = useDonationFormStore();
+  // Add this useEffect at the top of your component
+  useEffect(() => {
+    // Try multiple scroll methods to ensure it works across different browsers
+    const scrollToTop = () => {
+      // Method 1: Using window.scrollTo
+      window.scrollTo({
+        top: 0,
+        left: 0,
+        behavior: "smooth",
+      });
 
-  // Remove these local states as they're now in Zustand
-  // const [donorDetails, setDonorDetails] = useState({...});
-  // const [currentReceipt, setCurrentReceipt] = useState({...});
+      // Method 2: Using document.documentElement
+      document.documentElement.scrollTop = 0;
+
+      // Method 3: Using document.body
+      document.body.scrollTop = 0;
+    };
+
+    // Execute scroll immediately
+    scrollToTop();
+
+    // Also try after a small delay to ensure content is loaded
+    setTimeout(scrollToTop, 100);
+
+    return () => {
+      // Reset scroll restoration when component unmounts
+      if ("scrollRestoration" in history) {
+        history.scrollRestoration = "auto";
+      }
+    };
+  }, []); // Empty dependency array means this runs once on mount
 
   const [selectedTab, setSelectedTab] = useState("Math");
   const [receiptNumber, setReceiptNumber] = useState("");
   const { user } = useAuthStore();
+  const { addDonationTab, addDonation } = useDonationStore();
+  const [donorDetails, setDonorDetails] = useState({
+    title: "Sri",
+    name: "",
+    phoneCode: "+91",
+    phone: "",
+    email: "",
+    mantraDiksha: "",
+    identityType: "Aadhaar",
+    identityNumber: "",
+    roomNumber: "",
+    pincode: "",
+    houseNumber: "",
+    streetName: "",
+    district: "",
+    state: "",
+    postOffice: "",
+    panNumber: "",
+  });
   const [donorTags, setDonorTags] = useState([
     {
-      id: Date.now(),
+      id: "tab1",
       name: "New Donor",
       isNewDonor: true,
     },
   ]);
-  const [selectedDonor, setSelectedDonor] = useState(Date.now());
+  const [selectedDonor, setSelectedDonor] = useState(
+    donorTags[0]?.id || "tab1"
+  );
   const [guestDetails, setGuestDetails] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [showDropdown, setShowDropdown] = useState(false);
+  const [currentReceipt, setCurrentReceipt] = useState({
+    donationDetails: {
+      donationType: "",
+      amount: "",
+      transactionType: "cash",
+      inMemoryOf: "", // Remove default value
+      transactionDetails: {
+        ddNumber: "",
+        ddDate: "",
+        bankName: "",
+        branchName: "",
+      },
+    },
+  });
+
   const [donorTabs, setDonorTabs] = useState({});
   const [donationHistory, setDonationHistory] = useState([]);
   const [validationErrors, setValidationErrors] = useState({
@@ -145,14 +196,12 @@ const NewDonation = () => {
     "none",
   ];
 
-  // Replace store-based state with local state
-  const [donations, setDonations] = useState({
-    receipts: [],
-  });
+  // console.log("Zustand Store Data:", {
+  //   // auth: { user },
+  //   donations,
+  // });
 
-  // Get the current tab's donation details
-  const donationDetails =
-    activeTab === "Math" ? mathDonationDetails : missionDonationDetails;
+  // console.log("Received donation data:", donationData);
 
   useEffect(() => {
     const fetchDonation = async () => {
@@ -190,18 +239,22 @@ const NewDonation = () => {
         setReceiptNumber(receiptData.Receipt_number);
 
         // Update current receipt with donation details
-        setDonationDetails({
-          donationType: donationData.attributes.type || "Others (Revenue)", // Use type field here
-          purpose: donationData.attributes.purpose || "General", // Add purpose field
-          amount: donationData.attributes.donationAmount,
-          transactionType:
-            donationData.attributes.transactionType.toLowerCase(),
-          inMemoryOf: donationData.attributes.InMemoryOf || "Others (Revenue)",
-          transactionDetails: {
-            ddNumber: donationData.attributes.ddch_number || "",
-            ddDate: donationData.attributes.ddch_date || "",
-            bankName: donationData.attributes.bankName || "",
-            branchName: donationData.attributes.branchName || "",
+        setCurrentReceipt({
+          receiptNumber: receiptData.Receipt_number,
+          donationDetails: {
+            donationType: donationData.attributes.type || "Others (Revenue)", // Use type field here
+            purpose: donationData.attributes.purpose || "General", // Add purpose field
+            amount: donationData.attributes.donationAmount,
+            transactionType:
+              donationData.attributes.transactionType.toLowerCase(),
+            inMemoryOf:
+              donationData.attributes.InMemoryOf || "Others (Revenue)",
+            transactionDetails: {
+              ddNumber: donationData.attributes.ddch_number || "",
+              ddDate: donationData.attributes.ddch_date || "",
+              bankName: donationData.attributes.bankName || "",
+              branchName: donationData.attributes.branchName || "",
+            },
           },
         });
       } catch (err) {
@@ -215,7 +268,10 @@ const NewDonation = () => {
   // Add this helper function to parse address string
   const parseAddress = (address) => {
     try {
+      // console.log("Raw address:", address);
+      // Split by commas and trim whitespace
       const parts = address.split(",").map((part) => part.trim());
+      // console.log("Address parts:", parts);
 
       // Get the last 3 known positions
       const length = parts.length;
@@ -237,6 +293,8 @@ const NewDonation = () => {
         state,
         pincode: pincode.replace(/\D/g, ""), // Remove non-digits from pincode
       };
+
+      console.log("Parsed address:", parsedAddress);
       return parsedAddress;
     } catch (error) {
       console.error("Error parsing address:", error);
@@ -255,6 +313,25 @@ const NewDonation = () => {
     const loadGuestDetails = async () => {
       try {
         const response = await fetchGuestDetails();
+        // Log individual guest records
+        if (response?.data?.length > 0) {
+          // console.log("\nGuest Records:");
+          response.data.forEach((guest, index) => {
+            console.log(`Guest ${index + 1}:`, {
+              id: guest.id,
+              name: guest.attributes?.name,
+              phone: guest.attributes?.phone_number,
+              email: guest.attributes?.email,
+              address: guest.attributes?.address,
+              deeksha: guest.attributes?.deeksha,
+              status: guest.attributes?.status,
+            });
+          });
+        } else {
+          console.log("No guest records found");
+        }
+
+        // Store the data in state
         setGuestDetails(response);
       } catch (error) {
         console.error("Error loading guest details:", error);
@@ -286,13 +363,14 @@ const NewDonation = () => {
     const generatedNumber = `${prefix} ${nextNumber}`;
 
     const receiptData = {
+      tabId: selectedDonor,
       receiptNumber: generatedNumber,
       date: new Date().toLocaleDateString(),
       createdBy: user?.username || "N/A",
       type: selectedTab,
       status: "pending",
       amount: 0,
-      donorId: selectedDonor,
+      // donorId: selectedDonor,
       donorDetails: donorDetails,
       donationDetails: {
         amount: "",
@@ -306,19 +384,24 @@ const NewDonation = () => {
         },
       },
     };
+    console.log("receipt data", receiptData);
+    console.log("donor", selectedDonor);
+    console.log("tab", selectedTab);
 
     // Batch these updates together
     setReceiptNumber(generatedNumber);
-    setDonationDetails(receiptData);
-    setDonations((prev) => ({
-      ...prev,
-      receipts: [...prev.receipts, receiptData],
-    }));
+    setCurrentReceipt(receiptData);
+    addDonation(selectedDonor, selectedTab, receiptData);
   }, [selectedDonor, selectedTab]); // Dependencies include selectedTab
 
   // When donor details are updated, update both receipts
   const handleDonorDetailsUpdate = (details) => {
-    console.log("Updating Donor Details:", details);
+    if (currentReceipt?.receiptNumber) {
+      updateDonationDetails(selectedDonor, currentReceipt.receiptNumber, {
+        donorDetails: details,
+      });
+    }
+
     setDonorDetails(details);
 
     // Update the donor tag name when the donor details are updated
@@ -331,11 +414,35 @@ const NewDonation = () => {
         )
       );
     }
+
+    // Update receipts for this donor in Zustand
+    const donorReceipts =
+      donations[tabId]?.receipts.find(
+        (group) =>
+          Array.isArray(group) &&
+          group.length > 0 &&
+          (group[0].donorId === selectedDonor ||
+            group[0].donorDetails?.guestId === selectedDonor)
+      ) || [];
+
+    donorReceipts.forEach((receipt) => {
+      if (receipt.receiptNumber !== currentReceipt?.receiptNumber) {
+        updateDonationDetails(selectedDonor, receipt.receiptNumber, {
+          donorDetails: details,
+        });
+      }
+    });
   };
 
   // Modify handleAddDonation to use sequential numbers
   const handleAddDonation = () => {
-    // If donation data exists, navigate to new donation page
+    // Limit the maximum number of tabs to 5
+    if (donorTags.length >= 5) {
+      alert("Maximum number of tabs reached.");
+      return;
+    }
+
+    // If donation data exists, navigate to the new donation page
     if (donationData) {
       navigate("/newDonation");
       return;
@@ -350,11 +457,11 @@ const NewDonation = () => {
 
     setReceiptNumber(newReceiptNumber);
 
-    // Generate next unique ID
+    // Generate next unique ID for the donor
     const newUniqueId = `C${nextNumber}`;
     setUniqueDonorId(newUniqueId);
 
-    setDonationDetails({
+    setCurrentReceipt({
       receiptNumber: newReceiptNumber,
       donationDetails: {
         donationType: "Others (Revenue)",
@@ -370,12 +477,17 @@ const NewDonation = () => {
       },
     });
 
+    // Generate tabId dynamically
+    const newTabId = `tab${donorTags.length + 1}`; // e.g., tab1, tab2, etc.
+
+    // Create a new donor object
     const newDonor = {
-      id: Date.now(),
+      id: newTabId, // Use tabId as the unique identifier for tabs
       name: "New Donor",
       isNewDonor: true,
     };
 
+    // Add the new donor and tabId
     setDonorTags((prev) => [...prev, newDonor]);
     setSelectedDonor(newDonor.id);
 
@@ -428,7 +540,7 @@ const NewDonation = () => {
 
     // Find the donor's receipts
     const donorReceipts =
-      donations.receipts.find(
+      donations[tabId]?.receipts.find(
         (group) =>
           Array.isArray(group) &&
           group.length > 0 &&
@@ -474,6 +586,12 @@ const NewDonation = () => {
 
   // Handle guest selection
   const handleGuestSelect = (guest) => {
+    console.log("Selected Guest Data:", {
+      guestId: guest.id,
+      attributes: guest.attributes,
+      fullData: guest,
+    });
+
     // Check if guest has donations with receipt details
     const guestDonations = guest.attributes.donations?.data || [];
     let existingUniqueNo = null;
@@ -541,31 +659,63 @@ const NewDonation = () => {
 
   // Modify the handleTabClick function
   const handleTabClick = (tab) => {
-    if (tab === activeTab) return; // Don't do anything if clicking the same tab
+    // Only allow changing tabs if there's no donation data or if it's not completed
+    if (donationData && donationData.status === "completed") {
+      return;
+    }
 
-    setActiveTab(tab);
     setSelectedTab(tab);
 
-    // Preserve the current tab's data before switching
-    const currentDetails =
-      activeTab === "Math" ? mathDonationDetails : missionDonationDetails;
-    console.log(
-      `Switching to ${tab} tab. Current ${activeTab} details:`,
-      currentDetails
-    );
+    // Update receipt number based on new tab
+    const prefix = tab === "Mission" ? "MSN" : "MT";
+    const currentHighest =
+      tab === "Mission" ? highestNumbers.MSN : highestNumbers.MT;
+    const nextNumber = currentHighest + 1;
+    const newReceiptNumber = `${prefix} ${nextNumber}`;
+
+    setReceiptNumber(newReceiptNumber);
+
+    // Update unique donor ID
+    setUniqueDonorId(`C${nextNumber}`);
+
+    // Clear current receipt if it exists
+    if (currentReceipt) {
+      setCurrentReceipt({
+        ...currentReceipt,
+        receiptNumber: newReceiptNumber,
+        donationDetails: {
+          ...currentReceipt.donationDetails,
+          purpose: "", // Reset purpose when changing tabs
+        },
+      });
+    }
   };
 
   // Add handler for donation details updates
-  const updateDonationDetails = (updates) => {
-    // Preserve existing details and merge with updates
-    const currentDetails =
-      activeTab === "Math" ? mathDonationDetails : missionDonationDetails;
-    const updatedDetails = {
-      ...currentDetails,
-      ...updates,
-    };
+  const handleDonationDetailsUpdate = (updates) => {
+    setCurrentReceipt((prev) => {
+      const updatedDonationDetails = {
+        ...prev?.donationDetails,
+        ...updates,
+      };
 
-    setDonationDetails(updatedDetails);
+      // If purpose is being updated and it's not "Other", clear otherPurpose
+      if (updates.purpose && updates.purpose !== "Other") {
+        updatedDonationDetails.otherPurpose = "";
+      }
+
+      const updatedReceipt = {
+        ...prev,
+        donationDetails: updatedDonationDetails,
+      };
+
+      // If there's a receipt number, update the donation details
+      if (prev?.receiptNumber) {
+        updateDonationDetails(prev.receiptNumber, updatedDonationDetails);
+      }
+
+      return updatedReceipt;
+    });
 
     // Clear validation errors when updating purpose
     if (updates.purpose) {
@@ -577,40 +727,59 @@ const NewDonation = () => {
     }
   };
 
-  // Update reset handler
-  const handleReset = () => {
-    // Only show confirmation if there's data to reset
-    const currentDetails =
-      activeTab === "Math" ? mathDonationDetails : missionDonationDetails;
-
-    if (currentDetails.amount || currentDetails.purpose) {
-      if (
-        window.confirm(
-          `Are you sure you want to reset the ${activeTab} donation details?`
-        )
-      ) {
-        resetTabDonationDetails(activeTab);
-        setValidationErrors({});
-        setTransactionValidationErrors({
-          ddDate: "",
+  const resetFormData = () => {
+    setDonorDetails({
+      title: "Sri",
+      name: "",
+      phoneCode: "+91",
+      phone: "",
+      email: "",
+      mantraDiksha: "",
+      identityType: "Aadhaar",
+      identityNumber: "",
+      roomNumber: "",
+      pincode: "",
+      houseNumber: "",
+      streetName: "",
+      district: "",
+      state: "",
+      postOffice: "",
+    });
+    // Reset receipt and current receipt with "Others (Revenue)" as default
+    setReceiptNumber("");
+    setCurrentReceipt({
+      receiptNumber: "",
+      donationDetails: {
+        donationType: "Others (Revenue)", // Set default donation type here
+        amount: "",
+        transactionType: "cash",
+        inMemoryOf: "",
+        transactionDetails: {
           ddNumber: "",
+          ddDate: "",
           bankName: "",
           branchName: "",
-        });
-        setShowPANField(false);
-        console.log(`${activeTab} donation details reset complete`);
-      }
-    } else {
-      // If no data to reset, just clear any validation errors
-      setValidationErrors({});
-      setTransactionValidationErrors({
-        ddDate: "",
-        ddNumber: "",
-        bankName: "",
-        branchName: "",
-      });
-      setShowPANField(false);
-    }
+        },
+      },
+    });
+
+    // Reset donor tags and selected donor
+    setDonorTags([
+      {
+        id: "tab1",
+        name: "New Donor",
+        isNewDonor: true,
+      },
+    ]);
+    setSelectedDonor("tab1");
+
+    // Reset validation errors
+    setValidationErrors({
+      name: "",
+      phone: "",
+      email: "",
+      identityNumber: "",
+    });
   };
 
   // Add this validation function
@@ -658,24 +827,28 @@ const NewDonation = () => {
     }
 
     // Check donation details
-    if (!donationDetails?.purpose) {
+    if (!currentReceipt?.donationDetails?.purpose) {
       errorFields.push("purpose");
       hasErrors = true;
     }
 
-    if (!donationDetails?.amount || parseFloat(donationDetails?.amount) <= 0) {
+    if (
+      !currentReceipt?.donationDetails?.amount ||
+      parseFloat(currentReceipt?.donationDetails?.amount) <= 0
+    ) {
       errorFields.push("donation amount");
       hasErrors = true;
     }
 
     // Check transaction details if not cash
-    const transactionType = donationDetails?.transactionType?.toLowerCase();
+    const transactionType =
+      currentReceipt?.donationDetails?.transactionType?.toLowerCase();
     if (
       ["cheque", "bank transfer", "dd", "m.o", "electronic modes"].includes(
         transactionType
       )
     ) {
-      const details = donationDetails?.transactionDetails;
+      const details = currentReceipt?.donationDetails?.transactionDetails;
 
       if (!details?.ddDate) {
         errorFields.push("date");
@@ -733,12 +906,12 @@ const NewDonation = () => {
         if (!donorDetails.pincode || donorDetails.pincode.length !== 6) {
           newErrors.pincode = "Valid 6-digit pincode is required";
         }
-        if (!donationDetails?.purpose) {
+        if (!currentReceipt?.donationDetails?.purpose) {
           newErrors.purpose = "Purpose is required";
         }
         if (
-          !donationDetails?.amount ||
-          parseFloat(donationDetails?.amount) <= 0
+          !currentReceipt?.donationDetails?.amount ||
+          parseFloat(currentReceipt?.donationDetails?.amount) <= 0
         ) {
           newErrors.amount = "Valid donation amount is required";
         }
@@ -749,7 +922,7 @@ const NewDonation = () => {
             transactionType
           )
         ) {
-          const details = donationDetails?.transactionDetails;
+          const details = currentReceipt?.donationDetails?.transactionDetails;
           if (!details?.ddDate) newErrors.ddDate = "Date is required";
           if (!details?.ddNumber) newErrors.ddNumber = "Number is required";
           if (!details?.bankName) newErrors.bankName = "Bank name is required";
@@ -772,13 +945,13 @@ const NewDonation = () => {
           document
             .querySelector('input[name="pincode"]')
             ?.scrollIntoView({ behavior: "smooth" });
-        } else if (!donationDetails?.purpose) {
+        } else if (!currentReceipt?.donationDetails?.purpose) {
           document
             .querySelector('[name="purpose"]')
             ?.scrollIntoView({ behavior: "smooth" });
         } else if (
-          !donationDetails?.amount ||
-          parseFloat(donationDetails?.amount) <= 0
+          !currentReceipt?.donationDetails?.amount ||
+          parseFloat(currentReceipt?.donationDetails?.amount) <= 0
         ) {
           document
             .querySelector('[name="amount"]')
@@ -822,8 +995,10 @@ const NewDonation = () => {
     // Basic validation for required fields
     if (!donorDetails.name) errors.name = "Name is required";
     if (!donorDetails.phone) errors.phone = "Phone number is required";
-    if (!donationDetails?.amount) errors.amount = "Amount is required";
-    if (!donationDetails?.purpose) errors.purpose = "Purpose is required";
+    if (!currentReceipt?.donationDetails?.amount)
+      errors.amount = "Amount is required";
+    if (!currentReceipt?.donationDetails?.purpose)
+      errors.purpose = "Purpose is required";
 
     // Update validation errors
     setValidationErrors(errors);
@@ -864,7 +1039,7 @@ const NewDonation = () => {
       const receiptPayload = {
         Receipt_number: receiptNumber,
         status: "completed",
-        amount: donationDetails?.amount,
+        amount: currentReceipt?.donationDetails?.amount,
         unique_no: uniqueDonorId,
         counter: user?.counter || "N/A", // Add counter number from user data
       };
@@ -875,24 +1050,37 @@ const NewDonation = () => {
       console.log("Creating new donation record");
       const donationPayload = {
         data: {
-          InMemoryOf: donationDetails?.inMemoryOf || "for Thakur Seva",
-          donationAmount: donationDetails?.amount,
+          InMemoryOf:
+            currentReceipt?.donationDetails?.inMemoryOf || "for Thakur Seva",
+          donationAmount: currentReceipt?.donationDetails?.amount,
           transactionType:
-            donationDetails?.transactionType?.charAt(0).toUpperCase() +
-              donationDetails?.transactionType?.slice(1) || "Cash",
+            currentReceipt?.donationDetails?.transactionType
+              ?.charAt(0)
+              .toUpperCase() +
+              currentReceipt?.donationDetails?.transactionType?.slice(1) ||
+            "Cash",
           donationFor: selectedTab,
           status: "completed",
           donationDate: getCurrentFormattedDate(),
           guest: guestId,
           receipt_detail: receiptResponse.data.id,
-          purpose: donationDetails?.purpose || "General",
-          type: donationDetails?.donationType || "Others (Revenue)",
+          purpose: currentReceipt?.donationDetails?.purpose || "General",
+          type:
+            currentReceipt?.donationDetails?.donationType || "Others (Revenue)",
           counter: user?.counter || "N/A", // Add counter number from user data
-          ...(donationDetails?.transactionType?.toLowerCase() !== "cash" && {
-            ddch_number: donationDetails?.transactionDetails?.ddNumber || "",
-            ddch_date: donationDetails?.transactionDetails?.ddDate || "",
-            bankName: donationDetails?.transactionDetails?.bankName || "",
-            branchName: donationDetails?.transactionDetails?.branchName || "",
+          ...(currentReceipt?.donationDetails?.transactionType?.toLowerCase() !==
+            "cash" && {
+            ddch_number:
+              currentReceipt?.donationDetails?.transactionDetails?.ddNumber ||
+              "",
+            ddch_date:
+              currentReceipt?.donationDetails?.transactionDetails?.ddDate || "",
+            bankName:
+              currentReceipt?.donationDetails?.transactionDetails?.bankName ||
+              "",
+            branchName:
+              currentReceipt?.donationDetails?.transactionDetails?.branchName ||
+              "",
           }),
           unique_no: uniqueDonorId,
         },
@@ -920,7 +1108,7 @@ const NewDonation = () => {
         receiptNumber,
         formattedDate,
         donorDetails,
-        donationDetails,
+        currentReceipt,
         numberToWords,
         user,
       });
@@ -948,7 +1136,7 @@ const NewDonation = () => {
         setTimeout(() => {
           document.body.removeChild(printFrame);
           setIsModalOpen(false); // Close the modal
-          resetForm();
+          resetFormData();
           window.location.reload(); // Add this line to reload the page
         }, 1000);
       };
@@ -995,24 +1183,28 @@ const NewDonation = () => {
     }
 
     // Check donation details
-    if (!donationDetails?.purpose) {
+    if (!currentReceipt?.donationDetails?.purpose) {
       errorFields.push("purpose");
       hasErrors = true;
     }
 
-    if (!donationDetails?.amount || parseFloat(donationDetails?.amount) <= 0) {
+    if (
+      !currentReceipt?.donationDetails?.amount ||
+      parseFloat(currentReceipt?.donationDetails?.amount) <= 0
+    ) {
       errorFields.push("donation amount");
       hasErrors = true;
     }
 
     // Check transaction details if not cash
-    const transactionType = donationDetails?.transactionType?.toLowerCase();
+    const transactionType =
+      currentReceipt?.donationDetails?.transactionType?.toLowerCase();
     if (
       ["cheque", "bank transfer", "dd", "m.o", "electronic modes"].includes(
         transactionType
       )
     ) {
-      const details = donationDetails?.transactionDetails;
+      const details = currentReceipt?.donationDetails?.transactionDetails;
 
       if (!details?.ddDate) {
         errorFields.push("date");
@@ -1070,12 +1262,12 @@ const NewDonation = () => {
         if (!donorDetails.pincode || donorDetails.pincode.length !== 6) {
           newErrors.pincode = "Valid 6-digit pincode is required";
         }
-        if (!donationDetails?.purpose) {
+        if (!currentReceipt?.donationDetails?.purpose) {
           newErrors.purpose = "Purpose is required";
         }
         if (
-          !donationDetails?.amount ||
-          parseFloat(donationDetails?.amount) <= 0
+          !currentReceipt?.donationDetails?.amount ||
+          parseFloat(currentReceipt?.donationDetails?.amount) <= 0
         ) {
           newErrors.amount = "Valid donation amount is required";
         }
@@ -1086,7 +1278,7 @@ const NewDonation = () => {
             transactionType
           )
         ) {
-          const details = donationDetails?.transactionDetails;
+          const details = currentReceipt?.donationDetails?.transactionDetails;
           if (!details?.ddDate) newErrors.ddDate = "Date is required";
           if (!details?.ddNumber) newErrors.ddNumber = "Number is required";
           if (!details?.bankName) newErrors.bankName = "Bank name is required";
@@ -1109,13 +1301,13 @@ const NewDonation = () => {
           document
             .querySelector('input[name="pincode"]')
             ?.scrollIntoView({ behavior: "smooth" });
-        } else if (!donationDetails?.purpose) {
+        } else if (!currentReceipt?.donationDetails?.purpose) {
           document
             .querySelector('[name="purpose"]')
             ?.scrollIntoView({ behavior: "smooth" });
         } else if (
-          !donationDetails?.amount ||
-          parseFloat(donationDetails?.amount) <= 0
+          !currentReceipt?.donationDetails?.amount ||
+          parseFloat(currentReceipt?.donationDetails?.amount) <= 0
         ) {
           document
             .querySelector('[name="amount"]')
@@ -1159,21 +1351,36 @@ const NewDonation = () => {
         console.log("Updating existing donation with ID:", donationId);
         const updatePayload = {
           data: {
-            InMemoryOf: donationDetails?.inMemoryOf || "for Thakur Seva",
-            donationAmount: donationDetails?.amount,
+            InMemoryOf:
+              currentReceipt?.donationDetails?.inMemoryOf || "for Thakur Seva",
+            donationAmount: currentReceipt?.donationDetails?.amount,
             transactionType:
-              donationDetails?.transactionType?.charAt(0).toUpperCase() +
-                donationDetails?.transactionType?.slice(1) || "Cash",
+              currentReceipt?.donationDetails?.transactionType
+                ?.charAt(0)
+                .toUpperCase() +
+                currentReceipt?.donationDetails?.transactionType?.slice(1) ||
+              "Cash",
             donationFor: selectedTab,
             status: "pending",
             donationDate: getCurrentFormattedDate(),
-            purpose: donationDetails?.purpose || "General",
-            type: donationDetails?.donationType || "Others (Revenue)",
-            ...(donationDetails?.transactionType?.toLowerCase() !== "cash" && {
-              ddch_number: donationDetails?.transactionDetails?.ddNumber || "",
-              ddch_date: donationDetails?.transactionDetails?.ddDate || "",
-              bankName: donationDetails?.transactionDetails?.bankName || "",
-              branchName: donationDetails?.transactionDetails?.branchName || "",
+            purpose: currentReceipt?.donationDetails?.purpose || "General",
+            type:
+              currentReceipt?.donationDetails?.donationType ||
+              "Others (Revenue)",
+            ...(currentReceipt?.donationDetails?.transactionType?.toLowerCase() !==
+              "cash" && {
+              ddch_number:
+                currentReceipt?.donationDetails?.transactionDetails?.ddNumber ||
+                "",
+              ddch_date:
+                currentReceipt?.donationDetails?.transactionDetails?.ddDate ||
+                "",
+              bankName:
+                currentReceipt?.donationDetails?.transactionDetails?.bankName ||
+                "",
+              branchName:
+                currentReceipt?.donationDetails?.transactionDetails
+                  ?.branchName || "",
             }),
             counter: user?.counter || "N/A", // Add counter number
           },
@@ -1206,7 +1413,7 @@ const NewDonation = () => {
         const receiptPayload = {
           Receipt_number: receiptNumber,
           status: "pending",
-          amount: donationDetails?.amount,
+          amount: currentReceipt?.donationDetails?.amount,
           counter: user?.counter || "N/A", // Add counter number
         };
         const receiptResponse = await createNewReceiptDetail(receiptPayload);
@@ -1216,21 +1423,34 @@ const NewDonation = () => {
         console.log("Creating new donation record with pending status");
         const donationPayload = {
           data: {
-            InMemoryOf: donationDetails?.inMemoryOf || "for Thakur Seva",
-            donationAmount: donationDetails?.amount,
+            InMemoryOf:
+              currentReceipt?.donationDetails?.inMemoryOf || "for Thakur Seva",
+            donationAmount: currentReceipt?.donationDetails?.amount,
             transactionType:
-              donationDetails?.transactionType?.charAt(0).toUpperCase() +
-                donationDetails?.transactionType?.slice(1) || "Cash",
+              currentReceipt?.donationDetails?.transactionType
+                ?.charAt(0)
+                .toUpperCase() +
+                currentReceipt?.donationDetails?.transactionType?.slice(1) ||
+              "Cash",
             donationFor: selectedTab,
             status: "pending",
             donationDate: getCurrentFormattedDate(),
             guest: guestId,
             receipt_detail: receiptResponse.data.id,
-            ...(donationDetails?.transactionType?.toLowerCase() !== "cash" && {
-              ddch_number: donationDetails?.transactionDetails?.ddNumber || "",
-              ddch_date: donationDetails?.transactionDetails?.ddDate || "",
-              bankName: donationDetails?.transactionDetails?.bankName || "",
-              branchName: donationDetails?.transactionDetails?.branchName || "",
+            ...(currentReceipt?.donationDetails?.transactionType?.toLowerCase() !==
+              "cash" && {
+              ddch_number:
+                currentReceipt?.donationDetails?.transactionDetails?.ddNumber ||
+                "",
+              ddch_date:
+                currentReceipt?.donationDetails?.transactionDetails?.ddDate ||
+                "",
+              bankName:
+                currentReceipt?.donationDetails?.transactionDetails?.bankName ||
+                "",
+              branchName:
+                currentReceipt?.donationDetails?.transactionDetails
+                  ?.branchName || "",
             }),
             counter: user?.counter || "N/A", // Add counter number
           },
@@ -1241,7 +1461,7 @@ const NewDonation = () => {
       }
 
       // Reset form and close modal
-      resetForm();
+      resetFormData();
       setShowPendingConfirm(false);
       navigate("/donation");
     } catch (error) {
@@ -1254,7 +1474,7 @@ const NewDonation = () => {
   // Modify the handleCancel function
   const handleCancel = async () => {
     // Check donation amount first
-    if (validateDonationAmount(donationDetails?.amount)) {
+    if (validateDonationAmount(currentReceipt?.donationDetails?.amount)) {
       alert("Enter the amount");
       return;
     }
@@ -1269,19 +1489,32 @@ const NewDonation = () => {
         console.log("Updating existing donation with ID:", donationId);
         const updatePayload = {
           data: {
-            InMemoryOf: donationDetails?.inMemoryOf || "for Thakur Seva",
-            donationAmount: donationDetails?.amount,
+            InMemoryOf:
+              currentReceipt?.donationDetails?.inMemoryOf || "for Thakur Seva",
+            donationAmount: currentReceipt?.donationDetails?.amount,
             transactionType:
-              donationDetails?.transactionType?.charAt(0).toUpperCase() +
-                donationDetails?.transactionType?.slice(1) || "Cash",
+              currentReceipt?.donationDetails?.transactionType
+                ?.charAt(0)
+                .toUpperCase() +
+                currentReceipt?.donationDetails?.transactionType?.slice(1) ||
+              "Cash",
             donationFor: selectedTab,
             status: "cancelled",
             donationDate: getCurrentFormattedDate(),
-            ...(donationDetails?.transactionType?.toLowerCase() !== "cash" && {
-              ddch_number: donationDetails?.transactionDetails?.ddNumber || "",
-              ddch_date: donationDetails?.transactionDetails?.ddDate || "",
-              bankName: donationDetails?.transactionDetails?.bankName || "",
-              branchName: donationDetails?.transactionDetails?.branchName || "",
+            ...(currentReceipt?.donationDetails?.transactionType?.toLowerCase() !==
+              "cash" && {
+              ddch_number:
+                currentReceipt?.donationDetails?.transactionDetails?.ddNumber ||
+                "",
+              ddch_date:
+                currentReceipt?.donationDetails?.transactionDetails?.ddDate ||
+                "",
+              bankName:
+                currentReceipt?.donationDetails?.transactionDetails?.bankName ||
+                "",
+              branchName:
+                currentReceipt?.donationDetails?.transactionDetails
+                  ?.branchName || "",
             }),
             counter: user?.counter || "N/A", // Add counter number
           },
@@ -1317,7 +1550,7 @@ const NewDonation = () => {
         const receiptPayload = {
           Receipt_number: receiptNumber,
           status: "cancelled",
-          amount: donationDetails?.amount,
+          amount: currentReceipt?.donationDetails?.amount,
           counter: user?.counter || "N/A", // Add counter number
         };
         const receiptResponse = await createNewReceiptDetail(receiptPayload);
@@ -1327,21 +1560,34 @@ const NewDonation = () => {
         console.log("Creating new donation record with cancelled status");
         const donationPayload = {
           data: {
-            InMemoryOf: donationDetails?.inMemoryOf || "for Thakur Seva",
-            donationAmount: donationDetails?.amount,
+            InMemoryOf:
+              currentReceipt?.donationDetails?.inMemoryOf || "for Thakur Seva",
+            donationAmount: currentReceipt?.donationDetails?.amount,
             transactionType:
-              donationDetails?.transactionType?.charAt(0).toUpperCase() +
-                donationDetails?.transactionType?.slice(1) || "Cash",
+              currentReceipt?.donationDetails?.transactionType
+                ?.charAt(0)
+                .toUpperCase() +
+                currentReceipt?.donationDetails?.transactionType?.slice(1) ||
+              "Cash",
             donationFor: selectedTab,
             status: "cancelled",
             donationDate: getCurrentFormattedDate(),
             guest: guestId,
             receipt_detail: receiptResponse.data.id,
-            ...(donationDetails?.transactionType?.toLowerCase() !== "cash" && {
-              ddch_number: donationDetails?.transactionDetails?.ddNumber || "",
-              ddch_date: donationDetails?.transactionDetails?.ddDate || "",
-              bankName: donationDetails?.transactionDetails?.bankName || "",
-              branchName: donationDetails?.transactionDetails?.branchName || "",
+            ...(currentReceipt?.donationDetails?.transactionType?.toLowerCase() !==
+              "cash" && {
+              ddch_number:
+                currentReceipt?.donationDetails?.transactionDetails?.ddNumber ||
+                "",
+              ddch_date:
+                currentReceipt?.donationDetails?.transactionDetails?.ddDate ||
+                "",
+              bankName:
+                currentReceipt?.donationDetails?.transactionDetails?.bankName ||
+                "",
+              branchName:
+                currentReceipt?.donationDetails?.transactionDetails
+                  ?.branchName || "",
             }),
             counter: user?.counter || "N/A", // Add counter number
           },
@@ -1352,7 +1598,7 @@ const NewDonation = () => {
       }
 
       // Reset form and close modal
-      resetForm();
+      resetFormData();
       setShowCancelConfirm(false);
       navigate("/donation#recent-donations");
     } catch (error) {
@@ -1370,7 +1616,67 @@ const NewDonation = () => {
     }
 
     // Otherwise use the current receipt amount
-    return parseFloat(donationDetails?.amount || 0);
+    return parseFloat(currentReceipt?.donationDetails?.amount || 0);
+  };
+
+  const handleReset = () => {
+    // Reset donor details
+    setDonorDetails({
+      title: "Sri",
+      name: "",
+      phoneCode: "+91",
+      phone: "",
+      email: "",
+      mantraDiksha: "",
+      identityType: "Aadhaar",
+      identityNumber: "",
+      roomNumber: "",
+      pincode: "",
+      houseNumber: "",
+      streetName: "",
+      district: "",
+      state: "",
+      postOffice: "",
+      guestId: null,
+      panNumber: "",
+    });
+
+    // Reset current receipt
+    setCurrentReceipt({
+      receiptNumber: null,
+      donationDetails: {
+        purpose: "",
+        donationType: "Others (Revenue)",
+        amount: "",
+        transactionType: "Cash",
+        inMemoryOf: "",
+        otherPurpose: "",
+        transactionDetails: {
+          ddDate: "",
+          ddNumber: "",
+          bankName: "",
+          branchName: "",
+        },
+      },
+    });
+
+    // Reset validation errors
+    setValidationErrors({});
+    setTransactionValidationErrors({
+      ddDate: "",
+      ddNumber: "",
+      bankName: "",
+      branchName: "",
+    });
+
+    // Reset other states
+    setShowPANField(false);
+    setSearchTerm("");
+    setShowDropdown(false);
+    setIsDeekshaDropdownOpen(false);
+    setDeekshaSearchQuery("");
+    setShowCustomDeeksha(false);
+    setCustomDeeksha("");
   };
 
   // Add this useEffect to reset fields on navigation
@@ -1488,20 +1794,20 @@ const NewDonation = () => {
     }
 
     // Check if donation amount exists and is valid
-    const amount = parseFloat(donationDetails?.amount);
+    const amount = parseFloat(currentReceipt?.donationDetails?.amount);
     if (!amount || isNaN(amount) || amount <= 0) {
       return false;
     }
 
     // Check if purpose is selected
-    if (!donationDetails?.purpose) {
+    if (!currentReceipt?.donationDetails?.purpose) {
       return false;
     }
 
     // If purpose is "Other", check if otherPurpose is specified
     if (
-      donationDetails?.purpose === "Other" &&
-      !donationDetails?.otherPurpose
+      currentReceipt?.donationDetails?.purpose === "Other" &&
+      !currentReceipt?.donationDetails?.otherPurpose
     ) {
       return false;
     }
@@ -1579,8 +1885,8 @@ const NewDonation = () => {
 
   // Modify the condition to show transaction details
   const showTransactionDetails =
-    donationDetails?.transactionType &&
-    donationDetails.transactionType.toLowerCase() !== "cash";
+    currentReceipt?.donationDetails?.transactionType &&
+    currentReceipt.donationDetails.transactionType.toLowerCase() !== "cash";
 
   // Add this function near the top of your component, with other utility functions
   const numberToWords = (num) => {
@@ -1683,7 +1989,7 @@ const NewDonation = () => {
   // Add this validation function
   const validateTransactionDetails = () => {
     // First check if purpose exists
-    if (!donationDetails?.purpose) {
+    if (!currentReceipt?.donationDetails?.purpose) {
       setValidationErrors((prev) => ({
         ...prev,
         purpose: "Purpose is required",
@@ -1691,8 +1997,9 @@ const NewDonation = () => {
       return false;
     }
 
-    const transactionType = donationDetails?.transactionType?.toLowerCase();
-    const details = donationDetails?.transactionDetails;
+    const transactionType =
+      currentReceipt?.donationDetails?.transactionType?.toLowerCase();
+    const details = currentReceipt?.donationDetails?.transactionDetails;
 
     if (
       ["cheque", "bank transfer", "dd", "m.o", "electronic modes"].includes(
@@ -1722,15 +2029,23 @@ const NewDonation = () => {
       const numericValue = parseFloat(value) || 0;
       setShowPANField(numericValue > 9999);
 
-      // Update the donation details for the current tab
-      const updatedDetails = {
-        ...(activeTab === "Math"
-          ? mathDonationDetails
-          : missionDonationDetails),
+      const updatedDonationDetails = {
+        ...currentReceipt?.donationDetails,
         amount: value,
       };
 
-      setDonationDetails(updatedDetails);
+      setCurrentReceipt((prev) => ({
+        ...prev,
+        donationDetails: updatedDonationDetails,
+      }));
+
+      if (currentReceipt?.receiptNumber) {
+        updateDonationDetails(
+          selectedDonor,
+          currentReceipt.receiptNumber,
+          updatedDonationDetails
+        );
+      }
 
       // Update validation error immediately
       setValidationErrors((prev) => ({
@@ -1739,44 +2054,6 @@ const NewDonation = () => {
           !value || numericValue <= 0 ? "Amount must be greater than 0" : "",
       }));
     }
-  };
-
-  // Update the donation details section
-  const handleDonationDetailsUpdate = (updates) => {
-    // Preserve existing details and merge with updates
-    const currentDetails =
-      activeTab === "Math" ? mathDonationDetails : missionDonationDetails;
-    const updatedDetails = {
-      ...currentDetails,
-      ...updates,
-    };
-
-    setDonationDetails(updatedDetails);
-
-    // Clear validation errors when updating purpose
-    if (updates.purpose) {
-      setValidationErrors((prev) => ({
-        ...prev,
-        purpose: "",
-        otherPurpose: "",
-      }));
-    }
-  };
-
-  // Update the tab click handler
-  const handleTabChange = (tab) => {
-    if (tab === activeTab) return; // Don't do anything if clicking the same tab
-
-    setActiveTab(tab);
-    setSelectedTab(tab);
-
-    // Preserve the current tab's data before switching
-    const currentDetails =
-      activeTab === "Math" ? mathDonationDetails : missionDonationDetails;
-    console.log(
-      `Switching to ${tab} tab. Current ${activeTab} details:`,
-      currentDetails
-    );
   };
 
   // Add this useEffect after other useEffects
@@ -1792,6 +2069,7 @@ const NewDonation = () => {
       try {
         // Get receipt numbers
         const response = await fetchReceiptNumbers();
+        // console.log('first', response.data)
         const receiptNumbers = response.data?.map(
           (receipt) => receipt.attributes.Receipt_number
         );
@@ -1841,13 +2119,15 @@ const NewDonation = () => {
     return {
       uniqueDonorId,
       donationDate: getCurrentFormattedDate(),
-      amount: donationDetails?.amount,
-      transactionType: donationDetails?.transactionType || "Cash",
-      donationType: donationDetails?.donationType || "Others(Revenue)",
+      amount: currentReceipt?.donationDetails?.amount,
+      transactionType:
+        currentReceipt?.donationDetails?.transactionType || "Cash",
+      donationType:
+        currentReceipt?.donationDetails?.donationType || "Others(Revenue)",
       purpose:
-        donationDetails?.purpose === "Other"
-          ? donationDetails?.otherPurpose
-          : donationDetails?.purpose,
+        currentReceipt?.donationDetails?.purpose === "Other"
+          ? currentReceipt?.donationDetails?.otherPurpose
+          : currentReceipt?.donationDetails?.purpose,
       title: donorDetails.title,
       name: donorDetails.name,
       houseNumber: donorDetails.houseNumber,
@@ -1858,7 +2138,7 @@ const NewDonation = () => {
       pincode: donorDetails.pincode,
       panNumber: donorDetails.panNumber || donorDetails.identityNumber,
       phone: `${donorDetails.phoneCode}${donorDetails.phone}`,
-      inMemoryOf: donationDetails?.inMemoryOf,
+      inMemoryOf: currentReceipt?.donationDetails?.inMemoryOf,
       receiptNumber: receiptNumber,
     };
   };
@@ -1951,7 +2231,7 @@ const NewDonation = () => {
         // ... set other fields as needed
       }));
 
-      setDonationDetails((prevReceipt) => ({
+      setCurrentReceipt((prevReceipt) => ({
         ...prevReceipt,
         receiptNumber: donationData.receiptNumber,
         donationDetails: {
@@ -1962,11 +2242,11 @@ const NewDonation = () => {
       }));
 
       // Log the processed data for debugging
-      console.log("Processed donor details:", {
-        title: title,
-        name: name,
-        fullName: fullName,
-      });
+      // console.log("Processed donor details:", {
+      //   title: title,
+      //   name: name,
+      //   fullName: fullName,
+      // });
     }
   }, [donationData]);
 
@@ -2208,6 +2488,13 @@ const NewDonation = () => {
         // Find highest numbers
         const highestMT = Math.max(...mtNumbers);
         const highestMSN = Math.max(...msnNumbers);
+
+        // console.log("Receipt Numbers Analysis:", {
+        //   highestMT: `MT ${highestMT}`,
+        //   highestMSN: `MSN ${highestMSN}`,
+        //   nextMT: `MT ${highestMT + 1}`,
+        //   nextMSN: `MSN ${highestMSN + 1}`,
+        // });
       } catch (error) {
         console.error("Error fetching receipt numbers:", error);
       }
@@ -2215,57 +2502,6 @@ const NewDonation = () => {
 
     getReceiptNumbers();
   }, []);
-
-  // Add useEffect to log state changes
-  useEffect(() => {
-    const formState = {
-      activeTab,
-      donorDetails: {
-        personalInfo: {
-          title: donorDetails.title,
-          name: donorDetails.name,
-          phone: `${donorDetails.phoneCode}${donorDetails.phone}`,
-          email: donorDetails.email,
-          mantraDiksha: donorDetails.mantraDiksha,
-        },
-        identification: {
-          type: donorDetails.identityType,
-          number: donorDetails.identityNumber,
-          guestHouseNo: donorDetails.guestHouseNo,
-        },
-        address: {
-          pincode: donorDetails.pincode,
-          state: donorDetails.state,
-          district: donorDetails.district,
-          houseNumber: donorDetails.houseNumber,
-          streetName: donorDetails.streetName,
-          postOffice: donorDetails.postOffice,
-        },
-      },
-      mathDonationDetails: {
-        basic: {
-          purpose: mathDonationDetails.purpose,
-          donationType: mathDonationDetails.donationType,
-          amount: mathDonationDetails.amount,
-          transactionType: mathDonationDetails.transactionType,
-          inMemoryOf: mathDonationDetails.inMemoryOf,
-        },
-        transaction: mathDonationDetails.transactionDetails,
-      },
-      missionDonationDetails: {
-        basic: {
-          purpose: missionDonationDetails.purpose,
-          donationType: missionDonationDetails.donationType,
-          amount: missionDonationDetails.amount,
-          transactionType: missionDonationDetails.transactionType,
-          inMemoryOf: missionDonationDetails.inMemoryOf,
-        },
-        transaction: missionDonationDetails.transactionDetails,
-      },
-    };
-
-    console.log("Current Form State:", formState);
-  }, [donorDetails, mathDonationDetails, missionDonationDetails, activeTab]);
 
   return (
     <div
@@ -2415,7 +2651,7 @@ const NewDonation = () => {
           </div>
 
           <div style={{ display: "flex", alignItems: "center", gap: "20px" }}>
-            {!donationData && (
+            {!donationData && ( // Only show reset button if there's no donation data
               <button
                 style={{
                   display: "flex",
@@ -2567,6 +2803,13 @@ const NewDonation = () => {
                                 const nameParts = fullName.split(" ");
                                 const title = nameParts[0];
                                 const name = nameParts.slice(1).join(" ");
+
+                                // Log the processed name details
+                                console.log("Processed donor details:", {
+                                  title: title,
+                                  name: name,
+                                  fullName: fullName,
+                                });
 
                                 setDonorDetails({
                                   ...donorDetails,
@@ -3406,11 +3649,7 @@ const NewDonation = () => {
                 Purpose <span className="required">*</span>
               </label>
               <select
-                value={
-                  activeTab === "Math"
-                    ? mathDonationDetails.purpose
-                    : missionDonationDetails.purpose
-                }
+                value={currentReceipt?.donationDetails?.purpose || ""}
                 onChange={(e) => {
                   if (shouldDisableFields()) return;
                   handleDonationDetailsUpdate({
@@ -3473,21 +3712,14 @@ const NewDonation = () => {
             </div>
 
             {/* Add this conditional input field for both Math and Mission */}
-            {(activeTab === "Math" &&
-              mathDonationDetails.purpose === "Other") ||
-            (activeTab === "Mission" &&
-              missionDonationDetails.purpose === "Other") ? (
+            {currentReceipt?.donationDetails?.purpose === "Other" && (
               <div className="form-group">
                 <label>
                   Specify Other Purpose <span className="required">*</span>
                 </label>
                 <input
                   type="text"
-                  value={
-                    activeTab === "Math"
-                      ? mathDonationDetails.otherPurpose
-                      : missionDonationDetails.otherPurpose
-                  }
+                  value={currentReceipt?.donationDetails?.otherPurpose || ""}
                   onChange={(e) => {
                     handleDonationDetailsUpdate({
                       otherPurpose: e.target.value,
@@ -3508,15 +3740,14 @@ const NewDonation = () => {
                   </span>
                 )}
               </div>
-            ) : null}
+            )}
 
             <div className="form-group">
               <label>Donations Type</label>
               <select
                 value={
-                  activeTab === "Math"
-                    ? mathDonationDetails.donationType
-                    : missionDonationDetails.donationType
+                  currentReceipt?.donationDetails?.donationType ||
+                  "Others (Revenue)"
                 }
                 onChange={(e) => {
                   if (shouldDisableFields()) return;
@@ -3537,11 +3768,7 @@ const NewDonation = () => {
               </label>
               <input
                 type="text"
-                value={
-                  activeTab === "Math"
-                    ? mathDonationDetails.amount
-                    : missionDonationDetails.amount
-                }
+                value={currentReceipt?.donationDetails?.amount || ""}
                 onChange={handleDonationAmountChange}
                 disabled={shouldDisableFields()}
                 className={`${validationErrors.amount ? "error" : ""} ${
@@ -3584,9 +3811,7 @@ const NewDonation = () => {
               <label>Transaction Type</label>
               <select
                 value={
-                  activeTab === "Math"
-                    ? mathDonationDetails.transactionType
-                    : missionDonationDetails.transactionType
+                  currentReceipt?.donationDetails?.transactionType || "Cash"
                 }
                 onChange={(e) => {
                   if (shouldDisableFields()) return;
@@ -3609,11 +3834,7 @@ const NewDonation = () => {
               <label>In Memory of</label>
               <input
                 type="text"
-                value={
-                  activeTab === "Math"
-                    ? mathDonationDetails.inMemoryOf
-                    : missionDonationDetails.inMemoryOf
-                }
+                value={currentReceipt?.donationDetails?.inMemoryOf || ""}
                 onChange={(e) => {
                   if (shouldDisableFields()) return;
                   handleDonationDetailsUpdate({
@@ -3651,17 +3872,14 @@ const NewDonation = () => {
                 <input
                   type="date"
                   value={
-                    activeTab === "Math"
-                      ? mathDonationDetails.transactionDetails?.ddDate
-                      : missionDonationDetails.transactionDetails?.ddDate || ""
+                    currentReceipt?.donationDetails?.transactionDetails
+                      ?.ddDate || ""
                   }
                   onChange={(e) => {
                     if (shouldDisableFields()) return;
                     handleDonationDetailsUpdate({
                       transactionDetails: {
-                        ...(activeTab === "Math"
-                          ? mathDonationDetails.transactionDetails
-                          : missionDonationDetails.transactionDetails),
+                        ...currentReceipt?.donationDetails?.transactionDetails,
                         ddDate: e.target.value,
                       },
                     });
@@ -3677,18 +3895,14 @@ const NewDonation = () => {
                 <input
                   type="text"
                   value={
-                    activeTab === "Math"
-                      ? mathDonationDetails.transactionDetails?.ddNumber
-                      : missionDonationDetails.transactionDetails?.ddNumber ||
-                        ""
+                    currentReceipt?.donationDetails?.transactionDetails
+                      ?.ddNumber || ""
                   }
                   onChange={(e) => {
                     if (shouldDisableFields()) return;
                     handleDonationDetailsUpdate({
                       transactionDetails: {
-                        ...(activeTab === "Math"
-                          ? mathDonationDetails.transactionDetails
-                          : missionDonationDetails.transactionDetails),
+                        ...currentReceipt?.donationDetails?.transactionDetails,
                         ddNumber: e.target.value,
                       },
                     });
@@ -3704,18 +3918,14 @@ const NewDonation = () => {
                 <input
                   type="text"
                   value={
-                    activeTab === "Math"
-                      ? mathDonationDetails.transactionDetails?.bankName
-                      : missionDonationDetails.transactionDetails?.bankName ||
-                        ""
+                    currentReceipt?.donationDetails?.transactionDetails
+                      ?.bankName || ""
                   }
                   onChange={(e) => {
                     if (shouldDisableFields()) return;
                     handleDonationDetailsUpdate({
                       transactionDetails: {
-                        ...(activeTab === "Math"
-                          ? mathDonationDetails.transactionDetails
-                          : missionDonationDetails.transactionDetails),
+                        ...currentReceipt?.donationDetails?.transactionDetails,
                         bankName: e.target.value,
                       },
                     });
@@ -3731,18 +3941,14 @@ const NewDonation = () => {
                 <input
                   type="text"
                   value={
-                    activeTab === "Math"
-                      ? mathDonationDetails.transactionDetails?.branchName
-                      : missionDonationDetails.transactionDetails?.branchName ||
-                        ""
+                    currentReceipt?.donationDetails?.transactionDetails
+                      ?.branchName || ""
                   }
                   onChange={(e) => {
                     if (shouldDisableFields()) return;
                     handleDonationDetailsUpdate({
                       transactionDetails: {
-                        ...(activeTab === "Math"
-                          ? mathDonationDetails.transactionDetails
-                          : missionDonationDetails.transactionDetails),
+                        ...currentReceipt?.donationDetails?.transactionDetails,
                         branchName: e.target.value,
                       },
                     });
@@ -3938,16 +4144,19 @@ const NewDonation = () => {
                     }}
                   >
                     <p style={{ margin: "0" }}>
-                      {donationDetails?.transactionType?.toLowerCase() ===
+                      {currentReceipt?.donationDetails?.transactionType?.toLowerCase() ===
                       "cash"
                         ? "Cash"
-                        : donationDetails?.transactionType || "Cash"}
+                        : currentReceipt?.donationDetails?.transactionType ||
+                          "Cash"}
                     </p>
-                    {donationDetails?.transactionType?.toLowerCase() !==
+                    {currentReceipt?.donationDetails?.transactionType?.toLowerCase() !==
                       "cash" && (
                       <p style={{ margin: "0" }}>
-                        {donationDetails?.transactionDetails?.bankName || ""}{" "}
-                        {donationDetails?.transactionDetails?.branchName || ""}
+                        {currentReceipt?.donationDetails?.transactionDetails
+                          ?.bankName || ""}{" "}
+                        {currentReceipt?.donationDetails?.transactionDetails
+                          ?.branchName || ""}
                       </p>
                     )}
                   </div>
@@ -3971,7 +4180,9 @@ const NewDonation = () => {
                     <p style={{ margin: "0" }}>
                       <strong>
                         {numberToWords(
-                          parseFloat(donationDetails?.amount || 0)
+                          parseFloat(
+                            currentReceipt?.donationDetails?.amount || 0
+                          )
                         )}{" "}
                         Only
                       </strong>
@@ -3994,12 +4205,12 @@ const NewDonation = () => {
                     }}
                   >
                     <p style={{ margin: "0" }}>
-                      {donationDetails?.donationType} for{" "}
-                      {donationDetails?.purpose === "Other"
-                        ? donationDetails?.otherPurpose
-                        : donationDetails?.purpose}
-                      {donationDetails?.inMemoryOf && (
-                        <span>{` in memory of ${donationDetails.inMemoryOf}`}</span>
+                      {currentReceipt?.donationDetails?.donationType} for{" "}
+                      {currentReceipt?.donationDetails?.purpose === "Other"
+                        ? currentReceipt?.donationDetails?.otherPurpose
+                        : currentReceipt?.donationDetails?.purpose}
+                      {currentReceipt?.donationDetails?.inMemoryOf && (
+                        <span>{` in memory of ${currentReceipt.donationDetails.inMemoryOf}`}</span>
                       )}
                     </p>
                   </div>
@@ -4008,13 +4219,12 @@ const NewDonation = () => {
               <div className="receipt-amount">
                 <strong>
                   ₹{" "}
-                  {parseFloat(donationDetails?.amount || 0).toLocaleString(
-                    "en-IN",
-                    {
-                      minimumFractionDigits: 2,
-                      maximumFractionDigits: 2,
-                    }
-                  )}
+                  {parseFloat(
+                    currentReceipt?.donationDetails?.amount || 0
+                  ).toLocaleString("en-IN", {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  })}
                 </strong>
               </div>
             </div>

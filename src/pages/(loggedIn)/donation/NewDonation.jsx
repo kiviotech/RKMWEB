@@ -961,6 +961,7 @@ const NewDonation = () => {
             transactionType
           )
         ) {
+          const details = currentReceipt?.donationDetails?.transactionDetails;
           // Scroll to first empty transaction field
           if (!details?.ddDate) {
             document
@@ -2503,6 +2504,73 @@ const NewDonation = () => {
     getReceiptNumbers();
   }, []);
 
+  // Modify the validateIdentityInput function
+  const validateIdentityInput = (type, value) => {
+    switch (type) {
+      case "Aadhaar":
+        // Allow only numbers, max 12 digits
+        const numbersOnly = value.replace(/[^0-9]/g, "");
+        return numbersOnly.slice(0, 12);
+
+      case "PAN":
+        // Allow letters and numbers, convert to uppercase
+        const panValue = value.replace(/[^A-Za-z0-9]/g, "").toUpperCase();
+        return panValue.slice(0, 10);
+
+      case "Passport":
+        // Allow letters and numbers
+        const passportValue = value.replace(/[^A-Za-z0-9]/g, "").toUpperCase();
+        return passportValue.slice(0, 8);
+
+      case "Voter ID":
+        // Allow letters and numbers
+        const voterValue = value.replace(/[^A-Za-z0-9]/g, "").toUpperCase();
+        return voterValue.slice(0, 10);
+
+      case "Driving License":
+        // Allow letters and numbers
+        const dlValue = value.replace(/[^A-Za-z0-9]/g, "").toUpperCase();
+        return dlValue.slice(0, 15);
+
+      default:
+        return value;
+    }
+  };
+
+  // Update the input onChange handler
+  <input
+    ref={identityInputRef}
+    type="text"
+    value={donorDetails.identityNumber}
+    onChange={(e) => {
+      if (shouldDisableFields()) return;
+
+      // Get the current input value
+      const inputValue = e.target.value;
+
+      // Apply validation based on identity type
+      const validatedValue = validateIdentityInput(
+        donorDetails.identityType,
+        inputValue
+      );
+
+      // Update the state with the validated value
+      setDonorDetails((prev) => ({
+        ...prev,
+        identityNumber: validatedValue,
+        ...(prev.identityType === "PAN" && { panNumber: validatedValue }),
+      }));
+
+      // Clear validation errors while typing
+      setValidationErrors((prev) => ({
+        ...prev,
+        identityNumber: "",
+        ...(donorDetails.identityType === "PAN" && { pan: "" }),
+      }));
+    }}
+    // ... rest of the input properties remain the same
+  />;
+
   return (
     <div
       id="donations-container"
@@ -3134,15 +3202,17 @@ const NewDonation = () => {
                     value={donorDetails.identityType}
                     onChange={(e) => {
                       if (shouldDisableFields()) return;
-                      setDonorDetails({
-                        ...donorDetails,
-                        identityType: e.target.value,
-                        identityNumber: "", // Clear the number when type changes
-                      });
-                      // Clear validation error when type changes
+                      const newType = e.target.value;
+                      setDonorDetails((prev) => ({
+                        ...prev,
+                        identityType: newType,
+                        identityNumber: "",
+                        ...(prev.identityType === "PAN" && { panNumber: "" }),
+                      }));
                       setValidationErrors((prev) => ({
                         ...prev,
                         identityNumber: "",
+                        pan: "",
                       }));
                     }}
                     disabled={shouldDisableFields()}
@@ -3160,41 +3230,39 @@ const NewDonation = () => {
                     value={donorDetails.identityNumber}
                     onChange={(e) => {
                       if (shouldDisableFields()) return;
-                      setDonorDetails({
-                        ...donorDetails,
-                        identityNumber: e.target.value.toUpperCase(),
-                      });
-                      // Clear validation error when user types
+
+                      const validatedValue = validateIdentityInput(
+                        donorDetails.identityType,
+                        e.target.value
+                      );
+
+                      setDonorDetails((prev) => ({
+                        ...prev,
+                        identityNumber: validatedValue,
+                        ...(prev.identityType === "PAN" && {
+                          panNumber: validatedValue,
+                        }),
+                      }));
+
+                      // Clear validation errors while typing
                       setValidationErrors((prev) => ({
                         ...prev,
                         identityNumber: "",
+                        ...(donorDetails.identityType === "PAN" && { pan: "" }),
                       }));
                     }}
                     onBlur={() => {
-                      // Validate based on selected identity type
-                      let error = "";
-                      switch (donorDetails.identityType) {
-                        case "Aadhaar":
-                          error = validateAadhaar(donorDetails.identityNumber);
-                          break;
-                        case "PAN":
-                          error = validatePAN(donorDetails.identityNumber);
-                          break;
-                        case "Passport":
-                          error = validatePassport(donorDetails.identityNumber);
-                          break;
-                        case "Voter ID":
-                          error = validateVoterId(donorDetails.identityNumber);
-                          break;
-                        case "Driving License":
-                          error = validateDrivingLicense(
-                            donorDetails.identityNumber
-                          );
-                          break;
-                      }
+                      const error = getIdentityValidationError(
+                        donorDetails.identityType,
+                        donorDetails.identityNumber
+                      );
+
                       setValidationErrors((prev) => ({
                         ...prev,
                         identityNumber: error,
+                        ...(donorDetails.identityType === "PAN" && {
+                          pan: error,
+                        }),
                       }));
                     }}
                     placeholder={`Enter ${donorDetails.identityType} number`}
@@ -3770,17 +3838,29 @@ const NewDonation = () => {
                 </label>
                 <input
                   type="text"
-                  value={donorDetails.panNumber || ""}
+                  value={
+                    donorDetails.panNumber ||
+                    (donorDetails.identityType === "PAN"
+                      ? donorDetails.identityNumber
+                      : "")
+                  }
                   onChange={(e) => {
                     const value = e.target.value.toUpperCase();
                     setDonorDetails({
                       ...donorDetails,
                       panNumber: value,
+                      // If identity type is PAN, also update identityNumber
+                      ...(donorDetails.identityType === "PAN" && {
+                        identityNumber: value,
+                      }),
                     });
                     const panError = validatePAN(value);
                     setValidationErrors((prev) => ({
                       ...prev,
                       pan: panError,
+                      ...(donorDetails.identityType === "PAN" && {
+                        identityNumber: panError,
+                      }),
                     }));
                   }}
                   className={validationErrors.pan ? "error" : ""}

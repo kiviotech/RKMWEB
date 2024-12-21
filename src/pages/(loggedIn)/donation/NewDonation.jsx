@@ -2766,7 +2766,7 @@ const NewDonation = () => {
             </div>
 
             {/* First row with Name and Phone */}
-            <div className="form-row">
+            <div className="form-row" style={{ marginBottom: "0" }}>
               <div className="form-group" style={{ flex: 1 }}>
                 <label>
                   Name of Donor <span className="required">*</span>
@@ -2820,10 +2820,10 @@ const NewDonation = () => {
                         }, 200);
 
                         if (!donorDetails.name.trim()) {
-                          setValidationErrors((prev) => ({
-                            ...prev,
-                            name: "Donor name is required",
-                          }));
+                          // setValidationErrors((prev) => ({
+                          //   ...prev,
+                          //   name: "Donor name is required",
+                          // }));
                         }
                       }}
                       placeholder="Enter donor name"
@@ -2981,7 +2981,7 @@ const NewDonation = () => {
             </div>
 
             {/* New row for Mantra Diksha and Guest House Room No. */}
-            <div className="form-row">
+            <div className="form-row" style={{ marginBottom: "0" }}>
               <div className="form-group" style={{ flex: 1 }}>
                 <label>Initiation / Mantra Diksha from</label>
                 <div
@@ -3163,7 +3163,7 @@ const NewDonation = () => {
             </div>
 
             {/* Second row with Email, Identity Proof */}
-            <div className="form-row">
+            <div className="form-row" style={{ marginBottom: "0" }}>
               <div className="form-group half-width">
                 <label>Email</label>
                 <input
@@ -3281,7 +3281,7 @@ const NewDonation = () => {
             </div>
 
             {/* Third row with Pincode, State, District */}
-            <div className="form-row">
+            <div className="form-row" style={{ marginBottom: "0" }}>
               <div className="form-group">
                 <label>
                   Pincode <span className="required">*</span>
@@ -4571,7 +4571,6 @@ const NewDonation = () => {
 
         .form-group {
           min-height: 70px;
-          margin-bottom: 15px;
         }
 
         .error-message {
@@ -4679,7 +4678,6 @@ const NewDonation = () => {
         .form-row {
           display: flex;
           gap: 20px;
-          margin-bottom: 16px;
         }
 
         .donor-unified-input {

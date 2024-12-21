@@ -127,7 +127,7 @@ const AllDonationDetails = () => {
         <h1 className="page-title">
           {timeFilter === "today" ? "Today Donations" : "All Donations"}
         </h1>
-        <ExportDonations />
+        <ExportDonations timeFilter={timeFilter} />
       </div>
       <div className="donation-header">
         <div className="left-section">

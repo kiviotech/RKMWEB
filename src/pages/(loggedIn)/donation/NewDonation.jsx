@@ -2697,7 +2697,7 @@ const NewDonation = () => {
               <div className="unique-id-display">{uniqueDonorId}</div>
             </div>
 
-            {/* First row with Name, Phone, Mantra Diksha */}
+            {/* First row with Name and Phone */}
             <div className="form-row">
               <div className="form-group">
                 <label>
@@ -2910,9 +2910,11 @@ const NewDonation = () => {
                   </div>
                 </div>
               </div>
+            </div>
 
-              {/* Mantra Diksha */}
-              <div className="form-group">
+            {/* New row for Mantra Diksha and Guest House Room No. */}
+            <div className="form-row">
+              <div className="form-group" style={{ flex: 2 }}>
                 <label>Initiation / Mantra Diksha from</label>
                 <div
                   className="custom-dropdown"
@@ -3073,9 +3075,26 @@ const NewDonation = () => {
                   <span className="error">{validationErrors.mantraDiksha}</span>
                 )}
               </div>
+
+              <div className="form-group" style={{ flex: 1 }}>
+                <label>Guest House Room No.</label>
+                <input
+                  type="text"
+                  value={donorDetails.roomNumber}
+                  onChange={(e) => {
+                    if (shouldDisableFields()) return;
+                    setDonorDetails({
+                      ...donorDetails,
+                      roomNumber: e.target.value,
+                    });
+                  }}
+                  disabled={shouldDisableFields()}
+                  className={shouldDisableFields() ? "disabled-input" : ""}
+                />
+              </div>
             </div>
 
-            {/* Second row with Email, Identity Proof, Room No */}
+            {/* Second row with Email, Identity Proof */}
             <div className="form-row">
               <div className="form-group">
                 <label>Email ID</label>
@@ -3208,24 +3227,6 @@ const NewDonation = () => {
                     {validationErrors.identityNumber}
                   </span>
                 )}
-              </div>
-
-              {/* Guest House Room No. */}
-              <div className="form-group">
-                <label>Guest House Room No.</label>
-                <input
-                  type="text"
-                  value={donorDetails.roomNumber}
-                  onChange={(e) => {
-                    if (shouldDisableFields()) return;
-                    setDonorDetails({
-                      ...donorDetails,
-                      roomNumber: e.target.value,
-                    });
-                  }}
-                  disabled={shouldDisableFields()}
-                  className={shouldDisableFields() ? "disabled-input" : ""}
-                />
               </div>
             </div>
 

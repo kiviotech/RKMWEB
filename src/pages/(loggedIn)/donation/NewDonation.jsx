@@ -3849,7 +3849,22 @@ const NewDonation = () => {
               </div>
               <div className="form-group">
                 <label>
-                  DD/CH Date <span className="required">*</span>
+                  {/* Dynamically change label based on transaction type */}
+                  {(() => {
+                    switch (
+                      currentReceipt?.donationDetails?.transactionType?.toLowerCase()
+                    ) {
+                      case "cheque":
+                        return "CH Date";
+                      case "dd":
+                        return "DD Date";
+                      case "bank transfer":
+                        return "Transaction Date";
+                      default:
+                        return "DD/CH Date";
+                    }
+                  })()}
+                  <span className="required">*</span>
                 </label>
                 <input
                   type="date"
@@ -3872,7 +3887,21 @@ const NewDonation = () => {
               </div>
               <div className="form-group">
                 <label>
-                  DD/CH Number <span className="required">*</span>
+                  {/* Dynamically change label based on transaction type */}
+                  {(() => {
+                    switch (
+                      currentReceipt?.donationDetails?.transactionType?.toLowerCase()
+                    ) {
+                      case "cheque":
+                        return "CH Number";
+                      case "dd":
+                        return "DD Number";
+                      case "bank transfer":
+                        return "Transaction ID";
+                      default:
+                        return "DD/CH Number";
+                    }
+                  })()}
                 </label>
                 <input
                   type="text"
@@ -3917,9 +3946,7 @@ const NewDonation = () => {
                 />
               </div>
               <div className="form-group">
-                <label>
-                  Branch Name <span className="required">*</span>
-                </label>
+                <label>Branch Name</label>
                 <input
                   type="text"
                   value={

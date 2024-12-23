@@ -47,6 +47,7 @@ const DDFPreview = ({ donations, onConfirm, onCancel, type }) => {
       "Sl No.",
       "ID",
       "Unique Identification Number",
+      ...(type === "80G" ? ["Section Code"] : []),
       "Name of donor",
       "Address of donor",
       "Donation Type",
@@ -61,6 +62,7 @@ const DDFPreview = ({ donations, onConfirm, onCancel, type }) => {
         donation.attributes?.guest?.data?.attributes?.identity_proof
       ),
       donation.attributes?.guest?.data?.attributes?.identity_number || "",
+      ...(type === "80G" ? ["Section 80G"] : []),
       donation.attributes?.guest?.data?.attributes?.name || "",
       donation.attributes?.guest?.data?.attributes?.address
         ? donation.attributes.guest.data.attributes.address
@@ -86,6 +88,7 @@ const DDFPreview = ({ donations, onConfirm, onCancel, type }) => {
       "", // Sl No.
       "", // ID
       "", // Unique ID
+      ...(type === "80G" ? [""] : []),
       "", // Name
       "", // Address
       "Total", // Donation Type
@@ -106,6 +109,7 @@ const DDFPreview = ({ donations, onConfirm, onCancel, type }) => {
       { wch: 8 }, // Sl No.
       { wch: 15 }, // ID
       { wch: 25 }, // Unique ID
+      ...(type === "80G" ? [{ wch: 15 }] : []),
       { wch: 25 }, // Name
       { wch: 40 }, // Address
       { wch: 15 }, // Donation Type
@@ -116,8 +120,8 @@ const DDFPreview = ({ donations, onConfirm, onCancel, type }) => {
 
     // Merge cells for title rows
     ws["!merges"] = [
-      { s: { r: 0, c: 0 }, e: { r: 0, c: 7 } }, // First title row
-      { s: { r: 1, c: 0 }, e: { r: 1, c: 7 } }, // Second title row
+      { s: { r: 0, c: 0 }, e: { r: 0, c: type === "80G" ? 8 : 7 } }, // First title row
+      { s: { r: 1, c: 0 }, e: { r: 1, c: type === "80G" ? 8 : 7 } }, // Second title row
     ];
 
     // Style the headers

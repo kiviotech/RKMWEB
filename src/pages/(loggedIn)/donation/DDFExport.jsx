@@ -23,44 +23,53 @@ const DDFExport = () => {
 
   const formatDDFData = async (type, quarter) => {
     try {
+      // Get current year
+      const currentYear = new Date().getFullYear();
+
       // Parse quarter dates
       let startDate, endDate;
       switch (quarter) {
         case "Apr-Jun 1st Qtr":
-          startDate = "2023-04-01";
-          endDate = "2023-06-30";
+          startDate = `${currentYear}-04-01`;
+          endDate = `${currentYear}-06-30`;
           break;
         case "July-Sept 2nd Qtr":
-          startDate = "2023-07-01";
-          endDate = "2023-09-30";
+          startDate = `${currentYear}-07-01`;
+          endDate = `${currentYear}-09-30`;
           break;
         case "Oct-Dec 3rd Qtr":
-          startDate = "2023-10-01";
-          endDate = "2023-12-31";
+          startDate = `${currentYear}-10-01`;
+          endDate = `${currentYear}-12-31`;
           break;
         default:
           return [];
       }
 
-      // Fetch donations for the selected quarter
+      // Fetch all completed donations of the specified type
       const response = await fetchDonations({
-        startDate,
-        endDate,
         status: "COMPLETED",
         type: type === "80G" ? "SECTION_80G" : "NON_80G",
       });
 
-      // Filter donations based on transaction type
+      // Filter donations based on transaction type and donation date
       let filteredDonations = Array.isArray(response.data)
         ? response.data.filter((donation) => {
             const transactionType = donation.attributes?.transactionType;
-            if (type === "80G") {
-              return ["Cash", "M.O"].includes(transactionType);
-            } else {
-              return ["Cheque", "Bank Transfer", "DD"].includes(
-                transactionType
-              );
-            }
+            const donationDate =
+              donation.attributes?.receipt_detail?.data?.attributes
+                ?.donation_date;
+
+            // Check if donation date falls within the quarter
+            const isInQuarter =
+              donationDate >= startDate && donationDate <= endDate;
+
+            // Filter by transaction type
+            const hasValidTransactionType =
+              type === "80G"
+                ? ["Cash", "M.O"].includes(transactionType)
+                : ["Cheque", "Bank Transfer", "DD"].includes(transactionType);
+
+            return isInQuarter && hasValidTransactionType;
           })
         : [];
 

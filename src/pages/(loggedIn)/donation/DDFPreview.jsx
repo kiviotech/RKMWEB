@@ -2,6 +2,18 @@ import React from "react";
 import "./DDFPreview.scss";
 
 const DDFPreview = ({ donations, onConfirm, onCancel, type }) => {
+  // Helper function to get full form of identity proof
+  const getIdentityProofFullForm = (proof) => {
+    const proofTypes = {
+      PAN: "Permanent Account Number",
+      AADHAAR: "Aadhaar Card",
+      PASSPORT: "Passport",
+      DRIVING_LICENSE: "Driving License",
+      VOTER_ID: "Voter ID Card",
+    };
+    return proofTypes[proof] || proof;
+  };
+
   return (
     <div className="ddf-preview-overlay">
       <div className="ddf-preview-modal">
@@ -11,7 +23,7 @@ const DDFPreview = ({ donations, onConfirm, onCancel, type }) => {
             <thead>
               <tr>
                 <th>Sl No.</th>
-                <th>ID</th>
+                <th>ID Type</th>
                 <th>Unique ID No.</th>
                 {type === "80G" && <th>Section Code</th>}
                 <th>Name</th>
@@ -26,12 +38,14 @@ const DDFPreview = ({ donations, onConfirm, onCancel, type }) => {
                 <tr key={index}>
                   <td>{index + 1}</td>
                   <td>
-                    {donation.attributes?.guest?.data?.attributes
-                      ?.aadhaar_number || ""}
+                    {getIdentityProofFullForm(
+                      donation.attributes?.guest?.data?.attributes
+                        ?.identity_proof
+                    )}
                   </td>
                   <td>
-                    {donation.attributes?.receipt_detail?.data?.attributes
-                      ?.unique_no || ""}
+                    {donation.attributes?.guest?.data?.attributes
+                      ?.identity_number || ""}
                   </td>
                   {type === "80G" && <td>Section 80G</td>}
                   <td>

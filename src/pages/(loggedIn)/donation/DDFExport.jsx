@@ -42,6 +42,11 @@ const DDFExport = () => {
           startDate = `${currentYear}-10-01`;
           endDate = `${currentYear}-12-31`;
           break;
+        case "Jan-Mar 4th Qtr":
+          // For Jan-Mar, use the next year since it's the last quarter of the fiscal year
+          startDate = `${currentYear + 1}-01-01`;
+          endDate = `${currentYear + 1}-03-31`;
+          break;
         default:
           return [];
       }
@@ -240,6 +245,12 @@ const DDFExport = () => {
                 >
                   Oct-Dec 3rd Qtr
                 </button>
+                <button
+                  className="quarter-button"
+                  onClick={() => handleDDFExport("80G", "Jan-Mar 4th Qtr")}
+                >
+                  Jan-Mar 4th Qtr
+                </button>
               </div>
             </div>
             <div className="dropdown-item">
@@ -264,6 +275,12 @@ const DDFExport = () => {
                   onClick={() => handleDDFExport("Non-80G", "Oct-Dec 3rd Qtr")}
                 >
                   Oct-Dec 3rd Qtr
+                </button>
+                <button
+                  className="quarter-button"
+                  onClick={() => handleDDFExport("Non-80G", "Jan-Mar 4th Qtr")}
+                >
+                  Jan-Mar 4th Qtr
                 </button>
               </div>
             </div>

@@ -3,10 +3,12 @@ import "./DDFExport.scss";
 import { fetchDonations } from "../../../../services/src/services/donationsService";
 import * as XLSX from "xlsx";
 import missionLogo from "../../../constants/icons";
+import DDFPreview from "./DDFPreview";
 
 const DDFExport = () => {
   const [showDropdown, setShowDropdown] = useState(false);
   const dropdownRef = useRef(null);
+  const [previewData, setPreviewData] = useState(null);
 
   useEffect(() => {
     const handleMouseLeave = (event) => {
@@ -25,17 +27,19 @@ const DDFExport = () => {
     try {
       const currentYear = new Date().getFullYear();
 
-      // Always start from April 1st, but end date varies by quarter
-      const startDate = `${currentYear}-04-01`;
-      let endDate;
+      // Set date ranges based on quarter
+      let startDate, endDate;
       switch (quarter) {
         case "Apr-Jun 1st Qtr":
+          startDate = `${currentYear}-04-01`;
           endDate = `${currentYear}-06-30`;
           break;
         case "July-Sept 2nd Qtr":
+          startDate = `${currentYear}-07-01`;
           endDate = `${currentYear}-09-30`;
           break;
         case "Oct-Dec 3rd Qtr":
+          startDate = `${currentYear}-10-01`;
           endDate = `${currentYear}-12-31`;
           break;
         default:
@@ -56,15 +60,15 @@ const DDFExport = () => {
               donation.attributes?.receipt_detail?.data?.attributes
                 ?.donation_date;
 
-            // Check if donation date is from April 1st up to the end of selected quarter
+            // Check if donation date falls within the specific quarter
             const isInDateRange =
               donationDate >= startDate && donationDate <= endDate;
 
-            // Filter by transaction type
+            // Filter by transaction type - SWAPPED CONDITIONS
             const hasValidTransactionType =
               type === "80G"
-                ? ["Cash", "M.O"].includes(transactionType)
-                : ["Cheque", "Bank Transfer", "DD"].includes(transactionType);
+                ? ["Cheque", "Bank Transfer", "DD"].includes(transactionType)
+                : ["Cash", "M.O"].includes(transactionType);
 
             return isInDateRange && hasValidTransactionType;
           })
@@ -101,282 +105,181 @@ const DDFExport = () => {
 
   const handleDDFExport = async (type, quarter) => {
     try {
-      console.log("Export clicked for:", type, quarter);
       const donations = await formatDDFData(type, quarter);
-      console.log("Formatted donations:", donations);
 
       if (!donations || donations.length === 0) {
         alert("No donations found for the selected period");
         return;
       }
 
-      // Create a temporary div to hold our print content
-      const printDiv = document.createElement("div");
-
-      // Generate HTML content with updated structure
-      printDiv.innerHTML = `
-        <div class="print-only">
-          <div class="header">
-            <img src="${missionLogo}" alt="Ramakrishna Mission Logo" class="mission-logo" />
-            <div class="header-text">
-              <h2>RAMAKRISHNA MISSION, KAMARPUKUR</h2>
-              <h3>DDF - ${type} - FOR THE FY 2022-23</h3>
-              <h4>${quarter}</h4>
-            </div>
-          </div>
-          <table>
-            <thead>
-              <tr>
-                <th>Sl No.</th>
-                <th>ID</th>
-                <th>Unique Identification Number</th>
-                <th>Section Code</th>
-                <th>Name of donor</th>
-                <th>Address of donor</th>
-                <th>Donation Type</th>
-                <th>Mode of receipt</th>
-                <th>Amount of donation<br/>(Indian rupees)</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${donations
-                .map(
-                  (donation, index) => `
-                <tr>
-                  <td>${index + 1}</td>
-                  <td>${
-                    donation.attributes?.guest?.data?.attributes
-                      ?.aadhaar_number || ""
-                  }</td>
-                  <td>${
-                    donation.attributes?.receipt_detail?.data?.attributes
-                      ?.unique_no || ""
-                  }</td>
-                  <td>${type === "80G" ? "Section 80G" : "Non-80G"}</td>
-                  <td>${
-                    donation.attributes?.guest?.data?.attributes?.name || ""
-                  }</td>
-                  <td>${(
-                    donation.attributes?.guest?.data?.attributes?.address || ""
-                  )
-                    .split(",")
-                    .filter((part) => part.trim())
-                    .join(", ")}</td>
-                  <td>${donation.attributes?.type || ""}</td>
-                  <td>${donation.attributes?.transactionType || ""}</td>
-                  <td style="text-align: right">${parseFloat(
-                    donation.attributes?.donationAmount || 0
-                  ).toFixed(2)}</td>
-                </tr>
-              `
-                )
-                .join("")}
-              <tr class="total-row">
-                <td colspan="8" style="text-align: right; font-weight: bold;">Total:</td>
-                <td style="text-align: right; font-weight: bold;">
-                  ${donations
-                    .reduce(
-                      (sum, donation) =>
-                        sum +
-                        parseFloat(donation.attributes?.donationAmount || 0),
-                      0
-                    )
-                    .toFixed(2)}
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      `;
-
-      // Update the print styles
-      const styleSheet = document.createElement("style");
-      styleSheet.textContent = `
-        @media print {
-          /* Hide all existing page content */
-          body > *:not(.print-only) {
-            display: none !important;
-          }
-          
-          /* Show only print content */
-          .print-only {
-            display: block !important;
-            position: absolute;
-            left: 0;
-            top: 0;
-            width: 100%;
-          }
-
-          /* Remove any margins and backgrounds */
-          @page {
-            margin: 0.5cm;
-            size: A4;
-          }
-
-          body {
-            margin: 0;
-            padding: 0;
-            background: none;
-          }
-        }
-
-        .print-only {
-          font-family: Arial, sans-serif;
-        }
-
-        .print-only .header {
-          display: flex;
-          flex-direction: row;
-          align-items: center;
-          margin-bottom: 20px;
-          text-align: center;
-          gap: 20px;
-        }
-
-        .print-only .mission-logo {
-          width: 60px;
-          height: 60px;
-        }
-
-        .print-only .header-text {
-          flex: 1;
-          width: auto;
-          padding-bottom: 10px;
-        }
-
-        .print-only h2, 
-        .print-only h3, 
-        .print-only h4 {
-          margin: 5px 0;
-          text-transform: uppercase;
-          letter-spacing: 0.5px;
-        }
-
-        .print-only h2 {
-          font-size: 18px;
-          font-weight: bold;
-        }
-
-        .print-only h3 {
-          font-size: 16px;
-        }
-
-        .print-only h4 {
-          font-size: 14px;
-        }
-
-        .print-only table {
-          width: 100%;
-          border-collapse: collapse;
-        }
-
-        .print-only th,
-        .print-only td {
-          border: 1px solid #000;
-          padding: 8px;
-          text-align: left;
-          font-size: 12px;
-        }
-
-        .print-only th {
-          background-color: #f2f2f2;
-          font-weight: bold;
-        }
-
-        .print-only td {
-          height: 25px;
-        }
-
-        .print-only .total-row {
-          background-color: #f2f2f2;
-        }
-
-        .print-only .total-row td {
-          border-top: 2px solid #000;
-        }
-      `;
-
-      // Add elements to page
-      printDiv.classList.add("print-only");
-      document.body.appendChild(styleSheet);
-      document.body.appendChild(printDiv);
-
-      // Trigger print
-      window.print();
-
-      // Cleanup
-      document.body.removeChild(printDiv);
-      document.body.removeChild(styleSheet);
-
+      // Show preview instead of directly printing
+      setPreviewData({
+        donations,
+        type,
+        quarter,
+      });
       setShowDropdown(false);
     } catch (error) {
       console.error("Export error:", error);
-      alert("Error generating print preview. Please try again.");
+      alert("Error generating preview. Please try again.");
     }
   };
 
+  const handlePrintConfirm = () => {
+    const { donations, type, quarter } = previewData;
+
+    // Create a temporary div for printing
+    const printContent = document.createElement("div");
+    printContent.innerHTML = `
+      <h2>DDF Report - ${type} (${quarter})</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Sl No.</th>
+            <th>ID</th>
+            <th>Unique ID No.</th>
+            ${type === "80G" && <th>Section Code</th>}
+            <th>Name</th>
+            <th>Address</th>
+            <th>Type</th>
+            <th>Mode</th>
+            <th>Amount</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${donations
+            .map(
+              (donation, index) => `
+            <tr>
+              <td>${index + 1}</td>
+              <td>${
+                donation.attributes?.guest?.data?.attributes?.aadhaar_number ||
+                ""
+              }</td>
+              <td>${
+                donation.attributes?.receipt_detail?.data?.attributes
+                  ?.unique_no || ""
+              }</td>
+              ${type === "80G" && `<td>Section 80G</td>`}
+              <td>${
+                donation.attributes?.guest?.data?.attributes?.name || ""
+              }</td>
+              <td>${
+                donation.attributes?.guest?.data?.attributes?.address || ""
+              }</td>
+              <td>${donation.attributes?.type || ""}</td>
+              <td>${donation.attributes?.transactionType || ""}</td>
+              <td>₹${parseFloat(
+                donation.attributes?.donationAmount || 0
+              ).toFixed(2)}</td>
+            </tr>
+          `
+            )
+            .join("")}
+        </tbody>
+      </table>
+    `;
+
+    // Create a new window for printing
+    const printWindow = window.open("", "_blank");
+    printWindow.document.write(`
+      <html>
+        <head>
+          <title>DDF Report</title>
+          <style>
+            table { border-collapse: collapse; width: 100%; }
+            th, td { border: 1px solid black; padding: 8px; text-align: left; }
+            h2 { text-align: center; }
+          </style>
+        </head>
+        <body>
+          ${printContent.innerHTML}
+        </body>
+      </html>
+    `);
+
+    printWindow.document.close();
+    printWindow.print();
+    printWindow.close();
+
+    setPreviewData(null); // Close preview after printing
+  };
+
   return (
-    <div
-      className="ddf-export-container"
-      ref={dropdownRef}
-      onMouseEnter={() => setShowDropdown(true)}
-      onMouseLeave={() => setShowDropdown(false)}
-    >
-      <button className="ddf-button">Export DDF</button>
-      {showDropdown && (
-        <div className="ddf-dropdown">
-          <div className="dropdown-item">
-            <span>DDF - 80G</span>
-            <div className="nested-dropdown">
-              <button
-                className="quarter-button"
-                onClick={() => {
-                  console.log("Clicked Apr-Jun 1st Qtr");
-                  handleDDFExport("80G", "Apr-Jun 1st Qtr");
-                }}
-              >
-                Apr-Jun 1st Qtr
-              </button>
-              <button
-                className="quarter-button"
-                onClick={() => handleDDFExport("80G", "July-Sept 2nd Qtr")}
-              >
-                July-Sept 2nd Qtr
-              </button>
-              <button
-                className="quarter-button"
-                onClick={() => handleDDFExport("80G", "Oct-Dec 3rd Qtr")}
-              >
-                Oct-Dec 3rd Qtr
-              </button>
+    <>
+      <div
+        className="ddf-export-container"
+        ref={dropdownRef}
+        onMouseEnter={() => setShowDropdown(true)}
+        onMouseLeave={() => setShowDropdown(false)}
+      >
+        <button className="ddf-button">Export Report</button>
+        {showDropdown && (
+          <div className="ddf-dropdown">
+            <div className="dropdown-item">
+              <span>DDF - 80G</span>
+              <div className="nested-dropdown">
+                <button
+                  className="quarter-button"
+                  onClick={() => {
+                    console.log("Clicked Apr-Jun 1st Qtr");
+                    handleDDFExport("80G", "Apr-Jun 1st Qtr");
+                  }}
+                >
+                  Apr-Jun 1st Qtr
+                </button>
+                <button
+                  className="quarter-button"
+                  onClick={() => handleDDFExport("80G", "July-Sept 2nd Qtr")}
+                >
+                  July-Sept 2nd Qtr
+                </button>
+                <button
+                  className="quarter-button"
+                  onClick={() => handleDDFExport("80G", "Oct-Dec 3rd Qtr")}
+                >
+                  Oct-Dec 3rd Qtr
+                </button>
+              </div>
+            </div>
+            <div className="dropdown-item">
+              <span>DDF - Non-80G</span>
+              <div className="nested-dropdown">
+                <button
+                  className="quarter-button"
+                  onClick={() => handleDDFExport("Non-80G", "Apr-Jun 1st Qtr")}
+                >
+                  Apr-Jun 1st Qtr
+                </button>
+                <button
+                  className="quarter-button"
+                  onClick={() =>
+                    handleDDFExport("Non-80G", "July-Sept 2nd Qtr")
+                  }
+                >
+                  July-Sept 2nd Qtr
+                </button>
+                <button
+                  className="quarter-button"
+                  onClick={() => handleDDFExport("Non-80G", "Oct-Dec 3rd Qtr")}
+                >
+                  Oct-Dec 3rd Qtr
+                </button>
+              </div>
             </div>
           </div>
-          <div className="dropdown-item">
-            <span>DDF - Non-80G</span>
-            <div className="nested-dropdown">
-              <button
-                className="quarter-button"
-                onClick={() => handleDDFExport("Non-80G", "Apr-Jun 1st Qtr")}
-              >
-                Apr-Jun 1st Qtr
-              </button>
-              <button
-                className="quarter-button"
-                onClick={() => handleDDFExport("Non-80G", "July-Sept 2nd Qtr")}
-              >
-                July-Sept 2nd Qtr
-              </button>
-              <button
-                className="quarter-button"
-                onClick={() => handleDDFExport("Non-80G", "Oct-Dec 3rd Qtr")}
-              >
-                Oct-Dec 3rd Qtr
-              </button>
-            </div>
-          </div>
-        </div>
+        )}
+      </div>
+
+      {previewData && (
+        <DDFPreview
+          donations={previewData.donations}
+          type={previewData.type}
+          onConfirm={handlePrintConfirm}
+          onCancel={() => setPreviewData(null)}
+        />
       )}
-    </div>
+    </>
   );
 };
 

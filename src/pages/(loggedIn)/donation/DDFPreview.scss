@@ -1,0 +1,82 @@
+.ddf-preview-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.ddf-preview-modal {
+  background: white;
+  padding: 24px;
+  border-radius: 8px;
+  width: 95%;
+  max-width: 1400px;
+  margin-left: 0;
+
+  h3 {
+    color: #333;
+    text-align: left;
+  }
+}
+
+.preview-table-container {
+  table {
+    width: 100%;
+    border-collapse: collapse;
+
+    th,
+    td {
+      padding: 12px 16px;
+      text-align: left;
+      border-bottom: 1px solid #e0e0e0;
+    }
+
+    th {
+      color: #666;
+      font-weight: normal;
+      background-color: #fff;
+      font-size: 14px;
+    }
+
+    td {
+      color: #333;
+    }
+
+    tbody tr {
+      &:hover {
+        background-color: #f8f9fa;
+      }
+    }
+  }
+}
+
+.preview-actions {
+  margin-top: 20px;
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+
+  button {
+    padding: 8px 24px;
+    border-radius: 4px;
+    cursor: pointer;
+
+    &.cancel-button {
+      background: white;
+      border: 1px solid #ddd;
+      color: #666;
+      margin-top: 17px;
+    }
+
+    &.confirm-button {
+      background-color: #ea7704;
+      color: #fff;
+    }
+  }
+}

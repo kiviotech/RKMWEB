@@ -25,19 +25,17 @@ const DDFExport = () => {
     try {
       const currentYear = new Date().getFullYear();
 
-      // Determine date range for the specific quarter only
-      let startDate, endDate;
+      // Always start from April 1st, but end date varies by quarter
+      const startDate = `${currentYear}-04-01`;
+      let endDate;
       switch (quarter) {
         case "Apr-Jun 1st Qtr":
-          startDate = `${currentYear}-04-01`;
           endDate = `${currentYear}-06-30`;
           break;
         case "July-Sept 2nd Qtr":
-          startDate = `${currentYear}-07-01`;
           endDate = `${currentYear}-09-30`;
           break;
         case "Oct-Dec 3rd Qtr":
-          startDate = `${currentYear}-10-01`;
           endDate = `${currentYear}-12-31`;
           break;
         default:
@@ -58,7 +56,7 @@ const DDFExport = () => {
               donation.attributes?.receipt_detail?.data?.attributes
                 ?.donation_date;
 
-            // Check if donation date is within the specific quarter only
+            // Check if donation date is from April 1st up to the end of selected quarter
             const isInDateRange =
               donationDate >= startDate && donationDate <= endDate;
 
@@ -72,7 +70,7 @@ const DDFExport = () => {
           })
         : [];
 
-      // Combine donations with same unique_no within the quarter
+      // Combine donations with same unique_no with cumulative totals
       const uniqueDonations = {};
       filteredDonations.forEach((donation) => {
         const uniqueNo =
@@ -81,7 +79,7 @@ const DDFExport = () => {
           if (!uniqueDonations[uniqueNo]) {
             uniqueDonations[uniqueNo] = { ...donation };
           } else {
-            // Add to quarter total only
+            // Add to running total from April 1st
             const currentAmount =
               parseFloat(uniqueDonations[uniqueNo].attributes.donationAmount) ||
               0;

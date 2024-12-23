@@ -224,8 +224,8 @@ const NewDonation = () => {
             guestData.email ||
             `${guestData.name.split(" ").slice(1).join(" ")}@gmail.com`,
           mantraDiksha: guestData.deeksha,
-          identityType: "Aadhaar",
-          identityNumber: guestData.aadhaar_number,
+          identityType: guestData.identity_proof || "Aadhaar",
+          identityNumber: guestData.identity_number,
           roomNumber: "",
           // Parse address components
           ...parseAddress(guestData.address),
@@ -586,73 +586,40 @@ const NewDonation = () => {
 
   // Handle guest selection
   const handleGuestSelect = (guest) => {
-    console.log("Selected Guest Data:", {
-      guestId: guest.id,
-      attributes: guest.attributes,
-      fullData: guest,
+    console.log("Selected Guest Details:", {
+      id: guest.id,
+      ...guest.attributes,
     });
 
-    // Check if guest has donations with receipt details
-    const guestDonations = guest.attributes.donations?.data || [];
-    let existingUniqueNo = null;
-
-    // Look for a receipt with unique_no
-    for (const donation of guestDonations) {
-      const receiptDetail = donation.attributes.receipt_detail?.data;
-      if (receiptDetail && receiptDetail.attributes.unique_no) {
-        existingUniqueNo = receiptDetail.attributes.unique_no;
-        break;
-      }
+    // Check for and log unique receipt number
+    const uniqueReceiptNo =
+      guest.attributes.donations?.data?.[0]?.attributes?.receipt_detail?.data
+        ?.attributes?.unique_no;
+    if (uniqueReceiptNo) {
+      console.log("Unique Receipt Number:", uniqueReceiptNo);
+      setUniqueDonorId(uniqueReceiptNo);
     }
 
-    const guestData = guest.attributes;
+    // Extract title and name
+    const fullName = guest.attributes.name;
+    const nameParts = fullName.split(" ");
+    const title = nameParts[0];
+    const name = nameParts.slice(1).join(" ");
 
-    // Extract address components
-    const addressParts = guestData.address?.split(", ") || [];
-    const houseNumber = addressParts[0] || "";
-    const streetAddress = addressParts.slice(1, -4).join(", ") || "";
-    const postOffice = addressParts[addressParts.length - 4] || "";
-    const district = addressParts[addressParts.length - 3] || "";
-    const state = addressParts[addressParts.length - 2] || "";
-    const pincode =
-      addressParts[addressParts.length - 1]?.match(/\d{6}/)?.[0] || "";
-
-    // Remove the title from the name if it exists at the beginning
-    const titleRegex =
-      /^(Sri|Smt\.|Mr\.|Mrs\.|Swami|Dr\.|Prof\.|Kumari|Ms\.)\s*/i;
-    const nameWithoutTitle = guestData.name.replace(titleRegex, "").trim();
-
-    const donorDetailsData = {
-      title: guestData.title || "Sri",
-      name: nameWithoutTitle,
-      phoneCode: "+91",
-      phone: guestData.phone_number?.replace("+91", "") || "",
-      email: guestData.email,
-      mantraDiksha: guestData.deeksha || "",
-      identityType: "Aadhaar",
-      identityNumber: guestData.aadhaar_number || "",
-      roomNumber: "",
-      pincode: pincode,
-      houseNumber: houseNumber,
-      streetName: streetAddress,
-      postOffice: postOffice,
-      district: district,
-      state: state,
+    setDonorDetails({
+      ...donorDetails,
+      title: title || "Sri",
+      name: name,
+      phone: guest.attributes.phone_number?.replace("+91", "") || "",
+      email: guest.attributes.email || "",
+      mantraDiksha: guest.attributes.deeksha || "",
       guestId: guest.id,
-    };
-
-    handleDonorDetailsUpdate(donorDetailsData);
-
-    // Update unique donor ID if found in receipt details
-    if (existingUniqueNo) {
-      setUniqueDonorId(existingUniqueNo);
-    } else {
-      // Generate new unique ID based on current highest number
-      const nextNumber =
-        selectedTab === "Math" ? highestNumbers.MT + 1 : highestNumbers.MSN + 1;
-      setUniqueDonorId(`C${nextNumber}`);
-    }
-
+      // Set identity type and number from guest details
+      identityType: guest.attributes.identity_proof || "PAN",
+      identityNumber: guest.attributes.identity_number || "",
+      // Parse and set address fields if available
+      ...(guest.attributes.address && parseAddress(guest.attributes.address)),
+    });
     setSearchTerm("");
     setShowDropdown(false);
   };
@@ -1023,8 +990,8 @@ const NewDonation = () => {
             donorDetails.email ||
             `${donorDetails.name.replace(/\s+/g, "").toLowerCase()}@gmail.com`,
           deeksha: donorDetails.mantraDiksha,
-          identity_proof: donorDetails.identityType, // Changed from aadhaar_number
-          identity_number: donorDetails.identityNumber, // Added identity_number
+          identity_proof: donorDetails.identityType,
+          identity_number: donorDetails.identityNumber,
           address: `${donorDetails.houseNumber}, ${donorDetails.streetName}, ${donorDetails.postOffice}, ${donorDetails.district}, ${donorDetails.state}, ${donorDetails.pincode}`,
           status: "none",
         };
@@ -1359,8 +1326,8 @@ const NewDonation = () => {
             phone_number: `${donorDetails.phoneCode}${donorDetails.phone}`,
             email: donorDetails.email,
             deeksha: donorDetails.mantraDiksha,
-            identity_proof: donorDetails.identityType, // Changed from aadhaar_number
-            identity_number: donorDetails.identityNumber, // Added identity_number
+            identity_proof: donorDetails.identityType,
+            identity_number: donorDetails.identityNumber,
             address: `${donorDetails.houseNumber}, ${donorDetails.streetName}, ${donorDetails.postOffice}, ${donorDetails.district}, ${donorDetails.state}, ${donorDetails.pincode}`,
           };
           const guestResponse = await createNewGuestDetails(guestPayload);
@@ -2802,12 +2769,11 @@ const NewDonation = () => {
                                   email: guest.attributes.email || "",
                                   mantraDiksha: guest.attributes.deeksha || "",
                                   guestId: guest.id,
-                                  // Add Aadhaar details
-                                  identityType: guest.attributes.aadhaar_number
-                                    ? "Aadhaar"
-                                    : "PAN",
+                                  // Set identity type and number from guest details
+                                  identityType:
+                                    guest.attributes.identity_proof || "PAN",
                                   identityNumber:
-                                    guest.attributes.aadhaar_number || "",
+                                    guest.attributes.identity_number || "",
                                   // Parse and set address fields if available
                                   ...(guest.attributes.address &&
                                     parseAddress(guest.attributes.address)),

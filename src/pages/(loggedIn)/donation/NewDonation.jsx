@@ -2636,7 +2636,9 @@ const NewDonation = () => {
             <div className="info-item">
               <div className="info-label">Counter No.</div>
               <div className="info-value">
-                {user?.counter?.replace(/^Counter\s*/i, "") || "N/A"}
+                {user?.counter?.replace(/^Counter\s*/i, "") === "3"
+                  ? "admin"
+                  : user?.counter?.replace(/^Counter\s*/i, "") || "N/A"}
               </div>
             </div>
             <div className="info-item">

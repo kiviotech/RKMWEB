@@ -384,9 +384,9 @@ const NewDonation = () => {
         },
       },
     };
-    console.log("receipt data", receiptData);
-    console.log("donor", selectedDonor);
-    console.log("tab", selectedTab);
+    // console.log("receipt data", receiptData);
+    // console.log("donor", selectedDonor);
+    // console.log("tab", selectedTab);
 
     // Batch these updates together
     setReceiptNumber(generatedNumber);
@@ -2106,13 +2106,13 @@ const NewDonation = () => {
           selectedTab === "Math" ? highestMT + 1 : highestMSN + 1;
         setUniqueDonorId(`C${nextDonorNumber}`);
 
-        console.log("Receipt Numbers Analysis:", {
-          highestMT,
-          highestMSN,
-          nextNumber,
-          receiptNumber: `${prefix}${nextNumber}`,
-          uniqueDonorId: `C${nextDonorNumber}`,
-        });
+        // console.log("Receipt Numbers Analysis:", {
+        //   highestMT,
+        //   highestMSN,
+        //   nextNumber,
+        //   receiptNumber: `${prefix}${nextNumber}`,
+        //   uniqueDonorId: `C${nextDonorNumber}`,
+        // });
       } catch (error) {
         console.error("Error fetching unique numbers:", error);
       }
@@ -2567,6 +2567,18 @@ const NewDonation = () => {
     // ... rest of the input properties remain the same
   />;
 
+  const [currentTime, setCurrentTime] = useState(new Date());
+
+  // Add this useEffect near your other useEffect hooks
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000);
+
+    // Cleanup interval on component unmount
+    return () => clearInterval(timer);
+  }, []);
+
   return (
     <div
       id="donations-container"
@@ -2618,30 +2630,25 @@ const NewDonation = () => {
             + Add Donation
           </button>
         </div>
-        <div>
-          {" "}
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              // textAlign: "center",
-            }}
-          >
-            <div className="infor-row">
-              {/* <label className="info-label">Counter: </label> */}
-              <span className="info-data">{user?.counter}</span>
+        <div className="header-info-container">
+          <div className="info-grid">
+            <div className="info-item">
+              <div className="info-label">Counter No.</div>
+              <div className="info-value">
+                {user?.counter?.replace(/^Counter\s*/i, "") || "N/A"}
+              </div>
             </div>
-            <div className="info-row">
-              {/* <label className="info-label">User: </label> */}
-              <span className="info-data">{user?.username || "User Name"}</span>
+            <div className="info-item">
+              <div className="info-label">User</div>
+              <div className="info-value">{user?.username || "User Name"}</div>
             </div>
-            <div className="info-row">
-              {/* <label className="info-label">Date: </label> */}
-              <span className="info-data">
-                {new Date().toLocaleDateString("en-GB") +
+            <div className="info-item">
+              <div className="info-label">Date & Time</div>
+              <div className="info-value">
+                {currentTime.toLocaleDateString("en-GB") +
                   " " +
-                  new Date().toLocaleTimeString()}
-              </span>
+                  currentTime.toLocaleTimeString()}
+              </div>
             </div>
           </div>
         </div>

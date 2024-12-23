@@ -658,7 +658,8 @@ const NewDonation = () => {
   };
 
   // Modify the handleTabClick function
-  const handleTabClick = (tab) => {
+  // Modify tab selection and receipt number generation
+  const updateTabAndReceipt = (tab) => {
     // Only allow changing tabs if there's no donation data or if it's not completed
     if (donationData && donationData.status === "completed") {
       return;
@@ -1043,6 +1044,7 @@ const NewDonation = () => {
         amount: currentReceipt?.donationDetails?.amount,
         unique_no: uniqueDonorId,
         counter: user?.counter || "N/A", // Add counter number from user data
+        donation_date: getCurrentFormattedDate(), // Add donation date
       };
       const receiptResponse = await createNewReceiptDetail(receiptPayload);
       console.log("Created new receipt:", receiptResponse);
@@ -1318,6 +1320,7 @@ const NewDonation = () => {
             transactionType
           )
         ) {
+          const details = currentReceipt?.donationDetails?.transactionDetails;
           // Scroll to first empty transaction field
           if (!details?.ddDate) {
             document
@@ -2070,38 +2073,46 @@ const NewDonation = () => {
       try {
         // Get receipt numbers
         const response = await fetchReceiptNumbers();
-        // console.log('first', response.data)
         const receiptNumbers = response.data?.map(
           (receipt) => receipt.attributes.Receipt_number
         );
 
-        // Separate MT and MSN numbers
+        // Separate MT and MSN numbers and parse them correctly
         const mtNumbers = receiptNumbers
-          .filter((num) => num.startsWith("MT"))
-          .map((num) => parseInt(num.replace("MT", "")));
+          .filter((num) => num?.startsWith("MT"))
+          .map((num) => parseInt(num.replace("MT", "")) || 0);
         const msnNumbers = receiptNumbers
-          .filter((num) => num.startsWith("MSN"))
-          .map((num) => parseInt(num.replace("MSN", "")));
+          .filter((num) => num?.startsWith("MSN"))
+          .map((num) => parseInt(num.replace("MSN", "")) || 0);
 
-        // Find highest numbers
-        const highestMT = Math.max(...mtNumbers);
-        const highestMSN = Math.max(...msnNumbers);
+        // Find highest numbers, defaulting to 0 if no numbers exist
+        const highestMT = mtNumbers.length > 0 ? Math.max(...mtNumbers) : 0;
+        const highestMSN = msnNumbers.length > 0 ? Math.max(...msnNumbers) : 0;
 
         // Set the next receipt number based on selected tab
         const nextNumber =
           selectedTab === "Math" ? highestMT + 1 : highestMSN + 1;
         const prefix = selectedTab === "Math" ? "MT" : "MSN";
-        setReceiptNumber(`${prefix} ${nextNumber}`);
+        setReceiptNumber(`${prefix}${nextNumber}`);
 
+        // Store the highest numbers
         setHighestNumbers({
           MT: highestMT,
           MSN: highestMSN,
         });
 
-        // Set initial unique donor ID based on selected tab without leading zeros
+        // Set initial unique donor ID
         const nextDonorNumber =
           selectedTab === "Math" ? highestMT + 1 : highestMSN + 1;
         setUniqueDonorId(`C${nextDonorNumber}`);
+
+        console.log("Receipt Numbers Analysis:", {
+          highestMT,
+          highestMSN,
+          nextNumber,
+          receiptNumber: `${prefix}${nextNumber}`,
+          uniqueDonorId: `C${nextDonorNumber}`,
+        });
       } catch (error) {
         console.error("Error fetching unique numbers:", error);
       }
@@ -2109,6 +2120,26 @@ const NewDonation = () => {
 
     fetchNumbers();
   }, [selectedTab]); // Add selectedTab as dependency
+
+  // Add this useEffect to update receipt number and unique donor ID when tab changes
+  useEffect(() => {
+    if (highestNumbers) {
+      const nextNumber =
+        selectedTab === "Math" ? highestNumbers.MT + 1 : highestNumbers.MSN + 1;
+      const prefix = selectedTab === "Math" ? "MT" : "MSN";
+
+      setReceiptNumber(`${prefix}${nextNumber}`);
+      setUniqueDonorId(`C${nextNumber}`);
+    }
+  }, [selectedTab, highestNumbers]);
+
+  // Modify the handleTabClick function
+  const handleTabClick = (tab) => {
+    if (donationData?.status === "completed") return;
+
+    setSelectedTab(tab);
+    // Receipt number and unique donor ID will be updated by the useEffect above
+  };
 
   // Add this helper function near your other utility functions
   const isDonationCompleted = (donationData) => {
@@ -2469,41 +2500,6 @@ const NewDonation = () => {
     )}
   </div>;
 
-  // Add this useEffect after your other useEffects
-  useEffect(() => {
-    const getReceiptNumbers = async () => {
-      try {
-        const response = await fetchReceiptNumbers();
-        const receiptNumbers = response.data?.map(
-          (receipt) => receipt.attributes.Receipt_number
-        );
-
-        // Separate MT and MSN numbers
-        const mtNumbers = receiptNumbers
-          .filter((num) => num.startsWith("MT"))
-          .map((num) => parseInt(num.replace("MT", "")));
-        const msnNumbers = receiptNumbers
-          .filter((num) => num.startsWith("MSN"))
-          .map((num) => parseInt(num.replace("MSN", "")));
-
-        // Find highest numbers
-        const highestMT = Math.max(...mtNumbers);
-        const highestMSN = Math.max(...msnNumbers);
-
-        // console.log("Receipt Numbers Analysis:", {
-        //   highestMT: `MT ${highestMT}`,
-        //   highestMSN: `MSN ${highestMSN}`,
-        //   nextMT: `MT ${highestMT + 1}`,
-        //   nextMSN: `MSN ${highestMSN + 1}`,
-        // });
-      } catch (error) {
-        console.error("Error fetching receipt numbers:", error);
-      }
-    };
-
-    getReceiptNumbers();
-  }, []);
-
   // Modify the validateIdentityInput function
   const validateIdentityInput = (type, value) => {
     switch (type) {
@@ -2628,20 +2624,23 @@ const NewDonation = () => {
             style={{
               display: "flex",
               flexDirection: "column",
+              // textAlign: "center",
             }}
           >
             <div className="infor-row">
-              <label className="info-label">Counter: </label>
+              {/* <label className="info-label">Counter: </label> */}
               <span className="info-data">{user?.counter}</span>
             </div>
             <div className="info-row">
-              <label className="info-label">User: </label>
+              {/* <label className="info-label">User: </label> */}
               <span className="info-data">{user?.username || "User Name"}</span>
             </div>
             <div className="info-row">
-              <label className="info-label">Date: </label>
+              {/* <label className="info-label">Date: </label> */}
               <span className="info-data">
-                {new Date().toLocaleDateString("en-GB")}
+                {new Date().toLocaleDateString("en-GB") +
+                  " " +
+                  new Date().toLocaleTimeString()}
               </span>
             </div>
           </div>
@@ -2928,7 +2927,7 @@ const NewDonation = () => {
                   Phone No. <span className="required">*</span>
                 </label>
                 <div className="phone-unified-input">
-                  <select
+                  {/* <select
                     value={donorDetails.phoneCode}
                     onChange={(e) =>
                       setDonorDetails({
@@ -2940,7 +2939,7 @@ const NewDonation = () => {
                     className={shouldDisableFields() ? "disabled-input" : ""}
                   >
                     <option value="+91">+91</option>
-                  </select>
+                  </select> */}
                   <div className="searchable-dropdown">
                     <input
                       ref={phoneInputRef}

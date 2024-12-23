@@ -5,6 +5,7 @@ import { fetchDonations } from "../../../../services/src/services/donationsServi
 import * as XLSX from "xlsx";
 import { useLocation } from "react-router-dom";
 import ExportDonations from "./ExportDonations";
+import DDFExport from "./DDFExport";
 
 const AllDonationDetails = () => {
   const location = useLocation();
@@ -127,7 +128,10 @@ const AllDonationDetails = () => {
         <h1 className="page-title">
           {timeFilter === "today" ? "Today Donations" : "All Donations"}
         </h1>
-        <ExportDonations timeFilter={timeFilter} />
+        <div className="export-buttons">
+          <DDFExport />
+          <ExportDonations timeFilter={timeFilter} />
+        </div>
       </div>
       <div className="donation-header">
         <div className="left-section">

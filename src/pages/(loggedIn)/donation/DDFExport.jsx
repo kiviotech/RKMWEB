@@ -27,8 +27,9 @@ const DDFExport = () => {
     try {
       const currentYear = new Date().getFullYear();
 
-      // Set date ranges based on quarter
+      // Set date ranges for the specific quarter only
       let startDate, endDate;
+
       switch (quarter) {
         case "Apr-Jun 1st Qtr":
           startDate = `${currentYear}-04-01`;
@@ -43,7 +44,6 @@ const DDFExport = () => {
           endDate = `${currentYear}-12-31`;
           break;
         case "Jan-Mar 4th Qtr":
-          // For Jan-Mar, use the next year since it's the last quarter of the fiscal year
           startDate = `${currentYear + 1}-01-01`;
           endDate = `${currentYear + 1}-03-31`;
           break;
@@ -57,7 +57,7 @@ const DDFExport = () => {
         type: type === "80G" ? "SECTION_80G" : "NON_80G",
       });
 
-      // Filter donations based on date range and transaction type
+      // Filter donations based on the specific quarter's date range and transaction type
       let filteredDonations = Array.isArray(response.data)
         ? response.data.filter((donation) => {
             const transactionType = donation.attributes?.transactionType;
@@ -65,11 +65,10 @@ const DDFExport = () => {
               donation.attributes?.receipt_detail?.data?.attributes
                 ?.donation_date;
 
-            // Check if donation date falls within the specific quarter
+            // Check if donation date falls within the specific quarter only
             const isInDateRange =
               donationDate >= startDate && donationDate <= endDate;
 
-            // Filter by transaction type - SWAPPED CONDITIONS
             const hasValidTransactionType =
               type === "80G"
                 ? ["Cheque", "Bank Transfer", "DD"].includes(transactionType)
@@ -79,7 +78,7 @@ const DDFExport = () => {
           })
         : [];
 
-      // Combine donations with same unique_no with cumulative totals
+      // Combine donations with same unique_no within the quarter
       const uniqueDonations = {};
       filteredDonations.forEach((donation) => {
         const uniqueNo =
@@ -88,7 +87,7 @@ const DDFExport = () => {
           if (!uniqueDonations[uniqueNo]) {
             uniqueDonations[uniqueNo] = { ...donation };
           } else {
-            // Add to running total from April 1st
+            // Add to running total within the quarter
             const currentAmount =
               parseFloat(uniqueDonations[uniqueNo].attributes.donationAmount) ||
               0;

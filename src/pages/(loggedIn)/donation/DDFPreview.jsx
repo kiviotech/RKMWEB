@@ -1,4 +1,5 @@
 import React from "react";
+import * as XLSX from "xlsx";
 import "./DDFPreview.scss";
 
 const DDFPreview = ({ donations, onConfirm, onCancel, type }) => {
@@ -12,6 +13,38 @@ const DDFPreview = ({ donations, onConfirm, onCancel, type }) => {
       VOTER_ID: "Voter ID Card",
     };
     return proofTypes[proof] || proof;
+  };
+
+  const downloadAsExcel = () => {
+    // Prepare data for Excel
+    const excelData = donations.map((donation, index) => ({
+      "Sl No.": index + 1,
+      "ID Type": getIdentityProofFullForm(
+        donation.attributes?.guest?.data?.attributes?.identity_proof
+      ),
+      "Unique ID No.":
+        donation.attributes?.guest?.data?.attributes?.identity_number || "",
+      ...(type === "80G" && { "Section Code": "Section 80G" }),
+      Name: donation.attributes?.guest?.data?.attributes?.name || "",
+      Address: donation.attributes?.guest?.data?.attributes?.address
+        ? donation.attributes.guest.data.attributes.address
+            .split(",")
+            .filter((part) => part.trim() !== "")
+            .join(", ")
+            .trim()
+        : "",
+      Type: donation.attributes?.type || "",
+      Mode: donation.attributes?.transactionType || "",
+      Amount: parseFloat(donation.attributes?.donationAmount || 0).toFixed(2),
+    }));
+
+    // Create worksheet
+    const ws = XLSX.utils.json_to_sheet(excelData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Donations");
+
+    // Download file
+    XLSX.writeFile(wb, "donations.xlsx");
   };
 
   return (
@@ -79,10 +112,10 @@ const DDFPreview = ({ donations, onConfirm, onCancel, type }) => {
           </button>
           <button
             className="confirm-button"
-            onClick={onConfirm}
+            onClick={downloadAsExcel}
             style={{ backgroundColor: "#ea7704", color: "#fff" }}
           >
-            Confirm
+            Download Excel
           </button>
         </div>
       </div>

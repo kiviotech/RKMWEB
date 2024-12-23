@@ -15,14 +15,29 @@ const DDFPreview = ({ donations, onConfirm, onCancel, type }) => {
     return proofTypes[proof] || proof;
   };
 
+  // Add this function to get current financial year
+  const getCurrentFinancialYear = () => {
+    const today = new Date();
+    const currentMonth = today.getMonth(); // 0-11
+    const currentYear = today.getFullYear();
+
+    // If current month is January to March (0-2), we're in the previous financial year
+    // Otherwise we're in the current financial year
+    const startYear = currentMonth <= 2 ? currentYear - 1 : currentYear;
+    const endYear = startYear + 1;
+
+    // Return in format "YYYY-YY"
+    return `${startYear}-${(endYear % 100).toString().padStart(2, "0")}`;
+  };
+
   const downloadAsExcel = () => {
-    // Add title rows
+    // Update the title rows with dynamic financial year
     const title = [
       ["RAMAKRISHNA MISSION, KAMARPUKUR"],
       [
         `DDF - ${
           type === "80G" ? "80G" : "NON-80G"
-        } (WITH ID) FOR THE FY 2022-23`,
+        } (WITH ID) FOR THE FY ${getCurrentFinancialYear()}`,
       ],
       [], // Empty row for spacing
     ];
@@ -59,8 +74,32 @@ const DDFPreview = ({ donations, onConfirm, onCancel, type }) => {
       parseFloat(donation.attributes?.donationAmount || 0).toFixed(2),
     ]);
 
-    // Create worksheet
-    const ws = XLSX.utils.aoa_to_sheet([...title, headers, ...dataRows]);
+    // Calculate total donation amount
+    const totalDonation = donations.reduce(
+      (sum, donation) =>
+        sum + parseFloat(donation.attributes?.donationAmount || 0),
+      0
+    );
+
+    // Add total row
+    const totalRow = [
+      "", // Sl No.
+      "", // ID
+      "", // Unique ID
+      "", // Name
+      "", // Address
+      "Total", // Donation Type
+      "", // Mode
+      totalDonation.toFixed(2), // Amount
+    ];
+
+    // Create worksheet with total row
+    const ws = XLSX.utils.aoa_to_sheet([
+      ...title,
+      headers,
+      ...dataRows,
+      totalRow,
+    ]);
 
     // Set column widths
     const colWidths = [
@@ -104,6 +143,22 @@ const DDFPreview = ({ donations, onConfirm, onCancel, type }) => {
       const cellRef = XLSX.utils.encode_cell({ r: i, c: 0 });
       ws[cellRef].s = titleStyle;
     }
+
+    // Style the total row
+    const totalRowIndex = title.length + dataRows.length + 1;
+    const totalStyle = {
+      font: { bold: true },
+      alignment: { horizontal: "right" },
+    };
+
+    // Apply total row styles
+    const totalCellRef = XLSX.utils.encode_cell({ r: totalRowIndex, c: 5 }); // "Total" text
+    const totalAmountCellRef = XLSX.utils.encode_cell({
+      r: totalRowIndex,
+      c: 7,
+    }); // Total amount
+    ws[totalCellRef].s = totalStyle;
+    ws[totalAmountCellRef].s = totalStyle;
 
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Donations");

@@ -2089,6 +2089,15 @@ const NewDonation = () => {
         const highestMT = mtNumbers.length > 0 ? Math.max(...mtNumbers) : 0;
         const highestMSN = msnNumbers.length > 0 ? Math.max(...msnNumbers) : 0;
 
+        // Log the highest numbers and related data
+        console.log("Receipt Numbers Analysis:", {
+          allReceiptNumbers: receiptNumbers,
+          mtNumbers: mtNumbers,
+          msnNumbers: msnNumbers,
+          highestMT: highestMT,
+          highestMSN: highestMSN,
+        });
+
         // Set the next receipt number based on selected tab
         const nextNumber =
           selectedTab === "Math" ? highestMT + 1 : highestMSN + 1;
@@ -2105,14 +2114,6 @@ const NewDonation = () => {
         const nextDonorNumber =
           selectedTab === "Math" ? highestMT + 1 : highestMSN + 1;
         setUniqueDonorId(`C${nextDonorNumber}`);
-
-        // console.log("Receipt Numbers Analysis:", {
-        //   highestMT,
-        //   highestMSN,
-        //   nextNumber,
-        //   receiptNumber: `${prefix}${nextNumber}`,
-        //   uniqueDonorId: `C${nextDonorNumber}`,
-        // });
       } catch (error) {
         console.error("Error fetching unique numbers:", error);
       }

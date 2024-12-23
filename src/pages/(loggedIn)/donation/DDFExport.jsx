@@ -27,25 +27,26 @@ const DDFExport = () => {
     try {
       const currentYear = new Date().getFullYear();
 
-      // Set date ranges for the specific quarter only
-      let startDate, endDate;
+      // Set date ranges
+      let cumulativeStartDate = `${currentYear}-04-01`; // Start of fiscal year
+      let quarterStartDate, quarterEndDate;
 
       switch (quarter) {
         case "Apr-Jun 1st Qtr":
-          startDate = `${currentYear}-04-01`;
-          endDate = `${currentYear}-06-30`;
+          quarterStartDate = `${currentYear}-04-01`;
+          quarterEndDate = `${currentYear}-06-30`;
           break;
         case "July-Sept 2nd Qtr":
-          startDate = `${currentYear}-07-01`;
-          endDate = `${currentYear}-09-30`;
+          quarterStartDate = `${currentYear}-07-01`;
+          quarterEndDate = `${currentYear}-09-30`;
           break;
         case "Oct-Dec 3rd Qtr":
-          startDate = `${currentYear}-10-01`;
-          endDate = `${currentYear}-12-31`;
+          quarterStartDate = `${currentYear}-10-01`;
+          quarterEndDate = `${currentYear}-12-31`;
           break;
         case "Jan-Mar 4th Qtr":
-          startDate = `${currentYear + 1}-01-01`;
-          endDate = `${currentYear + 1}-03-31`;
+          quarterStartDate = `${currentYear + 1}-01-01`;
+          quarterEndDate = `${currentYear + 1}-03-31`;
           break;
         default:
           return [];
@@ -57,45 +58,62 @@ const DDFExport = () => {
         type: type === "80G" ? "SECTION_80G" : "NON_80G",
       });
 
-      // Filter donations based on the specific quarter's date range and transaction type
-      let filteredDonations = Array.isArray(response.data)
-        ? response.data.filter((donation) => {
-            const transactionType = donation.attributes?.transactionType;
+      if (!Array.isArray(response.data)) return [];
+
+      // First, identify donors who made donations in the current quarter
+      const currentQuarterDonors = new Set(
+        response.data
+          .filter((donation) => {
             const donationDate =
               donation.attributes?.receipt_detail?.data?.attributes
                 ?.donation_date;
-
-            // Check if donation date falls within the specific quarter only
-            const isInDateRange =
-              donationDate >= startDate && donationDate <= endDate;
-
-            const hasValidTransactionType =
-              type === "80G"
-                ? ["Cheque", "Bank Transfer", "DD"].includes(transactionType)
-                : ["Cash", "M.O"].includes(transactionType);
-
-            return isInDateRange && hasValidTransactionType;
+            return (
+              donationDate >= quarterStartDate && donationDate <= quarterEndDate
+            );
           })
-        : [];
+          .map(
+            (donation) =>
+              donation.attributes?.receipt_detail?.data?.attributes?.unique_no
+          )
+          .filter(Boolean)
+      );
 
-      // Combine donations with same unique_no within the quarter
+      // If they donated in current quarter, get their cumulative total
       const uniqueDonations = {};
-      filteredDonations.forEach((donation) => {
+      response.data.forEach((donation) => {
         const uniqueNo =
           donation.attributes?.receipt_detail?.data?.attributes?.unique_no;
-        if (uniqueNo) {
-          if (!uniqueDonations[uniqueNo]) {
-            uniqueDonations[uniqueNo] = { ...donation };
-          } else {
-            // Add to running total within the quarter
-            const currentAmount =
-              parseFloat(uniqueDonations[uniqueNo].attributes.donationAmount) ||
-              0;
-            const newAmount =
-              parseFloat(donation.attributes.donationAmount) || 0;
-            uniqueDonations[uniqueNo].attributes.donationAmount = (
-              currentAmount + newAmount
-            ).toString();
+        const donationDate =
+          donation.attributes?.receipt_detail?.data?.attributes?.donation_date;
+        const transactionType = donation.attributes?.transactionType;
+
+        // Only process if they donated in current quarter and transaction type is valid
+        if (uniqueNo && currentQuarterDonors.has(uniqueNo)) {
+          const hasValidTransactionType =
+            type === "80G"
+              ? ["Cheque", "Bank Transfer", "DD"].includes(transactionType)
+              : ["Cash", "M.O"].includes(transactionType);
+
+          // Include donation if it's within the cumulative date range and has valid transaction type
+          if (
+            donationDate >= cumulativeStartDate &&
+            donationDate <= quarterEndDate &&
+            hasValidTransactionType
+          ) {
+            if (!uniqueDonations[uniqueNo]) {
+              uniqueDonations[uniqueNo] = { ...donation };
+            } else {
+              // Add to running total
+              const currentAmount =
+                parseFloat(
+                  uniqueDonations[uniqueNo].attributes.donationAmount
+                ) || 0;
+              const newAmount =
+                parseFloat(donation.attributes.donationAmount) || 0;
+              uniqueDonations[uniqueNo].attributes.donationAmount = (
+                currentAmount + newAmount
+              ).toString();
+            }
           }
         }
       });

@@ -110,10 +110,12 @@ const DDFExport = () => {
       printDiv.innerHTML = `
         <div class="print-only">
           <div class="header">
-            <img src="/logo.png" alt="Ramakrishna Mission Logo" class="mission-logo" />
-            <h2>RAMAKRISHNA MISSION, KAMARPUKUR</h2>
-            <h3>DDF - ${type} - FOR THE FY 2023-24</h3>
-            <h4>${quarter}</h4>
+            <img src="https://kamarpukur.rkmm.org/2-8.jpg" alt="Ramakrishna Mission Logo" class="mission-logo" />
+            <div class="header-text">
+              <h2>RAMAKRISHNA MISSION, KAMARPUKUR</h2>
+              <h3>DDF - ${type} - FOR THE FY 2022-23</h3>
+              <h4>${quarter}</h4>
+            </div>
           </div>
           <table>
             <thead>
@@ -180,7 +182,7 @@ const DDFExport = () => {
         </div>
       `;
 
-      // Add the print styles
+      // Update the print styles
       const styleSheet = document.createElement("style");
       styleSheet.textContent = `
         @media print {
@@ -216,8 +218,12 @@ const DDFExport = () => {
         }
 
         .print-only .header {
-          text-align: center;
+          display: flex;
+          flex-direction: row;
+          align-items: center;
           margin-bottom: 20px;
+          text-align: center;
+          gap: 20px;
         }
 
         .print-only .mission-logo {
@@ -225,10 +231,31 @@ const DDFExport = () => {
           height: 60px;
         }
 
+        .print-only .header-text {
+          flex: 1;
+          width: auto;
+          padding-bottom: 10px;
+        }
+
         .print-only h2, 
         .print-only h3, 
         .print-only h4 {
           margin: 5px 0;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+        }
+
+        .print-only h2 {
+          font-size: 18px;
+          font-weight: bold;
+        }
+
+        .print-only h3 {
+          font-size: 16px;
+        }
+
+        .print-only h4 {
+          font-size: 14px;
         }
 
         .print-only table {

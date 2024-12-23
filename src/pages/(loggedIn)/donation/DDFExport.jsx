@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import "./DDFExport.scss";
 import { fetchDonations } from "../../../../services/src/services/donationsService";
 import * as XLSX from "xlsx";
+import missionLogo from "../../../constants/icons";
 
 const DDFExport = () => {
   const [showDropdown, setShowDropdown] = useState(false);
@@ -110,7 +111,7 @@ const DDFExport = () => {
       printDiv.innerHTML = `
         <div class="print-only">
           <div class="header">
-            <img src="https://kamarpukur.rkmm.org/2-8.jpg" alt="Ramakrishna Mission Logo" class="mission-logo" />
+            <img src="${missionLogo}" alt="Ramakrishna Mission Logo" class="mission-logo" />
             <div class="header-text">
               <h2>RAMAKRISHNA MISSION, KAMARPUKUR</h2>
               <h3>DDF - ${type} - FOR THE FY 2022-23</h3>

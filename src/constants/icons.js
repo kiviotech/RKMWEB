@@ -49,6 +49,7 @@ import sort from "../assets/icons/sort.png";
 import plus from "../assets/icons/plus.png";
 
 import RMK_Logo from "../assets/image/RMK_Logo.png";
+import missionLogo from "../assets/image/mission-logo.jpg";
 export default {
   googleIcon,
   facebookIcon,
@@ -97,4 +98,5 @@ export default {
   Home,
   Donation,
   Deeksha,
+  missionLogo,
 };

@@ -186,6 +186,7 @@ const AllDonationDetails = () => {
                 name="startDate"
                 value={dateRange.startDate}
                 onChange={handleDateChange}
+                max={new Date().toISOString().split("T")[0]}
               />
               <span>To</span>
               <input
@@ -193,6 +194,7 @@ const AllDonationDetails = () => {
                 name="endDate"
                 value={dateRange.endDate}
                 onChange={handleDateChange}
+                max={new Date().toISOString().split("T")[0]}
               />
             </div>
           )}

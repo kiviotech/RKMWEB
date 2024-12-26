@@ -419,7 +419,7 @@ const AllDonation = ({
                     {filterOptions.donationStatus && (
                       <td>
                         <span
-                          className={`status-badge ${donation.attributes.status.toLowerCase()}`}
+                          className={`status-badge ${donation.attributes.status}`}
                         >
                           {donation.attributes.status}
                         </span>

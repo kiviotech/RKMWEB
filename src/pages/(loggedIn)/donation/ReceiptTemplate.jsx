@@ -252,7 +252,8 @@ const ReceiptTemplate = ({
       Dt. ${currentReceipt?.donationDetails?.transactionDetails?.ddDate || ""}
     </p>
     <p style="margin: 0; width: 100%;">
-      On ${currentReceipt?.donationDetails?.transactionDetails?.bankName || ""}
+      On ${currentReceipt?.donationDetails?.transactionDetails?.bankName || ""}, 
+      ${currentReceipt?.donationDetails?.transactionDetails?.branchName || ""}
     </p>
     `
         : ""

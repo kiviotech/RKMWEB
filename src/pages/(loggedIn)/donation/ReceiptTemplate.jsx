@@ -18,7 +18,7 @@ const ReceiptTemplate = ({
             <title>Ramakrishna Math Letterhead</title>
             <style>
               body {
-                margin: 0
+                margin: 0;
                 background-color: #fff;
                 font-family: Arial, sans-serif;
                 height: 100%;
@@ -216,6 +216,7 @@ const ReceiptTemplate = ({
                       }${
     donorDetails.pincode ? `Pin: ${donorDetails.pincode}` : ""
   }
+                    </p>
                     ${
                       donorDetails.identityNumber
                         ? `
@@ -225,43 +226,61 @@ const ReceiptTemplate = ({
                           ? `PAN: ${donorDetails.identityNumber}`
                           : `Aadhaar: ${donorDetails.identityNumber}`
                       }
-                      </p>
-                  `
+                    </p>`
                         : ""
                     }
                   </div>
                 </div>
-<div class="payment-details">
-  <p style="margin: 10px 0 0 0">
-    The sum of Rupees
-    <b
-      >${numberToWords(
-        parseFloat(currentReceipt?.donationDetails?.amount || 0)
-      )} Only</b
-    >
-  </p>
+                <div class="payment-details">
+                  <p style="margin: 10px 0 0 0">
+                    The sum of Rupees
+                    <b>${numberToWords(
+                      parseFloat(currentReceipt?.donationDetails?.amount || 0)
+                    )} Only</b>
+                  </p>
 
-  <div style="display: flex; align-items: center; flex-wrap: wrap;">
-    <p style="margin: 0;">
-      By ${currentReceipt?.donationDetails?.transactionType || "Cash"}
-    </p>
-    ${
-      currentReceipt?.donationDetails?.transactionType?.toLowerCase() !== "cash"
-        ? `
-    <p style="margin: 0; padding-left: 10px;">
-      Dt. ${currentReceipt?.donationDetails?.transactionDetails?.ddDate || ""}
-    </p>
-    <p style="margin: 0; width: 100%;">
-      On ${currentReceipt?.donationDetails?.transactionDetails?.bankName || ""}, 
-      ${currentReceipt?.donationDetails?.transactionDetails?.branchName || ""}
-    </p>
-    `
-        : ""
-    }
-  </div>
+                  <div style="display: flex; align-items: center; flex-wrap: wrap;">
+                    <p style="margin: 0;">
+                      By ${
+                        currentReceipt?.donationDetails?.transactionType ||
+                        "Cash"
+                      }
+                    </p>
+                    ${
+                      currentReceipt?.donationDetails?.transactionType?.toLowerCase() !==
+                        "cash" &&
+                      currentReceipt?.donationDetails?.transactionType?.toLowerCase() !==
+                        "m.o"
+                        ? `
+                    <p style="margin: 0; padding-left: 10px;">
+                      No. ${
+                        currentReceipt?.donationDetails?.transactionDetails
+                          ?.ddNumber || ""
+                      }
+                      Dt. ${
+                        currentReceipt?.donationDetails?.transactionDetails
+                          ?.ddDate || ""
+                      }
+                    </p>
+                    <p style="margin: 0; width: 100%;">
+                      On ${
+                        currentReceipt?.donationDetails?.transactionDetails
+                          ?.bankName || ""
+                      }, 
+                      ${
+                        currentReceipt?.donationDetails?.transactionDetails
+                          ?.branchName || ""
+                      }
+                    </p>
+                    `
+                        : ""
+                    }
+                  </div>
 
-  <p>
-    As Donation for ${currentReceipt?.donationDetails?.donationType} for ${
+                  <p>
+                    As Donation for ${
+                      currentReceipt?.donationDetails?.donationType
+                    } for ${
     currentReceipt?.donationDetails?.purpose === "Other"
       ? currentReceipt?.donationDetails?.otherPurpose
       : currentReceipt?.donationDetails?.purpose
@@ -270,33 +289,34 @@ const ReceiptTemplate = ({
       ? ` in memory of ${currentReceipt?.donationDetails?.inMemoryOf}`
       : ""
   }
-  </p>
-  <p class="amount">
-    <b
-      >Rs. ${parseFloat(
-        currentReceipt?.donationDetails?.amount || 0
-      ).toLocaleString("en-IN", {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2,
-      })}</b
-    >
-  </p>
-   ${
-     ["Bank Transfer", "Cheque", "DD", "Electronic Modes"].includes(
-       currentReceipt?.donationDetails?.transactionType
-     )
-       ? `<div class="stamp-container">
-                <div class="it-stamp">
-                  Donations are exempt under Clause (i) of first proviso to<br>
-                  sub-section (5) of Section 80G of Income Tax Act 1961,<br>
-                  vide Provisional Approval No. AAATR3497PF2021A<br>
-                  dated 28-05-2021 valid from AY 2022-23 to AY 2026-27
+                  </p>
+                  <p class="amount">
+                    <b>Rs. ${parseFloat(
+                      currentReceipt?.donationDetails?.amount || 0
+                    ).toLocaleString("en-IN", {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}</b>
+                  </p>
+                  ${
+                    [
+                      "Bank Transfer",
+                      "Cheque",
+                      "DD",
+                      "Electronic Modes",
+                    ].includes(currentReceipt?.donationDetails?.transactionType)
+                      ? `
+                  <div class="stamp-container">
+                    <div class="it-stamp">
+                      Donations are exempt under Clause (i) of first proviso to<br>
+                      sub-section (5) of Section 80G of Income Tax Act 1961,<br>
+                      vide Provisional Approval No. AAATR3497PF2021A<br>
+                      dated 28-05-2021 valid from AY 2022-23 to AY 2026-27
+                    </div>
+                  </div>`
+                      : ""
+                  }
                 </div>
-              </div>`
-       : ""
-   }
-</div>
-
               </div>
               <div class="footer">
                 <p>${user?.username}</p>

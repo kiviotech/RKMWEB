@@ -902,19 +902,22 @@ const NewDonation = () => {
             currentReceipt?.donationDetails?.donationType || "Others (Revenue)",
           counter: user?.counter || "N/A", // Add counter number from user data
           ...(currentReceipt?.donationDetails?.transactionType?.toLowerCase() !==
-            "cash" && {
-            ddch_number:
-              currentReceipt?.donationDetails?.transactionDetails?.ddNumber ||
-              "",
-            ddch_date:
-              currentReceipt?.donationDetails?.transactionDetails?.ddDate || "",
-            bankName:
-              currentReceipt?.donationDetails?.transactionDetails?.bankName ||
-              "",
-            branchName:
-              currentReceipt?.donationDetails?.transactionDetails?.branchName ||
-              "",
-          }),
+            "cash" &&
+            currentReceipt?.donationDetails?.transactionType?.toLowerCase() !==
+              "m.o" && {
+              ddch_number:
+                currentReceipt?.donationDetails?.transactionDetails?.ddNumber ||
+                "",
+              ddch_date:
+                currentReceipt?.donationDetails?.transactionDetails?.ddDate ||
+                "",
+              bankName:
+                currentReceipt?.donationDetails?.transactionDetails?.bankName ||
+                "",
+              branchName:
+                currentReceipt?.donationDetails?.transactionDetails
+                  ?.branchName || "",
+            }),
           unique_no: uniqueDonorId,
         },
       };

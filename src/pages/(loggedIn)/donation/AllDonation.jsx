@@ -430,45 +430,46 @@ const AllDonation = ({
                     )}
                     {filterOptions.action && (
                       <td className="action-cell">
-                        {(donation.attributes.status.toLowerCase() ===
-                          "pending" ||
-                          donation.attributes.status.toLowerCase() ===
-                            "completed") && (
-                          <>
-                            <button
-                              className="cancel-btn"
-                              onClick={() => handleCancelClick(donation.id)}
-                            >
-                              Cancel
-                            </button>
-                            {donation.attributes.status.toLowerCase() ===
-                              "completed" && (
+                        {donation.attributes.status &&
+                          (donation.attributes.status.toLowerCase() ===
+                            "pending" ||
+                            donation.attributes.status.toLowerCase() ===
+                              "completed") && (
+                            <>
                               <button
-                                className="view-btn"
-                                style={{
-                                  color: "#ea7704",
-                                  background: "transparent",
-                                  border: "none",
-                                  cursor: "pointer",
-                                  padding: "5px 10px",
-                                  fontSize: "14px",
-                                }}
-                                onClick={() => handleViewDonation(donation)}
+                                className="cancel-btn"
+                                onClick={() => handleCancelClick(donation.id)}
                               >
-                                View
+                                Cancel
                               </button>
-                            )}
-                            {donation.attributes.status.toLowerCase() ===
-                              "pending" && (
-                              <button
-                                className="submit-btn"
-                                onClick={() => handleSubmit(donation)}
-                              >
-                                Submit
-                              </button>
-                            )}
-                          </>
-                        )}
+                              {donation.attributes.status.toLowerCase() ===
+                                "completed" && (
+                                <button
+                                  className="view-btn"
+                                  style={{
+                                    color: "#ea7704",
+                                    background: "transparent",
+                                    border: "none",
+                                    cursor: "pointer",
+                                    padding: "5px 10px",
+                                    fontSize: "14px",
+                                  }}
+                                  onClick={() => handleViewDonation(donation)}
+                                >
+                                  View
+                                </button>
+                              )}
+                              {donation.attributes.status.toLowerCase() ===
+                                "pending" && (
+                                <button
+                                  className="submit-btn"
+                                  onClick={() => handleSubmit(donation)}
+                                >
+                                  Submit
+                                </button>
+                              )}
+                            </>
+                          )}
                       </td>
                     )}
                   </tr>

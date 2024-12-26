@@ -1018,7 +1018,7 @@ const NewDonation = () => {
             currentReceipt?.donationDetails?.transactionType
               ?.charAt(0)
               .toUpperCase() +
-            currentReceipt?.donationDetails?.transactionType?.slice(1) ||
+              currentReceipt?.donationDetails?.transactionType?.slice(1) ||
             "Cash",
           donationFor: selectedTab,
           status: "completed",
@@ -1361,7 +1361,7 @@ const NewDonation = () => {
               currentReceipt?.donationDetails?.transactionType
                 ?.charAt(0)
                 .toUpperCase() +
-              currentReceipt?.donationDetails?.transactionType?.slice(1) ||
+                currentReceipt?.donationDetails?.transactionType?.slice(1) ||
               "Cash",
             donationFor: selectedTab,
             status: "cancelled",
@@ -1432,7 +1432,7 @@ const NewDonation = () => {
               currentReceipt?.donationDetails?.transactionType
                 ?.charAt(0)
                 .toUpperCase() +
-              currentReceipt?.donationDetails?.transactionType?.slice(1) ||
+                currentReceipt?.donationDetails?.transactionType?.slice(1) ||
               "Cash",
             donationFor: selectedTab,
             status: "cancelled",
@@ -2221,8 +2221,9 @@ const NewDonation = () => {
             // Remove the validation error setting from here
           }}
           placeholder="Enter donor name"
-          className={`${validationErrors.name ? "error" : ""} ${shouldDisableFields() ? "disabled-input" : ""
-            }`}
+          className={`${validationErrors.name ? "error" : ""} ${
+            shouldDisableFields() ? "disabled-input" : ""
+          }`}
           disabled={shouldDisableFields()}
         />
         {validationErrors.name && (
@@ -2263,8 +2264,9 @@ const NewDonation = () => {
       }, 200);
     }}
     disabled={shouldDisableFields()}
-    className={`${validationErrors.phone ? "error" : ""} ${shouldDisableFields() ? "disabled-input" : ""
-      }`}
+    className={`${validationErrors.phone ? "error" : ""} ${
+      shouldDisableFields() ? "disabled-input" : ""
+    }`}
   />;
 
   {
@@ -2347,8 +2349,9 @@ const NewDonation = () => {
           }
         }}
         disabled={shouldDisableFields()}
-        className={`${validationErrors.pincode ? "error" : ""} ${shouldDisableFields() ? "disabled-input" : ""
-          }`}
+        className={`${validationErrors.pincode ? "error" : ""} ${
+          shouldDisableFields() ? "disabled-input" : ""
+        }`}
       />
       {isLoadingPincode && (
         <span className="loading-indicator">Loading...</span>
@@ -2423,7 +2426,7 @@ const NewDonation = () => {
         ...(donorDetails.identityType === "PAN" && { pan: "" }),
       }));
     }}
-  // ... rest of the input properties remain the same
+    // ... rest of the input properties remain the same
   />;
 
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -2466,8 +2469,9 @@ const NewDonation = () => {
               {donorTags.map((tag) => (
                 <div
                   key={tag.id}
-                  className={`tag ${selectedDonor === tag.id ? "selected" : ""
-                    }`}
+                  className={`tag ${
+                    selectedDonor === tag.id ? "selected" : ""
+                  }`}
                   onClick={() => handleTagClick(tag.id)}
                 >
                   {tag.name}
@@ -2616,8 +2620,8 @@ const NewDonation = () => {
                 selectedTab === "Math"
                   ? "#ffb888"
                   : selectedTab === "Mission"
-                    ? "#99fb98"
-                    : "white",
+                  ? "#99fb98"
+                  : "white",
             }}
           >
             <div
@@ -2693,8 +2697,9 @@ const NewDonation = () => {
                         }
                       }}
                       placeholder="Enter donor name"
-                      className={`${validationErrors.name ? "error" : ""} ${shouldDisableFields() ? "disabled-input" : ""
-                        }`}
+                      className={`${validationErrors.name ? "error" : ""} ${
+                        shouldDisableFields() ? "disabled-input" : ""
+                      }`}
                       disabled={shouldDisableFields()}
                     />
 
@@ -2830,8 +2835,9 @@ const NewDonation = () => {
                         }, 200);
                       }}
                       disabled={shouldDisableFields()}
-                      className={`${validationErrors.phone ? "error" : ""} ${shouldDisableFields() ? "disabled-input" : ""
-                        }`}
+                      className={`${validationErrors.phone ? "error" : ""} ${
+                        shouldDisableFields() ? "disabled-input" : ""
+                      }`}
                     />
                     {validationErrors.phone && (
                       <div className="error-message">
@@ -3045,8 +3051,9 @@ const NewDonation = () => {
                     setValidationErrors((prev) => ({ ...prev, email: error }));
                   }}
                   placeholder="Enter email address"
-                  className={`${validationErrors.email ? "error" : ""} ${shouldDisableFields() ? "disabled-input" : ""
-                    }`}
+                  className={`${validationErrors.email ? "error" : ""} ${
+                    shouldDisableFields() ? "disabled-input" : ""
+                  }`}
                   disabled={shouldDisableFields()}
                 />
                 {validationErrors.email && (
@@ -3128,8 +3135,9 @@ const NewDonation = () => {
                       }));
                     }}
                     placeholder={`Enter ${donorDetails.identityType} number`}
-                    className={`${validationErrors.identityNumber ? "error" : ""
-                      } ${shouldDisableFields() ? "disabled-input" : ""}`}
+                    className={`${
+                      validationErrors.identityNumber ? "error" : ""
+                    } ${shouldDisableFields() ? "disabled-input" : ""}`}
                     disabled={shouldDisableFields()}
                   />
                 </div>
@@ -3180,8 +3188,9 @@ const NewDonation = () => {
                     }
                   }}
                   disabled={shouldDisableFields()}
-                  className={`${validationErrors.pincode ? "error" : ""} ${shouldDisableFields() ? "disabled-input" : ""
-                    }`}
+                  className={`${validationErrors.pincode ? "error" : ""} ${
+                    shouldDisableFields() ? "disabled-input" : ""
+                  }`}
                 />
                 {validationErrors.pincode && (
                   <div className="error-message">
@@ -3549,8 +3558,8 @@ const NewDonation = () => {
                 selectedTab === "Math"
                   ? "#ffb888"
                   : selectedTab === "Mission"
-                    ? "#99fb98"
-                    : "white",
+                  ? "#99fb98"
+                  : "white",
               marginBottom: "10px",
             }}
           >
@@ -3568,8 +3577,9 @@ const NewDonation = () => {
                   });
                 }}
                 disabled={shouldDisableFields()}
-                className={`${validationErrors.purpose ? "error" : ""} ${shouldDisableFields() ? "disabled-input" : ""
-                  }`}
+                className={`${validationErrors.purpose ? "error" : ""} ${
+                  shouldDisableFields() ? "disabled-input" : ""
+                }`}
               >
                 <option value="">Select Purpose</option>
                 {selectedTab === "Math" ? (
@@ -3681,8 +3691,9 @@ const NewDonation = () => {
                 value={currentReceipt?.donationDetails?.amount || ""}
                 onChange={handleDonationAmountChange}
                 disabled={shouldDisableFields()}
-                className={`${validationErrors.amount ? "error" : ""} ${shouldDisableFields() ? "disabled-input" : ""
-                  }`}
+                className={`${validationErrors.amount ? "error" : ""} ${
+                  shouldDisableFields() ? "disabled-input" : ""
+                }`}
                 placeholder=""
               />
               {validationErrors.amount && (
@@ -3775,8 +3786,8 @@ const NewDonation = () => {
                   selectedTab === "Math"
                     ? "#ffb888"
                     : selectedTab === "Mission"
-                      ? "#99fb98"
-                      : "white",
+                    ? "#99fb98"
+                    : "white",
               }}
             >
               <div
@@ -3790,7 +3801,7 @@ const NewDonation = () => {
                   {/* Dynamically change label based on transaction type */}
                   {(() => {
                     switch (
-                    currentReceipt?.donationDetails?.transactionType?.toLowerCase()
+                      currentReceipt?.donationDetails?.transactionType?.toLowerCase()
                     ) {
                       case "cheque":
                         return "CH Date";
@@ -3829,7 +3840,7 @@ const NewDonation = () => {
                   {/* Dynamically change label based on transaction type */}
                   {(() => {
                     switch (
-                    currentReceipt?.donationDetails?.transactionType?.toLowerCase()
+                      currentReceipt?.donationDetails?.transactionType?.toLowerCase()
                     ) {
                       case "cheque":
                         return "CH Number";
@@ -4018,14 +4029,14 @@ const NewDonation = () => {
                       <strong>{`${donorDetails.title} ${donorDetails.name}`}</strong>
                       {(donorDetails.houseNumber ||
                         donorDetails.streetName) && (
-                          <p>
-                            <strong>
-                              {donorDetails.houseNumber}
-                              {donorDetails.streetName &&
-                                `, ${donorDetails.streetName}`}
-                            </strong>
-                          </p>
-                        )}
+                        <p>
+                          <strong>
+                            {donorDetails.houseNumber}
+                            {donorDetails.streetName &&
+                              `, ${donorDetails.streetName}`}
+                          </strong>
+                        </p>
+                      )}
                       {(donorDetails.postOffice || donorDetails.district) && (
                         <p>
                           {donorDetails.postOffice && (
@@ -4092,28 +4103,36 @@ const NewDonation = () => {
                     }}
                   >
                     <p style={{ margin: "0" }}>
-                      {currentReceipt?.donationDetails?.transactionType?.toLowerCase() ===
-                        "cash"
-                        ? "Cash"
-                        : currentReceipt?.donationDetails?.transactionType ||
-                        "Cash"}{" "}
-                       No. {currentReceipt?.donationDetails?.transactionDetails
-                        ?.ddNumber || ""}{" "}
-                      Dt. {currentReceipt?.donationDetails?.transactionDetails
-                        ?.ddDate || ""}{" "}
-                    </p>
-                    {console.log('transaction', currentReceipt)}
-                    {currentReceipt?.donationDetails?.transactionType?.toLowerCase() !==
-                      "cash" && (
+                      {currentReceipt?.donationDetails?.transactionType ||
+                        "Cash"}
+                      {/* Only show No. and Date for non-cash and non-M.O transactions */}
+                      {!["cash", "m.o"].includes(
+                        currentReceipt?.donationDetails?.transactionType?.toLowerCase()
+                      ) && (
                         <>
-                          <p style={{ margin: "0" }}>
-                            On {currentReceipt?.donationDetails?.transactionDetails
-                              ?.bankName || ""}{", "}
-                            {currentReceipt?.donationDetails?.transactionDetails
-                              ?.branchName || ""}
-                          </p>
+                          {" "}
+                          No.{" "}
+                          {currentReceipt?.donationDetails?.transactionDetails
+                            ?.ddNumber || ""}{" "}
+                          Dt.{" "}
+                          {currentReceipt?.donationDetails?.transactionDetails
+                            ?.ddDate || ""}
                         </>
                       )}
+                    </p>
+                    {/* Only show bank details for non-cash and non-M.O transactions */}
+                    {!["cash", "m.o"].includes(
+                      currentReceipt?.donationDetails?.transactionType?.toLowerCase()
+                    ) && (
+                      <p style={{ margin: "0" }}>
+                        On{" "}
+                        {currentReceipt?.donationDetails?.transactionDetails
+                          ?.bankName || ""}
+                        {", "}
+                        {currentReceipt?.donationDetails?.transactionDetails
+                          ?.branchName || ""}
+                      </p>
+                    )}
                   </div>
                 </div>
                 <div className="receipt-amt">

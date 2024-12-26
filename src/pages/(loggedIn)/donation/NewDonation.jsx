@@ -3778,146 +3778,161 @@ const NewDonation = () => {
             </div>
           </div>
 
-          {showTransactionDetails && (
-            <div
-              className="details-card transaction-details"
-              style={{
-                backgroundColor:
-                  selectedTab === "Math"
-                    ? "#ffb888"
-                    : selectedTab === "Mission"
-                    ? "#99fb98"
-                    : "white",
-              }}
-            >
+          {/* Only show transaction details if transaction type is not M.O or Cash */}
+          {showTransactionDetails &&
+            currentReceipt?.donationDetails?.transactionType?.toLowerCase() !==
+              "m.o" && (
               <div
-                className="card-header"
-                style={{ margin: "0px", border: "none", padding: "0px" }}
+                className="details-card transaction-details"
+                style={{
+                  backgroundColor:
+                    selectedTab === "Math"
+                      ? "#ffb888"
+                      : selectedTab === "Mission"
+                      ? "#99fb98"
+                      : "white",
+                }}
               >
-                <h2>Transaction details</h2>
-              </div>
-              <div className="form-group">
-                <label>
-                  {/* Dynamically change label based on transaction type */}
-                  {(() => {
-                    switch (
-                      currentReceipt?.donationDetails?.transactionType?.toLowerCase()
-                    ) {
-                      case "cheque":
-                        return "CH Date";
-                      case "dd":
-                        return "DD Date";
-                      case "bank transfer":
-                        return "Transaction Date";
-                      default:
-                        return "DD/CH Date";
+                <div
+                  className="card-header"
+                  style={{ margin: "0px", border: "none", padding: "0px" }}
+                >
+                  <h2>Transaction details</h2>
+                </div>
+                <div className="form-group">
+                  <label>
+                    {/* Dynamically change label based on transaction type */}
+                    {(() => {
+                      switch (
+                        currentReceipt?.donationDetails?.transactionType?.toLowerCase()
+                      ) {
+                        case "cheque":
+                          return "CH Date";
+                        case "dd":
+                          return "DD Date";
+                        case "bank transfer":
+                          return "Transaction Date";
+                        default:
+                          return "DD/CH Date";
+                      }
+                    })()}
+                    <span className="required">*</span>
+                  </label>
+                  <input
+                    type="date"
+                    value={
+                      currentReceipt?.donationDetails?.transactionDetails
+                        ?.ddDate || ""
                     }
-                  })()}
-                  <span className="required">*</span>
-                </label>
-                <input
-                  type="date"
-                  value={
-                    currentReceipt?.donationDetails?.transactionDetails
-                      ?.ddDate || ""
-                  }
-                  onChange={(e) => {
-                    if (shouldDisableFields()) return;
-                    handleDonationDetailsUpdate({
-                      transactionDetails: {
-                        ...currentReceipt?.donationDetails?.transactionDetails,
-                        ddDate: e.target.value,
-                      },
-                    });
-                  }}
-                  min={new Date().toISOString().split("T")[0]}
-                  disabled={shouldDisableFields()}
-                  className={`${shouldDisableFields() ? "disabled-input" : ""}`}
-                />
-              </div>
-              <div className="form-group">
-                <label>
-                  {/* Dynamically change label based on transaction type */}
-                  {(() => {
-                    switch (
-                      currentReceipt?.donationDetails?.transactionType?.toLowerCase()
-                    ) {
-                      case "cheque":
-                        return "CH Number";
-                      case "dd":
-                        return "DD Number";
-                      case "bank transfer":
-                        return "Transaction ID";
-                      default:
-                        return "DD/CH Number";
+                    onChange={(e) => {
+                      if (shouldDisableFields()) return;
+                      handleDonationDetailsUpdate({
+                        transactionDetails: {
+                          ...currentReceipt?.donationDetails
+                            ?.transactionDetails,
+                          ddDate: e.target.value,
+                        },
+                      });
+                    }}
+                    min={new Date().toISOString().split("T")[0]}
+                    disabled={shouldDisableFields()}
+                    className={`${
+                      shouldDisableFields() ? "disabled-input" : ""
+                    }`}
+                  />
+                </div>
+                <div className="form-group">
+                  <label>
+                    {/* Dynamically change label based on transaction type */}
+                    {(() => {
+                      switch (
+                        currentReceipt?.donationDetails?.transactionType?.toLowerCase()
+                      ) {
+                        case "cheque":
+                          return "CH Number";
+                        case "dd":
+                          return "DD Number";
+                        case "bank transfer":
+                          return "Transaction ID";
+                        default:
+                          return "DD/CH Number";
+                      }
+                    })()}
+                  </label>
+                  <input
+                    type="text"
+                    value={
+                      currentReceipt?.donationDetails?.transactionDetails
+                        ?.ddNumber || ""
                     }
-                  })()}
-                </label>
-                <input
-                  type="text"
-                  value={
-                    currentReceipt?.donationDetails?.transactionDetails
-                      ?.ddNumber || ""
-                  }
-                  onChange={(e) => {
-                    if (shouldDisableFields()) return;
-                    handleDonationDetailsUpdate({
-                      transactionDetails: {
-                        ...currentReceipt?.donationDetails?.transactionDetails,
-                        ddNumber: e.target.value,
-                      },
-                    });
-                  }}
-                  disabled={shouldDisableFields()}
-                  className={`${shouldDisableFields() ? "disabled-input" : ""}`}
-                />
+                    onChange={(e) => {
+                      if (shouldDisableFields()) return;
+                      handleDonationDetailsUpdate({
+                        transactionDetails: {
+                          ...currentReceipt?.donationDetails
+                            ?.transactionDetails,
+                          ddNumber: e.target.value,
+                        },
+                      });
+                    }}
+                    disabled={shouldDisableFields()}
+                    className={`${
+                      shouldDisableFields() ? "disabled-input" : ""
+                    }`}
+                  />
+                </div>
+                <div className="form-group">
+                  <label>
+                    Bank Name <span className="required">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={
+                      currentReceipt?.donationDetails?.transactionDetails
+                        ?.bankName || ""
+                    }
+                    onChange={(e) => {
+                      if (shouldDisableFields()) return;
+                      handleDonationDetailsUpdate({
+                        transactionDetails: {
+                          ...currentReceipt?.donationDetails
+                            ?.transactionDetails,
+                          bankName: e.target.value,
+                        },
+                      });
+                    }}
+                    disabled={shouldDisableFields()}
+                    className={`${
+                      shouldDisableFields() ? "disabled-input" : ""
+                    }`}
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Branch Name</label>
+                  <input
+                    type="text"
+                    value={
+                      currentReceipt?.donationDetails?.transactionDetails
+                        ?.branchName || ""
+                    }
+                    onChange={(e) => {
+                      if (shouldDisableFields()) return;
+                      handleDonationDetailsUpdate({
+                        transactionDetails: {
+                          ...currentReceipt?.donationDetails
+                            ?.transactionDetails,
+                          branchName: e.target.value,
+                        },
+                      });
+                    }}
+                    disabled={shouldDisableFields()}
+                    className={`${
+                      shouldDisableFields() ? "disabled-input" : ""
+                    }`}
+                  />
+                </div>
               </div>
-              <div className="form-group">
-                <label>
-                  Bank Name <span className="required">*</span>
-                </label>
-                <input
-                  type="text"
-                  value={
-                    currentReceipt?.donationDetails?.transactionDetails
-                      ?.bankName || ""
-                  }
-                  onChange={(e) => {
-                    if (shouldDisableFields()) return;
-                    handleDonationDetailsUpdate({
-                      transactionDetails: {
-                        ...currentReceipt?.donationDetails?.transactionDetails,
-                        bankName: e.target.value,
-                      },
-                    });
-                  }}
-                  disabled={shouldDisableFields()}
-                  className={`${shouldDisableFields() ? "disabled-input" : ""}`}
-                />
-              </div>
-              <div className="form-group">
-                <label>Branch Name</label>
-                <input
-                  type="text"
-                  value={
-                    currentReceipt?.donationDetails?.transactionDetails
-                      ?.branchName || ""
-                  }
-                  onChange={(e) => {
-                    if (shouldDisableFields()) return;
-                    handleDonationDetailsUpdate({
-                      transactionDetails: {
-                        ...currentReceipt?.donationDetails?.transactionDetails,
-                        branchName: e.target.value,
-                      },
-                    });
-                  }}
-                  disabled={shouldDisableFields()}
-                  className={`${shouldDisableFields() ? "disabled-input" : ""}`}
-                />
-              </div>
-            </div>
-          )}
+            )}
         </div>
       </div>
 

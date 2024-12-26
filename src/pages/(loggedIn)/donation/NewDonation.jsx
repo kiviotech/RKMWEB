@@ -760,192 +760,64 @@ const NewDonation = () => {
   };
 
   // Modify handlePrintReceipt function
-  const handlePrintReceipt = async () => {
-    // Clear all previous validation errors immediately
+  const handlePrintReceipt = () => {
+    // Reset validation errors
     setValidationErrors({});
 
-    let hasErrors = false;
-    let errorMessage = "Please enter";
-    let errorFields = [];
-
-    // Check all required fields and build error message
-    if (!donorDetails.name.trim()) {
-      errorFields.push("donor name");
-      hasErrors = true;
-    }
-
-    if (!donorDetails.phone || donorDetails.phone.length !== 10) {
-      errorFields.push("phone number");
-      hasErrors = true;
-    }
-
-    if (!donorDetails.identityNumber) {
-      errorFields.push("identity proof");
-      hasErrors = true;
-    }
-
-    if (!donorDetails.pincode || donorDetails.pincode.length !== 6) {
-      errorFields.push("pincode");
-      hasErrors = true;
-    }
-
-    // Check donation details
+    // Basic validations
+    const errors = {};
+    if (!donorDetails.name) errors.name = "Donor name is required";
+    if (!donorDetails.phone) errors.phone = "Phone number is required";
+    if (!donorDetails.pincode) errors.pincode = "Pincode is required";
     if (!currentReceipt?.donationDetails?.purpose) {
-      errorFields.push("purpose");
-      hasErrors = true;
+      errors.purpose = "Purpose is required";
     }
-
     if (
-      !currentReceipt?.donationDetails?.amount ||
-      parseFloat(currentReceipt?.donationDetails?.amount) <= 0
+      currentReceipt?.donationDetails?.purpose === "Other" &&
+      !currentReceipt?.donationDetails?.otherPurpose
     ) {
-      errorFields.push("donation amount");
-      hasErrors = true;
+      errors.otherPurpose = "Please specify the purpose";
     }
 
-    // Check transaction details if not cash
+    // Validate amount
+    const amount = parseFloat(currentReceipt?.donationDetails?.amount);
+    if (!amount || amount <= 0) {
+      errors.amount = "Amount must be greater than 0";
+    }
+
+    // PAN validation for amounts >= 20000
+    if (amount >= 20000) {
+      const panNumber =
+        donorDetails.panNumber ||
+        (donorDetails.identityType === "PAN"
+          ? donorDetails.identityNumber
+          : "");
+      if (!panNumber || !validatePAN(panNumber)) {
+        errors.pan = "Valid PAN is required for donations ₹20,000 and above";
+      }
+    }
+
+    // Transaction details validation only for specific transaction types
     const transactionType =
       currentReceipt?.donationDetails?.transactionType?.toLowerCase();
     if (
-      ["cheque", "bank transfer", "dd", "m.o", "electronic modes"].includes(
-        transactionType
-      )
+      transactionType &&
+      ["cheque", "bank transfer", "dd"].includes(transactionType)
     ) {
       const details = currentReceipt?.donationDetails?.transactionDetails;
-
-      if (!details?.ddDate) {
-        errorFields.push("date");
-        hasErrors = true;
-      }
-      if (!details?.ddNumber) {
-        errorFields.push("number");
-        hasErrors = true;
-      }
-      if (!details?.bankName) {
-        errorFields.push("bank name");
-        hasErrors = true;
-      }
-      if (!details?.branchName) {
-        errorFields.push("branch name");
-        hasErrors = true;
-      }
+      if (!details?.ddDate) errors.ddDate = "Date is required";
+      if (!details?.ddNumber) errors.ddNumber = "Number is required";
+      if (!details?.bankName) errors.bankName = "Bank name is required";
+      if (!details?.branchName) errors.branchName = "Branch name is required";
     }
 
-    if (hasErrors) {
-      // Format error message with proper grammar
-      errorMessage +=
-        " " + errorFields.join(errorFields.length > 1 ? ", " : "");
-      if (errorFields.length > 1) {
-        const lastIndex = errorMessage.lastIndexOf(",");
-        errorMessage =
-          errorMessage.slice(0, lastIndex) +
-          " and" +
-          errorMessage.slice(lastIndex + 1);
-      }
-
-      // Show alert and wait for it to be dismissed
-      await new Promise((resolve) => {
-        setTimeout(() => {
-          alert(errorMessage);
-          resolve();
-        }, 0);
-      });
-
-      // After alert is dismissed, set validation errors
-      setTimeout(() => {
-        const newErrors = {};
-        if (!donorDetails.name.trim()) {
-          newErrors.name = "Donor name is required";
-        }
-        if (!donorDetails.phone || donorDetails.phone.length !== 10) {
-          newErrors.phone = "Phone number must be 10 digits";
-        }
-        if (!donorDetails.identityNumber) {
-          newErrors.identityNumber = "Identity proof is required";
-        }
-        if (!donorDetails.pincode || donorDetails.pincode.length !== 6) {
-          newErrors.pincode = "Valid 6-digit pincode is required";
-        }
-        if (!currentReceipt?.donationDetails?.purpose) {
-          newErrors.purpose = "Purpose is required";
-        }
-        if (
-          !currentReceipt?.donationDetails?.amount ||
-          parseFloat(currentReceipt?.donationDetails?.amount) <= 0
-        ) {
-          newErrors.amount = "Valid donation amount is required";
-        }
-
-        // Set transaction-related errors if applicable
-        if (
-          ["cheque", "bank transfer", "dd", "m.o", "electronic modes"].includes(
-            transactionType
-          )
-        ) {
-          const details = currentReceipt?.donationDetails?.transactionDetails;
-          if (!details?.ddDate) newErrors.ddDate = "Date is required";
-          if (!details?.ddNumber) newErrors.ddNumber = "Number is required";
-          if (!details?.bankName) newErrors.bankName = "Bank name is required";
-          if (!details?.branchName)
-            newErrors.branchName = "Branch name is required";
-        }
-
-        setValidationErrors(newErrors);
-
-        // Scroll to first empty field (maintaining existing scroll order and adding new fields)
-        if (!donorDetails.name.trim()) {
-          donorNameInputRef.current?.scrollIntoView({ behavior: "smooth" });
-        } else if (!donorDetails.phone || donorDetails.phone.length !== 10) {
-          phoneInputRef.current?.scrollIntoView({ behavior: "smooth" });
-        } else if (!donorDetails.mantraDiksha) {
-          deekshaDropdownRef.current?.scrollIntoView({ behavior: "smooth" });
-        } else if (!donorDetails.identityNumber) {
-          identityInputRef.current?.scrollIntoView({ behavior: "smooth" });
-        } else if (!donorDetails.pincode || donorDetails.pincode.length !== 6) {
-          document
-            .querySelector('input[name="pincode"]')
-            ?.scrollIntoView({ behavior: "smooth" });
-        } else if (!currentReceipt?.donationDetails?.purpose) {
-          document
-            .querySelector('[name="purpose"]')
-            ?.scrollIntoView({ behavior: "smooth" });
-        } else if (
-          !currentReceipt?.donationDetails?.amount ||
-          parseFloat(currentReceipt?.donationDetails?.amount) <= 0
-        ) {
-          document
-            .querySelector('[name="amount"]')
-            ?.scrollIntoView({ behavior: "smooth" });
-        } else if (
-          ["cheque", "bank transfer", "dd", "m.o", "electronic modes"].includes(
-            transactionType
-          )
-        ) {
-          const details = currentReceipt?.donationDetails?.transactionDetails;
-          // Scroll to first empty transaction field
-          if (!details?.ddDate) {
-            document
-              .querySelector('[name="ddDate"]')
-              ?.scrollIntoView({ behavior: "smooth" });
-          } else if (!details?.ddNumber) {
-            document
-              .querySelector('[name="ddNumber"]')
-              ?.scrollIntoView({ behavior: "smooth" });
-          } else if (!details?.bankName) {
-            document
-              .querySelector('[name="bankName"]')
-              ?.scrollIntoView({ behavior: "smooth" });
-          } else if (!details?.branchName) {
-            document
-              .querySelector('[name="branchName"]')
-              ?.scrollIntoView({ behavior: "smooth" });
-          }
-        }
-      }, 100);
-
+    // Set validation errors if any
+    if (Object.keys(errors).length > 0) {
+      setValidationErrors(errors);
       return;
     }
 
+    // If all validations pass, show the modal
     setIsModalOpen(true);
   };
 
@@ -1866,11 +1738,8 @@ const NewDonation = () => {
       currentReceipt?.donationDetails?.transactionType?.toLowerCase();
     const details = currentReceipt?.donationDetails?.transactionDetails;
 
-    if (
-      ["cheque", "bank transfer", "dd", "m.o", "electronic modes"].includes(
-        transactionType
-      )
-    ) {
+    // Only validate transaction details for non-cash and non-M.O transactions
+    if (["cheque", "bank transfer", "dd"].includes(transactionType)) {
       const errors = {
         ddDate: !details?.ddDate ? "Date is required" : "",
         ddNumber: !details?.ddNumber ? "Number is required" : "",
@@ -3778,10 +3647,11 @@ const NewDonation = () => {
             </div>
           </div>
 
-          {/* Only show transaction details if transaction type is not M.O or Cash */}
-          {showTransactionDetails &&
-            currentReceipt?.donationDetails?.transactionType?.toLowerCase() !==
-              "m.o" && (
+          {/* Only show transaction details if transaction type is not Cash or M.O */}
+          {currentReceipt?.donationDetails?.transactionType &&
+            !["cash", "m.o"].includes(
+              currentReceipt.donationDetails.transactionType.toLowerCase()
+            ) && (
               <div
                 className="details-card transaction-details"
                 style={{

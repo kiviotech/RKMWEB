@@ -394,7 +394,28 @@ const NewDonation = () => {
     addDonation(selectedDonor, selectedTab, receiptData);
   }, [selectedDonor, selectedTab]); // Dependencies include selectedTab
 
-  // When donor details are updated, update both receipts
+  // Add this function near the top of your component
+  const updateDonationDetails = (donorId, receiptNumber, updates) => {
+    try {
+      // Update the current receipt
+      setCurrentReceipt((prev) => ({
+        ...prev,
+        ...updates,
+      }));
+
+      // Update the donation in the store if needed
+      if (addDonation) {
+        addDonation(donorId, selectedTab, {
+          receiptNumber,
+          ...updates,
+        });
+      }
+    } catch (error) {
+      console.error("Error updating donation details:", error);
+    }
+  };
+
+  // Modify the handleDonorDetailsUpdate function
   const handleDonorDetailsUpdate = (details) => {
     if (currentReceipt?.receiptNumber) {
       updateDonationDetails(selectedDonor, currentReceipt.receiptNumber, {
@@ -414,24 +435,6 @@ const NewDonation = () => {
         )
       );
     }
-
-    // Update receipts for this donor in Zustand
-    const donorReceipts =
-      donations[tabId]?.receipts.find(
-        (group) =>
-          Array.isArray(group) &&
-          group.length > 0 &&
-          (group[0].donorId === selectedDonor ||
-            group[0].donorDetails?.guestId === selectedDonor)
-      ) || [];
-
-    donorReceipts.forEach((receipt) => {
-      if (receipt.receiptNumber !== currentReceipt?.receiptNumber) {
-        updateDonationDetails(selectedDonor, receipt.receiptNumber, {
-          donorDetails: details,
-        });
-      }
-    });
   };
 
   // Modify handleAddDonation to use sequential numbers

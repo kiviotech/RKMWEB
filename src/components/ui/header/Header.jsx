@@ -108,11 +108,6 @@ const Header = ({ hideElements }) => {
                 className={({ isActive }) => (isActive ? "active" : "")}
               >
                 New Donation
-                {location.pathname === "/newDonation" && (
-                  <button className="close-button" style={{ fontSize: "18px" }}>
-                    &times;
-                  </button>
-                )}
               </NavLink>
             </li>
             <li>
@@ -184,14 +179,6 @@ const Header = ({ hideElements }) => {
                     className={({ isActive }) => (isActive ? "active" : "")}
                   >
                     Reports
-                    {location.pathname === "/check-in" && (
-                      <button
-                        className="close-button"
-                        style={{ fontSize: "18px" }}
-                      >
-                        &times;
-                      </button>
-                    )}
                   </NavLink>
                 </li>
                 <li>
@@ -200,14 +187,6 @@ const Header = ({ hideElements }) => {
                     className={({ isActive }) => (isActive ? "active" : "")}
                   >
                     Requests
-                    {location.pathname === "/Requests" && (
-                      <button
-                        className="close-button"
-                        style={{ fontSize: "18px" }}
-                      >
-                        &times;
-                      </button>
-                    )}
                   </NavLink>
                 </li>
               </>

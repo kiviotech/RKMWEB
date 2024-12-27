@@ -775,6 +775,8 @@ const NewDonation = () => {
       errors.phone = "Valid phone number is required";
     if (!donorDetails.pincode || donorDetails.pincode.length !== 6)
       errors.pincode = "Valid pincode is required";
+    if (!donorDetails.identityNumber)
+      errors.identityNumber = `${donorDetails.identityType} number is required`;
 
     // Required donation details
     if (!currentReceipt?.donationDetails?.purpose)

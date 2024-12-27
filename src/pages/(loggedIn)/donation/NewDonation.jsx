@@ -578,9 +578,12 @@ const NewDonation = () => {
   // Filter guests based on search term
   const filteredGuests =
     guestDetails?.data?.filter((guest) => {
+      if (!guest?.attributes) return false;
+
       const searchLower = searchTerm.toLowerCase();
       const name = guest.attributes.name?.toLowerCase() || "";
       const phone = guest.attributes.phone_number || "";
+
       return name.includes(searchLower) || phone.includes(searchTerm);
     }) || [];
 
@@ -1742,7 +1745,11 @@ const NewDonation = () => {
     const details = currentReceipt?.donationDetails?.transactionDetails;
 
     // Only validate transaction details for non-cash and non-M.O transactions
-    if (["cheque", "bank transfer", "dd"].includes(transactionType)) {
+    if (
+      ["cheque", "bank transfer", "dd"].includes(
+        transactionType?.toLowerCase() || ""
+      )
+    ) {
       const errors = {
         ddDate: !details?.ddDate ? "Date is required" : "",
         ddNumber: !details?.ddNumber ? "Number is required" : "",
@@ -2579,9 +2586,13 @@ const NewDonation = () => {
                       <div className="dropdown-list">
                         {guestDetails?.data
                           ?.filter((guest) => {
+                            if (!guest?.attributes?.name) return false;
+                            if (!searchTerm) return false;
+
                             const guestName =
                               guest.attributes.name.toLowerCase();
-                            return guestName.includes(searchTerm.toLowerCase());
+                            const searchQuery = searchTerm.toLowerCase();
+                            return guestName.includes(searchQuery);
                           })
                           .map((guest) => (
                             <div

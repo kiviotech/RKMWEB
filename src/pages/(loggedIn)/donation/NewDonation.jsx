@@ -765,51 +765,45 @@ const NewDonation = () => {
     return "";
   };
 
-  // Modify handlePrintReceipt function
-  const handlePrintReceipt = () => {
-    // Reset validation errors
-    setValidationErrors({});
-
-    // Basic validations
+  // Add this validation function
+  const validatePrintReceipt = () => {
     const errors = {};
-    if (!donorDetails.name) errors.name = "Donor name is required";
-    if (!donorDetails.phone) errors.phone = "Phone number is required";
-    if (!donorDetails.pincode) errors.pincode = "Pincode is required";
-    if (!currentReceipt?.donationDetails?.purpose) {
+
+    // Required donor details
+    if (!donorDetails.name?.trim()) errors.name = "Donor name is required";
+    if (!donorDetails.phone || donorDetails.phone.length !== 10)
+      errors.phone = "Valid phone number is required";
+    if (!donorDetails.pincode || donorDetails.pincode.length !== 6)
+      errors.pincode = "Valid pincode is required";
+
+    // Required donation details
+    if (!currentReceipt?.donationDetails?.purpose)
       errors.purpose = "Purpose is required";
-    }
     if (
       currentReceipt?.donationDetails?.purpose === "Other" &&
       !currentReceipt?.donationDetails?.otherPurpose
     ) {
       errors.otherPurpose = "Please specify the purpose";
     }
-
-    // Validate amount
-    const amount = parseFloat(currentReceipt?.donationDetails?.amount);
-    if (!amount || amount <= 0) {
+    if (
+      !currentReceipt?.donationDetails?.amount ||
+      parseFloat(currentReceipt?.donationDetails?.amount) <= 0
+    ) {
       errors.amount = "Amount must be greater than 0";
     }
 
-    // PAN validation for amounts >= 20000
-    if (amount >= 20000) {
-      const panNumber =
-        donorDetails.panNumber ||
-        (donorDetails.identityType === "PAN"
-          ? donorDetails.identityNumber
-          : "");
-      if (!panNumber || !validatePAN(panNumber)) {
-        errors.pan = "Valid PAN is required for donations ₹20,000 and above";
-      }
+    // PAN validation for amounts over 9999
+    if (
+      parseFloat(currentReceipt?.donationDetails?.amount) > 9999 &&
+      !donorDetails.panNumber
+    ) {
+      errors.pan = "PAN is required for donations above ₹9,999";
     }
 
-    // Transaction details validation only for specific transaction types
+    // Transaction details validation for non-cash/MO transactions
     const transactionType =
       currentReceipt?.donationDetails?.transactionType?.toLowerCase();
-    if (
-      transactionType &&
-      ["cheque", "bank transfer", "dd"].includes(transactionType)
-    ) {
+    if (["cheque", "bank transfer", "dd"].includes(transactionType)) {
       const details = currentReceipt?.donationDetails?.transactionDetails;
       if (!details?.ddDate) errors.ddDate = "Date is required";
       if (!details?.ddNumber) errors.ddNumber = "Number is required";
@@ -817,13 +811,24 @@ const NewDonation = () => {
       if (!details?.branchName) errors.branchName = "Branch name is required";
     }
 
-    // Set validation errors if any
-    if (Object.keys(errors).length > 0) {
-      setValidationErrors(errors);
+    return errors;
+  };
+
+  // Modify the handlePrintReceipt function
+  const handlePrintReceipt = () => {
+    const validationErrors = validatePrintReceipt();
+
+    if (Object.keys(validationErrors).length > 0) {
+      // Update validation errors state
+      setValidationErrors(validationErrors);
+
+      // Create error message
+      const errorMessages = Object.values(validationErrors).join("\n");
+      alert(`Please fill in all required fields:\n${errorMessages}`);
       return;
     }
 
-    // If all validations pass, show the modal
+    // If validation passes, show the modal
     setIsModalOpen(true);
   };
 

@@ -2124,32 +2124,69 @@ const NewDonation = () => {
   }
 
   // Modify the phone input section
-  <input
-    ref={phoneInputRef}
-    type="text"
-    value={donorDetails.phone}
-    onChange={(e) => {
-      if (shouldDisableFields()) return;
-      const newPhone = e.target.value.replace(/\D/g, "").slice(0, 10);
-      setDonorDetails({ ...donorDetails, phone: newPhone });
-      setActiveDropdown("phone"); // Set active dropdown to phone
-      // Clear validation error when user types
-      setValidationErrors((prev) => ({
-        ...prev,
-        phone: "",
-      }));
-    }}
-    onBlur={() => {
-      // Remove validation on blur
-      setTimeout(() => {
-        setActiveDropdown(null);
-      }, 200);
-    }}
-    disabled={shouldDisableFields()}
-    className={`${validationErrors.phone ? "error" : ""} ${
-      shouldDisableFields() ? "disabled-input" : ""
-    }`}
-  />;
+  <div className="form-group" style={{ flex: 1 }}>
+    <label>
+      Phone No. <span className="required">*</span>
+    </label>
+    <div className="phone-unified-input">
+      <select
+        value={donorDetails.phoneCode}
+        onChange={(e) =>
+          setDonorDetails({ ...donorDetails, phoneCode: e.target.value })
+        }
+        disabled={shouldDisableFields()}
+        className={shouldDisableFields() ? "disabled-input" : ""}
+      >
+        <option value="+91">+91</option>
+        {/* ... other country code options ... */}
+      </select>
+      <input
+        ref={phoneInputRef}
+        type="text"
+        value={donorDetails.phone}
+        onChange={(e) => {
+          if (shouldDisableFields()) return;
+          const newPhone = e.target.value.replace(/\D/g, "").slice(0, 10);
+          setDonorDetails({ ...donorDetails, phone: newPhone });
+
+          // Clear validation error while typing if length is valid
+          if (newPhone.length === 10) {
+            setValidationErrors((prev) => ({
+              ...prev,
+              phone: "",
+            }));
+          } else {
+            setValidationErrors((prev) => ({
+              ...prev,
+              phone: "Phone number must be 10 digits",
+            }));
+          }
+        }}
+        onBlur={() => {
+          // Validate on blur
+          if (!donorDetails.phone) {
+            setValidationErrors((prev) => ({
+              ...prev,
+              phone: "Phone number is required",
+            }));
+          } else if (donorDetails.phone.length !== 10) {
+            setValidationErrors((prev) => ({
+              ...prev,
+              phone: "Phone number must be 10 digits",
+            }));
+          }
+        }}
+        placeholder="Enter phone number"
+        disabled={shouldDisableFields()}
+        className={`${validationErrors.phone ? "error" : ""} ${
+          shouldDisableFields() ? "disabled-input" : ""
+        }`}
+      />
+    </div>
+    {validationErrors.phone && (
+      <div className="error-message">{validationErrors.phone}</div>
+    )}
+  </div>;
 
   {
     activeDropdown === "phone" && donorDetails.phone && (
@@ -2683,55 +2720,54 @@ const NewDonation = () => {
                   Phone No. <span className="required">*</span>
                 </label>
                 <div className="phone-unified-input">
-                  {/* <select
-                    value={donorDetails.phoneCode}
-                    onChange={(e) =>
-                      setDonorDetails({
-                        ...donorDetails,
-                        phoneCode: e.target.value,
-                      })
-                    }
-                    disabled={shouldDisableFields()}
-                    className={shouldDisableFields() ? "disabled-input" : ""}
-                  >
-                    <option value="+91">+91</option>
-                  </select> */}
-                  <div className="searchable-dropdown">
-                    <input
-                      ref={phoneInputRef}
-                      type="text"
-                      value={donorDetails.phone}
-                      onChange={(e) => {
-                        if (shouldDisableFields()) return;
-                        const newPhone = e.target.value
-                          .replace(/\D/g, "")
-                          .slice(0, 10);
-                        setDonorDetails({ ...donorDetails, phone: newPhone });
-                        setActiveDropdown("phone");
-                        // Clear validation error when user types
+                  <input
+                    ref={phoneInputRef}
+                    type="text"
+                    value={donorDetails.phone}
+                    onChange={(e) => {
+                      if (shouldDisableFields()) return;
+                      const newPhone = e.target.value
+                        .replace(/\D/g, "")
+                        .slice(0, 10);
+                      setDonorDetails({ ...donorDetails, phone: newPhone });
+
+                      // Clear validation error while typing if length is valid
+                      if (newPhone.length === 10) {
                         setValidationErrors((prev) => ({
                           ...prev,
                           phone: "",
                         }));
-                      }}
-                      onBlur={() => {
-                        // Remove validation on blur
-                        setTimeout(() => {
-                          setActiveDropdown(null);
-                        }, 200);
-                      }}
-                      disabled={shouldDisableFields()}
-                      className={`${validationErrors.phone ? "error" : ""} ${
-                        shouldDisableFields() ? "disabled-input" : ""
-                      }`}
-                    />
-                    {validationErrors.phone && (
-                      <div className="error-message">
-                        {validationErrors.phone}
-                      </div>
-                    )}
-                  </div>
+                      } else {
+                        setValidationErrors((prev) => ({
+                          ...prev,
+                          phone: "Phone number must be 10 digits",
+                        }));
+                      }
+                    }}
+                    onBlur={() => {
+                      // Validate on blur
+                      if (!donorDetails.phone) {
+                        setValidationErrors((prev) => ({
+                          ...prev,
+                          phone: "Phone number is required",
+                        }));
+                      } else if (donorDetails.phone.length !== 10) {
+                        setValidationErrors((prev) => ({
+                          ...prev,
+                          phone: "Phone number must be 10 digits",
+                        }));
+                      }
+                    }}
+                    placeholder="Enter phone number"
+                    disabled={shouldDisableFields()}
+                    className={`${validationErrors.phone ? "error" : ""} ${
+                      shouldDisableFields() ? "disabled-input" : ""
+                    }`}
+                  />
                 </div>
+                {validationErrors.phone && (
+                  <div className="error-message">{validationErrors.phone}</div>
+                )}
               </div>
             </div>
 

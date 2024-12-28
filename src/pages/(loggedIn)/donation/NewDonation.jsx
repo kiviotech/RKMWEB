@@ -1214,20 +1214,16 @@ const NewDonation = () => {
       if (!guestId) {
         console.log("Creating new guest");
         const guestPayload = {
-          data: {
-            name: `${donorDetails.title} ${donorDetails.name}`,
-            phone_number: `${donorDetails.phoneCode}${donorDetails.phone}`,
-            email:
-              donorDetails.email ||
-              `${donorDetails.name
-                .replace(/\s+/g, "")
-                .toLowerCase()}@gmail.com`,
-            deeksha: donorDetails.mantraDiksha,
-            identity_proof: donorDetails.identityType,
-            identity_number: donorDetails.identityNumber,
-            address: `${donorDetails.houseNumber}, ${donorDetails.streetName}, ${donorDetails.postOffice}, ${donorDetails.district}, ${donorDetails.state}, ${donorDetails.pincode}`,
-            status: "none",
-          },
+          name: `${donorDetails.title} ${donorDetails.name}`,
+          phone_number: `${donorDetails.phoneCode}${donorDetails.phone}`,
+          email:
+            donorDetails.email ||
+            `${donorDetails.name.replace(/\s+/g, "").toLowerCase()}@gmail.com`,
+          deeksha: donorDetails.mantraDiksha,
+          identity_proof: donorDetails.identityType,
+          identity_number: donorDetails.identityNumber,
+          address: `${donorDetails.houseNumber}, ${donorDetails.streetName}, ${donorDetails.postOffice}, ${donorDetails.district}, ${donorDetails.state}, ${donorDetails.pincode}`,
+          status: "none",
         };
         const guestResponse = await createNewGuestDetails(guestPayload);
         guestId = guestResponse.data.id;

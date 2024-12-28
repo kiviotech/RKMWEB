@@ -294,7 +294,7 @@ const NewDonation = () => {
         pincode: pincode.replace(/\D/g, ""), // Remove non-digits from pincode
       };
 
-      console.log("Parsed address:", parsedAddress);
+      // console.log("Parsed address:", parsedAddress);
       return parsedAddress;
     } catch (error) {
       console.error("Error parsing address:", error);
@@ -317,15 +317,15 @@ const NewDonation = () => {
         if (response?.data?.length > 0) {
           // console.log("\nGuest Records:");
           response.data.forEach((guest, index) => {
-            console.log(`Guest ${index + 1}:`, {
-              id: guest.id,
-              name: guest.attributes?.name,
-              phone: guest.attributes?.phone_number,
-              email: guest.attributes?.email,
-              address: guest.attributes?.address,
-              deeksha: guest.attributes?.deeksha,
-              status: guest.attributes?.status,
-            });
+            // console.log(`Guest ${index + 1}:`, {
+            //   id: guest.id,
+            //   name: guest.attributes?.name,
+            //   phone: guest.attributes?.phone_number,
+            //   email: guest.attributes?.email,
+            //   address: guest.attributes?.address,
+            //   deeksha: guest.attributes?.deeksha,
+            //   status: guest.attributes?.status,
+            // });
           });
         } else {
           console.log("No guest records found");
@@ -592,10 +592,10 @@ const NewDonation = () => {
 
   // Handle guest selection
   const handleGuestSelect = (guest) => {
-    console.log("Selected Guest Details:", {
-      id: guest.id,
-      ...guest.attributes,
-    });
+    // console.log("Selected Guest Details:", {
+    //   id: guest.id,
+    //   ...guest.attributes,
+    // });
 
     // Check for and log unique receipt number
     const uniqueReceiptNo =
@@ -856,10 +856,22 @@ const NewDonation = () => {
   // Modify handleConfirmPrint function
   const handleConfirmPrint = async () => {
     try {
-      // Create new guest if needed
+      // If there's existing donation data, update its status first
+      if (donationId) {
+        // Update the donation status to completed
+        const updatePayload = {
+          data: {
+            status: "completed",
+          },
+        };
+
+        await updateDonationById(donationId, updatePayload);
+        // console.log("Successfully updated donation status to completed");
+      }
+
+      // Rest of your existing handleConfirmPrint code...
       let guestId = donorDetails.guestId;
       if (!guestId) {
-        console.log("Creating new guest");
         const guestPayload = {
           name: `${donorDetails.title} ${donorDetails.name}`,
           phone_number: `${donorDetails.phoneCode}${donorDetails.phone}`,
@@ -874,76 +886,71 @@ const NewDonation = () => {
         };
         const guestResponse = await createNewGuestDetails(guestPayload);
         guestId = guestResponse.data.id;
-        console.log("Created new guest with ID:", guestId);
       }
 
-      // ... rest of your existing code ...
-
-      // Create receipt details with counter number
-      console.log("Creating new receipt");
+      // Create receipt details with completed status
       const receiptPayload = {
         Receipt_number: receiptNumber,
         status: "completed",
         amount: currentReceipt?.donationDetails?.amount,
         unique_no: uniqueDonorId,
-        counter: user?.counter || "N/A", // Add counter number from user data
-        donation_date: getCurrentFormattedDate(), // Add donation date
+        counter: user?.counter || "N/A",
+        donation_date: getCurrentFormattedDate(),
       };
       const receiptResponse = await createNewReceiptDetail(receiptPayload);
-      console.log("Created new receipt:", receiptResponse);
 
-      // Create donation with counter number
-      console.log("Creating new donation record");
-      const donationPayload = {
-        data: {
-          InMemoryOf:
-            currentReceipt?.donationDetails?.inMemoryOf || "for Thakur Seva",
-          donationAmount: currentReceipt?.donationDetails?.amount,
-          transactionType:
-            currentReceipt?.donationDetails?.transactionType
-              ?.charAt(0)
-              .toUpperCase() +
-              currentReceipt?.donationDetails?.transactionType?.slice(1) ||
-            "Cash",
-          donationFor: selectedTab,
-          status: "completed",
-          donationDate: getCurrentFormattedDate(),
-          guest: guestId,
-          receipt_detail: receiptResponse.data.id,
-          purpose: currentReceipt?.donationDetails?.purpose || "General",
-          type:
-            currentReceipt?.donationDetails?.donationType || "Others (Revenue)",
-          counter: user?.counter || "N/A", // Add counter number from user data
-          ...(currentReceipt?.donationDetails?.transactionType?.toLowerCase() !==
-            "cash" &&
-            currentReceipt?.donationDetails?.transactionType?.toLowerCase() !==
-              "m.o" && {
-              ddch_number:
-                currentReceipt?.donationDetails?.transactionDetails?.ddNumber ||
-                "",
-              ddch_date:
-                currentReceipt?.donationDetails?.transactionDetails?.ddDate ||
-                "",
-              bankName:
-                currentReceipt?.donationDetails?.transactionDetails?.bankName ||
-                "",
-              branchName:
-                currentReceipt?.donationDetails?.transactionDetails
-                  ?.branchName || "",
-            }),
-          unique_no: uniqueDonorId,
-        },
-      };
+      // Create new donation only if there isn't existing donation data
+      if (!donationId) {
+        const donationPayload = {
+          data: {
+            InMemoryOf:
+              currentReceipt?.donationDetails?.inMemoryOf || "for Thakur Seva",
+            donationAmount: currentReceipt?.donationDetails?.amount,
+            transactionType:
+              currentReceipt?.donationDetails?.transactionType
+                ?.charAt(0)
+                .toUpperCase() +
+                currentReceipt?.donationDetails?.transactionType?.slice(1) ||
+              "Cash",
+            donationFor: selectedTab,
+            status: "completed",
+            donationDate: getCurrentFormattedDate(),
+            guest: guestId,
+            receipt_detail: receiptResponse.data.id,
+            purpose: currentReceipt?.donationDetails?.purpose || "General",
+            type:
+              currentReceipt?.donationDetails?.donationType ||
+              "Others (Revenue)",
+            counter: user?.counter || "N/A",
+            unique_no: uniqueDonorId,
+            ...(currentReceipt?.donationDetails?.transactionType?.toLowerCase() !==
+              "cash" &&
+              currentReceipt?.donationDetails?.transactionType?.toLowerCase() !==
+                "m.o" && {
+                ddch_number:
+                  currentReceipt?.donationDetails?.transactionDetails
+                    ?.ddNumber || "",
+                ddch_date:
+                  currentReceipt?.donationDetails?.transactionDetails?.ddDate ||
+                  "",
+                bankName:
+                  currentReceipt?.donationDetails?.transactionDetails
+                    ?.bankName || "",
+                branchName:
+                  currentReceipt?.donationDetails?.transactionDetails
+                    ?.branchName || "",
+              }),
+          },
+        };
 
-      await createNewDonation(donationPayload);
-      console.log("Successfully created new donation");
+        await createNewDonation(donationPayload);
+      }
 
-      // Create a hidden iframe for printing
+      // Create and handle the print frame
       const printFrame = document.createElement("iframe");
       printFrame.style.display = "none";
       document.body.appendChild(printFrame);
 
-      // Format the date in DD-MM-YYYY format
       const today = new Date();
       const formattedDate = today.toLocaleDateString("en-GB", {
         day: "2-digit",
@@ -951,7 +958,6 @@ const NewDonation = () => {
         year: "numeric",
       });
 
-      // Use the ReceiptTemplate component
       const receiptContent = ReceiptTemplate({
         uniqueDonorId,
         receiptNumber,
@@ -962,37 +968,27 @@ const NewDonation = () => {
         user,
       });
 
-      // Write content to iframe and print
       const iframeWindow = printFrame.contentWindow;
       iframeWindow.document.open();
       iframeWindow.document.write(receiptContent);
       iframeWindow.document.close();
 
-      // Set up print settings
-      const printSettings = {
-        silent: true,
-        printBackground: true,
-        deviceWidth: "210mm",
-        deviceHeight: "297mm",
-      };
-
-      // Modify the onload handler to include modal closing and form reset
       iframeWindow.onload = () => {
         iframeWindow.focus();
-        iframeWindow.print(printSettings);
+        iframeWindow.print();
 
-        // Clean up and close modal
         setTimeout(() => {
           document.body.removeChild(printFrame);
-          setIsModalOpen(false); // Close the modal
+          setIsModalOpen(false);
           resetFormData();
-          window.location.reload(); // Add this line to reload the page
+          // Navigate back to donations page after successful print
+          navigate("/donation#recent-donations");
         }, 1000);
       };
     } catch (error) {
       console.error("Error processing donation:", error);
       alert("Error processing donation. Please try again.");
-      setIsModalOpen(false); // Close modal even if there's an error
+      setIsModalOpen(false);
     }
   };
 
@@ -1197,7 +1193,7 @@ const NewDonation = () => {
   const confirmPending = async () => {
     try {
       // First create receipt details with pending status
-      console.log("Creating new receipt");
+      // console.log("Creating new receipt");
       const receiptPayload = {
         Receipt_number: receiptNumber,
         status: "pending",
@@ -1207,12 +1203,12 @@ const NewDonation = () => {
         donation_date: getCurrentFormattedDate(),
       };
       const receiptResponse = await createNewReceiptDetail(receiptPayload);
-      console.log("Created new receipt:", receiptResponse);
+      // console.log("Created new receipt:", receiptResponse);
 
       // Create new guest if needed
       let guestId = donorDetails.guestId;
       if (!guestId) {
-        console.log("Creating new guest");
+        // console.log("Creating new guest");
         const guestPayload = {
           name: `${donorDetails.title} ${donorDetails.name}`,
           phone_number: `${donorDetails.phoneCode}${donorDetails.phone}`,
@@ -1227,11 +1223,11 @@ const NewDonation = () => {
         };
         const guestResponse = await createNewGuestDetails(guestPayload);
         guestId = guestResponse.data.id;
-        console.log("Created new guest with ID:", guestId);
+        // console.log("Created new guest with ID:", guestId);
       }
 
       // Create donation with pending status and receipt ID
-      console.log("Creating new pending donation record");
+      // console.log("Creating new pending donation record");
       const donationPayload = {
         data: {
           InMemoryOf:
@@ -1308,7 +1304,7 @@ const NewDonation = () => {
     try {
       if (donationId) {
         // Update existing donation
-        console.log("Updating existing donation with ID:", donationId);
+        // console.log("Updating existing donation with ID:", donationId);
         const updatePayload = {
           data: {
             InMemoryOf:
@@ -1343,13 +1339,13 @@ const NewDonation = () => {
         };
 
         await updateDonationById(donationId, updatePayload);
-        console.log("Successfully updated donation to cancelled status");
+        // console.log("Successfully updated donation to cancelled status");
       } else {
-        console.log("Creating new cancelled donation");
+        // console.log("Creating new cancelled donation");
         // Create new guest if needed
         let guestId = donorDetails.guestId;
         if (!guestId) {
-          console.log("Creating new guest");
+          // console.log("Creating new guest");
           // Create guest payload without extra nesting
           const guestPayload = {
             data: {
@@ -1364,11 +1360,11 @@ const NewDonation = () => {
           // Send the payload directly without wrapping in data object
           const guestResponse = await createNewGuestDetails(guestPayload);
           guestId = guestResponse.data.id;
-          console.log("Created new guest with ID:", guestId);
+          // console.log("Created new guest with ID:", guestId);
         }
 
         // Create receipt details with counter
-        console.log("Creating new receipt with cancelled status");
+        // console.log("Creating new receipt with cancelled status");
         const receiptPayload = {
           Receipt_number: receiptNumber,
           status: "cancelled",
@@ -1376,10 +1372,10 @@ const NewDonation = () => {
           counter: user?.counter || "N/A", // Add counter number
         };
         const receiptResponse = await createNewReceiptDetail(receiptPayload);
-        console.log("Created new receipt:", receiptResponse);
+        // console.log("Created new receipt:", receiptResponse);
 
         // Create donation with counter
-        console.log("Creating new donation record with cancelled status");
+        // console.log("Creating new donation record with cancelled status");
         const donationPayload = {
           data: {
             InMemoryOf:
@@ -1416,7 +1412,7 @@ const NewDonation = () => {
         };
 
         await createNewDonation(donationPayload);
-        console.log("Successfully created new cancelled donation");
+        // console.log("Successfully created new cancelled donation");
       }
 
       // Reset form and close modal
@@ -1909,13 +1905,13 @@ const NewDonation = () => {
         const highestMSN = msnNumbers.length > 0 ? Math.max(...msnNumbers) : 0;
 
         // Log the highest numbers and related data
-        console.log("Receipt Numbers Analysis:", {
-          allReceiptNumbers: receiptNumbers,
-          mtNumbers: mtNumbers,
-          msnNumbers: msnNumbers,
-          highestMT: highestMT,
-          highestMSN: highestMSN,
-        });
+        // console.log("Receipt Numbers Analysis:", {
+        //   allReceiptNumbers: receiptNumbers,
+        //   mtNumbers: mtNumbers,
+        //   msnNumbers: msnNumbers,
+        //   highestMT: highestMT,
+        //   highestMSN: highestMSN,
+        // });
 
         // Set the next receipt number based on selected tab
         const nextNumber =
@@ -2716,10 +2712,10 @@ const NewDonation = () => {
                               className="dropdown-item"
                               onClick={() => {
                                 // Log full guest details
-                                console.log("Selected Guest Details:", {
-                                  id: guest.id,
-                                  ...guest.attributes,
-                                });
+                                // console.log("Selected Guest Details:", {
+                                //   id: guest.id,
+                                //   ...guest.attributes,
+                                // });
 
                                 // Check for and log unique receipt number
                                 const uniqueReceiptNo =
@@ -2742,11 +2738,11 @@ const NewDonation = () => {
                                 const name = nameParts.slice(1).join(" ");
 
                                 // Log the processed name details
-                                console.log("Processed donor details:", {
-                                  title: title,
-                                  name: name,
-                                  fullName: fullName,
-                                });
+                                // console.log("Processed donor details:", {
+                                //   title: title,
+                                //   name: name,
+                                //   fullName: fullName,
+                                // });
 
                                 setDonorDetails({
                                   ...donorDetails,
@@ -2850,7 +2846,10 @@ const NewDonation = () => {
             {/* New row for Mantra Diksha and Guest House Room No. */}
             <div className="form-row" style={{ marginBottom: "0" }}>
               <div className="form-group" style={{ flex: 1 }}>
-                <label>Initiation / Mantra Diksha from</label>
+                <label>
+                  Initiation / Mantra Diksha from{" "}
+                  <span className="required">*</span>
+                </label>
                 <div
                   className="custom-dropdown"
                   style={{ position: "relative" }}

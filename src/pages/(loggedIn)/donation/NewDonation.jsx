@@ -1196,27 +1196,100 @@ const NewDonation = () => {
 
   const confirmPending = async () => {
     try {
-      if (!donationId) {
-        // Create new guest if needed
-        let guestId = donorDetails.guestId;
-        if (!guestId) {
-          console.log("Creating new guest");
-          const guestPayload = {
+      // First create receipt details with pending status
+      console.log("Creating new receipt");
+      const receiptPayload = {
+        Receipt_number: receiptNumber,
+        status: "pending",
+        amount: currentReceipt?.donationDetails?.amount,
+        unique_no: uniqueDonorId,
+        counter: user?.counter || "N/A",
+        donation_date: getCurrentFormattedDate(),
+      };
+      const receiptResponse = await createNewReceiptDetail(receiptPayload);
+      console.log("Created new receipt:", receiptResponse);
+
+      // Create new guest if needed
+      let guestId = donorDetails.guestId;
+      if (!guestId) {
+        console.log("Creating new guest");
+        const guestPayload = {
+          data: {
             name: `${donorDetails.title} ${donorDetails.name}`,
             phone_number: `${donorDetails.phoneCode}${donorDetails.phone}`,
-            email: donorDetails.email,
+            email:
+              donorDetails.email ||
+              `${donorDetails.name
+                .replace(/\s+/g, "")
+                .toLowerCase()}@gmail.com`,
             deeksha: donorDetails.mantraDiksha,
             identity_proof: donorDetails.identityType,
             identity_number: donorDetails.identityNumber,
             address: `${donorDetails.houseNumber}, ${donorDetails.streetName}, ${donorDetails.postOffice}, ${donorDetails.district}, ${donorDetails.state}, ${donorDetails.pincode}`,
-          };
-          const guestResponse = await createNewGuestDetails(guestPayload);
-          guestId = guestResponse.data.id;
-          console.log("Created new guest with ID:", guestId);
-        }
-
-        // ... rest of the existing code ...
+            status: "none",
+          },
+        };
+        const guestResponse = await createNewGuestDetails(guestPayload);
+        guestId = guestResponse.data.id;
+        console.log("Created new guest with ID:", guestId);
       }
+
+      // Create donation with pending status and receipt ID
+      console.log("Creating new pending donation record");
+      const donationPayload = {
+        data: {
+          InMemoryOf:
+            currentReceipt?.donationDetails?.inMemoryOf || "for Thakur Seva",
+          donationAmount: currentReceipt?.donationDetails?.amount,
+          transactionType:
+            currentReceipt?.donationDetails?.transactionType
+              ?.charAt(0)
+              .toUpperCase() +
+              currentReceipt?.donationDetails?.transactionType?.slice(1) ||
+            "Cash",
+          donationFor: selectedTab,
+          status: "pending",
+          donationDate: getCurrentFormattedDate(),
+          guest: guestId,
+          receipt_detail: receiptResponse.data.id,
+          purpose: currentReceipt?.donationDetails?.purpose || "General",
+          type:
+            currentReceipt?.donationDetails?.donationType || "Others (Revenue)",
+          counter: user?.counter || "N/A",
+          unique_no: uniqueDonorId,
+          // Add transaction details if not cash
+          ...(currentReceipt?.donationDetails?.transactionType?.toLowerCase() !==
+            "cash" &&
+            currentReceipt?.donationDetails?.transactionType?.toLowerCase() !==
+              "m.o" && {
+              ddch_number:
+                currentReceipt?.donationDetails?.transactionDetails?.ddNumber ||
+                "",
+              ddch_date:
+                currentReceipt?.donationDetails?.transactionDetails?.ddDate ||
+                "",
+              bankName:
+                currentReceipt?.donationDetails?.transactionDetails?.bankName ||
+                "",
+              branchName:
+                currentReceipt?.donationDetails?.transactionDetails
+                  ?.branchName || "",
+            }),
+        },
+      };
+
+      const donationResponse = await createNewDonation(donationPayload);
+      console.log(
+        "Successfully created new pending donation:",
+        donationResponse
+      );
+
+      // Reset form and close modal
+      resetFormData();
+      setShowPendingConfirm(false);
+
+      // Navigate to donation page with success message
+      navigate("/donation#recent-donations");
     } catch (error) {
       console.error("Error processing pending donation:", error);
       console.error("Error details:", error.response?.data || error.message);

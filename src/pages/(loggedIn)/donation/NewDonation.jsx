@@ -196,6 +196,12 @@ const NewDonation = () => {
     "none",
   ];
 
+  // Add these new state variables at the top with other state declarations
+  const [showPhoneDropdown, setShowPhoneDropdown] = useState(false);
+  const [showIdentityDropdown, setShowIdentityDropdown] = useState(false);
+  const [phoneSearchTerm, setPhoneSearchTerm] = useState("");
+  const [identitySearchTerm, setIdentitySearchTerm] = useState("");
+
   // console.log("Zustand Store Data:", {
   //   // auth: { user },
   //   donations,
@@ -2221,10 +2227,9 @@ const NewDonation = () => {
             if (shouldDisableFields()) return;
             const newPhone = e.target.value.replace(/\D/g, "").slice(0, 10);
             setDonorDetails({ ...donorDetails, phone: newPhone });
-            setSearchTerm(newPhone); // Use the same searchTerm state for phone search
-            setShowDropdown(true);
+            setPhoneSearchTerm(newPhone); // Use phone-specific search term
+            setShowPhoneDropdown(true); // Use phone-specific dropdown state
 
-            // Clear validation error while typing if length is valid
             if (newPhone.length === 10) {
               setValidationErrors((prev) => ({
                 ...prev,
@@ -2234,7 +2239,7 @@ const NewDonation = () => {
           }}
           onBlur={() => {
             setTimeout(() => {
-              setShowDropdown(false);
+              setShowPhoneDropdown(false);
             }, 200);
 
             // Validate on blur
@@ -2256,37 +2261,40 @@ const NewDonation = () => {
             shouldDisableFields() ? "disabled-input" : ""
           }`}
         />
-        {showDropdown && searchTerm && (
-          <div className="dropdown-list">
-            {filteredGuests
-              .filter(
-                (guest) =>
-                  guest.attributes.phone_number?.includes(searchTerm) ||
-                  guest.attributes.phone_number
-                    ?.replace("+91", "")
-                    .includes(searchTerm)
-              )
-              .map((guest) => (
-                <div
-                  key={guest.id}
-                  className="dropdown-item"
-                  onClick={() => handleGuestSelect(guest)}
-                >
-                  <div className="guest-info">
-                    <span className="guest-name">{guest.attributes.name}</span>
-                    <span className="guest-phone">
-                      {guest.attributes.phone_number}
-                    </span>
-                  </div>
-                  {guest.attributes.address && (
-                    <div className="guest-address">
-                      {guest.attributes.address}
+        {showPhoneDropdown &&
+          phoneSearchTerm && ( // Use phone-specific states
+            <div className="dropdown-list">
+              {filteredGuests
+                .filter(
+                  (guest) =>
+                    guest.attributes.phone_number?.includes(phoneSearchTerm) ||
+                    guest.attributes.phone_number
+                      ?.replace("+91", "")
+                      .includes(phoneSearchTerm)
+                )
+                .map((guest) => (
+                  <div
+                    key={guest.id}
+                    className="dropdown-item"
+                    onClick={() => handleGuestSelect(guest)}
+                  >
+                    <div className="guest-info">
+                      <span className="guest-name">
+                        {guest.attributes.name}
+                      </span>
+                      <span className="guest-phone">
+                        {guest.attributes.phone_number}
+                      </span>
                     </div>
-                  )}
-                </div>
-              ))}
-          </div>
-        )}
+                    {guest.attributes.address && (
+                      <div className="guest-address">
+                        {guest.attributes.address}
+                      </div>
+                    )}
+                  </div>
+                ))}
+            </div>
+          )}
       </div>
     </div>
     {validationErrors.phone && (
@@ -2837,10 +2845,9 @@ const NewDonation = () => {
                           .replace(/\D/g, "")
                           .slice(0, 10);
                         setDonorDetails({ ...donorDetails, phone: newPhone });
-                        setSearchTerm(newPhone); // Use the same searchTerm state for phone search
-                        setShowDropdown(true);
+                        setPhoneSearchTerm(newPhone); // Use phone-specific search term
+                        setShowPhoneDropdown(true); // Use phone-specific dropdown state
 
-                        // Clear validation error while typing if length is valid
                         if (newPhone.length === 10) {
                           setValidationErrors((prev) => ({
                             ...prev,
@@ -2850,7 +2857,7 @@ const NewDonation = () => {
                       }}
                       onBlur={() => {
                         setTimeout(() => {
-                          setShowDropdown(false);
+                          setShowPhoneDropdown(false);
                         }, 200);
 
                         // Validate on blur
@@ -2872,41 +2879,42 @@ const NewDonation = () => {
                         shouldDisableFields() ? "disabled-input" : ""
                       }`}
                     />
-                    {showDropdown && searchTerm && (
-                      <div className="dropdown-list">
-                        {filteredGuests
-                          .filter(
-                            (guest) =>
-                              guest.attributes.phone_number?.includes(
-                                searchTerm
-                              ) ||
-                              guest.attributes.phone_number
-                                ?.replace("+91", "")
-                                .includes(searchTerm)
-                          )
-                          .map((guest) => (
-                            <div
-                              key={guest.id}
-                              className="dropdown-item"
-                              onClick={() => handleGuestSelect(guest)}
-                            >
-                              <div className="guest-info">
-                                <span className="guest-name">
-                                  {guest.attributes.name}
-                                </span>
-                                <span className="guest-phone">
-                                  {guest.attributes.phone_number}
-                                </span>
-                              </div>
-                              {guest.attributes.address && (
-                                <div className="guest-address">
-                                  {guest.attributes.address}
+                    {showPhoneDropdown &&
+                      phoneSearchTerm && ( // Use phone-specific states
+                        <div className="dropdown-list">
+                          {filteredGuests
+                            .filter(
+                              (guest) =>
+                                guest.attributes.phone_number?.includes(
+                                  phoneSearchTerm
+                                ) ||
+                                guest.attributes.phone_number
+                                  ?.replace("+91", "")
+                                  .includes(phoneSearchTerm)
+                            )
+                            .map((guest) => (
+                              <div
+                                key={guest.id}
+                                className="dropdown-item"
+                                onClick={() => handleGuestSelect(guest)}
+                              >
+                                <div className="guest-info">
+                                  <span className="guest-name">
+                                    {guest.attributes.name}
+                                  </span>
+                                  <span className="guest-phone">
+                                    {guest.attributes.phone_number}
+                                  </span>
                                 </div>
-                              )}
-                            </div>
-                          ))}
-                      </div>
-                    )}
+                                {guest.attributes.address && (
+                                  <div className="guest-address">
+                                    {guest.attributes.address}
+                                  </div>
+                                )}
+                              </div>
+                            ))}
+                        </div>
+                      )}
                   </div>
                 </div>
                 {validationErrors.phone && (
@@ -3162,53 +3170,110 @@ const NewDonation = () => {
                     <option value="Voter ID">Voter ID</option>
                     <option value="Driving License">Driving License</option>
                   </select>
-                  <input
-                    ref={identityInputRef}
-                    type="text"
-                    value={donorDetails.identityNumber}
-                    onChange={(e) => {
-                      if (shouldDisableFields()) return;
 
-                      const validatedValue = validateIdentityInput(
-                        donorDetails.identityType,
-                        e.target.value
-                      );
+                  <div className="searchable-dropdown">
+                    <input
+                      ref={identityInputRef}
+                      type="text"
+                      value={donorDetails.identityNumber}
+                      onChange={(e) => {
+                        if (shouldDisableFields()) return;
+                        const validatedValue = validateIdentityInput(
+                          donorDetails.identityType,
+                          e.target.value
+                        );
 
-                      setDonorDetails((prev) => ({
-                        ...prev,
-                        identityNumber: validatedValue,
-                        ...(prev.identityType === "PAN" && {
-                          panNumber: validatedValue,
-                        }),
-                      }));
+                        setDonorDetails((prev) => ({
+                          ...prev,
+                          identityNumber: validatedValue,
+                          ...(prev.identityType === "PAN" && {
+                            panNumber: validatedValue,
+                          }),
+                        }));
+                        setIdentitySearchTerm(validatedValue); // Use identity-specific search term
+                        setShowIdentityDropdown(true); // Use identity-specific dropdown state
 
-                      // Clear validation errors while typing
-                      setValidationErrors((prev) => ({
-                        ...prev,
-                        identityNumber: "",
-                        ...(donorDetails.identityType === "PAN" && { pan: "" }),
-                      }));
-                    }}
-                    onBlur={() => {
-                      const error = getIdentityValidationError(
-                        donorDetails.identityType,
-                        donorDetails.identityNumber
-                      );
+                        setValidationErrors((prev) => ({
+                          ...prev,
+                          identityNumber: "",
+                          ...(donorDetails.identityType === "PAN" && {
+                            pan: "",
+                          }),
+                        }));
+                      }}
+                      onBlur={() => {
+                        setTimeout(() => {
+                          setShowIdentityDropdown(false);
+                        }, 200);
 
-                      setValidationErrors((prev) => ({
-                        ...prev,
-                        identityNumber: error,
-                        ...(donorDetails.identityType === "PAN" && {
-                          pan: error,
-                        }),
-                      }));
-                    }}
-                    placeholder={`Enter ${donorDetails.identityType} number`}
-                    className={`${
-                      validationErrors.identityNumber ? "error" : ""
-                    } ${shouldDisableFields() ? "disabled-input" : ""}`}
-                    disabled={shouldDisableFields()}
-                  />
+                        const error = getIdentityValidationError(
+                          donorDetails.identityType,
+                          donorDetails.identityNumber
+                        );
+
+                        setValidationErrors((prev) => ({
+                          ...prev,
+                          identityNumber: error,
+                          ...(donorDetails.identityType === "PAN" && {
+                            pan: error,
+                          }),
+                        }));
+                      }}
+                      placeholder={`Enter ${donorDetails.identityType} number`}
+                      className={`${
+                        validationErrors.identityNumber ? "error" : ""
+                      } ${shouldDisableFields() ? "disabled-input" : ""}`}
+                      disabled={shouldDisableFields()}
+                    />
+
+                    {showIdentityDropdown &&
+                      identitySearchTerm && ( // Use identity-specific states
+                        <div className="dropdown-list">
+                          {guestDetails?.data
+                            ?.filter((guest) => {
+                              if (!guest?.attributes?.identity_number)
+                                return false;
+                              if (!identitySearchTerm) return false;
+
+                              const guestIdentity =
+                                guest.attributes.identity_number.toLowerCase();
+                              const guestIdentityType =
+                                guest.attributes.identity_proof?.toLowerCase();
+                              const searchQuery =
+                                identitySearchTerm.toLowerCase();
+                              const selectedType =
+                                donorDetails.identityType.toLowerCase();
+
+                              return (
+                                guestIdentity.includes(searchQuery) &&
+                                guestIdentityType === selectedType
+                              );
+                            })
+                            .map((guest) => (
+                              <div
+                                key={guest.id}
+                                className="dropdown-item"
+                                onClick={() => handleGuestSelect(guest)}
+                              >
+                                <div className="guest-info">
+                                  <span className="guest-name">
+                                    {guest.attributes.name}
+                                  </span>
+                                  <span className="guest-identity">
+                                    {guest.attributes.identity_proof}:{" "}
+                                    {guest.attributes.identity_number}
+                                  </span>
+                                </div>
+                                {guest.attributes.address && (
+                                  <div className="guest-address">
+                                    {guest.attributes.address}
+                                  </div>
+                                )}
+                              </div>
+                            ))}
+                        </div>
+                      )}
+                  </div>
                 </div>
                 {validationErrors.identityNumber && (
                   <div className="error-message">

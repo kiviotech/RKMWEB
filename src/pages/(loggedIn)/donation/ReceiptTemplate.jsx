@@ -160,7 +160,7 @@ const ReceiptTemplate = ({
                 position: absolute;
                 right: -80px;
                 top: -115px;
-                transform: translateY(-50%);
+                transform: translateY(-65%);
                 border: 2px solid #000;
                 padding: 2px;
                 font-size: 14px;

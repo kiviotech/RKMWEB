@@ -319,7 +319,10 @@ const ReceiptTemplate = ({
                 </div>
               </div>
               <div class="footer">
-                <p>${user?.username}</p>
+                <p>${user?.username} (C${user?.counter?.replace(
+    /^Counter\s*/i,
+    ""
+  )})</p>
               </div>
             </div>
             <script>

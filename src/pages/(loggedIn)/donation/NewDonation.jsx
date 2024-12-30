@@ -2212,48 +2212,82 @@ const NewDonation = () => {
         <option value="+91">+91</option>
         {/* ... other country code options ... */}
       </select>
-      <input
-        ref={phoneInputRef}
-        type="text"
-        value={donorDetails.phone}
-        onChange={(e) => {
-          if (shouldDisableFields()) return;
-          const newPhone = e.target.value.replace(/\D/g, "").slice(0, 10);
-          setDonorDetails({ ...donorDetails, phone: newPhone });
+      <div className="searchable-dropdown">
+        <input
+          ref={phoneInputRef}
+          type="text"
+          value={donorDetails.phone}
+          onChange={(e) => {
+            if (shouldDisableFields()) return;
+            const newPhone = e.target.value.replace(/\D/g, "").slice(0, 10);
+            setDonorDetails({ ...donorDetails, phone: newPhone });
+            setSearchTerm(newPhone); // Use the same searchTerm state for phone search
+            setShowDropdown(true);
 
-          // Clear validation error while typing if length is valid
-          if (newPhone.length === 10) {
-            setValidationErrors((prev) => ({
-              ...prev,
-              phone: "",
-            }));
-          } else {
-            setValidationErrors((prev) => ({
-              ...prev,
-              phone: "Phone number must be 10 digits",
-            }));
-          }
-        }}
-        onBlur={() => {
-          // Validate on blur
-          if (!donorDetails.phone) {
-            setValidationErrors((prev) => ({
-              ...prev,
-              phone: "Phone number is required",
-            }));
-          } else if (donorDetails.phone.length !== 10) {
-            setValidationErrors((prev) => ({
-              ...prev,
-              phone: "Phone number must be 10 digits",
-            }));
-          }
-        }}
-        placeholder="Enter phone number"
-        disabled={shouldDisableFields()}
-        className={`${validationErrors.phone ? "error" : ""} ${
-          shouldDisableFields() ? "disabled-input" : ""
-        }`}
-      />
+            // Clear validation error while typing if length is valid
+            if (newPhone.length === 10) {
+              setValidationErrors((prev) => ({
+                ...prev,
+                phone: "",
+              }));
+            }
+          }}
+          onBlur={() => {
+            setTimeout(() => {
+              setShowDropdown(false);
+            }, 200);
+
+            // Validate on blur
+            if (!donorDetails.phone) {
+              setValidationErrors((prev) => ({
+                ...prev,
+                phone: "Phone number is required",
+              }));
+            } else if (donorDetails.phone.length !== 10) {
+              setValidationErrors((prev) => ({
+                ...prev,
+                phone: "Phone number must be 10 digits",
+              }));
+            }
+          }}
+          placeholder="Enter phone number"
+          disabled={shouldDisableFields()}
+          className={`${validationErrors.phone ? "error" : ""} ${
+            shouldDisableFields() ? "disabled-input" : ""
+          }`}
+        />
+        {showDropdown && searchTerm && (
+          <div className="dropdown-list">
+            {filteredGuests
+              .filter(
+                (guest) =>
+                  guest.attributes.phone_number?.includes(searchTerm) ||
+                  guest.attributes.phone_number
+                    ?.replace("+91", "")
+                    .includes(searchTerm)
+              )
+              .map((guest) => (
+                <div
+                  key={guest.id}
+                  className="dropdown-item"
+                  onClick={() => handleGuestSelect(guest)}
+                >
+                  <div className="guest-info">
+                    <span className="guest-name">{guest.attributes.name}</span>
+                    <span className="guest-phone">
+                      {guest.attributes.phone_number}
+                    </span>
+                  </div>
+                  {guest.attributes.address && (
+                    <div className="guest-address">
+                      {guest.attributes.address}
+                    </div>
+                  )}
+                </div>
+              ))}
+          </div>
+        )}
+      </div>
     </div>
     {validationErrors.phone && (
       <div className="error-message">{validationErrors.phone}</div>
@@ -2792,50 +2826,88 @@ const NewDonation = () => {
                   Phone No. <span className="required">*</span>
                 </label>
                 <div className="phone-unified-input">
-                  <input
-                    ref={phoneInputRef}
-                    type="text"
-                    value={donorDetails.phone}
-                    onChange={(e) => {
-                      if (shouldDisableFields()) return;
-                      const newPhone = e.target.value
-                        .replace(/\D/g, "")
-                        .slice(0, 10);
-                      setDonorDetails({ ...donorDetails, phone: newPhone });
+                  <div className="searchable-dropdown">
+                    <input
+                      ref={phoneInputRef}
+                      type="text"
+                      value={donorDetails.phone}
+                      onChange={(e) => {
+                        if (shouldDisableFields()) return;
+                        const newPhone = e.target.value
+                          .replace(/\D/g, "")
+                          .slice(0, 10);
+                        setDonorDetails({ ...donorDetails, phone: newPhone });
+                        setSearchTerm(newPhone); // Use the same searchTerm state for phone search
+                        setShowDropdown(true);
 
-                      // Clear validation error while typing if length is valid
-                      if (newPhone.length === 10) {
-                        setValidationErrors((prev) => ({
-                          ...prev,
-                          phone: "",
-                        }));
-                      } else {
-                        setValidationErrors((prev) => ({
-                          ...prev,
-                          phone: "Phone number must be 10 digits",
-                        }));
-                      }
-                    }}
-                    onBlur={() => {
-                      // Validate on blur
-                      if (!donorDetails.phone) {
-                        setValidationErrors((prev) => ({
-                          ...prev,
-                          phone: "Phone number is required",
-                        }));
-                      } else if (donorDetails.phone.length !== 10) {
-                        setValidationErrors((prev) => ({
-                          ...prev,
-                          phone: "Phone number must be 10 digits",
-                        }));
-                      }
-                    }}
-                    placeholder="Enter phone number"
-                    disabled={shouldDisableFields()}
-                    className={`${validationErrors.phone ? "error" : ""} ${
-                      shouldDisableFields() ? "disabled-input" : ""
-                    }`}
-                  />
+                        // Clear validation error while typing if length is valid
+                        if (newPhone.length === 10) {
+                          setValidationErrors((prev) => ({
+                            ...prev,
+                            phone: "",
+                          }));
+                        }
+                      }}
+                      onBlur={() => {
+                        setTimeout(() => {
+                          setShowDropdown(false);
+                        }, 200);
+
+                        // Validate on blur
+                        if (!donorDetails.phone) {
+                          setValidationErrors((prev) => ({
+                            ...prev,
+                            phone: "Phone number is required",
+                          }));
+                        } else if (donorDetails.phone.length !== 10) {
+                          setValidationErrors((prev) => ({
+                            ...prev,
+                            phone: "Phone number must be 10 digits",
+                          }));
+                        }
+                      }}
+                      placeholder="Enter phone number"
+                      disabled={shouldDisableFields()}
+                      className={`${validationErrors.phone ? "error" : ""} ${
+                        shouldDisableFields() ? "disabled-input" : ""
+                      }`}
+                    />
+                    {showDropdown && searchTerm && (
+                      <div className="dropdown-list">
+                        {filteredGuests
+                          .filter(
+                            (guest) =>
+                              guest.attributes.phone_number?.includes(
+                                searchTerm
+                              ) ||
+                              guest.attributes.phone_number
+                                ?.replace("+91", "")
+                                .includes(searchTerm)
+                          )
+                          .map((guest) => (
+                            <div
+                              key={guest.id}
+                              className="dropdown-item"
+                              onClick={() => handleGuestSelect(guest)}
+                            >
+                              <div className="guest-info">
+                                <span className="guest-name">
+                                  {guest.attributes.name}
+                                </span>
+                                <span className="guest-phone">
+                                  {guest.attributes.phone_number}
+                                </span>
+                              </div>
+                              {guest.attributes.address && (
+                                <div className="guest-address">
+                                  {guest.attributes.address}
+                                </div>
+                              )}
+                            </div>
+                          ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
                 {validationErrors.phone && (
                   <div className="error-message">{validationErrors.phone}</div>
@@ -4653,6 +4725,60 @@ const NewDonation = () => {
             &.disabled-input {
               background-color: #f3f4f6;
               cursor: not-allowed;
+            }
+          }
+        }
+
+        .phone-unified-input {
+          position: relative;
+          display: flex;
+          gap: 8px;
+
+          .searchable-dropdown {
+            flex: 1;
+            position: relative;
+
+            .dropdown-list {
+              position: absolute;
+              top: 100%;
+              left: 0;
+              right: 0;
+              max-height: 200px;
+              overflow-y: auto;
+              background: white;
+              border: 1px solid #ddd;
+              border-radius: 4px;
+              box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+              z-index: 1000;
+
+              .dropdown-item {
+                padding: 8px 12px;
+                cursor: pointer;
+                border-bottom: 1px solid #eee;
+
+                &:hover {
+                  background-color: #f5f5f5;
+                }
+
+                .guest-info {
+                  display: flex;
+                  justify-content: space-between;
+                  margin-bottom: 4px;
+
+                  .guest-name {
+                    font-weight: 500;
+                  }
+
+                  .guest-phone {
+                    color: #666;
+                  }
+                }
+
+                .guest-address {
+                  font-size: 0.9em;
+                  color: #666;
+                }
+              }
             }
           }
         }

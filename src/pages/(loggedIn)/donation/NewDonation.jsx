@@ -4847,6 +4847,16 @@ const NewDonation = () => {
             }
           }
         }
+
+        .guest-identity {
+          color: #6b7280; /* Gray color for identity proof */
+        }
+
+        .guest-address {
+          color: #6b7280; /* Gray color for address */
+          font-size: 0.9em;
+          margin-top: 4px;
+        }
       `}</style>
     </div>
   );

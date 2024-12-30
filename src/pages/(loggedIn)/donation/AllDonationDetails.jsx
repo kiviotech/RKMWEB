@@ -132,7 +132,7 @@ const AllDonationDetails = () => {
         </h1>
         <div className="export-buttons">
           {user?.user_role === "superadmin" && <DDFExport />}
-          <ExportDonations timeFilter={timeFilter} />
+          <ExportDonations timeFilter={timeFilter} dateRange={dateRange} />
         </div>
       </div>
       <div className="donation-header">

@@ -21,6 +21,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import ReceiptTemplate from "./ReceiptTemplate";
 import ThankLetterTemplate from "./ThankLetterTemplate";
 import ConsentLetterTemplate from "./ConsentLetterTemplate";
+import { toast } from "react-toastify";
 
 const NewDonation = () => {
   // Add this useEffect at the top of your component
@@ -126,8 +127,8 @@ const NewDonation = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [showPendingConfirm, setShowPendingConfirm] = useState(false);
   const location = useLocation();
-  const donationData = location.state?.donationData;
-  const donationId = location.state?.donationData?.id;
+  const { donationData } = location.state || {};
+  const donationId = donationData?.id;
 
   // Add this to your validation states
   const [showPANField, setShowPANField] = useState(false);
@@ -208,6 +209,10 @@ const NewDonation = () => {
   // });
 
   // console.log("Received donation data:", donationData);
+
+  // Add this console log
+  console.log("Received donation data with counter:", donationData?.counter);
+  console.log("User's counter:", user?.counter);
 
   useEffect(() => {
     const fetchDonation = async () => {
@@ -445,6 +450,7 @@ const NewDonation = () => {
 
   // Modify handleAddDonation to use sequential numbers
   const handleAddDonation = () => {
+    console.log("Current counter in handleAddDonation:", user?.counter);
     // Limit the maximum number of tabs to 5
     if (donorTags.length >= 5) {
       alert("Maximum number of tabs reached.");
@@ -872,6 +878,7 @@ const NewDonation = () => {
   // Modify handleConfirmPrint function
   const handleConfirmPrint = async () => {
     try {
+      console.log("Counter being used in donation creation:", user?.counter);
       // If there's existing donation data, update its status first
       if (donationId) {
         // Update the donation status to completed
@@ -1306,14 +1313,29 @@ const NewDonation = () => {
   };
 
   // Modify the handleCancel function
-  const handleCancel = async () => {
-    // Check donation amount first
-    if (validateDonationAmount(currentReceipt?.donationDetails?.amount)) {
-      alert("Enter the amount");
-      return;
-    }
+  const handleCancelDonation = () => {
+    // Get the donation's counter from the receipt details
+    const donationCounter = donationData?.counter;
+    const userCounter = user?.counter; // Since we already have user in scope
 
-    setShowCancelConfirm(true);
+    console.log("Donation Counter:", donationCounter);
+    console.log("User Counter:", userCounter);
+    console.log("Counter comparison:", {
+      donationCounter,
+      userCounter,
+      isMatch: donationCounter === userCounter,
+      isCounter3: userCounter === "Counter 3",
+    });
+
+    // Check if user's counter matches donation counter or if user has Counter 3
+    if (userCounter === "Counter 3" || userCounter === donationCounter) {
+      setShowCancelConfirm(true);
+    } else {
+      // Show error toast for unauthorized cancellation
+      toast.error(
+        `You can only cancel donations from your assigned counter (${userCounter})`
+      );
+    }
   };
 
   const confirmCancel = async () => {
@@ -3556,7 +3578,7 @@ const NewDonation = () => {
                 <button
                   className="cancel-btn"
                   type="button"
-                  onClick={() => setShowCancelConfirm(true)}
+                  onClick={handleCancelDonation}
                   style={{
                     backgroundColor: "#FEE5E5",
                     color: "#DC2626",

@@ -8,6 +8,7 @@ import * as XLSX from "xlsx";
 import { useNavigate } from "react-router-dom";
 import { loginUser } from "../../../../services/auth";
 import { useAuthStore } from "../../../../store/authStore";
+import { toast } from "react-toastify";
 
 const AllDonation = ({
   searchTerm = "",
@@ -154,47 +155,77 @@ const AllDonation = ({
   };
 
   const handleCancelClick = (donationId) => {
-    setSelectedDonationId(donationId);
-    setShowPasswordModal(true);
-    setPassword("");
-    setPasswordError("");
+    const donationToCancel = donations.find((d) => d.id === donationId);
+    const donationCounter =
+      donationToCancel?.attributes?.receipt_detail?.data?.attributes?.counter;
+    const userCounter = user?.counter;
+
+    // Check if user's counter matches donation counter or if user has Counter 3
+    if (userCounter === "Counter 3" || userCounter === donationCounter) {
+      setSelectedDonationId(donationId);
+      setShowPasswordModal(true);
+      setPassword("");
+      setPasswordError("");
+    } else {
+      // Show error toast for unauthorized cancellation
+      toast.error("You can only cancel donations from your assigned counter");
+    }
   };
 
   const handleCancelDonation = async (donationId) => {
     try {
-      // Verify password using stored username
-      await loginUser({
-        identifier: user.username,
-        password: password,
-      });
+      const donationToCancel = donations.find((d) => d.id === donationId);
+      const donationCounter =
+        donationToCancel?.attributes?.receipt_detail?.data?.attributes?.counter;
+      const userCounter = user?.counter;
 
-      // If password verification succeeds, proceed with cancellation
-      await updateDonationById(donationId, {
-        data: {
-          status: "cancelled",
-        },
-      });
+      // Check if user's counter matches donation counter or if user has Counter 3
+      if (userCounter === "Counter 3" || userCounter === donationCounter) {
+        // Verify password using stored username
+        await loginUser({
+          identifier: user.username,
+          password: password,
+        });
 
-      // Update local state
-      setDonations(
-        donations.map((donation) =>
-          donation.id === donationId
-            ? {
-                ...donation,
-                attributes: { ...donation.attributes, status: "cancelled" },
-              }
-            : donation
-        )
-      );
+        // If password verification succeeds, proceed with cancellation
+        await updateDonationById(donationId, {
+          data: {
+            status: "cancelled",
+          },
+        });
 
-      // Close modal and reset states
-      setShowPasswordModal(false);
-      setPassword("");
-      setPasswordError("");
-      setSelectedDonationId(null);
+        // Update local state
+        setDonations(
+          donations.map((donation) =>
+            donation.id === donationId
+              ? {
+                  ...donation,
+                  attributes: { ...donation.attributes, status: "cancelled" },
+                }
+              : donation
+          )
+        );
+
+        // Close modal and reset states
+        setShowPasswordModal(false);
+        setPassword("");
+        setPasswordError("");
+        setSelectedDonationId(null);
+
+        // Show success toast
+        toast.success("Donation cancelled successfully");
+      } else {
+        // Show error toast for unauthorized cancellation
+        toast.error("You can only cancel donations from your assigned counter");
+        setShowPasswordModal(false);
+        setPassword("");
+        setPasswordError("");
+        setSelectedDonationId(null);
+      }
     } catch (error) {
       console.error("Error:", error);
       setPasswordError("Invalid password");
+      toast.error("Failed to cancel donation");
     }
   };
 
@@ -243,7 +274,10 @@ const AllDonation = ({
           createdBy:
             donation.attributes.receipt_detail?.data?.attributes?.createdBy
               ?.data?.id || donation.attributes.createdBy?.data?.id,
-          // Additional fields
+          // Add counter information
+          counter:
+            donation.attributes.receipt_detail?.data?.attributes?.counter,
+          // Rest of the existing fields...
           inMemoryOf: donation.attributes.InMemoryOf,
           bankName: donation.attributes.bankName,
           ddchDate: donation.attributes.ddch_date,

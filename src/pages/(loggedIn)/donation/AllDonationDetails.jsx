@@ -29,6 +29,7 @@ const AllDonationDetails = () => {
     donatedFor: true,
     donationStatus: true,
     donationAmount: true,
+    counter: true,
     action: true,
   });
   const filterDropdownRef = useRef(null);

@@ -25,6 +25,7 @@ const AllDonation = ({
     donatedFor: true,
     donationStatus: true,
     donationAmount: true,
+    counter: true,
     action: true,
   },
 }) => {
@@ -417,6 +418,7 @@ const AllDonation = ({
                   {filterOptions.donatedFor && <th>Donated For</th>}
                   {filterOptions.donationStatus && <th>Donation Status</th>}
                   {filterOptions.donationAmount && <th>Donation Amount</th>}
+                  {filterOptions.counter && <th>Counter</th>}
                   {filterOptions.action && <th>Action</th>}
                 </tr>
               </thead>
@@ -471,6 +473,14 @@ const AllDonation = ({
                     )}
                     {filterOptions.donationAmount && (
                       <td>₹ {donation.attributes.donationAmount}</td>
+                    )}
+                    {filterOptions.counter && (
+                      <td>
+                        {
+                          donation.attributes.receipt_detail?.data?.attributes
+                            ?.counter
+                        }
+                      </td>
                     )}
                     {filterOptions.action && (
                       <td className="action-cell">

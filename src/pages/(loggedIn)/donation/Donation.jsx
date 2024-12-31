@@ -230,6 +230,7 @@ const Donation = () => {
     donatedFor: true,
     donationStatus: true,
     donationAmount: true,
+    counter: true,
     action: true,
   });
 

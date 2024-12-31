@@ -598,6 +598,7 @@ const NewDonation = () => {
 
   // Handle guest selection
   const handleGuestSelect = (guest) => {
+    // Log full guest details
     // console.log("Selected Guest Details:", {
     //   id: guest.id,
     //   ...guest.attributes,
@@ -618,22 +619,31 @@ const NewDonation = () => {
     const title = nameParts[0];
     const name = nameParts.slice(1).join(" ");
 
+    // Format phone number by removing +91 prefix if present
+    const formattedPhone =
+      guest.attributes.phone_number?.replace("+91", "") || "";
+
     setDonorDetails({
       ...donorDetails,
       title: title || "Sri",
       name: name,
-      phone: guest.attributes.phone_number?.replace("+91", "") || "",
+      phone: formattedPhone,
       email: guest.attributes.email || "",
       mantraDiksha: guest.attributes.deeksha || "",
       guestId: guest.id,
-      // Set identity type and number from guest details
       identityType: guest.attributes.identity_proof || "PAN",
       identityNumber: guest.attributes.identity_number || "",
-      // Parse and set address fields if available
       ...(guest.attributes.address && parseAddress(guest.attributes.address)),
     });
-    setSearchTerm("");
+
+    // Clear phone validation error when a guest is selected
+    setValidationErrors((prev) => ({
+      ...prev,
+      phone: "",
+    }));
+
     setShowDropdown(false);
+    setShowPhoneDropdown(false);
   };
 
   // Modify the handleTabClick function
@@ -4849,11 +4859,11 @@ const NewDonation = () => {
         }
 
         .guest-identity {
-          color: #6b7280; /* Gray color for identity proof */
+          color: #6b7280;
         }
 
         .guest-address {
-          color: #6b7280; /* Gray color for address */
+          color: #6b7280;
           font-size: 0.9em;
           margin-top: 4px;
         }

@@ -211,8 +211,8 @@ const NewDonation = () => {
   // console.log("Received donation data:", donationData);
 
   // Add this console log
-  console.log("Received donation data with counter:", donationData?.counter);
-  console.log("User's counter:", user?.counter);
+  // console.log("Received donation data with counter:", donationData?.counter);
+  // console.log("User's counter:", user?.counter);
 
   useEffect(() => {
     const fetchDonation = async () => {

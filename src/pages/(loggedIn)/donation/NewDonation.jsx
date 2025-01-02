@@ -211,8 +211,8 @@ const NewDonation = () => {
   // console.log("Received donation data:", donationData);
 
   // Add this console log
-  // console.log("Received donation data with counter:", donationData?.counter);
-  // console.log("User's counter:", user?.counter);
+  console.log("Received donation data with counter:", donationData?.counter);
+  console.log("User's counter:", user?.counter);
 
   useEffect(() => {
     const fetchDonation = async () => {
@@ -797,8 +797,51 @@ const NewDonation = () => {
       errors.phone = "Valid phone number is required";
     if (!donorDetails.pincode || donorDetails.pincode.length !== 6)
       errors.pincode = "Valid pincode is required";
-    if (!donorDetails.identityNumber)
+    if (!donorDetails.mantraDiksha)
+      errors.mantraDiksha = "mantra deeksha is required";
+    // Validate identity number based on its type
+    if (!donorDetails.identityNumber?.trim()) {
       errors.identityNumber = `${donorDetails.identityType} number is required`;
+    } else {
+      switch (donorDetails.identityType) {
+        case "PAN":
+          if (!/^[A-Z]{5}[0-9]{4}[A-Z]$/.test(donorDetails.identityNumber)) {
+            errors.identityNumber =
+              "PAN number must be valid (e.g., ABCDE1234F)";
+          }
+          break;
+        case "Driving License":
+          if (
+            !/^[A-Z]{2}[0-9]{2}[0-9]{13}$/.test(donorDetails.identityNumber)
+          ) {
+            errors.identityNumber =
+              "Driving license number must be valid (e.g., MH011234567890123)";
+          }
+          break;
+
+        case "Aadhaar":
+          if (!/^\d{12}$/.test(donorDetails.identityNumber)) {
+            errors.identityNumber =
+              "Aadhaar number must be a valid 12-digit number";
+          }
+          break;
+        case "Passport":
+          if (!/^[A-Z]{1}[0-9]{7}$/.test(donorDetails.identityNumber)) {
+            errors.identityNumber =
+              "Passport number must be valid (e.g., A1234567)";
+          }
+          break;
+
+        case "Voter ID":
+          if (!/^[A-Z]{3}[0-9]{7}$/.test(donorDetails.identityNumber)) {
+            errors.identityNumber = "Voter ID must be valid (e.g., ABP1234567)";
+          }
+          break;
+
+        default:
+          errors.identityNumber = "Invalid identity type selected";
+      }
+    }
 
     // Required donation details
     if (!currentReceipt?.donationDetails?.purpose)
@@ -867,6 +910,8 @@ const NewDonation = () => {
       errors.amount = "Amount is required";
     if (!currentReceipt?.donationDetails?.purpose)
       errors.purpose = "Purpose is required";
+    if (!currentReceipt?.donationDetails.mantraDiksha)
+      errors.mantraDiksha = "mantradiksha is required";
 
     // Update validation errors
     setValidationErrors(errors);
@@ -1034,6 +1079,9 @@ const NewDonation = () => {
       errorFields.push("phone number");
       hasErrors = true;
     }
+    if (!donorDetails.identityNumber.length !== 12) {
+      errorFields.push("identity number");
+    }
 
     if (!donorDetails.mantraDiksha) {
       errorFields.push("mantra diksha");
@@ -1120,6 +1168,9 @@ const NewDonation = () => {
         }
         if (!donorDetails.phone || donorDetails.phone.length !== 10) {
           newErrors.phone = "Phone number must be 10 digits";
+        }
+        if (donorDetails.identityNumber.length !== 12) {
+          newErrors.identityType = "aadhar number should be 12";
         }
         if (!donorDetails.mantraDiksha) {
           newErrors.mantraDiksha = "Mantra Diksha is required";
@@ -1583,7 +1634,7 @@ const NewDonation = () => {
     if (!email.trim()) {
       return ""; // Remove required validation
     }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    if (!/^[a-zA-Z][a-zA-Z0-9._%+-]*@gmail\.[a-zA-Z]{2,}$/.test(email)) {
       return "Please enter a valid email address";
     }
     return "";
@@ -1673,7 +1724,9 @@ const NewDonation = () => {
 
   // Add this function to fetch pincode details
   const fetchPincodeDetails = async (pincode) => {
-    if (pincode.length !== 6) return;
+    if (pincode.length !== 6) {
+      return; // Ensure the pincode is of length 6
+    }
 
     setIsLoadingPincode(true);
     try {
@@ -1690,9 +1743,13 @@ const NewDonation = () => {
           state: postOffice.State,
           postOffice: postOffice.Name, // Optional: Also update post office
         }));
+      } else {
+        // If Status is not "Success", pincode is invalid
+        alert("Invalid Pincode");
       }
     } catch (error) {
       console.error("Error fetching pincode details:", error);
+      alert("Error fetching pincode details, please try again");
     } finally {
       setIsLoadingPincode(false);
     }
@@ -1745,8 +1802,8 @@ const NewDonation = () => {
     currentReceipt.donationDetails.transactionType.toLowerCase() !== "cash";
 
   // Add this function near the top of your component, with other utility functions
-  const numberToWords = (amount) => {
-    const ones = [
+  const numberToWords = (num) => {
+    const single = [
       "",
       "One",
       "Two",
@@ -1757,6 +1814,8 @@ const NewDonation = () => {
       "Seven",
       "Eight",
       "Nine",
+    ];
+    const double = [
       "Ten",
       "Eleven",
       "Twelve",
@@ -1768,7 +1827,6 @@ const NewDonation = () => {
       "Eighteen",
       "Nineteen",
     ];
-
     const tens = [
       "",
       "",
@@ -1781,68 +1839,49 @@ const NewDonation = () => {
       "Eighty",
       "Ninety",
     ];
-
-    const formatGroup = (n) => {
-      if (n === 0) return "";
-      else if (n < 20) return ones[n];
-      else {
-        const digit1 = Math.floor(n / 10);
-        const digit2 = n % 10;
-        return tens[digit1] + (digit2 ? " " + ones[digit2] : "");
-      }
+    const formatTens = (num) => {
+      if (num < 10) return single[num];
+      if (num < 20) return double[num - 10];
+      return (
+        tens[Math.floor(num / 10)] + (num % 10 ? " " + single[num % 10] : "")
+      );
     };
 
-    const num = parseFloat(amount);
-    if (isNaN(num)) return "";
+    const formatHundreds = (num) => {
+      if (num < 100) return formatTens(num);
+      return (
+        single[Math.floor(num / 100)] +
+        " Hundred" +
+        (num % 100 ? " and " + formatTens(num % 100) : "")
+      );
+    };
 
-    const decimal = Math.round((num % 1) * 100);
-    const whole = Math.floor(num);
+    const formatLakhs = (num) => {
+      if (num < 1000) return formatHundreds(num);
+      if (num < 100000)
+        return (
+          formatHundreds(Math.floor(num / 1000)) +
+          " Thousand" +
+          (num % 1000 ? " " + formatHundreds(num % 1000) : "")
+        );
+      return (
+        formatHundreds(Math.floor(num / 100000)) +
+        " Lakh" +
+        (num % 100000 ? " " + formatLakhs(num % 100000) : "")
+      );
+    };
 
-    if (whole === 0) return "Zero";
+    if (num === 0) return "Zero";
 
-    let words = "";
+    const amount = Math.floor(num);
+    const paise = Math.round((num - amount) * 100);
 
-    // Handle amounts above crore
-    const arab = Math.floor(whole / 1000000000);
-    const crore = Math.floor((whole % 1000000000) / 10000000);
-    const lakh = Math.floor((whole % 10000000) / 100000);
-    const thousand = Math.floor((whole % 100000) / 1000);
-    const remaining = whole % 1000;
-
-    if (arab > 0) {
-      words += formatGroup(arab) + " Arab ";
+    let result = formatLakhs(amount);
+    if (paise) {
+      result += " and " + formatTens(paise) + " Paise";
     }
 
-    if (crore > 0) {
-      words += formatGroup(crore) + " Crore ";
-    }
-
-    if (lakh > 0) {
-      words += formatGroup(lakh) + " Lakh ";
-    }
-
-    if (thousand > 0) {
-      words += formatGroup(thousand) + " Thousand ";
-    }
-
-    if (remaining > 0) {
-      if (remaining < 100) {
-        words += formatGroup(remaining);
-      } else {
-        const hundreds = Math.floor(remaining / 100);
-        const rest = remaining % 100;
-        words +=
-          ones[hundreds] +
-          " Hundred" +
-          (rest > 0 ? " " + formatGroup(rest) : "");
-      }
-    }
-
-    if (decimal > 0) {
-      words += " and " + formatGroup(decimal) + " Paise";
-    }
-
-    return words.trim();
+    return result;
   };
 
   // Add this helper function at the top level
@@ -3136,7 +3175,9 @@ const NewDonation = () => {
                 )}
 
                 {validationErrors.mantraDiksha && (
-                  <span className="error">{validationErrors.mantraDiksha}</span>
+                  <span className="error-message">
+                    {validationErrors.mantraDiksha}
+                  </span>
                 )}
               </div>
 
@@ -3765,7 +3806,9 @@ const NewDonation = () => {
                   shouldDisableFields() ? "disabled-input" : ""
                 }`}
               >
-                <option value="">Select Purpose</option>
+                <option value="" disabled hidden>
+                  Select Purpose
+                </option>
                 {selectedTab === "Math" ? (
                   <>
                     <option value="Thakur Seva">Thakur Seva</option>
@@ -3952,8 +3995,14 @@ const NewDonation = () => {
                 value={currentReceipt?.donationDetails?.inMemoryOf || ""}
                 onChange={(e) => {
                   if (shouldDisableFields()) return;
+
+                  const filteredValue = e.target.value.replace(
+                    /[^a-zA-Z\s]/g,
+                    ""
+                  );
+
                   handleDonationDetailsUpdate({
-                    inMemoryOf: e.target.value,
+                    inMemoryOf: filteredValue,
                   });
                 }}
                 disabled={shouldDisableFields()}

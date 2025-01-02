@@ -220,10 +220,10 @@ const DDFPreview = ({ donations, onConfirm, onCancel, type }) => {
                   <td>{donation.attributes?.type || ""}</td>
                   <td>{donation.attributes?.transactionType || ""}</td>
                   <td>
-                    ₹
-                    {parseFloat(
-                      donation.attributes?.donationAmount || 0
-                    ).toFixed(2)}
+                    ₹{" "}
+                    {Number(donation.attributes.donationAmount).toLocaleString(
+                      "en-IN"
+                    )}
                   </td>
                 </tr>
               ))}

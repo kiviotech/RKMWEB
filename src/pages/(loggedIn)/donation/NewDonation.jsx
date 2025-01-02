@@ -926,7 +926,6 @@ const NewDonation = () => {
       console.log("Counter being used in donation creation:", user?.counter);
       // If there's existing donation data, update its status first
       if (donationId) {
-        // Update the donation status to completed
         const updatePayload = {
           data: {
             status: "completed",
@@ -934,10 +933,9 @@ const NewDonation = () => {
         };
 
         await updateDonationById(donationId, updatePayload);
-        // console.log("Successfully updated donation status to completed");
       }
 
-      // Rest of your existing handleConfirmPrint code...
+      // Rest of your existing donation creation code...
       let guestId = donorDetails.guestId;
       if (!guestId) {
         const guestPayload = {
@@ -1049,13 +1047,23 @@ const NewDonation = () => {
           document.body.removeChild(printFrame);
           setIsModalOpen(false);
           resetFormData();
-          // Navigate back to donations page after successful print
-          navigate("/donation#recent-donations");
+          // Show success toast instead of navigating
+          toast.success(
+            `Donation of ₹${currentReceipt?.donationDetails?.amount} successfully added!`,
+            {
+              position: "top-right",
+              autoClose: 3000,
+              hideProgressBar: false,
+              closeOnClick: true,
+              pauseOnHover: true,
+              draggable: true,
+            }
+          );
         }, 1000);
       };
     } catch (error) {
       console.error("Error processing donation:", error);
-      alert("Error processing donation. Please try again.");
+      toast.error("Error processing donation. Please try again.");
       setIsModalOpen(false);
     }
   };

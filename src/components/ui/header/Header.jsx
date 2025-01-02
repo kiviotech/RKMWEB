@@ -116,7 +116,8 @@ const Header = ({ hideElements }) => {
                 className={({ isActive }) =>
                   (isActive && location.hash === "#tomorrows-guests") ||
                   (location.pathname === "/donation" &&
-                    location.hash === "#tomorrows-guests")
+                    location.hash === "#tomorrows-guests") ||
+                  location.pathname === "/donation"
                     ? "active"
                     : ""
                 }
@@ -140,7 +141,8 @@ const Header = ({ hideElements }) => {
                 className={({ isActive }) =>
                   (isActive && location.hash === "#recent-donations") ||
                   (location.pathname === "/donation" &&
-                    location.hash === "#recent-donations")
+                    location.hash === "#recent-donations") ||
+                  location.pathname === "/allDonationDetails"
                     ? "active"
                     : ""
                 }

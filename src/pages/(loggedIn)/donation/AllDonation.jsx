@@ -506,7 +506,12 @@ const AllDonation = ({
                       </td>
                     )}
                     {filterOptions.donationAmount && (
-                      <td>₹ {donation.attributes.donationAmount}</td>
+                      <td>
+                        ₹{" "}
+                        {Number(
+                          donation.attributes.donationAmount
+                        ).toLocaleString("en-IN")}
+                      </td>
                     )}
                     {filterOptions.counter && (
                       <td>

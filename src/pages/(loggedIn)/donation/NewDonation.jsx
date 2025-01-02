@@ -1745,8 +1745,8 @@ const NewDonation = () => {
     currentReceipt.donationDetails.transactionType.toLowerCase() !== "cash";
 
   // Add this function near the top of your component, with other utility functions
-  const numberToWords = (num) => {
-    const single = [
+  const numberToWords = (amount) => {
+    const ones = [
       "",
       "One",
       "Two",
@@ -1757,8 +1757,6 @@ const NewDonation = () => {
       "Seven",
       "Eight",
       "Nine",
-    ];
-    const double = [
       "Ten",
       "Eleven",
       "Twelve",
@@ -1770,6 +1768,7 @@ const NewDonation = () => {
       "Eighteen",
       "Nineteen",
     ];
+
     const tens = [
       "",
       "",
@@ -1782,49 +1781,68 @@ const NewDonation = () => {
       "Eighty",
       "Ninety",
     ];
-    const formatTens = (num) => {
-      if (num < 10) return single[num];
-      if (num < 20) return double[num - 10];
-      return (
-        tens[Math.floor(num / 10)] + (num % 10 ? " " + single[num % 10] : "")
-      );
+
+    const formatGroup = (n) => {
+      if (n === 0) return "";
+      else if (n < 20) return ones[n];
+      else {
+        const digit1 = Math.floor(n / 10);
+        const digit2 = n % 10;
+        return tens[digit1] + (digit2 ? " " + ones[digit2] : "");
+      }
     };
 
-    const formatHundreds = (num) => {
-      if (num < 100) return formatTens(num);
-      return (
-        single[Math.floor(num / 100)] +
-        " Hundred" +
-        (num % 100 ? " and " + formatTens(num % 100) : "")
-      );
-    };
+    const num = parseFloat(amount);
+    if (isNaN(num)) return "";
 
-    const formatLakhs = (num) => {
-      if (num < 1000) return formatHundreds(num);
-      if (num < 100000)
-        return (
-          formatHundreds(Math.floor(num / 1000)) +
-          " Thousand" +
-          (num % 1000 ? " " + formatHundreds(num % 1000) : "")
-        );
-      return (
-        formatHundreds(Math.floor(num / 100000)) +
-        " Lakh" +
-        (num % 100000 ? " " + formatLakhs(num % 100000) : "")
-      );
-    };
+    const decimal = Math.round((num % 1) * 100);
+    const whole = Math.floor(num);
 
-    if (num === 0) return "Zero";
+    if (whole === 0) return "Zero";
 
-    const amount = Math.floor(num);
-    const paise = Math.round((num - amount) * 100);
+    let words = "";
 
-    let result = formatLakhs(amount);
-    if (paise) {
-      result += " and " + formatTens(paise) + " Paise";
+    // Handle amounts above crore
+    const arab = Math.floor(whole / 1000000000);
+    const crore = Math.floor((whole % 1000000000) / 10000000);
+    const lakh = Math.floor((whole % 10000000) / 100000);
+    const thousand = Math.floor((whole % 100000) / 1000);
+    const remaining = whole % 1000;
+
+    if (arab > 0) {
+      words += formatGroup(arab) + " Arab ";
     }
 
-    return result;
+    if (crore > 0) {
+      words += formatGroup(crore) + " Crore ";
+    }
+
+    if (lakh > 0) {
+      words += formatGroup(lakh) + " Lakh ";
+    }
+
+    if (thousand > 0) {
+      words += formatGroup(thousand) + " Thousand ";
+    }
+
+    if (remaining > 0) {
+      if (remaining < 100) {
+        words += formatGroup(remaining);
+      } else {
+        const hundreds = Math.floor(remaining / 100);
+        const rest = remaining % 100;
+        words +=
+          ones[hundreds] +
+          " Hundred" +
+          (rest > 0 ? " " + formatGroup(rest) : "");
+      }
+    }
+
+    if (decimal > 0) {
+      words += " and " + formatGroup(decimal) + " Paise";
+    }
+
+    return words.trim();
   };
 
   // Add this helper function at the top level

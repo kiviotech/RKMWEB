@@ -19,17 +19,17 @@ const Sidebar = () => {
   return (
     <div className={`sidebar ${isDashboard ? "dashboard" : ""}`}>
       <NavLink to="/dashboard" activeclassname="active">
-        <img src={icons.house} alt="home" />
+        <img src={icons.Home} alt="home" />
         <span className="label">Guest House</span>
       </NavLink>
       <NavLink to="/newDonation" activeclassname="active">
-        <img src={icons.rupee} alt="donation" />
+        <img src={icons.Donation} alt="donation" />
         <span className="label" style={{ paddingTop: "5px" }}>
           Donations
         </span>
       </NavLink>
       <NavLink to="/deeksha" activeclassname="active">
-        <img src={icons.welcome} alt="welcome" />
+        <img src={icons.Deeksha} alt="welcome" />
         <span className="label">Deeksha</span>
       </NavLink>
       <NavLink to="/coupons" activeclassname="active">

@@ -18,6 +18,10 @@ const ApplicationDetails = ({ goToNextStep, tabName }) => {
   const [countryCodes, setCountryCodes] = useState([]);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [isDeekshaDropdownOpen, setIsDeekshaDropdownOpen] = useState(false);
+  const [deekshaSearchQuery, setDeekshaSearchQuery] = useState("");
+  const [showCustomDeeksha, setShowCustomDeeksha] = useState(false);
+  const [customDeeksha, setCustomDeeksha] = useState("");
 
   const filteredCountryCodes = countryCodes.filter(
     (country) =>
@@ -27,6 +31,35 @@ const ApplicationDetails = ({ goToNextStep, tabName }) => {
 
   const dropdownRef = useRef(null);
   const searchInputRef = useRef(null);
+  const deekshaDropdownRef = useRef(null);
+
+  const deekshaOptions = [
+    "Srimat Swami Atmasthanandaji Maharaj",
+    "Srimat Swami Bhuteshanandaji Maharaj",
+    "Srimat Swami Divyanandaji Maharaj",
+    "Srimat Swami Gahananandaji Maharaj",
+    "Srimat Swami Gambhiranandaji Maharaj",
+    "Srimat Swami Gautamanandaji Maharaj",
+    "Srimat Swami Girishanandaji Maharaj",
+    "Srimat Swami Gitanandaji Maharaj",
+    "Srimat Swami Kailashanandaji Maharaj",
+    "Srimat Swami Madhavanandaji Maharaj",
+    "Srimat Swami Nirvananandaji Maharaj",
+    "Srimat Swami Omkaranandaji Maharaj",
+    "Srimat Swami Prabhanandaji Maharaj",
+    "Srimat Swami Prameyanandaji Maharaj",
+    "Srimat Swami Ranganathanandaji Maharaj",
+    "Srimat Swami Shivamayanandaji Maharaj",
+    "Srimat Swami Smarananandaji Maharaj",
+    "Srimat Swami Suhitanandaji Maharaj",
+    "Srimat Swami Tapasyanandaji Maharaj",
+    "Srimat Swami Vagishanandaji Maharaj",
+    "Srimat Swami Vimalatmanandaji Maharaj",
+    "Srimat Swami Vireshwaranandaji Maharaj",
+    "Srimat Swami Yatiswaranandaji Maharaj",
+    "Others",
+    "none",
+  ];
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -79,6 +112,22 @@ const ApplicationDetails = ({ goToNextStep, tabName }) => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, []);
 
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        deekshaDropdownRef.current &&
+        !deekshaDropdownRef.current.contains(event.target)
+      ) {
+        setIsDeekshaDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
   const validateField = (name, value) => {
     switch (name) {
       case "title":
@@ -90,10 +139,13 @@ const ApplicationDetails = ({ goToNextStep, tabName }) => {
         break;
 
       case "name":
+        const nameRegex = /^[A-Za-z\s]+$/;
         if (!value) {
           setErrors(name, "Name is required");
         } else if (value.length < 2) {
           setErrors(name, "Name must be at least 2 characters long");
+        } else if (!nameRegex.test(value)) {
+          setErrors(name, "Name can only contain letters and spaces");
         } else {
           setErrors(name, "");
         }
@@ -163,8 +215,10 @@ const ApplicationDetails = ({ goToNextStep, tabName }) => {
       case "phoneNumber":
         if (!value) {
           setErrors(name, "Phone number is required");
+        } else if (value.length < 10) {
+          setErrors(name, "Phone number must be 10 digits");
         } else if (!/^\d{10}$/.test(value)) {
-          setErrors(name, "Phone number must be 10 digits long");
+          setErrors(name, "Phone number must contain exactly 10 digits");
         } else {
           setErrors(name, "");
         }
@@ -210,6 +264,22 @@ const ApplicationDetails = ({ goToNextStep, tabName }) => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
+
+    if (name === "name") {
+      const sanitizedValue = value.replace(/[^A-Za-z\s]/g, "");
+      setFormData(name, sanitizedValue);
+      validateField(name, sanitizedValue);
+      return;
+    }
+
+    if (name === "phoneNumber") {
+      // Only allow digits and limit to 10 characters
+      const numericValue = value.replace(/\D/g, "").slice(0, 10);
+      setFormData(name, numericValue);
+      validateField(name, numericValue);
+      return;
+    }
+
     setFormData(name, value);
     console.log("Input Change:", { field: name, value });
 
@@ -238,19 +308,23 @@ const ApplicationDetails = ({ goToNextStep, tabName }) => {
           const postOffice = data[0].PostOffice[0];
           setAddressData("state", postOffice.State);
           setAddressData("district", postOffice.District);
+          setAddressData("postOffice", postOffice.Name);
           console.log("Pincode API Response:", {
             state: postOffice.State,
             district: postOffice.District,
+            postOffice: postOffice.Name,
           });
         } else {
           setAddressData("state", "");
           setAddressData("district", "");
+          setAddressData("postOffice", "");
           console.log("Invalid Pincode Response");
         }
       } catch (error) {
         console.error("Error fetching address details:", error);
         setAddressData("state", "");
         setAddressData("district", "");
+        setAddressData("postOffice", "");
       }
     }
   };
@@ -258,6 +332,7 @@ const ApplicationDetails = ({ goToNextStep, tabName }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
     let hasErrors = false;
+    let emptyFields = [];
     console.log("Form Submission Attempt - Current State:", formData);
 
     // Validate all fields
@@ -276,6 +351,7 @@ const ApplicationDetails = ({ goToNextStep, tabName }) => {
     // Check if any required field is empty
     fieldsToValidate.forEach((field) => {
       if (!formData[field]) {
+        emptyFields.push(field.charAt(0).toUpperCase() + field.slice(1));
         setErrors(
           field,
           `${field.charAt(0).toUpperCase() + field.slice(1)} is required`
@@ -291,6 +367,7 @@ const ApplicationDetails = ({ goToNextStep, tabName }) => {
     // Check if any required address field is empty
     addressFieldsToValidate.forEach((field) => {
       if (!formData.address[field]) {
+        emptyFields.push(field.charAt(0).toUpperCase() + field.slice(1));
         setErrors(
           field,
           `${field.charAt(0).toUpperCase() + field.slice(1)} is required`
@@ -300,6 +377,17 @@ const ApplicationDetails = ({ goToNextStep, tabName }) => {
         validateAddressField(field, formData.address[field]);
       }
     });
+
+    // Show alert if there are empty fields
+    if (emptyFields.length > 0) {
+      alert(
+        `Please fill in the following required fields:\n${emptyFields.join(
+          "\n"
+        )}`
+      );
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    }
 
     // Check for any validation errors
     Object.values(errors).forEach((error) => {
@@ -319,7 +407,7 @@ const ApplicationDetails = ({ goToNextStep, tabName }) => {
     <div className="application-form">
       <form onSubmit={handleSubmit}>
         <div className="div">
-          <h2>Kamarpukur Guesthouse Booking</h2>
+          <h2>Applicant Details</h2>
           <div className="form-section">
             <div className="form-left-section">
               {/* Name Field */}
@@ -474,6 +562,9 @@ const ApplicationDetails = ({ goToNextStep, tabName }) => {
                     value={formData.phoneNumber}
                     onChange={handleInputChange}
                     placeholder="921234902"
+                    maxLength="10"
+                    pattern="\d{10}"
+                    title="Please enter exactly 10 digits"
                   />
                 </div>
                 {errors.phoneNumber && (
@@ -500,26 +591,142 @@ const ApplicationDetails = ({ goToNextStep, tabName }) => {
 
               <div className="form-group">
                 <label>Initiation / Mantra Diksha from</label>
-                <select
-                  name="deeksha"
-                  value={formData.deeksha}
-                  onChange={handleInputChange}
+                <div
+                  className="custom-dropdown"
+                  style={{ position: "relative" }}
+                  ref={deekshaDropdownRef}
                 >
-                  <option value="">Select Deeksha</option>
-                  <option value="Sri Ramakrishna – Life and Teachings">
-                    Sri Ramakrishna – Life and Teachings
-                  </option>
-                  <option value="Sri Sarada Devi – Life and Teachings">
-                    Sri Sarada Devi Life and Teachings
-                  </option>
-                  <option value="Swami Vivekananda – His Life and Legacy">
-                    Swami Vivekananda – His Life and Legacy
-                  </option>
-                  <option value="The Gospel of Sri Ramakrishna">
-                    The Gospel of Sri Ramakrishna
-                  </option>
-                  <option value="none">None</option>
-                </select>
+                  <div
+                    className="dropdown-header"
+                    onClick={() => {
+                      setIsDeekshaDropdownOpen(!isDeekshaDropdownOpen);
+                      setTimeout(() => {
+                        if (searchInputRef.current) {
+                          searchInputRef.current.focus();
+                        }
+                      }, 100);
+                    }}
+                    style={{
+                      padding: "10px",
+                      border: "1px solid #ccc",
+                      borderRadius: "4px",
+                      cursor: "pointer",
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      backgroundColor: "#FFF",
+                    }}
+                  >
+                    <span>{formData.deeksha || "Select Deeksha"}</span>
+                    <svg
+                      width="16"
+                      height="16"
+                      viewBox="0 0 16 16"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                      style={{
+                        transform: isDeekshaDropdownOpen
+                          ? "rotate(180deg)"
+                          : "rotate(0deg)",
+                        transition: "transform 0.2s ease",
+                      }}
+                    >
+                      <path
+                        d="M4 6L8 10L12 6"
+                        stroke="#6B7280"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  </div>
+                  {isDeekshaDropdownOpen && (
+                    <div
+                      className="dropdown-options"
+                      style={{
+                        position: "absolute",
+                        top: "100%",
+                        left: 0,
+                        right: 0,
+                        maxHeight: "200px",
+                        overflowY: "auto",
+                        backgroundColor: "white",
+                        border: "1px solid #ccc",
+                        borderRadius: "4px",
+                        zIndex: 1000,
+                        boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+                      }}
+                    >
+                      <input
+                        ref={searchInputRef}
+                        type="text"
+                        placeholder="Search..."
+                        value={deekshaSearchQuery}
+                        onChange={(e) => setDeekshaSearchQuery(e.target.value)}
+                        style={{
+                          width: "100%",
+                          padding: "8px",
+                          border: "none",
+                          borderBottom: "1px solid #ccc",
+                          outline: "none",
+                        }}
+                        onClick={(e) => e.stopPropagation()}
+                        autoFocus
+                      />
+                      {deekshaOptions
+                        .filter((option) =>
+                          option
+                            .toLowerCase()
+                            .includes(deekshaSearchQuery.toLowerCase())
+                        )
+                        .map((option) => (
+                          <div
+                            key={option}
+                            onClick={() => {
+                              if (option === "Others") {
+                                setShowCustomDeeksha(true);
+                                setCustomDeeksha("");
+                                handleInputChange({
+                                  target: { name: "deeksha", value: "" },
+                                });
+                              } else {
+                                setShowCustomDeeksha(false);
+                                handleInputChange({
+                                  target: { name: "deeksha", value: option },
+                                });
+                              }
+                              setIsDeekshaDropdownOpen(false);
+                              setDeekshaSearchQuery("");
+                            }}
+                            style={{
+                              padding: "10px",
+                              cursor: "pointer",
+                              ":hover": {
+                                backgroundColor: "#f5f5f5",
+                              },
+                            }}
+                          >
+                            {option}
+                          </div>
+                        ))}
+                    </div>
+                  )}
+                </div>
+                {showCustomDeeksha && (
+                  <input
+                    type="text"
+                    placeholder="Please specify your Mantra Diksha"
+                    value={customDeeksha}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      setCustomDeeksha(value);
+                      handleInputChange({
+                        target: { name: "deeksha", value: value },
+                      });
+                    }}
+                    style={{ marginTop: "10px" }}
+                  />
+                )}
                 {errors.deeksha && (
                   <span className="error">{errors.deeksha}</span>
                 )}
@@ -532,7 +739,17 @@ const ApplicationDetails = ({ goToNextStep, tabName }) => {
                   type="text"
                   name="aadhaar"
                   value={formData.aadhaar}
-                  onChange={handleInputChange}
+                  onChange={(e) => {
+                    const value = e.target.value
+                      .replace(/\D/g, "")
+                      .slice(0, 12);
+                    handleInputChange({
+                      target: {
+                        name: "aadhaar",
+                        value,
+                      },
+                    });
+                  }}
                   placeholder="••••••••••••"
                 />
                 {errors.aadhaar && (
@@ -589,7 +806,7 @@ const ApplicationDetails = ({ goToNextStep, tabName }) => {
 
           {/* Address Fields */}
           <div className="address-section">
-            <h3>Address</h3>
+            <h3 style={{ textAlign: "left" }}>Address</h3>
             <div className="formTabSection">
               <div className="addressInputBox">
                 <div className="form-group">
@@ -610,7 +827,7 @@ const ApplicationDetails = ({ goToNextStep, tabName }) => {
                   style={{ display: "flex", gap: "10px" }}
                 >
                   <div className="form-group" style={{ flex: 1 }}>
-                    <label>Flat/House No</label>
+                    <label>Flat / House / Apartment No</label>
                     <input
                       type="text"
                       name="houseNumber"
@@ -634,14 +851,13 @@ const ApplicationDetails = ({ goToNextStep, tabName }) => {
                     value={formData.address.state}
                     onChange={handleAddressInputChange}
                     placeholder="Enter your state"
-                    readOnly
                   />
                   {errors.state && (
                     <span className="error">{errors.state}</span>
                   )}
                 </div>
                 <div className="form-group">
-                  <label>Street Name</label>
+                  <label>Street Name / Landmark</label>
                   <input
                     type="text"
                     name="streetName"
@@ -664,23 +880,22 @@ const ApplicationDetails = ({ goToNextStep, tabName }) => {
                     value={formData.address.district}
                     onChange={handleAddressInputChange}
                     placeholder="Enter your district"
-                    readOnly
                   />
                   {errors.district && (
                     <span className="error">{errors.district}</span>
                   )}
                 </div>
                 <div className="form-group" style={{ flex: 1 }}>
-                  <label>Landmark</label>
+                  <label>Post Office</label>
                   <input
                     type="text"
-                    name="landmark"
-                    value={formData.address.landmark}
+                    name="postOffice"
+                    value={formData.address.postOffice}
                     onChange={handleAddressInputChange}
-                    placeholder="Enter nearby landmark"
+                    placeholder="Enter post office"
                   />
-                  {errors.landmark && (
-                    <span className="error">{errors.landmark}</span>
+                  {errors.postOffice && (
+                    <span className="error">{errors.postOffice}</span>
                   )}
                 </div>
               </div>

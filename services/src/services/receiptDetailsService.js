@@ -7,6 +7,8 @@ import {
   getReceiptDetailsByBookingId,
   getReceiptDetailsByUserId,
   getReceiptDetailsByDateRange,
+  getUniqueNumbers,
+  getReceiptNumbers,
 } from "../api/repositories/receiptDetailsRepository";
 
 // Fetch all receipt details
@@ -96,6 +98,28 @@ export const fetchReceiptDetailsByDateRange = async (startDate, endDate) => {
     return response.data;
   } catch (error) {
     console.error(`Error fetching receipt details for date range:`, error);
+    throw error;
+  }
+};
+
+// Fetch unique numbers
+export const fetchUniqueNumbers = async () => {
+  try {
+    const response = await getUniqueNumbers();
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching unique numbers:", error);
+    throw error;
+  }
+};
+
+// Fetch receipt numbers
+export const fetchReceiptNumbers = async () => {
+  try {
+    const response = await getReceiptNumbers();
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching receipt numbers:", error);
     throw error;
   }
 };

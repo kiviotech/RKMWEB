@@ -4,6 +4,8 @@ import "./GuestDetailsPopup.scss";
 import { updateBookingRequest } from "../../../../services/src/api/repositories/bookingRequestRepository";
 import { getToken } from "../../../../services/src/utils/storage";
 import RejectionEmailPopup from "./RejectionEmailPopup";
+import { useNavigate } from "react-router-dom";
+import { getCelebrations } from "../../../../services/src/api/repositories/celebrationsRepository";
 
 const icons = {
   Reminder: "https://api.iconify.design/mdi:bell-ring-outline.svg",
@@ -32,6 +34,8 @@ const GuestDetailsPopup = ({
     guestDetails?.userDetails?.name || ""
   );
   const [showRejectionEmail, setShowRejectionEmail] = useState(false);
+  const navigate = useNavigate();
+  const [upcomingCelebration, setUpcomingCelebration] = useState(null);
 
   useEffect(() => {
     if (guestDetails?.guests?.length > 0) {
@@ -41,6 +45,39 @@ const GuestDetailsPopup = ({
         firstGuest.name || guestDetails?.userDetails?.name || ""
       );
     }
+  }, [guestDetails]);
+
+  useEffect(() => {
+    const fetchCelebrations = async () => {
+      try {
+        const response = await getCelebrations();
+        console.log("Celebrations response:", response.data);
+
+        // Convert arrival and departure dates to Date objects
+        const arrivalDate = new Date(guestDetails?.userDetails?.arrivalDate);
+        const departureDate = new Date(
+          guestDetails?.userDetails?.departureDate
+        );
+
+        // Find celebrations that fall within the stay period
+        const upcoming = response?.data?.data?.find((celebration) => {
+          const celebrationDate = new Date(
+            celebration.attributes.gregorian_date
+          );
+          return (
+            celebrationDate >= arrivalDate && celebrationDate <= departureDate
+          );
+        });
+
+        if (upcoming) {
+          setUpcomingCelebration(upcoming.attributes);
+        }
+      } catch (error) {
+        console.error("Error fetching celebrations:", error);
+      }
+    };
+
+    fetchCelebrations();
   }, [guestDetails]);
 
   console.log("GuestDetailsPopup - Full guestDetails:", guestDetails);
@@ -111,11 +148,61 @@ const GuestDetailsPopup = ({
     setShowRejectionEmail(false);
   };
 
+  const formatDate = (dateString) => {
+    if (!dateString) return "N/A";
+    const date = new Date(dateString);
+    return date
+      .toLocaleDateString("en-GB", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+      })
+      .replace(/\//g, "-");
+  };
+
+  const handleButtonClick = (request) => {
+    console.log("Main Request ID:", request.id);
+    console.log(
+      "Guest IDs:",
+      request.guests.map((guest) => guest.id)
+    );
+
+    const guestData = {
+      requestId: request.id,
+      name: request.userDetails.name,
+      arrivalDate: request.userDetails.arrivalDate,
+      departureDate: request.userDetails.departureDate,
+      numberOfGuests: request.noOfGuest,
+      guestDetails: {
+        ...request.userDetails,
+      },
+      additionalGuests: request.guests.map((guest) => ({
+        id: guest.id,
+        name: guest.name,
+        age: guest.age,
+        gender: guest.gender,
+        relation: guest.relation,
+        roomNo: guest.room?.data?.attributes?.room_number || "-",
+      })),
+    };
+
+    console.log("Formatted Guest Data IDs:", {
+      requestId: request.id,
+      guestIds: guestData.additionalGuests.map((guest) => guest.id),
+    });
+
+    navigate("/book-room", {
+      state: { guestData },
+    });
+    onClose(); // Close the popup after navigation
+  };
+
   if (showRejectionEmail) {
     return (
       <RejectionEmailPopup
         onClose={() => setShowRejectionEmail(false)}
         onSubmit={handleRejectionEmailSubmit}
+        guestDetail={guestDetails}
       />
     );
   }
@@ -158,12 +245,24 @@ const GuestDetailsPopup = ({
           <button className="reject-btn" onClick={handleRejectClick}>
             Reject
           </button>
-          <button
-            className="allocate-btn"
+          <CommonButton
+            buttonName={(() => {
+              const hasRoom = guestDetails.guests.some(
+                (guest) => guest.room?.data?.attributes?.room_number
+              );
+              return hasRoom ? "View" : "Allocate Rooms";
+            })()}
+            buttonWidth="220px"
+            style={{
+              backgroundColor: "#9867E9",
+              color: "#fff",
+              borderColor: "#9867E9",
+              fontSize: "14px",
+              borderRadius: "7px",
+              borderWidth: 1,
+            }}
             onClick={() => handleButtonClick(guestDetails)}
-          >
-            Allocate Rooms
-          </button>
+          />
         </div>
       );
     } else if (label === "onHold") {
@@ -187,9 +286,13 @@ const GuestDetailsPopup = ({
   return (
     <>
       <div className="popup-overlay">
-        <div className="popup-content" style={{ padding: "20px" }}>
+        <div className="popup-content">
           <div className="header-section">
-            <button className="close-btn" onClick={onClose}>
+            <button
+              className="close-btn"
+              onClick={onClose}
+              style={{ marginTop: "-10px" }}
+            >
               <img src={icons.Close} alt="close" className="icon" />
             </button>
 
@@ -208,25 +311,33 @@ const GuestDetailsPopup = ({
                     <div className="info-item">
                       <span className="label">Age</span>
                       <span className="value">
-                        {guestDetails?.userDetails?.age || "N/A"}
+                        <strong>
+                          {guestDetails?.userDetails?.age || "N/A"}
+                        </strong>
                       </span>
                     </div>
                     <div className="info-item">
                       <span className="label">Gender</span>
                       <span className="value">
-                        {guestDetails?.userDetails?.gender || "N/A"}
+                        <strong>
+                          {guestDetails?.userDetails?.gender || "N/A"}
+                        </strong>
                       </span>
                     </div>
                     <div className="info-item">
                       <img src={icons.Email} alt="email" className="icon" />
                       <span className="value">
-                        {guestDetails?.userDetails?.email || "N/A"}
+                        <strong>
+                          {guestDetails?.userDetails?.email || "N/A"}
+                        </strong>
                       </span>
                     </div>
                     <div className="info-item">
                       <img src={icons.Contact} alt="phone" className="icon" />
                       <span className="value">
-                        {guestDetails?.userDetails?.mobile || "N/A"}
+                        <strong>
+                          {guestDetails?.userDetails?.mobile || "N/A"}
+                        </strong>
                       </span>
                     </div>
                   </div>
@@ -234,13 +345,17 @@ const GuestDetailsPopup = ({
                     <div className="info-item">
                       <span className="label">Occupation</span>
                       <span className="value">
-                        {guestDetails?.userDetails?.occupation || "N/A"}
+                        <strong>
+                          {guestDetails?.userDetails?.occupation || "N/A"}
+                        </strong>
                       </span>
                     </div>
                     <div className="info-item">
                       <span className="label">Initiation by</span>
                       <span className="value">
-                        {guestDetails?.userDetails?.deeksha || "N/A"}
+                        <strong>
+                          {guestDetails?.userDetails?.deeksha || "N/A"}
+                        </strong>
                       </span>
                     </div>
                     {/* <div className="info-item">
@@ -253,30 +368,65 @@ const GuestDetailsPopup = ({
 
               <div className="right-section">
                 <div className="reminder-bar">
-                  {/* <div className="reminder-content">
-                                        <img src={icons.Reminder} alt="reminder" />
-                                        <span>Reminder: 26th Aug is Janmasthami</span>
-                                    </div> */}
+                  <div className="reminder-content">
+                    <img
+                      src={icons.Reminder}
+                      alt="reminder"
+                      style={{
+                        filter:
+                          "invert(37%) sepia(74%) saturate(3383%) hue-rotate(206deg) brightness(101%) contrast(101%)",
+                      }}
+                    />
+                    <span
+                      style={{
+                        color: "#066bff",
+                        fontWeight: "500",
+                        fontSize: "14px",
+                      }}
+                    >
+                      {upcomingCelebration ? (
+                        <>
+                          Reminder:{" "}
+                          <span>
+                            {new Date(
+                              upcomingCelebration.gregorian_date
+                            ).getDate()}
+                            th{" "}
+                            {new Date(
+                              upcomingCelebration.gregorian_date
+                            ).toLocaleDateString("en-US", {
+                              month: "short",
+                            })}{" "}
+                            is {upcomingCelebration.event_name}
+                          </span>
+                        </>
+                      ) : (
+                        <span>No upcoming celebrations</span>
+                      )}
+                    </span>
+                  </div>
                 </div>
 
                 <div className="stay-info">
                   <div className="duration">
                     <span className="label">Stay Duration:- </span>
-                    <span className="value">{stayDuration || "N/A"} days</span>
+                    <span className="value">
+                      <strong>{stayDuration || "N/A"} days</strong>
+                    </span>
                   </div>
                   <div className="dates">
                     <div className="date-row">
                       <img src={icons.Calendar} alt="calendar" />
                       <span className="date-label">Arrival Date:</span>
                       <span className="date-value">
-                        {guestDetails?.userDetails?.arrivalDate || "N/A"}
+                        {formatDate(guestDetails?.userDetails?.arrivalDate)}
                       </span>
                     </div>
                     <div className="date-row">
                       <img src={icons.Calendar} alt="calendar" />
                       <span className="date-label">Departure Date:</span>
                       <span className="date-value">
-                        {guestDetails?.userDetails?.departureDate || "N/A"}
+                        {formatDate(guestDetails?.userDetails?.departureDate)}
                       </span>
                     </div>
                   </div>
@@ -315,15 +465,64 @@ const GuestDetailsPopup = ({
                         {guestDetails?.guests?.map((guest) => (
                           <tr
                             key={guest.id}
-                            className={
-                              selectedRow === guest.id ? "selected" : ""
-                            }
                             onClick={() => handleRowClick(guest.id)}
                           >
-                            <td>{guest.name || "N/A"}</td>
-                            <td>{guest.age || "N/A"}</td>
-                            <td>{guest.gender || "N/A"}</td>
-                            <td>{guest.relation || "N/A"}</td>
+                            <td
+                              style={{
+                                backgroundColor:
+                                  selectedRow === guest.id
+                                    ? "#fff2ea"
+                                    : "transparent",
+                                color:
+                                  selectedRow === guest.id
+                                    ? "black"
+                                    : "#4b4b4b",
+                              }}
+                            >
+                              {guest.name || "N/A"}
+                            </td>
+                            <td
+                              style={{
+                                backgroundColor:
+                                  selectedRow === guest.id
+                                    ? "#fff2ea"
+                                    : "transparent",
+                                color:
+                                  selectedRow === guest.id
+                                    ? "black"
+                                    : "#4b4b4b",
+                              }}
+                            >
+                              {guest.age || "N/A"}
+                            </td>
+                            <td
+                              style={{
+                                backgroundColor:
+                                  selectedRow === guest.id
+                                    ? "#fff2ea"
+                                    : "transparent",
+                                color:
+                                  selectedRow === guest.id
+                                    ? "black"
+                                    : "#4b4b4b",
+                              }}
+                            >
+                              {guest.gender || "N/A"}
+                            </td>
+                            <td
+                              style={{
+                                backgroundColor:
+                                  selectedRow === guest.id
+                                    ? "#fff2ea"
+                                    : "transparent",
+                                color:
+                                  selectedRow === guest.id
+                                    ? "black"
+                                    : "#4b4b4b",
+                              }}
+                            >
+                              {guest.relation || "N/A"}
+                            </td>
                           </tr>
                         ))}
                       </tbody>
@@ -383,7 +582,7 @@ const GuestDetailsPopup = ({
             </div>
 
             {/* Alert and Action Buttons */}
-            <div className="footer">
+            <div className="footer" style={{ background: "#fff" }}>
               <div className="alert">
                 {/* There is a Revisit within 6 months of Guest name */}
               </div>

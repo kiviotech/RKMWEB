@@ -1,17 +1,27 @@
-import React, { useState, useEffect, useRef } from "react"
-import "./Donation.scss"
-import { PieChart, Pie, Cell, LineChart, Line, XAxis, YAxis, Tooltip } from 'recharts'
-import { useNavigate } from "react-router-dom"
-import AllDonation from './AllDonation'
-import { fetchGuestDetails } from "../../../../services/src/services/guestDetailsService"
-import { fetchDonations } from "../../../../services/src/services/donationsService"
+import React, { useState, useEffect, useRef } from "react";
+import "./Donation.scss";
+import {
+  PieChart,
+  Pie,
+  Cell,
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  Tooltip,
+} from "recharts";
+import { useNavigate } from "react-router-dom";
+import AllDonation from "./AllDonation";
+import { fetchGuestDetails } from "../../../../services/src/services/guestDetailsService";
+import { fetchDonations } from "../../../../services/src/services/donationsService";
+import ExportReport from "./ExportReport";
 
 const Donation = () => {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   // Data for the donut chart
   const [distributionData, setDistributionData] = useState([
     { name: "Math Donation", value: 0, color: "#8b5cf6" },
-    { name: "Ramakrishna mission", value: 0, color: "#f97316" }
+    { name: "Ramakrishna mission", value: 0, color: "#f97316" },
   ]);
 
   // Replace static monthlyData with dynamic state
@@ -25,18 +35,19 @@ const Donation = () => {
   const itemsPerPage = 10;
 
   // Add state for tomorrow's guests search
-  const [tomorrowGuestSearchTerm, setTomorrowGuestSearchTerm] = useState('');
+  const [tomorrowGuestSearchTerm, setTomorrowGuestSearchTerm] = useState("");
 
   // Add function to filter guest data based on search term
   const getFilteredGuestData = () => {
-    return guestData.filter(guest => {
+    return guestData.filter((guest) => {
       const searchStr = tomorrowGuestSearchTerm.toLowerCase();
       return (
         guest.roomNumber.toString().toLowerCase().includes(searchStr) ||
         guest.guestName.toLowerCase().includes(searchStr) ||
         guest.arrivalDate.toLowerCase().includes(searchStr) ||
         guest.donation.toLowerCase().includes(searchStr) ||
-        (guest.donationAmount && guest.donationAmount.toLowerCase().includes(searchStr))
+        (guest.donationAmount &&
+          guest.donationAmount.toLowerCase().includes(searchStr))
       );
     });
   };
@@ -59,7 +70,8 @@ const Donation = () => {
     const getGuestDetails = async () => {
       try {
         const response = await fetchGuestDetails();
-        
+        console.log("guest data", response.data);
+
         // Get tomorrow's date
         const tomorrow = new Date();
         tomorrow.setDate(tomorrow.getDate() + 1);
@@ -67,36 +79,81 @@ const Donation = () => {
 
         // Transform and filter the data for tomorrow's departures
         const formattedData = response.data
-          .filter(guest => {
+          .filter((guest) => {
+            // First check if booking request is confirmed
+            const isConfirmed =
+              guest.attributes.booking_request?.data?.attributes?.status ===
+              "confirmed";
+
+            // Then check departure date
             const departureDate = new Date(guest.attributes.departure_date);
             departureDate.setHours(0, 0, 0, 0);
-            return departureDate.getTime() === tomorrow.getTime();
+
+            return (
+              isConfirmed && departureDate.getTime() === tomorrow.getTime()
+            );
           })
-          .map(guest => {
+          .map((guest) => {
             // Calculate stay duration
             const arrivalDate = new Date(guest.attributes.arrival_date);
             const departureDate = new Date(guest.attributes.departure_date);
             const diffTime = Math.abs(departureDate - arrivalDate);
             const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-            const stayDuration = `${diffDays} ${diffDays === 1 ? 'day' : 'days'}`;
+            const stayDuration = `${diffDays} ${
+              diffDays === 1 ? "day" : "days"
+            }`;
+
+            // Log the complete guest object for debugging
+            console.log("Complete Guest Data:", {
+              originalData: guest,
+              attributes: guest.attributes,
+              room: guest.attributes.room?.data,
+              donations: guest.attributes.donations?.data,
+              address: guest.attributes.address,
+              contact: guest.attributes.contact,
+              email: guest.attributes.email,
+            });
+
+            // Clean up address by removing empty segments
+            const cleanAddress = (address) => {
+              if (!address) return "-";
+              return address
+                .split(",")
+                .map((segment) => segment.trim())
+                .filter((segment) => segment.length > 0)
+                .join(", ");
+            };
+
+            // Get donation amount from the first donation if it exists
+            const donationAmount =
+              guest.attributes.donations?.data?.[0]?.attributes?.donationAmount;
 
             return {
-              roomNumber: guest.attributes.room?.data?.attributes?.room_number || '-',
+              roomNumber:
+                guest.attributes.room?.data?.attributes?.room_number || "-",
               guestName: `Mr. ${guest.attributes.name}`,
-              arrivalDate: new Date(guest.attributes.arrival_date).toLocaleDateString(),
+              arrivalDate: new Date(
+                guest.attributes.arrival_date
+              ).toLocaleDateString(),
               noOfGuests: 1,
               stayDuration: stayDuration,
-              donation: guest.attributes.donations?.data?.length > 0 ? 'Donated' : 'Not yet donated',
-              donationAmount: guest.attributes.donations?.data?.length > 0 
-                ? `₹${guest.attributes.donations.data[0]?.attributes?.amount?.toLocaleString('en-IN') || 0}`
+              address: cleanAddress(guest.attributes.address),
+              donation:
+                guest.attributes.donations?.data?.length > 0
+                  ? "Donated"
+                  : "Not yet donated",
+              donationAmount: donationAmount
+                ? `₹${parseInt(donationAmount).toLocaleString("en-IN")}`
                 : null,
             };
           });
-        
+
         console.log("Tomorrow's Leaving Guest Data:", formattedData);
-        
+
         setGuestData(formattedData);
-        setLeavingGuestsTotalPages(Math.ceil(formattedData.length / itemsPerPage));
+        setLeavingGuestsTotalPages(
+          Math.ceil(formattedData.length / itemsPerPage)
+        );
       } catch (error) {
         console.error("Error fetching guest details:", error);
       }
@@ -130,29 +187,29 @@ const Donation = () => {
       setOpenActionId(null);
     };
 
-    document.addEventListener('click', handleClickOutside);
+    document.addEventListener("click", handleClickOutside);
     return () => {
-      document.removeEventListener('click', handleClickOutside);
+      document.removeEventListener("click", handleClickOutside);
     };
   }, []);
 
   // Function to handle action clicks
   const handleActionClick = (action, guest) => {
-    switch(action) {
-      case 'notification':
-        console.log('Send all notifications for', guest.guestName);
+    switch (action) {
+      case "notification":
+        console.log("Send all notifications for", guest.guestName);
         break;
-      case 'whatsapp':
-        console.log('Send WhatsApp to', guest.guestName);
+      case "whatsapp":
+        console.log("Send WhatsApp to", guest.guestName);
         break;
-      case 'email':
-        console.log('Send email to', guest.guestName);
+      case "email":
+        console.log("Send email to", guest.guestName);
         break;
-      case 'sms':
-        console.log('Send SMS to', guest.guestName);
+      case "sms":
+        console.log("Send SMS to", guest.guestName);
         break;
-      case 'call':
-        console.log('Call', guest.guestName);
+      case "call":
+        console.log("Call", guest.guestName);
         break;
       default:
         break;
@@ -161,7 +218,7 @@ const Donation = () => {
   };
 
   // Add search state
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
 
   // Add new state for filter popup
   const [showFilterPopup, setShowFilterPopup] = useState(false);
@@ -173,14 +230,15 @@ const Donation = () => {
     donatedFor: true,
     donationStatus: true,
     donationAmount: true,
-    action: true
+    counter: true,
+    action: true,
   });
 
   // Function to handle filter changes
   const handleFilterChange = (field) => {
-    setFilterOptions(prev => ({
+    setFilterOptions((prev) => ({
       ...prev,
-      [field]: !prev[field]
+      [field]: !prev[field],
     }));
   };
 
@@ -190,14 +248,17 @@ const Donation = () => {
   // Add effect to handle clicks outside the filter dropdown
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (filterDropdownRef.current && !filterDropdownRef.current.contains(event.target)) {
+      if (
+        filterDropdownRef.current &&
+        !filterDropdownRef.current.contains(event.target)
+      ) {
         setShowFilterPopup(false);
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
 
@@ -210,7 +271,7 @@ const Donation = () => {
     stayDuration: true,
     donation: true,
     donationAmount: true,
-    action: true
+    action: true,
   });
 
   // Add ref for tomorrow's filter dropdown
@@ -218,23 +279,26 @@ const Donation = () => {
 
   // Function to handle tomorrow's filter changes
   const handleTomorrowFilterChange = (field) => {
-    setTomorrowFilterOptions(prev => ({
+    setTomorrowFilterOptions((prev) => ({
       ...prev,
-      [field]: !prev[field]
+      [field]: !prev[field],
     }));
   };
 
   // Add effect to handle clicks outside tomorrow's filter dropdown
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (tomorrowFilterDropdownRef.current && !tomorrowFilterDropdownRef.current.contains(event.target)) {
+      if (
+        tomorrowFilterDropdownRef.current &&
+        !tomorrowFilterDropdownRef.current.contains(event.target)
+      ) {
         setShowTomorrowFilterPopup(false);
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
 
@@ -242,17 +306,17 @@ const Donation = () => {
   const Pagination = ({ currentPage, totalPages, onPageChange }) => {
     return (
       <div className="pagination">
-        <button 
+        <button
           className="pagination-btn"
           onClick={() => onPageChange(currentPage - 1)}
           disabled={currentPage === 1}
         >
           &lt;
         </button>
-        
+
         {[...Array(totalPages)].map((_, index) => {
           const pageNumber = index + 1;
-          
+
           // Always show first page, last page, current page, and pages around current page
           if (
             pageNumber === 1 ||
@@ -263,25 +327,31 @@ const Donation = () => {
               <button
                 key={pageNumber}
                 onClick={() => onPageChange(pageNumber)}
-                className={`pagination-btn ${currentPage === pageNumber ? 'active' : ''}`}
+                className={`pagination-btn ${
+                  currentPage === pageNumber ? "active" : ""
+                }`}
               >
                 {pageNumber}
               </button>
             );
           }
-          
+
           // Show ellipsis for skipped pages
           if (
             pageNumber === currentPage - 2 ||
             pageNumber === currentPage + 2
           ) {
-            return <span key={pageNumber} className="ellipsis">...</span>;
+            return (
+              <span key={pageNumber} className="ellipsis">
+                ...
+              </span>
+            );
           }
-          
+
           return null;
         })}
-        
-        <button 
+
+        <button
           className="pagination-btn"
           onClick={() => onPageChange(currentPage + 1)}
           disabled={currentPage === totalPages}
@@ -310,9 +380,12 @@ const Donation = () => {
         // Process donations for monthly data
         const monthlyTotals = donations.reduce((acc, donation) => {
           // Only include active/completed donations
-          if (donation.attributes.status !== 'cancelled') {
+          if (donation.attributes.status !== "cancelled") {
             const date = new Date(donation.attributes.createdAt);
-            const monthYear = date.toLocaleString('en-US', { month: 'short', year: '2-digit' });
+            const monthYear = date.toLocaleString("en-US", {
+              month: "short",
+              year: "2-digit",
+            });
             const amount = parseFloat(donation.attributes.donationAmount) || 0;
 
             if (!acc[monthYear]) {
@@ -327,43 +400,52 @@ const Donation = () => {
         const today = new Date();
         const last7Months = Array.from({ length: 7 }, (_, i) => {
           const date = new Date(today.getFullYear(), today.getMonth() - i, 1);
-          return date.toLocaleString('en-US', { month: 'short', year: '2-digit' });
+          return date.toLocaleString("en-US", {
+            month: "short",
+            year: "2-digit",
+          });
         }).reverse();
 
-        const sortedMonthlyData = last7Months.map(monthYear => ({
+        const sortedMonthlyData = last7Months.map((monthYear) => ({
           name: monthYear,
-          amount: monthlyTotals[monthYear] || 0
+          amount: monthlyTotals[monthYear] || 0,
         }));
 
         setMonthlyData(sortedMonthlyData);
 
         // Calculate growth percentage using the last two months
         if (sortedMonthlyData.length >= 2) {
-          const currentMonth = sortedMonthlyData[sortedMonthlyData.length - 1].amount;
-          const previousMonth = sortedMonthlyData[sortedMonthlyData.length - 2].amount;
-          const growth = previousMonth !== 0 
-            ? ((currentMonth - previousMonth) / previousMonth) * 100
-            : 0;
+          const currentMonth =
+            sortedMonthlyData[sortedMonthlyData.length - 1].amount;
+          const previousMonth =
+            sortedMonthlyData[sortedMonthlyData.length - 2].amount;
+          const growth =
+            previousMonth !== 0
+              ? ((currentMonth - previousMonth) / previousMonth) * 100
+              : 0;
           setGrowthPercentage(growth);
         }
 
         // Calculate totals
-        const totals = donations.reduce((acc, donation) => {
-          const amount = parseFloat(donation.attributes.donationAmount) || 0;
-          
-          // Only count active/completed donations (not cancelled)
-          if (donation.attributes.status !== 'cancelled') {
-            acc.total += amount;
-            
-            if (donation.attributes.donationFor === 'Math') {
-              acc.math += amount;
-            } else if (donation.attributes.donationFor === 'Mission') {
-              acc.mission += amount;
+        const totals = donations.reduce(
+          (acc, donation) => {
+            const amount = parseFloat(donation.attributes.donationAmount) || 0;
+
+            // Only count active/completed donations (not cancelled)
+            if (donation.attributes.status !== "cancelled") {
+              acc.total += amount;
+
+              if (donation.attributes.donationFor === "Math") {
+                acc.math += amount;
+              } else if (donation.attributes.donationFor === "Mission") {
+                acc.mission += amount;
+              }
             }
-          }
-          
-          return acc;
-        }, { total: 0, math: 0, mission: 0 });
+
+            return acc;
+          },
+          { total: 0, math: 0, mission: 0 }
+        );
 
         setTotalDonation(totals.total);
         setMathDonation(totals.math);
@@ -376,9 +458,12 @@ const Donation = () => {
         // Update the distribution data
         setDistributionData([
           { name: "Math Donation", value: mathPercentage, color: "#8b5cf6" },
-          { name: "Ramakrishna mission", value: missionPercentage, color: "#f97316" }
+          {
+            name: "Ramakrishna mission",
+            value: missionPercentage,
+            color: "#f97316",
+          },
         ]);
-
       } catch (error) {
         console.error("Error fetching donations:", error);
       }
@@ -391,44 +476,72 @@ const Donation = () => {
   const calculatePercentages = (math, mission) => {
     const total = math + mission;
     if (total === 0) return [0, 0];
-    
+
     const mathPercentage = (math / total) * 100;
     const missionPercentage = (mission / total) * 100;
-    
-    return [
-      mathPercentage.toFixed(2),
-      missionPercentage.toFixed(2)
-    ];
+
+    return [mathPercentage.toFixed(2), missionPercentage.toFixed(2)];
   };
 
-  const [mathPercent, missionPercent] = calculatePercentages(mathDonation, missionDonation);
+  const [mathPercent, missionPercent] = calculatePercentages(
+    mathDonation,
+    missionDonation
+  );
 
   // Calculate dynamic Y-axis ticks based on the maximum donation amount
-  const maxDonationAmount = Math.max(...monthlyData.map(data => data.amount));
-  const yAxisTicks = Array.from({ length: 5 }, (_, i) => (maxDonationAmount / 4) * i);
+  const maxDonationAmount = Math.max(...monthlyData.map((data) => data.amount));
+  const yAxisTicks = Array.from(
+    { length: 5 },
+    (_, i) => (maxDonationAmount / 4) * i
+  );
 
   // Function to handle print receipt action
   const handlePrintReceipt = (donation) => {
-    console.log('Print Receipt for:', donation);
+    console.log("Print Receipt for:", donation);
   };
 
-  // Add this at the top with other useEffects
+  // Add this new ref
+  const recentDonationsRef = useRef(null);
+
+  // Update the useEffect for hash navigation
   useEffect(() => {
-    // Check if URL has the tomorrows-guests hash
-    if (window.location.hash === '#tomorrows-guests') {
-      // Find the element and scroll to it
-      const element = document.getElementById('tomorrows-guests');
-      if (element) {
-        element.scrollIntoView({ behavior: 'smooth' });
-      }
+    // Check if there's a hash in the URL
+    if (window.location.hash) {
+      // Small delay to ensure the component is fully rendered
+      setTimeout(() => {
+        const element = document.getElementById(window.location.hash.slice(1));
+        if (element) {
+          element.scrollIntoView({ behavior: "smooth" });
+        }
+      }, 100);
     }
   }, []);
+
+  // Add useEffect to handle scroll behavior
+  useEffect(() => {
+    // Check if URL has #recent-donations hash
+    if (
+      window.location.hash === "#recent-donations" &&
+      recentDonationsRef.current
+    ) {
+      // Add a small delay to ensure the component is fully rendered
+      setTimeout(() => {
+        recentDonationsRef.current.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
+      }, 100);
+    }
+  }, [location]); // Depend on location to handle navigation changes
 
   return (
     <div className="donation-container">
       <div className="header">
         <h2>Donations</h2>
-        <button className="add-donation-btn" onClick={() => navigate('/newDonation')}>
+        <button
+          className="add-donation-btn"
+          onClick={() => navigate("/newDonation")}
+        >
           <span>+</span> Add New Donation
         </button>
       </div>
@@ -443,7 +556,7 @@ const Donation = () => {
                 <div className="item-dot math"></div>
                 <div className="item-details">
                   <span>Math Donation</span>
-                  <h4>₹{mathDonation.toLocaleString('en-IN')}</h4>
+                  <h4>₹{mathDonation.toLocaleString("en-IN")}</h4>
                 </div>
                 <span className="percentage">{mathPercent}%</span>
               </div>
@@ -451,7 +564,7 @@ const Donation = () => {
                 <div className="item-dot mission"></div>
                 <div className="item-details">
                   <span>Ramakrishna mission</span>
-                  <h4>₹{missionDonation.toLocaleString('en-IN')}</h4>
+                  <h4>₹{missionDonation.toLocaleString("en-IN")}</h4>
                 </div>
                 <span className="percentage">{missionPercent}%</span>
               </div>
@@ -472,51 +585,62 @@ const Donation = () => {
                     <Cell key={`cell-${index}`} fill={entry.color} />
                   ))}
                 </Pie>
-                <Tooltip 
+                <Tooltip
                   content={({ active, payload }) => {
                     if (active && payload && payload.length) {
                       return (
-                        <div style={{
-                          backgroundColor: 'rgba(255, 255, 255, 0.85)',
-                          padding: '12px',
-                          border: 'none',
-                          borderRadius: '8px',
-                          boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-                          backdropFilter: 'blur(8px)',
-                          transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
-                          transform: 'translateY(-4px)',
-                          opacity: active ? '1' : '0',
-                        }}>
-                          <div style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            marginBottom: '8px',
-                          }}>
-                            <div style={{
-                              width: '8px',
-                              height: '8px',
-                              borderRadius: '50%',
-                              backgroundColor: payload[0].payload.color,
-                              marginRight: '8px',
-                              transition: 'transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)',
-                              transform: 'scale(1.2)',
-                            }} />
-                            <span style={{
-                              color: '#1F2937',
-                              fontSize: '14px',
-                              fontWeight: '500',
-                              transition: 'opacity 0.2s ease-in-out',
-                            }}>
+                        <div
+                          style={{
+                            backgroundColor: "rgba(255, 255, 255, 0.85)",
+                            padding: "12px",
+                            border: "none",
+                            borderRadius: "8px",
+                            boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+                            backdropFilter: "blur(8px)",
+                            transition: "all 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
+                            transform: "translateY(-4px)",
+                            opacity: active ? "1" : "0",
+                          }}
+                        >
+                          <div
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              marginBottom: "8px",
+                            }}
+                          >
+                            <div
+                              style={{
+                                width: "8px",
+                                height: "8px",
+                                borderRadius: "50%",
+                                backgroundColor: payload[0].payload.color,
+                                marginRight: "8px",
+                                transition:
+                                  "transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)",
+                                transform: "scale(1.2)",
+                              }}
+                            />
+                            <span
+                              style={{
+                                color: "#1F2937",
+                                fontSize: "14px",
+                                fontWeight: "500",
+                                transition: "opacity 0.2s ease-in-out",
+                              }}
+                            >
                               {payload[0].payload.name}
                             </span>
                           </div>
-                          <div style={{
-                            fontSize: '16px',
-                            fontWeight: '600',
-                            color: '#111827',
-                            transition: 'transform 0.3s ease',
-                            transform: 'translateX(0)',
-                          }}>
+                          <div
+                            style={{
+                              fontSize: "16px",
+                              fontWeight: "600",
+                              color: "#111827",
+                              transition: "transform 0.3s ease",
+                              transform: "translateX(0)",
+                            }}
+                          >
                             {`${payload[0].value.toFixed(2)}%`}
                           </div>
                         </div>
@@ -535,10 +659,15 @@ const Donation = () => {
           <h3>Total Donations</h3>
           <div className="total-content">
             <div className="left-section">
-              <div className="amount">₹{totalDonation.toLocaleString('en-IN')}</div>
+              <div className="amount">
+                ₹{totalDonation.toLocaleString("en-IN")}
+              </div>
               <div className="growth-indicator">
-                <span className={growthPercentage >= 0 ? 'positive' : 'negative'}>
-                  {growthPercentage >= 0 ? '+' : ''}{growthPercentage.toFixed(2)}%
+                <span
+                  className={growthPercentage >= 0 ? "positive" : "negative"}
+                >
+                  {growthPercentage >= 0 ? "+" : ""}
+                  {growthPercentage.toFixed(2)}%
                 </span>
                 <p>than last month</p>
               </div>
@@ -547,62 +676,76 @@ const Donation = () => {
               <LineChart width={400} height={200} data={monthlyData}>
                 <defs>
                   <linearGradient id="colorAmount" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#82ca9d" stopOpacity={0.8}/>
-                    <stop offset="95%" stopColor="#82ca9d" stopOpacity={0}/>
+                    <stop offset="5%" stopColor="#82ca9d" stopOpacity={0.8} />
+                    <stop offset="95%" stopColor="#82ca9d" stopOpacity={0} />
                   </linearGradient>
                 </defs>
-                <XAxis 
-                  dataKey="name" 
-                  axisLine={{ stroke: '#E5E7EB', strokeDasharray: '5 5' }}
+                <XAxis
+                  dataKey="name"
+                  axisLine={{ stroke: "#E5E7EB", strokeDasharray: "5 5" }}
                   tickLine={false}
-                  tick={{ fontSize: 12, fill: '#6B7280' }}
+                  tick={{ fontSize: 12, fill: "#6B7280" }}
                 />
-                <YAxis 
+                <YAxis
                   axisLine={false}
                   tickLine={false}
-                  tick={{ fontSize: 12, fill: '#6B7280' }}
+                  tick={{ fontSize: 12, fill: "#6B7280" }}
                   ticks={yAxisTicks}
                   tickFormatter={(value) => `${(value / 1000).toFixed(1)}k`}
                 />
-                <Tooltip 
+                <Tooltip
                   content={({ active, payload }) => {
                     if (active && payload && payload.length) {
                       const data = payload[0].payload;
                       return (
-                        <div style={{
-                          backgroundColor: 'rgba(255, 255, 255, 0.9)',
-                          padding: '10px',
-                          borderRadius: '8px',
-                          boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
-                          transition: 'all 0.3s ease',
-                        }}>
-                          <p style={{
-                            margin: 0,
-                            fontSize: '14px',
-                            fontWeight: 'bold',
-                            color: '#333',
-                          }}>{data.name}</p>
-                          <p style={{
-                            margin: '5px 0 0',
-                            fontSize: '12px',
-                            color: '#666',
-                          }}>Total Donation</p>
-                          <p style={{
-                            margin: 0,
-                            fontSize: '16px',
-                            fontWeight: 'bold',
-                            color: '#111',
-                          }}>₹{(data.amount).toLocaleString('en-IN')}</p>
+                        <div
+                          style={{
+                            backgroundColor: "rgba(255, 255, 255, 0.9)",
+                            padding: "10px",
+                            borderRadius: "8px",
+                            boxShadow: "0 4px 8px rgba(0,0,0,0.1)",
+                            transition: "all 0.3s ease",
+                          }}
+                        >
+                          <p
+                            style={{
+                              margin: 0,
+                              fontSize: "14px",
+                              fontWeight: "bold",
+                              color: "#333",
+                            }}
+                          >
+                            {data.name}
+                          </p>
+                          <p
+                            style={{
+                              margin: "5px 0 0",
+                              fontSize: "12px",
+                              color: "#666",
+                            }}
+                          >
+                            Total Donation
+                          </p>
+                          <p
+                            style={{
+                              margin: 0,
+                              fontSize: "16px",
+                              fontWeight: "bold",
+                              color: "#111",
+                            }}
+                          >
+                            ₹{data.amount.toLocaleString("en-IN")}
+                          </p>
                         </div>
                       );
                     }
                     return null;
                   }}
                 />
-                <Line 
-                  type="monotone" 
-                  dataKey="amount" 
-                  stroke="#82ca9d" 
+                <Line
+                  type="monotone"
+                  dataKey="amount"
+                  stroke="#82ca9d"
                   strokeWidth={2}
                   dot={false}
                   activeDot={{ r: 6, fill: "#82ca9d" }}
@@ -619,15 +762,15 @@ const Donation = () => {
           <h3>Tomorrow's Leaving Guest</h3>
           <div className="header-actions">
             <div className="search-box">
-              <input 
-                type="text" 
-                placeholder="Search in table" 
+              <input
+                type="text"
+                placeholder="Search in table"
                 value={tomorrowGuestSearchTerm}
                 onChange={(e) => setTomorrowGuestSearchTerm(e.target.value)}
               />
               <div className="filter-dropdown-container">
-                <button 
-                  className="filter-btn" 
+                <button
+                  className="filter-btn"
                   onClick={(e) => {
                     e.stopPropagation();
                     setShowTomorrowFilterPopup(!showTomorrowFilterPopup);
@@ -636,40 +779,62 @@ const Donation = () => {
                   <span className="material-icons-outlined">tune</span>
                 </button>
                 {showTomorrowFilterPopup && (
-                  <div className="filter-dropdown" ref={tomorrowFilterDropdownRef}>
+                  <div
+                    className="filter-dropdown"
+                    ref={tomorrowFilterDropdownRef}
+                  >
                     <div className="filter-options">
-                      {Object.entries(tomorrowFilterOptions).map(([field, checked]) => (
-                        <label key={field} className="filter-option">
-                          <input
-                            type="checkbox"
-                            checked={checked}
-                            onChange={() => handleTomorrowFilterChange(field)}
-                          />
-                          <span>{field.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}</span>
-                        </label>
-                      ))}
+                      {Object.entries(tomorrowFilterOptions).map(
+                        ([field, checked]) => (
+                          <label key={field} className="filter-option">
+                            <input
+                              type="checkbox"
+                              checked={checked}
+                              onChange={() => handleTomorrowFilterChange(field)}
+                            />
+                            <span>
+                              {field
+                                .replace(/([A-Z])/g, " $1")
+                                .replace(/^./, (str) => str.toUpperCase())}
+                            </span>
+                          </label>
+                        )
+                      )}
                     </div>
                     <div className="filter-actions">
-                      <button 
-                        className="reset-btn" 
-                        onClick={() => setTomorrowFilterOptions(Object.fromEntries(Object.keys(tomorrowFilterOptions).map(key => [key, true])))}
+                      <button
+                        className="reset-btn"
+                        onClick={() =>
+                          setTomorrowFilterOptions(
+                            Object.fromEntries(
+                              Object.keys(tomorrowFilterOptions).map((key) => [
+                                key,
+                                true,
+                              ])
+                            )
+                          )
+                        }
                       >
                         Reset
                       </button>
-                      <button className="apply-btn" onClick={() => setShowTomorrowFilterPopup(false)}>
+                      <button
+                        className="apply-btn"
+                        onClick={() => setShowTomorrowFilterPopup(false)}
+                      >
                         Apply
                       </button>
                     </div>
                   </div>
                 )}
               </div>
+              <ExportReport guestData={getPaginatedGuestData()} />
             </div>
           </div>
         </div>
 
         <div className="table-container">
           {getPaginatedGuestData().length > 0 ? (
-            <table>
+            <table style={{ background: "#fff" }}>
               <thead>
                 <tr>
                   {tomorrowFilterOptions.roomNumber && <th>Room number</th>}
@@ -677,64 +842,126 @@ const Donation = () => {
                   {tomorrowFilterOptions.arrivalDate && <th>Arrival date</th>}
                   {tomorrowFilterOptions.stayDuration && <th>Stay Duration</th>}
                   {tomorrowFilterOptions.donation && <th>Donation</th>}
-                  {tomorrowFilterOptions.donationAmount && <th>Donation Amount</th>}
+                  {tomorrowFilterOptions.donationAmount && (
+                    <th>Donation Amount</th>
+                  )}
                   {tomorrowFilterOptions.action && <th>Action</th>}
                 </tr>
               </thead>
               <tbody>
                 {getPaginatedGuestData().map((guest, index) => (
                   <tr key={index}>
-                    {tomorrowFilterOptions.roomNumber && <td>{guest.roomNumber}</td>}
-                    {tomorrowFilterOptions.guestName && <td>{guest.guestName}</td>}
-                    {tomorrowFilterOptions.arrivalDate && <td>{guest.arrivalDate}</td>}
-                    {tomorrowFilterOptions.stayDuration && <td>{guest.stayDuration}</td>}
+                    {tomorrowFilterOptions.roomNumber && (
+                      <td>{guest.roomNumber}</td>
+                    )}
+                    {tomorrowFilterOptions.guestName && (
+                      <td>{guest.guestName}</td>
+                    )}
+                    {tomorrowFilterOptions.arrivalDate && (
+                      <td>{guest.arrivalDate}</td>
+                    )}
+                    {tomorrowFilterOptions.stayDuration && (
+                      <td>{guest.stayDuration}</td>
+                    )}
                     {tomorrowFilterOptions.donation && (
                       <td>
-                        <span className={`donation-status ${guest.donation === 'Donated' ? 'donated' : 'not-donated'}`}>
+                        <span
+                          className={`donation-status ${
+                            guest.donation === "Donated"
+                              ? "donated"
+                              : "not-donated"
+                          }`}
+                        >
                           {guest.donation}
                         </span>
                       </td>
                     )}
-                    {tomorrowFilterOptions.donationAmount && <td>{guest.donationAmount || '-'}</td>}
+                    {tomorrowFilterOptions.donationAmount && (
+                      <td>{guest.donationAmount || "-"}</td>
+                    )}
                     {tomorrowFilterOptions.action && (
                       <td className="action-cell">
-                        <button 
+                        <button
                           className="action-btn"
                           onClick={(e) => toggleDropdown(index, e)}
                         >
                           <span className="material-icons">more_vert</span>
                         </button>
-                        
+
                         {openActionId === index && (
-                          <div 
+                          <div
                             className="action-dropdown"
                             style={{
                               top: `${dropdownPosition.top}px`,
-                              left: `${dropdownPosition.left}px`
+                              left: `${dropdownPosition.left}px`,
                             }}
                           >
-                            <button onClick={() => handleActionClick('notification', guest)}>
-                              <span className="material-icons" style={{ color: '#8B5CF6' }}>notifications</span>
+                            <button
+                              onClick={() =>
+                                handleActionClick("notification", guest)
+                              }
+                            >
+                              <span
+                                className="material-icons"
+                                style={{ color: "#8B5CF6" }}
+                              >
+                                notifications
+                              </span>
                               <span>Send all notifications</span>
                             </button>
-                            <button onClick={() => handleActionClick('whatsapp', guest)}>
-                              <span className="material-icons" style={{ color: '#25D366' }}>message</span>
+                            <button
+                              onClick={() =>
+                                handleActionClick("whatsapp", guest)
+                              }
+                            >
+                              <span
+                                className="material-icons"
+                                style={{ color: "#25D366" }}
+                              >
+                                message
+                              </span>
                               <span>Send Whatsapp</span>
                             </button>
-                            <button onClick={() => handleActionClick('email', guest)}>
-                              <span className="material-icons" style={{ color: '#8B5CF6' }}>mail</span>
+                            <button
+                              onClick={() => handleActionClick("email", guest)}
+                            >
+                              <span
+                                className="material-icons"
+                                style={{ color: "#8B5CF6" }}
+                              >
+                                mail
+                              </span>
                               <span>Send an E-mail</span>
                             </button>
-                            <button onClick={() => handleActionClick('sms', guest)}>
-                              <span className="material-icons" style={{ color: '#8B5CF6' }}>chat</span>
+                            <button
+                              onClick={() => handleActionClick("sms", guest)}
+                            >
+                              <span
+                                className="material-icons"
+                                style={{ color: "#8B5CF6" }}
+                              >
+                                chat
+                              </span>
                               <span>Send SMS</span>
                             </button>
-                            <button onClick={() => handleActionClick('call', guest)}>
-                              <span className="material-icons" style={{ color: '#8B5CF6' }}>phone</span>
+                            <button
+                              onClick={() => handleActionClick("call", guest)}
+                            >
+                              <span
+                                className="material-icons"
+                                style={{ color: "#8B5CF6" }}
+                              >
+                                phone
+                              </span>
                               <span>Call the Guest</span>
                             </button>
                             <button onClick={() => handlePrintReceipt(guest)}>
-                              <span className="material-icons" style={{ color: '#8B5CF6' }}>print</span>
+                              <span
+                                className="material-icons"
+                                style={{ color: "#8B5CF6" }}
+                              >
+                                print
+                              </span>
                               <span>Print Receipt</span>
                             </button>
                           </div>
@@ -751,7 +978,7 @@ const Donation = () => {
               <p>No guests are leaving tomorrow</p>
             </div>
           )}
-          
+
           {getPaginatedGuestData().length > 0 && (
             <div className="pagination-wrapper">
               <Pagination
@@ -764,19 +991,23 @@ const Donation = () => {
         </div>
       </div>
 
-      <div className="recent-donations-section">
+      <div
+        id="recent-donations"
+        ref={recentDonationsRef}
+        className="recent-donations-section"
+      >
         <div className="section-header">
           <h3>Recent Donations</h3>
           <div className="header-actions">
             <div className="search-box">
-              <input 
-                type="text" 
-                placeholder="Search by name, receipt number, or phone" 
+              <input
+                type="text"
+                placeholder="Search by name, receipt number, or phone"
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
               <div className="filter-dropdown-container">
-                <button 
-                  className="filter-btn" 
+                <button
+                  className="filter-btn"
                   onClick={(e) => {
                     e.stopPropagation();
                     setShowFilterPopup(!showFilterPopup);
@@ -794,18 +1025,34 @@ const Donation = () => {
                             checked={checked}
                             onChange={() => handleFilterChange(field)}
                           />
-                          <span>{field.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}</span>
+                          <span>
+                            {field
+                              .replace(/([A-Z])/g, " $1")
+                              .replace(/^./, (str) => str.toUpperCase())}
+                          </span>
                         </label>
                       ))}
                     </div>
                     <div className="filter-actions">
-                      <button 
-                        className="reset-btn" 
-                        onClick={() => setFilterOptions(Object.fromEntries(Object.keys(filterOptions).map(key => [key, true])))}
+                      <button
+                        className="reset-btn"
+                        onClick={() =>
+                          setFilterOptions(
+                            Object.fromEntries(
+                              Object.keys(filterOptions).map((key) => [
+                                key,
+                                true,
+                              ])
+                            )
+                          )
+                        }
                       >
                         Reset
                       </button>
-                      <button className="apply-btn" onClick={() => setShowFilterPopup(false)}>
+                      <button
+                        className="apply-btn"
+                        onClick={() => setShowFilterPopup(false)}
+                      >
                         Apply
                       </button>
                     </div>
@@ -813,20 +1060,27 @@ const Donation = () => {
                 )}
               </div>
             </div>
-            <button className="view-all" onClick={() => navigate('/allDonationDetails')}>View All</button>
+            <button
+              className="view-all"
+              onClick={() => navigate("/allDonationDetails")}
+            >
+              View All
+            </button>
           </div>
         </div>
       </div>
 
-      <AllDonation 
-        searchTerm={searchTerm} 
+      <AllDonation
+        searchTerm={searchTerm}
         filterOptions={filterOptions}
         itemsPerPage={10}
         currentPage={1}
-        setTotalPages={(total) => {/* handle total pages if needed */}}
+        setTotalPages={(total) => {
+          /* handle total pages if needed */
+        }}
       />
     </div>
-  )
-}
+  );
+};
 
-export default Donation
+export default Donation;

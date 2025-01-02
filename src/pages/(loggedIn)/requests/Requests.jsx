@@ -19,6 +19,8 @@ import RescheduledRequests from "./StatusTabNavigation/defaultView/RescheduledRe
 import TabCancelledGridView from "./StatusTabNavigation/gridView/TabCancelledGridView";
 import TabPendingGridView from "./StatusTabNavigation/gridView/TabPendingGridView";
 import TabRescheduledGridView from "./StatusTabNavigation/gridView/TabRescheduledGridView";
+import ConfirmedRequests from "./StatusTabNavigation/defaultView/ConfirmedRequests.jsx";
+import TabConfirmedGridView from "./StatusTabNavigation/gridView/TabConfirmedGridView.jsx";
 
 const Requests = () => {
   const [startDate, setStartDate] = useState(null);
@@ -62,6 +64,7 @@ const Requests = () => {
     { label: "Rescheduled", id: "rescheduled", Requests: 4 },
     { label: "Cancelled", id: "cancelled", Requests: 4 },
     { label: "Approved", id: "approved", Requests: 4 },
+    { label: "Confirmed", id: "confirmed", Requests: 4 },
     { label: "On hold", id: "onHold", Requests: 4 },
     { label: "Rejected", id: "rejected", Requests: 4 },
   ];
@@ -79,9 +82,17 @@ const Requests = () => {
   const renderTabContent = () => {
     if (activeTab === "pending") {
       return isGuestsGridViewVisible ? (
-        <TabPendingGridView selectedDate={startDate} searchQuery={searchQuery} label={activeTab} />
+        <TabPendingGridView
+          selectedDate={startDate}
+          searchQuery={searchQuery}
+          label={activeTab}
+        />
       ) : (
-        <PendingRequests selectedDate={startDate} searchQuery={searchQuery} label={activeTab} />
+        <PendingRequests
+          selectedDate={startDate}
+          searchQuery={searchQuery}
+          label={activeTab}
+        />
       );
     } else if (activeTab === "approved") {
       return isGuestsGridViewVisible ? (
@@ -112,6 +123,12 @@ const Requests = () => {
         <TabRescheduledGridView selectedDate={startDate} label={activeTab} />
       ) : (
         <RescheduledRequests selectedDate={startDate} label={activeTab} />
+      );
+    } else if (activeTab === "confirmed") {
+      return isGuestsGridViewVisible ? (
+        <TabConfirmedGridView selectedDate={startDate} label={activeTab} />
+      ) : (
+        <ConfirmedRequests selectedDate={startDate} label={activeTab} />
       );
     } else {
       return (
@@ -153,10 +170,14 @@ const Requests = () => {
               customInput={
                 <input
                   type="text"
-                  value={startDate ? `${startDate.getDate()}th ${startDate.toLocaleString(
-                    "default",
-                    { month: "long" }
-                  )}, ${startDate.getFullYear()}` : "Select Date"}
+                  value={
+                    startDate
+                      ? `${startDate.getDate()}th ${startDate.toLocaleString(
+                          "default",
+                          { month: "long" }
+                        )}, ${startDate.getFullYear()}`
+                      : "Select Date"
+                  }
                   readOnly
                 />
               }

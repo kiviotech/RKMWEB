@@ -2,128 +2,128 @@ $password-icon-position: 10px;
 $input-padding: 12px 0;
 $border-radius: 15px;
 $font-family: Lexend;
-$font-color: #1A212B;
-$background-color: #FFFFFF;
+$font-color: #1a212b;
+$background-color: #ffffff;
 
 .password-input {
-    position: relative;
+  position: relative;
 
-    .show-password-btn {
-        position: absolute;
-        right: $password-icon-position;
-        top: 50%;
-      right: 8%;
-        transform: translateY(-50%);
-        background: none;
-        border: none;
-        cursor: pointer;
-    }
+  .show-password-btn {
+    position: absolute;
+    right: $password-icon-position;
+    top: 50%;
+    right: 8%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+  }
 }
 
 .assistive-text {
-    margin-bottom: 20px;
-    color: #888;
+  margin-bottom: 20px;
+  color: #888;
 }
 
 .login,
 .signup {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    background-color: #f3eaf7;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #fff2ea;
 }
 
 .input-group {
-    margin-bottom: 20px;
-    text-align: left;
+  margin-bottom: 20px;
+  text-align: left;
 
-    input {
-        width: 95%;
-        padding: $input-padding;
-        border: 1px solid #9AA8BC;
-        border-radius: $border-radius;
-        font-size: 16px;
-        background-color: $background-color;
-        padding-left: 10px;
-        font-family: $font-family;
-        font-weight: 400;
-        color: $font-color;
+  input {
+    width: 95%;
+    padding: $input-padding;
+    border: 1px solid #9aa8bc;
+    border-radius: $border-radius;
+    font-size: 16px;
+    background-color: $background-color;
+    padding-left: 10px;
+    font-family: $font-family;
+    font-weight: 400;
+    color: $font-color;
 
-        &::placeholder {
-            color: $font-color;
-        }
+    &::placeholder {
+      color: $font-color;
     }
+  }
 
-    label {
-        display: block;
-        font-weight: 400;
-        font-family: $font-family;
-        padding-bottom: 5px;
-        color: #728197;
-    }
+  label {
+    display: block;
+    font-weight: 400;
+    font-family: $font-family;
+    padding-bottom: 5px;
+    color: #728197;
+  }
 }
 
 .login-box,
 .signup-box {
-    background-color: white;
-    padding: 40px 60px;
-    border-radius: 24px;
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+  background-color: white;
+  padding: 40px 60px;
+  border-radius: 24px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  width: 450px;
+
+  .logo {
+    margin-bottom: 20px;
+    font-size: 24px;
+    font-weight: bold;
+  }
+
+  .or {
+    font-size: 12px;
+    color: #888;
+    font-family: $font-family;
+    font-weight: 500;
+    line-height: 5px;
     text-align: center;
-    width: 450px;
-
-    .logo {
-        margin-bottom: 20px;
-        font-size: 24px;
-        font-weight: bold;
-    }
-
-    .or {
-        font-size: 12px;
-        color: #888;
-        font-family: $font-family;
-        font-weight: 500;
-        line-height: 5px;
-        text-align: center;
-        margin: 10px 0;
-    }
+    margin: 10px 0;
+  }
 }
 
 .social-login {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-top: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 15px;
 
-    .social-btn {
-        width: 45px;
-        height: 45px;
-        border: none;
-        
-        background-color: $background-color;
-        border-radius: 5px;
-        cursor: pointer;
-        transition: background-color 0.3s;
-        box-shadow: 3px 3px 12px 0px #00000026;
-    }
+  .social-btn {
+    width: 45px;
+    height: 45px;
+    border: none;
+
+    background-color: $background-color;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    box-shadow: 3px 3px 12px 0px #00000026;
+  }
 }
 
 .filed-tip {
-    // border: 1px solid red;
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
+  // border: 1px solid red;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
 
-    img {
-        margin-right: 10px;
-        height: 20px;
-        // border: 1px solid red;
-    }
+  img {
+    margin-right: 10px;
+    height: 20px;
+    // border: 1px solid red;
+  }
 }
 
 .error-text {
-    color: red;
-    font-size: 12px;
-    margin-top: 5px;
+  color: red;
+  font-size: 12px;
+  margin-top: 5px;
 }

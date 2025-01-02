@@ -7,8 +7,89 @@ import No1Icon from "../../../assets/icons/No1Icon.png";
 import useDeekshaFormStore from "../../../../deekshaFormStore";
 import "./DeekshaDurationForm.scss";
 
+const translations = {
+  english: {
+    acquaintedQuestion:
+      "Are you acquainted with any Swami of the Ramakrishna Math/Mission? If yes, name the Swami and his centre.",
+    yes: "Yes",
+    no: "No",
+    ifYes: "If yes :-",
+    selectSwami: "Select the Swami",
+    selectCentre: "Select the Centre",
+    durationQuestion:
+      "How long have you been eager for initiation from Ramakrishna Math?",
+    oneMonth: "1 month",
+    twoMonths: "2 months",
+    threeMonths: "3 months",
+    sixMonths: "6 months",
+    nineMonths: "9 months",
+    others: "Others",
+    enterTime: "Please enter specific time",
+    back: "Back",
+    next: "Next",
+    guru1: "Guru 1",
+    guru2: "Guru 2",
+    guru3: "Guru 3",
+    guru4: "Guru 4",
+    centre1: "Centre 1",
+    centre2: "Centre 2",
+  },
+  hindi: {
+    acquaintedQuestion:
+      "क्या आप रामकृष्ण मठ/मिशन के किसी स्वामी से परिचित हैं? यदि हाँ, तो स्वामी और उनके केंद्र का नाम बताएं।",
+    yes: "हाँ",
+    no: "नहीं",
+    ifYes: "यदि हाँ :-",
+    selectSwami: "स्वामी चुनें",
+    selectCentre: "केंद्र चुनें",
+    durationQuestion: "आप कब से रामकृष्ण मठ से दीक्षा लेने के लिए उत्सुक हैं?",
+    oneMonth: "1 महीना",
+    twoMonths: "2 महीने",
+    threeMonths: "3 महीने",
+    sixMonths: "6 महीने",
+    nineMonths: "9 महीने",
+    others: "अन्य",
+    enterTime: "कृपया विशिष्ट समय दर्ज करें",
+    back: "वापस",
+    next: "अगला",
+    guru1: "गुरु 1",
+    guru2: "गुरु 2",
+    guru3: "गुरु 3",
+    guru4: "गुरु 4",
+    centre1: "केंद्र 1",
+    centre2: "केंद्र 2",
+  },
+  bengali: {
+    acquaintedQuestion:
+      "আপনি কি রামকৃষ্ণ মঠ/মিশনের কোনো স্বামীর সাথে পরিচিত? যদি হ্যাঁ, তবে স্বামী এবং তাঁর কেন্দ্রের নাম বলুন।",
+    yes: "হ্যাঁ",
+    no: "না",
+    ifYes: "যদি হ্যাঁ :-",
+    selectSwami: "স্বামী নির্বাচন করুন",
+    selectCentre: "কেন্দ্র নির্বাচন করুন",
+    durationQuestion:
+      "আপনি কতদিন ধরে রামকৃষ্ণ মঠ থেকে দীক্ষা নেওয়ার জন্য আগ্রহী?",
+    oneMonth: "১ মাস",
+    twoMonths: "২ মাস",
+    threeMonths: "৩ মাস",
+    sixMonths: "৬ মাস",
+    nineMonths: "৯ মাস",
+    others: "অন্যান্য",
+    enterTime: "অনুগ্রহ করে নির্দিষ্ট সময় লিখুন",
+    back: "পিছনে",
+    next: "পরবর্তী",
+    guru1: "গুরু ১",
+    guru2: "গুরু ২",
+    guru3: "গুরু ৩",
+    guru4: "গুরু ৪",
+    centre1: "কেন্দ্র ১",
+    centre2: "কেন্দ্র ২",
+  },
+};
+
 const DeekshaDurationForm = () => {
-  const { duration, updateDuration } = useDeekshaFormStore();
+  const { duration, updateDuration, formLanguage, guruji } =
+    useDeekshaFormStore();
   const navigate = useNavigate();
 
   // Initialize state from Zustand store
@@ -18,8 +99,11 @@ const DeekshaDurationForm = () => {
   const [eagerDuration, setEagerDuration] = useState(duration.eagerDuration);
   const [otherDuration, setOtherDuration] = useState(duration.otherDuration);
   const [isBackClicked, setBackClicked] = useState(false);
-const [noIsAcquainted,setNoIsAcquainted]=useState(false);
+  const [noIsAcquainted, setNoIsAcquainted] = useState(false);
   const [errors, setErrors] = useState({});
+
+  // Get translations based on selected language
+  const t = translations[formLanguage || "english"];
 
   // Update Zustand store whenever form values change
   useEffect(() => {
@@ -34,14 +118,21 @@ const [noIsAcquainted,setNoIsAcquainted]=useState(false);
     });
     // Log entire Zustand store
     // console.log("Current Deeksha Form State:", useDeekshaFormStore.getState());
-  }, [yesIsAcquainted,noIsAcquainted, selectedSwami, selectedCentre, eagerDuration, otherDuration]);
+  }, [
+    yesIsAcquainted,
+    noIsAcquainted,
+    selectedSwami,
+    selectedCentre,
+    eagerDuration,
+    otherDuration,
+  ]);
 
   const handleIsAcquaintedSelection = (value) => {
     // setYesIsAcquainted(value); // Set the isAcquainted state
     // setNoIsAcquainted(value);
     // updateDuration({ yesIsAcquainted : value }); // Update the Zustand store with the new value
 
-     // Change 1: Updated this function for mutual exclusivity
+    // Change 1: Updated this function for mutual exclusivity
 
     // if (value) {
     //   setYesIsAcquainted(true); // Select Yes
@@ -76,9 +167,6 @@ const [noIsAcquainted,setNoIsAcquainted]=useState(false);
     console.log("Updated data:", useDeekshaFormStore.getState()); // Log the updated store for debugging
   };
 
-  
-  
-
   // Back button functionality
   const handleBack = () => {
     setBackClicked(true);
@@ -90,7 +178,7 @@ const [noIsAcquainted,setNoIsAcquainted]=useState(false);
   // Validation function
   const validateForm = () => {
     const newErrors = {};
-    
+
     if (yesIsAcquainted) {
       if (!selectedSwami) {
         newErrors.swami = "Please select a Swami";
@@ -119,7 +207,7 @@ const [noIsAcquainted,setNoIsAcquainted]=useState(false);
   // Handle next button click
   const handleNext = (e) => {
     e.preventDefault();
-    
+
     const isValid = validateForm();
     if (isValid) {
       navigate("/deekshaBooks-form");
@@ -134,14 +222,10 @@ const [noIsAcquainted,setNoIsAcquainted]=useState(false);
       </div>
 
       {/* Heading */}
-      <h1 className="deekshadurationform-heading">
-        Srimat Swami Gautamanandaji Maharaj's Diksha Form
-      </h1>
+      <h1 className="deekshadurationform-heading">{guruji}</h1>
 
       {/* Question: Are you acquainted? */}
-      <p className="deekshadurationform-question">
-        Are you acquainted with any Swami of the Ramakrishna Math/Mission? If yes, name the Swami and his centre.
-      </p>
+      <p className="deekshadurationform-question">{t.acquaintedQuestion}</p>
       <div className="deekshadurationform-yesNoInput">
         {/* Yes Button */}
         <button
@@ -149,15 +233,15 @@ const [noIsAcquainted,setNoIsAcquainted]=useState(false);
           className={yesIsAcquainted === true ? "active" : "  "} // Add 'active' class when isAcquainted is true
         >
           <img
-            src={yesIsAcquainted  ? YesIcon : Yes1Icon} // Show active icon when true
+            src={yesIsAcquainted ? YesIcon : Yes1Icon} // Show active icon when true
             alt="Yes"
           />
         </button>
-        
+
         {/* No Button */}
         <button
           onClick={() => handleIsAcquaintedSelection(false)} // Set isAcquainted to false when "No" is clicked
-          className={noIsAcquainted === false ? 'active' : ''} // Add 'active' class when isAcquainted is false
+          className={noIsAcquainted === false ? "active" : ""} // Add 'active' class when isAcquainted is false
         >
           <img
             src={noIsAcquainted === false ? NoIcon : No1Icon} // Show active icon when false
@@ -173,7 +257,7 @@ const [noIsAcquainted,setNoIsAcquainted]=useState(false);
       {/* Conditional Dropdowns */}
       {yesIsAcquainted === true && (
         <div className="deekshadurationform-conditionalFields">
-          <p>If yes :-</p>
+          <p>{t.ifYes}</p>
           <div className="selectContainer">
             <select
               value={selectedSwami}
@@ -184,13 +268,15 @@ const [noIsAcquainted,setNoIsAcquainted]=useState(false);
                 }
               }}
             >
-              <option value="">Select the Swami</option>
-              <option value="Guru 1">Guru 1</option>
-              <option value="Guru 2">Guru 2</option>
-              <option value="Guru 3">Guru 3</option>
-              <option value="Guru 4">Guru 4</option>
+              <option value="">{t.selectSwami}</option>
+              <option value="Guru 1">{t.guru1}</option>
+              <option value="Guru 2">{t.guru2}</option>
+              <option value="Guru 3">{t.guru3}</option>
+              <option value="Guru 4">{t.guru4}</option>
             </select>
-            {errors.swami && <span className="error-message">{errors.swami}</span>}
+            {errors.swami && (
+              <span className="error-message">{errors.swami}</span>
+            )}
           </div>
           <div className="selectContainer">
             <select
@@ -202,45 +288,53 @@ const [noIsAcquainted,setNoIsAcquainted]=useState(false);
                 }
               }}
             >
-              <option value="">Select the Centre</option>
-              <option value="Centre1">Centre 1</option>
-              <option value="Centre2">Centre 2</option>
+              <option value="">{t.selectCentre}</option>
+              <option value="Centre1">{t.centre1}</option>
+              <option value="Centre2">{t.centre2}</option>
             </select>
-            {errors.centre && <span className="error-message">{errors.centre}</span>}
+            {errors.centre && (
+              <span className="error-message">{errors.centre}</span>
+            )}
           </div>
         </div>
       )}
 
       {/* Question: Duration */}
-      <p className="deekshadurationform-question">
-        How long have you been eager for initiation from Ramakrishna Math?
-      </p>
+      <p className="deekshadurationform-question">{t.durationQuestion}</p>
       <div className="deekshadurationform-durationOptions">
-        {["1 month", "2 months", "3 months", "6 months", "9 months", "Others"].map((option) => (
-          <label key={option}>
+        {[
+          { value: "1 month", label: t.oneMonth },
+          { value: "2 months", label: t.twoMonths },
+          { value: "3 months", label: t.threeMonths },
+          { value: "6 months", label: t.sixMonths },
+          { value: "9 months", label: t.nineMonths },
+          { value: "Others", label: t.others },
+        ].map((option) => (
+          <label key={option.value}>
             <input
               type="radio"
               name="eagerDuration"
-              value={option}
-              checked={eagerDuration === option}
+              value={option.value}
+              checked={eagerDuration === option.value}
               onChange={() => {
-                setEagerDuration(option);
+                setEagerDuration(option.value);
                 setErrors({ ...errors, duration: null });
               }}
             />
-            {option}
+            {option.label}
           </label>
         ))}
       </div>
-      {errors.duration && <span className="error-message">{errors.duration}</span>}
+      {errors.duration && (
+        <span className="error-message">{errors.duration}</span>
+      )}
 
       {/* Other Duration Input */}
       {eagerDuration === "Others" && (
         <div className="deekshadurationform-otherDurationInput">
-          <p style={{ fontWeight: "bold" }}>If others:</p>
           <input
             type="text"
-            placeholder="Please enter specific time"
+            placeholder={t.enterTime}
             value={otherDuration}
             onChange={(e) => {
               setOtherDuration(e.target.value);
@@ -257,14 +351,17 @@ const [noIsAcquainted,setNoIsAcquainted]=useState(false);
 
       {/* Back and Next Buttons */}
       <div className="deekshadurationform-button-group">
-        <button onClick={handleBack} className="deekshadurationform-back-button">
-          Back
+        <button
+          onClick={handleBack}
+          className="deekshadurationform-back-button"
+        >
+          {t.back}
         </button>
-        <button 
+        <button
           onClick={handleNext}
           className="deekshadurationform-next-button"
         >
-          Next
+          {t.next}
         </button>
       </div>
     </div>

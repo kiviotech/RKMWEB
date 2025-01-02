@@ -17,7 +17,8 @@ const useApplicationStore = create((set) => ({
       state: "",
       houseNumber: "",
       district: "",
-      // streetName: "",
+      streetName: "",
+      postOffice: "",
       pinCode: "",
     },
     guests: [
@@ -38,14 +39,15 @@ const useApplicationStore = create((set) => ({
           state: "",
           houseNumber: "",
           district: "",
-          // streetName: "",
+          streetName: "",
+          postOffice: "",
           pinCode: "",
         },
         sameAsApplicant: false,
       },
     ],
     visitDate: "",
-    visitTime: "",
+    visitTime: "10:30",
     arrivalDate: "",
     departureDate: "",
     departureTime: "",
@@ -53,6 +55,8 @@ const useApplicationStore = create((set) => ({
     visited: "",
     reason: "",
     previousVisitDate: "",
+    knownToMath: "",
+    additionalMessage: "",
   },
   errors: {},
 
@@ -121,34 +125,38 @@ const useApplicationStore = create((set) => ({
 
   updateGuestMembers: (guestCount) =>
     set((state) => {
+      const initialGuestState = {
+        guestTitle: "",
+        guestName: "",
+        guestAge: "",
+        guestGender: "",
+        guestEmail: "",
+        guestNumber: "",
+        countryCode: "91",
+        guestOccupation: "",
+        guestDeeksha: "",
+        guestAadhaar: "",
+        guestRelation: "",
+        guestRelationOther: "",
+        guestAddress: {
+          state: "",
+          houseNumber: "",
+          district: "",
+          streetName: "",
+          landmark: "",
+          postOffice: "",
+          pinCode: "",
+        },
+        sameAsApplicant: false,
+      };
+
       const updatedGuests = Array(guestCount)
         .fill()
         .map((_, index) => {
           if (index < state.formData.guests.length) {
             return state.formData.guests[index];
           } else {
-            return {
-              guestTitle: "",
-              guestName: "",
-              guestAge: "",
-              guestGender: "",
-              guestEmail: "",
-              guestNumber: "",
-              countryCode: "91",
-              guestOccupation: "",
-              guestDeeksha: "",
-              guestAadhaar: "",
-              guestRelation: "",
-              guestRelationOther: "",
-              guestAddress: {
-                state: "",
-                houseNumber: "",
-                district: "",
-                // streetName: "",
-                pinCode: "",
-              },
-              sameAsApplicant: false,
-            };
+            return { ...initialGuestState };
           }
         });
 
@@ -202,7 +210,8 @@ const useApplicationStore = create((set) => ({
           state: "",
           houseNumber: "",
           district: "",
-          // streetName: "",
+          streetName: "",
+          postOffice: "",
           pinCode: "",
         },
         guests: [],
@@ -214,6 +223,8 @@ const useApplicationStore = create((set) => ({
         visited: "",
         reason: "",
         previousVisitDate: "",
+        knownToMath: "",
+        additionalMessage: "",
       },
       errors: {},
     })),

@@ -193,7 +193,6 @@
 
       .header-actions {
         display: flex;
-        gap: 16px;
 
         .search-box {
           display: flex;
@@ -411,6 +410,8 @@
         }
 
         .view-all {
+          white-space: nowrap;
+          display: inline-block;
           color: #8b5cf6;
           background: none;
           border: none;

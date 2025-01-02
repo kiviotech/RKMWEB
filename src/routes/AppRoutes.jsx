@@ -16,10 +16,12 @@ import Donation from "../pages/(loggedIn)/donation/Donation";
 import DonationDetail from "../pages/(loggedIn)/donation/DonationDetail";
 import DeekshaForm from "../pages/(loggedIn)/deeksha/DeekshaForm";
 import Deeksha from "../pages/(loggedIn)/deeksha/Deeksha";
+import PrintWithoutPreview from "../pages/(loggedIn)/donation/printWithoutPreview";
 import {
-  AdminRoute,
   DeekshaRoute,
   SharedRoute,
+  SubAdminRoute,
+  SuperAdminRoute,
 } from "../components/ProtectedRoute";
 import { PublicRoute } from "../components/AuthMiddleware";
 
@@ -38,6 +40,8 @@ import AllDonationDetails from "../pages/(loggedIn)/donation/AllDonationDetails"
 import ThankYouPage from "../pages/applicationForm/ThankYouPage";
 import WelcomePage from "../pages/applicationForm/WelcomePage";
 import Coupons from "../pages/(loggedIn)/coupons/Coupons";
+
+import ConsentLetter from "../pages/(loggedIn)/donation/ConsentLetter";
 
 const AppRoutes = () => {
   return (
@@ -64,99 +68,99 @@ const AppRoutes = () => {
         <Route
           path="/dashboard"
           element={
-            <AdminRoute>
+            <SuperAdminRoute>
               <Dashboard />
-            </AdminRoute>
+            </SuperAdminRoute>
           }
         />
-        <Route path="/coupons" element={<Coupons />} />
+        <Route
+          path="/coupons"
+          element={
+            <SuperAdminRoute>
+              <Coupons />
+            </SuperAdminRoute>
+          }
+        />
         <Route
           path="/check-in"
           element={
-            <AdminRoute>
+            <SuperAdminRoute>
               <CheckInDetails />
-            </AdminRoute>
+            </SuperAdminRoute>
           }
         />
         <Route
           path="/check-out"
           element={
-            <AdminRoute>
+            <SuperAdminRoute>
               <CheckOutDetails />
-            </AdminRoute>
+            </SuperAdminRoute>
           }
         />
         <Route
           path="/allocate-rooms"
           element={
-            <AdminRoute>
+            <SuperAdminRoute>
               <AllocateRoom />
-            </AdminRoute>
+            </SuperAdminRoute>
           }
         />
         <Route
           path="/approve-guests"
           element={
-            <AdminRoute>
+            <SuperAdminRoute>
               <ApproveGuests />
-            </AdminRoute>
+            </SuperAdminRoute>
           }
         />
         <Route
           path="/room-availability"
           element={
-            <AdminRoute>
+            <SuperAdminRoute>
               <CheckRoomAvailability />
-            </AdminRoute>
+            </SuperAdminRoute>
           }
         />
         <Route
           path="/book-room"
           element={
-            <AdminRoute>
+            <SuperAdminRoute>
               <BookRoom />
-            </AdminRoute>
+            </SuperAdminRoute>
           }
         />
         <Route
           path="/Requests"
           element={
-            <AdminRoute>
+            <SuperAdminRoute>
               <Requests />
-            </AdminRoute>
+            </SuperAdminRoute>
           }
         />
         <Route
           path="/donation"
           element={
-            <AdminRoute>
+            <SuperAdminRoute>
               <Donation />
-            </AdminRoute>
+            </SuperAdminRoute>
           }
         />
         <Route
           path="/newDonation"
           element={
-            <AdminRoute>
+            <SubAdminRoute>
               <NewDonation />
-            </AdminRoute>
+            </SubAdminRoute>
           }
         />
-                <Route
-          path="/allDonationDetails"
-          element={
-            <AdminRoute>
-              <AllDonationDetails />
-            </AdminRoute>
-          }
-        />
+        <Route path="/allDonationDetails" element={<AllDonationDetails />} />
 
         <Route
           path="/donationdetail"
           element={
-            <AdminRoute>
+            <SuperAdminRoute>
               <DonationDetail />
-            </AdminRoute>
+            </SuperAdminRoute>
           }
         />
 
@@ -177,11 +181,11 @@ const AppRoutes = () => {
           </SharedRoute>
         }
       />
-            <Route
+      <Route
         path="/deekshaAdress-form"
         element={
           <SharedRoute>
-            < DeekshaAddressForm />
+            <DeekshaAddressForm />
           </SharedRoute>
         }
       />
@@ -221,8 +225,7 @@ const AppRoutes = () => {
         path="/deekshaDuration-form"
         element={
           <SharedRoute>
-            <DeekshaDurationForm
- />
+            <DeekshaDurationForm />
           </SharedRoute>
         }
       />
@@ -230,18 +233,16 @@ const AppRoutes = () => {
         path="/deekshaBooks-form"
         element={
           <SharedRoute>
-            <DeekshaBooksForm
- />
+            <DeekshaBooksForm />
           </SharedRoute>
         }
       />
 
-<Route
+      <Route
         path="/deekshaUpasana-form"
         element={
           <SharedRoute>
-            <DeekshaUpasanaForm
- />
+            <DeekshaUpasanaForm />
           </SharedRoute>
         }
       />
@@ -249,15 +250,20 @@ const AppRoutes = () => {
       <Route path="/application-form" element={<ApplicationForm />} />
       <Route path="/welcome" element={<WelcomePage />} />
       <Route path="/thank-you" element={<ThankYouPage />} />
-      <Route path="/dormitory-application-form" element={<DormitoryApplicationForm />} />
       <Route
-          path="/allDonation"
-          element={
-            <AdminRoute>
-              <AllDonation />
-            </AdminRoute>
-          }
-        />
+        path="/dormitory-application-form"
+        element={<DormitoryApplicationForm />}
+      />
+      <Route path="/consent-letter" element={<ConsentLetter />} />
+      <Route path="/print-without-preview" element={<PrintWithoutPreview />} />
+      <Route
+        path="/allDonation"
+        element={
+          <SuperAdminRoute>
+            <AllDonation />
+          </SuperAdminRoute>
+        }
+      />
     </Routes>
   );
 };

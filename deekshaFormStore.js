@@ -1,35 +1,37 @@
-import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { create } from "zustand";
+import { persist } from "zustand/middleware";
 
 const useDeekshaFormStore = create(
   persist(
     (set) => ({
-      gender: 'Male',
-      prefix: '',
-      name: '',
-      maritalStatus: '',
-      careOf: '',
-      age: '',
+      gender: "Male",
+      prefix: "",
+      name: "",
+      maritalStatus: "",
+      careOf: "",
+      age: "",
+      guruji: "",
+      formLanguage: "",
 
       address: {
-        pincode: '',
-        country: '',
-        state: '',
-        district: '',
-        houseNumber: '',
-        streetName: '',
+        pincode: "",
+        country: "",
+        state: "",
+        district: "",
+        houseNumber: "",
+        streetName: "",
       },
 
       contact: {
-        phoneNumber: '',
-        email: '',
-        aadhaar: '',
-        pan: '',
+        phoneNumber: "",
+        email: "",
+        aadhaar: "",
+        pan: "",
       },
 
       education: {
-        educationLevel: '',
-        occupation: '',
+        educationLevel: "",
+        occupation: "",
         languages: [],
       },
 
@@ -40,27 +42,27 @@ const useDeekshaFormStore = create(
 
       relation: {
         hasInitiatedFamily: false,
-        familyMemberName: '',
-        familyMemberGuru: '',
-        relationship: '',
+        familyMemberName: "",
+        familyMemberGuru: "",
+        relationship: "",
       },
 
       duration: {
         isAcquainted: false,
-        selectedSwami: '',
-        selectedCentre: '',
-        eagerDuration: '',
-        otherDuration: '',
+        selectedSwami: "",
+        selectedCentre: "",
+        eagerDuration: "",
+        otherDuration: "",
       },
 
       books: {
-        bookList: [''],
+        bookList: [""],
         japaMeditation: false,
         disability: false,
         hearing: false,
       },
       upasana: {
-        selectedLanguage: '',
+        selectedLanguage: "",
       },
 
       // Actions
@@ -91,31 +93,33 @@ const useDeekshaFormStore = create(
       updateUpasana: (upasana) =>
         set((state) => ({ upasana: { ...state.upasana, ...upasana } })),
 
-      resetStore: () => 
+      resetStore: () =>
         set({
-          gender: 'Male',
-          prefix: '',
-          name: '',
-          maritalStatus: '',
-          careOf: '',
-          age: '',
+          gender: "Male",
+          prefix: "",
+          name: "",
+          maritalStatus: "",
+          careOf: "",
+          age: "",
+          guruji: "",
+          formLanguage: "",
           address: {
-            pincode: '',
-            country: '',
-            state: '',
-            district: '',
-            houseNumber: '',
-            streetName: '',
+            pincode: "",
+            country: "",
+            state: "",
+            district: "",
+            houseNumber: "",
+            streetName: "",
           },
           contact: {
-            phoneNumber: '',
-            email: '',
-            aadhaar: '',
-            pan: '',
+            phoneNumber: "",
+            email: "",
+            aadhaar: "",
+            pan: "",
           },
           education: {
-            educationLevel: '',
-            occupation: '',
+            educationLevel: "",
+            occupation: "",
             languages: [],
           },
           consent: {
@@ -124,30 +128,30 @@ const useDeekshaFormStore = create(
           },
           relation: {
             hasInitiatedFamily: false,
-            familyMemberName: '',
-            familyMemberGuru: '',
-            relationship: '',
+            familyMemberName: "",
+            familyMemberGuru: "",
+            relationship: "",
           },
           duration: {
             isAcquainted: false,
-            selectedSwami: '',
-            selectedCentre: '',
-            eagerDuration: '',
-            otherDuration: '',
+            selectedSwami: "",
+            selectedCentre: "",
+            eagerDuration: "",
+            otherDuration: "",
           },
           books: {
-            bookList: [''],
+            bookList: [""],
             japaMeditation: false,
             disability: false,
             hearing: false,
           },
           upasana: {
-            selectedLanguage: '',
+            selectedLanguage: "",
           },
         }),
     }),
     {
-      name: 'deeksha-form-storage',
+      name: "deeksha-form-storage",
     }
   )
 );

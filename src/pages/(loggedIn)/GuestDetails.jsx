@@ -3,8 +3,7 @@ import { icons } from "../../constants";
 
 const GuestDetails = ({ selectedUser, showQRSection, checkout }) => {
   const { attributes } = selectedUser;
-  const guests = attributes.guests?.data || [];
-  const beds = attributes.beds?.data || [];
+  const guests = attributes.booking_request.data.attributes.guests?.data || [];
   const [checkIns, setCheckIns] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -81,12 +80,16 @@ const GuestDetails = ({ selectedUser, showQRSection, checkout }) => {
               <span>{attributes.booking_request.data.attributes.deeksha}</span>
             </div>
             <div className="detail">
-              <span>Donation :</span>
-              <span className="donation-statuss">To be paid</span>
+              <span>Arrival Date:</span>
+              <span>
+                {attributes.booking_request.data.attributes.arrival_date}
+              </span>
             </div>
             <div className="detail">
               <span>Departure Date:</span>
-              <span>{attributes.departure_date}</span>
+              <span>
+                {attributes.booking_request.data.attributes.departure_date}
+              </span>
             </div>
           </div>
         </div>
@@ -95,17 +98,16 @@ const GuestDetails = ({ selectedUser, showQRSection, checkout }) => {
           <div className="tableCont">
             <div className="tableContHeader">
               <div className="tableheader"></div>
-              <div className="tableheader"></div>
+              <div className="tableheader">Name</div>
               <div className="tableheader">Age</div>
               <div className="tableheader">Gender</div>
               <div className="tableheader">Relation</div>
               <div className="tableheader">Room no.</div>
-              <div className="tableheader">Bed no.</div>
               <div className="tableheader">ID</div>
             </div>
             <div className="tableContBody">
               {guests.length > 0 ? (
-                guests.map((guest, guestIndex) => (
+                guests.map((guest) => (
                   <div className="tableContBodyEachRow" key={guest.id}>
                     <div className="tbalebody">
                       <img src={icons.dummyUser} alt="user-image" />
@@ -114,11 +116,9 @@ const GuestDetails = ({ selectedUser, showQRSection, checkout }) => {
                     <div className="tbalebody">{guest.attributes.age}</div>
                     <div className="tbalebody">{guest.attributes.gender}</div>
                     <div className="tbalebody">
-                      {beds[guestIndex]?.attributes.room_number || "N/A"}{" "}
+                      {guest.attributes.relationship}
                     </div>
-                    <div className="tbalebody">
-                      {beds[guestIndex]?.attributes.bed_number || "N/A"}{" "}
-                    </div>
+                    <div className="tbalebody">N/A</div>
                     <div className="tbalebody">
                       <button className="validate-button">
                         <img src={icons.eyeHalf} alt="eye-icon" />

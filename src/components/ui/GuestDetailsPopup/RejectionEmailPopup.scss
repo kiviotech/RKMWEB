@@ -1,3 +1,108 @@
+// .attithi-rejection-overlay {
+//   position: fixed;
+//   top: 0;
+//   left: 0;
+//   right: 0;
+//   bottom: 0;
+//   background: rgba(0, 0, 0, 0.5);
+//   display: flex;
+//   justify-content: center;
+//   align-items: center;
+//   z-index: 1000;
+// }
+
+// .attithi-rejection-content {
+//   background: white;
+//   padding: 45px 80px;
+//   border-radius: 8px;
+//   width: 700px;
+//   position: relative;
+// }
+
+// .attithi-rejection-close {
+//   position: absolute;
+//   right: 16px;
+//   top: 16px;
+//   background: none;
+//   border: none;
+//   font-size: 24px;
+//   cursor: pointer;
+//   color: #666;
+//   border: none !important;
+// }
+
+// .attithi-rejection-title {
+//   font-size: 16px;
+//   margin-bottom: 24px;
+//   color: #333;
+//   font-weight: 500;
+//   text-align: left;
+// }
+
+// .attithi-rejection-reasons {
+//   display: flex;
+//   flex-direction: column;
+//   gap: 16px;
+//   margin-bottom: 24px;
+//   padding-left: 40px;
+// }
+
+// .attithi-rejection-option {
+//   display: flex;
+//   align-items: center;
+//   gap: 12px;
+//   cursor: pointer;
+//   color: #333;
+// }
+
+// .attithi-rejection-checkbox {
+//   width: 18px;
+//   height: 18px;
+//   accent-color: #8B5CF6;
+//   cursor: pointer;
+// }
+
+// .attithi-rejection-actions {
+//   display: flex;
+//   justify-content: flex-end;
+//   gap: 12px;
+// }
+
+// .attithi-rejection-send {
+//   background: #8B5CF6;
+//   color: white;
+//   border: none;
+//   padding: 8px 24px;
+//   border-radius: 6px;
+//   cursor: pointer;
+//   font-size: 14px;
+//   font-weight: 500;
+
+//   &:disabled {
+//     opacity: 0.6;
+//     cursor: not-allowed;
+//   }
+
+//   &:hover {
+//     background: #7c4ef3;
+//   }
+// }
+
+// .attithi-rejection-cancel {
+//   background: white;
+//   color: #666;
+//   border: 1px solid #E5E7EB;
+//   padding: 8px 24px;
+//   border-radius: 6px;
+//   cursor: pointer;
+//   font-size: 14px;
+//   font-weight: 500;
+
+//   &:hover {
+//     background: #f9fafb;
+//   }
+// }
+
 .attithi-rejection-overlay {
   position: fixed;
   top: 0;
@@ -58,7 +163,7 @@
 .attithi-rejection-checkbox {
   width: 18px;
   height: 18px;
-  accent-color: #8B5CF6;
+  accent-color: #8b5cf6;
   cursor: pointer;
 }
 
@@ -69,7 +174,7 @@
 }
 
 .attithi-rejection-send {
-  background: #8B5CF6;
+  background: #8b5cf6;
   color: white;
   border: none;
   padding: 8px 24px;
@@ -77,7 +182,7 @@
   cursor: pointer;
   font-size: 14px;
   font-weight: 500;
-  
+
   &:disabled {
     opacity: 0.6;
     cursor: not-allowed;
@@ -91,7 +196,7 @@
 .attithi-rejection-cancel {
   background: white;
   color: #666;
-  border: 1px solid #E5E7EB;
+  border: 1px solid #e5e7eb;
   padding: 8px 24px;
   border-radius: 6px;
   cursor: pointer;
@@ -100,5 +205,241 @@
 
   &:hover {
     background: #f9fafb;
+  }
+}
+
+// style for confirmation email
+
+/* Modal Overlay */
+.confirmation-email-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(
+    0,
+    0,
+    0,
+    0.05
+  ); /* Slight dark background for overlay */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000; /* Ensures the modal appears on top */
+}
+
+/* Modal Content */
+.confirmation-email-content {
+  background: white;
+  border-radius: 8px;
+  width: 900px;
+  min-width: 900px;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* Email Template Styling */
+.email-template {
+  background: white;
+  border-radius: 8px;
+  width: 100%;
+
+  /* Email Header */
+  .email-header {
+    padding: 16px 20px;
+    position: relative;
+    width: 100%;
+
+    /* Close Button */
+    .close-button {
+      position: absolute;
+      right: 12px;
+      top: 12px;
+      cursor: pointer;
+      font-size: 18px;
+      color: #666;
+      padding: 4px 8px;
+
+      &:hover {
+        color: #000;
+      }
+    }
+
+    .email-fields {
+      .field {
+        display: flex;
+        align-items: center;
+        margin-bottom: 10px;
+
+        span:first-child {
+          color: #666;
+          min-width: 45px;
+          font-size: 13px;
+        }
+
+        .email-address {
+          color: #333;
+          font-size: 13px;
+        }
+
+        /* Recipient Tags for To field */
+        .recipient-tags {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 6px;
+
+          .recipient-chip {
+            background: #f0f0f0;
+            padding: 3px;
+            padding-right: 12px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+
+            .avatar {
+              background: #8b5cf6;
+              color: white;
+              width: 20px;
+              height: 20px;
+              border-radius: 50%;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              font-size: 11px;
+              font-weight: 500;
+            }
+
+            .name {
+              color: #333;
+              font-size: 13px;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  /* Email Content (Textarea) */
+  .email-content {
+    padding: 0px 20px;
+    color: #333;
+    font-size: 13px;
+    line-height: 1.5;
+
+    p {
+      margin-bottom: 14px;
+    }
+  }
+
+  /* Email Footer (Cancel/Send Buttons) */
+  .email-footer {
+    padding: 12px 16px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-left: auto;
+    align-items: center;
+
+    button {
+      border-radius: 8px;
+      font-size: 14px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+      box-sizing: border-box;
+      height: 36px;
+      letter-spacing: 0.3px;
+      margin: 0;
+      padding: 0;
+
+      /* Cancel Button */
+      &.cancel-button {
+        background: white;
+        color: #666;
+        border: 1px solid #e5e7eb;
+        width: 90px;
+        font-weight: 400;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        position: relative;
+
+        &:hover {
+          background: #f9fafb;
+          border-color: #d1d5db;
+        }
+      }
+
+      /* Send Button */
+      &.send-button {
+        background: #8b5cf6;
+        color: white;
+        border: none;
+        width: 65px;
+        font-weight: 500;
+
+        &:hover {
+          background: #7c3aed;
+        }
+      }
+    }
+  }
+}
+
+/* Email Content Textarea */
+.email-content-textarea {
+  width: 100%;
+  min-height: 400px;
+  padding: 12px;
+  border: none;
+  border-radius: 4px;
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 1.6;
+  resize: vertical;
+  margin: 10px 0;
+  white-space: pre-wrap;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  &:focus {
+    outline: none;
+    box-shadow: none;
+  }
+}
+
+/* Reset Button Styling (optional) */
+.reset-button {
+  margin-top: 1rem;
+  padding: 8px 16px;
+  background-color: #fff;
+  color: #f44336;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-left: 10px;
+  font-size: 14px;
+  font-weight: 500;
+  height: 36px;
+  line-height: 20px;
+  transition: background-color 0.3s;
+
+  &:disabled {
+    background-color: #ffcdd2;
+    cursor: not-allowed;
   }
 }

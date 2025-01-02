@@ -1,0 +1,23 @@
+.export-report-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background-color: #8b5cf6;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background-color 0.2s ease;
+  margin-left: 16px;
+
+  &:hover {
+    background-color: #7c3aed;
+  }
+
+  .material-icons {
+    font-size: 20px;
+  }
+}

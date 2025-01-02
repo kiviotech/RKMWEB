@@ -1,25 +1,102 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import useDeekshaFormStore from "../../../../deekshaFormStore"
-import "./DeekshaEducationForm.scss"
+import useDeekshaFormStore from "../../../../deekshaFormStore";
+import "./DeekshaEducationForm.scss";
+
+const translations = {
+  english: {
+    title: "Please select your education",
+    educationLevels: {
+      early: "Early childhood education",
+      secondary: "Secondary education",
+      higher: "Higher education",
+      undergraduate: "Undergraduate degree",
+      postgraduate: "Post-graduate degree",
+    },
+    occupation: {
+      title: "Please enter your occupation :-",
+      placeholder: "Enter your occupation",
+    },
+    languages: {
+      title: "Please select the languages known :-",
+      addLanguage: "+ Add Language",
+    },
+    navigation: {
+      back: "Back",
+      next: "Next",
+    },
+  },
+  hindi: {
+    title: "कृपया अपनी शिक्षा का चयन करें",
+    educationLevels: {
+      early: "प्रारंभिक शिक्षा",
+      secondary: "माध्यमिक शिक्षा",
+      higher: "उच्च शिक्षा",
+      undergraduate: "स्नातक की डिग्री",
+      postgraduate: "स्नातकोत्तर डिग्री",
+    },
+    occupation: {
+      title: "कृपया अपना व्यवसाय दर्ज करें :-",
+      placeholder: "अपना व्यवसाय दर्ज करें",
+    },
+    languages: {
+      title: "कृपया जानी जाने वाली भाषाएं चुनें :-",
+      addLanguage: "+ भाषा जोड़ें",
+    },
+    navigation: {
+      back: "वापस",
+      next: "आगे",
+    },
+  },
+  bengali: {
+    title: "অনুগ্রহ করে আপনার শিক্ষা নির্বাচন করুন",
+    educationLevels: {
+      early: "প্রাথমিক শিক্ষা",
+      secondary: "মাধ্যমিক শিক্ষা",
+      higher: "উচ্চ শিক্ষা",
+      undergraduate: "স্নাতক ডিগ্রি",
+      postgraduate: "স্নাতকোত্তর ডিগ্রি",
+    },
+    occupation: {
+      title: "অনুগ্রহ করে আপনার পেশা লিখুন :-",
+      placeholder: "আপনার পেশা লিখুন",
+    },
+    languages: {
+      title: "অনুগ্রহ করে জানা ভাষাগুলি নির্বাচন করুন :-",
+      addLanguage: "+ ভাষা যোগ করুন",
+    },
+    navigation: {
+      back: "পিছনে",
+      next: "পরবর্তী",
+    },
+  },
+};
 
 const DeekshaEducationForm = () => {
   const navigate = useNavigate();
-  const updateEducation = useDeekshaFormStore((state) => state.updateEducation);
+  const { updateEducation, formLanguage } = useDeekshaFormStore();
   const entireStore = useDeekshaFormStore();
-  const [showLanguageInput, setShowLanguageInput] = useState(false)
+  const [showLanguageInput, setShowLanguageInput] = useState(false);
 
-  const [education, setEducation] = useState(entireStore.education.educationLevel || "");
-  const [occupation, setOccupation] = useState(entireStore.education.occupation || "");
-  const [languages, setLanguages] = useState(entireStore.education.languages.length ? entireStore.education.languages : ["English"]);
+  const [education, setEducation] = useState(
+    entireStore.education.educationLevel || ""
+  );
+  const [occupation, setOccupation] = useState(
+    entireStore.education.occupation || ""
+  );
+  const [languages, setLanguages] = useState(
+    entireStore.education.languages.length
+      ? entireStore.education.languages
+      : ["English"]
+  );
   const [allLanguages, setAllLanguages] = useState([]);
   const [customLanguage, setCustomLanguage] = useState("");
 
   // Add new state for errors
   const [errors, setErrors] = useState({
-    education: '',
-    occupation: '',
-    languages: ''
+    education: "",
+    occupation: "",
+    languages: "",
   });
 
   // Fetch languages (includes Indian languages too)
@@ -36,7 +113,7 @@ const DeekshaEducationForm = () => {
         "Marathi",
         "Gujarati",
         "Punjabi",
-        "Urdu"
+        "Urdu",
       ];
 
       // Sort and set Indian languages
@@ -60,14 +137,14 @@ const DeekshaEducationForm = () => {
   // Modify the validation to be a separate function
   const validateField = (field, value) => {
     switch (field) {
-      case 'education':
-        return !value ? 'Please select your education level' : '';
-      case 'occupation':
-        return !value.trim() ? 'Please enter your occupation' : '';
-      case 'languages':
-        return value.length === 0 ? 'Please select at least one language' : '';
+      case "education":
+        return !value ? "Please select your education level" : "";
+      case "occupation":
+        return !value.trim() ? "Please enter your occupation" : "";
+      case "languages":
+        return value.length === 0 ? "Please select at least one language" : "";
       default:
-        return '';
+        return "";
     }
   };
 
@@ -75,50 +152,50 @@ const DeekshaEducationForm = () => {
   const handleEducationChange = (e) => {
     const value = e.target.value;
     setEducation(value);
-    setErrors(prev => ({
+    setErrors((prev) => ({
       ...prev,
-      education: validateField('education', value)
+      education: validateField("education", value),
     }));
   };
 
   const handleOccupationChange = (e) => {
     const value = e.target.value;
     setOccupation(value);
-    setErrors(prev => ({
+    setErrors((prev) => ({
       ...prev,
-      occupation: validateField('occupation', value)
+      occupation: validateField("occupation", value),
     }));
   };
 
   const handleLanguageChange = (newLanguages) => {
     setLanguages(newLanguages);
-    setErrors(prev => ({
+    setErrors((prev) => ({
       ...prev,
-      languages: validateField('languages', newLanguages)
+      languages: validateField("languages", newLanguages),
     }));
   };
 
   // Modify the Link to use a button with validation
   const handleNext = () => {
     const newErrors = {};
-    
+
     if (!education) {
-      newErrors.education = 'Please select your education level';
+      newErrors.education = "Please select your education level";
     }
-    
+
     if (!occupation.trim()) {
-      newErrors.occupation = 'Please enter your occupation';
+      newErrors.occupation = "Please enter your occupation";
     }
-    
+
     if (languages.length === 0) {
-      newErrors.languages = 'Please select at least one language';
+      newErrors.languages = "Please select at least one language";
     }
 
     setErrors(newErrors);
 
     // Only navigate if there are no errors
     if (Object.keys(newErrors).length === 0) {
-      navigate('/deekshaConsent-form');
+      navigate("/deekshaConsent-form");
     }
   };
 
@@ -130,8 +207,11 @@ const DeekshaEducationForm = () => {
       languages: languages,
     });
     // Log entire store after update
-    console.log('Current Zustand Store State:', useDeekshaFormStore.getState());
+    console.log("Current Zustand Store State:", useDeekshaFormStore.getState());
   }, [education, occupation, languages, updateEducation]);
+
+  // Get translations based on selected language
+  const t = translations[formLanguage || "english"];
 
   return (
     <div className="deekshaEducationform-container">
@@ -145,15 +225,9 @@ const DeekshaEducationForm = () => {
 
       {/* Education Selection */}
       <div className="deekshaEducationform-education-selection">
-        <p>Please select your education</p>
+        <p>{t.title}</p>
         <div className="deekshaEducationform-options">
-          {[
-            "Early childhood education",
-            "Secondary education",
-            "Higher education",
-            "Undergraduate degree",
-            "Post-graduate degree",
-          ].map((option) => (
+          {Object.values(t.educationLevels).map((option) => (
             <label key={option}>
               <input
                 type="radio"
@@ -166,39 +240,43 @@ const DeekshaEducationForm = () => {
             </label>
           ))}
         </div>
-        {errors.education && <span className="error-message">{errors.education}</span>}
+        {errors.education && (
+          <span className="error-message">{errors.education}</span>
+        )}
       </div>
 
       {/* Occupation Input */}
       <div className="deekshaEducationform-occupation">
-        <p>Please enter your occupation :-</p>
+        <p>{t.occupation.title}</p>
         <input
           type="text"
-          placeholder="Enter your occupation"
+          placeholder={t.occupation.placeholder}
           value={occupation}
           onChange={handleOccupationChange}
         />
-        {errors.occupation && <span className="error-message">{errors.occupation}</span>}
+        {errors.occupation && (
+          <span className="error-message">{errors.occupation}</span>
+        )}
       </div>
 
       {/* Languages Known */}
       <div className="deekshaEducationform-languages">
         <div className="deekshaEducationform-languages-header">
-          <p>Please select the languages known :-</p>
-          <span className="deekshaEducationform-languages-list">{languages.join(", ")}</span>
+          <p>{t.languages.title}</p>
+          <span className="deekshaEducationform-languages-list">
+            {languages.join(", ")}
+          </span>
         </div>
-       
 
-       <select
+        <select
           onChange={(e) => {
-            const newLanguages = !languages.includes(e.target.value) 
+            const newLanguages = !languages.includes(e.target.value)
               ? [...languages, e.target.value]
               : languages;
             handleLanguageChange(newLanguages);
           }}
           className="deekshaEducationform-language-select"
-          style={{ height:'41px',}}
-          
+          style={{ height: "41px" }}
         >
           {allLanguages.map((lang) => (
             <option key={lang} value={lang}>
@@ -207,29 +285,29 @@ const DeekshaEducationForm = () => {
           ))}
         </select>
 
-    
-
         {/* Add Custom Language */}
         <div className="deekshaEducationform-custom-language">
           {showLanguageInput ? (
             <>
               <input
                 type="text"
-                placeholder="Add a custom language"
+                placeholder={t.languages.addLanguage}
                 value={customLanguage}
                 onChange={(e) => setCustomLanguage(e.target.value)}
-                
-
               />
-              <button onClick={handleLanguageAdd}><span style={{ width: 'auto', display: 'inline-block' }}>+ Add Language </span></button>
-
+              <button onClick={handleLanguageAdd}>
+                <span>{t.languages.addLanguage}</span>
+              </button>
             </>
           ) : (
-            <p  onClick={() => setShowLanguageInput(true)}>+ Add Language</p>
-
+            <p onClick={() => setShowLanguageInput(true)}>
+              {t.languages.addLanguage}
+            </p>
           )}
         </div>
-        {errors.languages && <span className="error-message">{errors.languages}</span>}
+        {errors.languages && (
+          <span className="error-message">{errors.languages}</span>
+        )}
       </div>
 
       {/* Navigation Buttons */}
@@ -238,13 +316,13 @@ const DeekshaEducationForm = () => {
           className="deekshaEducationform-back-button"
           onClick={handleBack}
         >
-          Back
+          {t.navigation.back}
         </button>
-        <button 
+        <button
           className="deekshaEducationform-Next-button"
           onClick={handleNext}
         >
-          Next
+          {t.navigation.next}
         </button>
       </div>
     </div>

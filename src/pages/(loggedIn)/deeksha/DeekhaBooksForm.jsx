@@ -4,12 +4,59 @@ import YesIcon from "../../../assets/icons/YesIcon.png";
 import NoIcon from "../../../assets/icons/NoIcon.png";
 import Yes1Icon from "../../../assets/icons/Yes1Icon.png";
 import No1Icon from "../../../assets/icons/No1Icon.png";
-import useDeekshaFormStore from "../../../../deekshaFormStore"
-import "./DeekshaBooksForm.scss"
+import useDeekshaFormStore from "../../../../deekshaFormStore";
+import "./DeekshaBooksForm.scss";
+
+const translations = {
+  english: {
+    booksQuestion:
+      "What books have you read on Sri Ramakrishna, Sri Sarada Devi and Swami Vivekananda?",
+    enterBook: "Enter the book name",
+    addBook: "+ Add another book",
+    japaQuestion:
+      "If initiated, will you be able to do Japa and Meditation regularly?",
+    disabilityQuestion: "Do you have any physical/mental disability?",
+    hearingQuestion: "Can you hear well?",
+    yes: "Yes",
+    no: "No",
+    back: "Back",
+    next: "Next",
+  },
+  hindi: {
+    booksQuestion:
+      "आपने श्री रामकृष्ण, श्री सारदा देवी और स्वामी विवेकानंद पर कौन सी पुस्तकें पढ़ी हैं?",
+    enterBook: "पुस्तक का नाम दर्ज करें",
+    addBook: "+ एक और पुस्तक जोड़ें",
+    japaQuestion:
+      "यदि दीक्षित हुए, तो क्या आप नियमित रूप से जप और ध्यान कर पाएंगे?",
+    disabilityQuestion: "क्या आपको कोई शारीरिक/मानसिक विकलांगता है?",
+    hearingQuestion: "क्या आप अच्छी तरह सुन सकते हैं?",
+    yes: "हाँ",
+    no: "नहीं",
+    back: "वापस",
+    next: "अगला",
+  },
+  bengali: {
+    booksQuestion:
+      "আপনি শ্রী রামকৃষ্ণ, শ্রী সারদা দেবী এবং স্বামী বিবেকানন্দের উপর কী কী বই পড়েছেন?",
+    enterBook: "বইয়ের নাম লিখুন",
+    addBook: "+ আরও একটি বই যোগ করুন",
+    japaQuestion: "দীক্ষিত হলে, আপনি কি নিয়মিত জপ ও ধ্যান করতে পারবেন?",
+    disabilityQuestion: "আপনার কি কোনো শারীরিক/মানসিক প্রতিবন্ধকতা আছে?",
+    hearingQuestion: "আপনি কি ভালোভাবে শুনতে পান?",
+    yes: "হ্যাঁ",
+    no: "না",
+    back: "পিছনে",
+    next: "পরবর্তী",
+  },
+};
 
 const DeekshaBooksForm = () => {
   const navigate = useNavigate();
-  const { books, updateBooks } = useDeekshaFormStore();
+  const { books, updateBooks, formLanguage, guruji } = useDeekshaFormStore();
+
+  // Get translations based on selected language
+  const t = translations[formLanguage || "english"];
 
   // Initialize state from Zustand store
   const [bookList, setBookList] = useState(books.bookList || [""]);
@@ -25,7 +72,7 @@ const DeekshaBooksForm = () => {
       bookList,
       japaMeditation,
       disability,
-      hearing
+      hearing,
     });
     // Console log entire store state
     console.log("Current Deeksha Form State:", useDeekshaFormStore.getState());
@@ -49,13 +96,13 @@ const DeekshaBooksForm = () => {
     }, 200);
   };
 
-   // Change 1: Update toggle logic for Yes/No button selection
+  // Change 1: Update toggle logic for Yes/No button selection
   const handleSelection = (field, value) => {
     switch (field) {
       case "japaMeditation":
         setJapaMeditation((prev) => (prev === value ? null : value));
         break;
-        
+
       case "disability":
         setDisability((prev) => (prev === value ? null : value));
         break;
@@ -96,7 +143,7 @@ const DeekshaBooksForm = () => {
   // Handle next button click
   const handleNext = (e) => {
     e.preventDefault();
-    
+
     const isValid = validateForm();
     if (isValid) {
       navigate("/deekshaUpasana-form");
@@ -109,13 +156,9 @@ const DeekshaBooksForm = () => {
         <div className="deekshabooks-progress-bar-inner"></div>
       </div>
 
-      <h1 className="deekshabooks-heading">
-        Srimat Swami Gautamanandaji Maharaj’s Diksha Form
-      </h1>
+      <h1 className="deekshabooks-heading">{guruji}</h1>
 
-      <p className="deekshabooks-question">
-        What books have you read on Sri Ramakrishna, Sri Sarada Devi and Swami Vivekananda?
-      </p>
+      <p className="deekshabooks-question">{t.booksQuestion}</p>
 
       {bookList.map((book, index) => (
         <div key={index}>
@@ -129,7 +172,7 @@ const DeekshaBooksForm = () => {
                 setErrors({ ...errors, books: null });
               }
             }}
-            placeholder="Enter the book name"
+            placeholder={t.enterBook}
           />
           {index === 0 && errors.books && (
             <span className="error-message">{errors.books}</span>
@@ -138,31 +181,33 @@ const DeekshaBooksForm = () => {
       ))}
 
       <p className="deekshabooks-add-book" onClick={addBookField}>
-        + Add another book
+        {t.addBook}
       </p>
 
       <div className="deekshabooks-formgroup">
-        <p className="deekshabooks-question">
-          If initiated, will you be able to do Japa and Meditation regularly?
-        </p>
+        <p className="deekshabooks-question">{t.japaQuestion}</p>
         <div className="deekshabooks-icon-container">
-          <button onClick={() => {
-            handleSelection("japaMeditation", "yes");
-            setErrors({ ...errors, japaMeditation: null });
-          }}>
+          <button
+            onClick={() => {
+              handleSelection("japaMeditation", "yes");
+              setErrors({ ...errors, japaMeditation: null });
+            }}
+          >
             <img
               src={japaMeditation === "yes" ? YesIcon : Yes1Icon}
-              alt="Yes"
+              alt={t.yes}
               className="deekshabooks-icon"
             />
           </button>
-          <button onClick={() => {
-            handleSelection("japaMeditation", "no");
-            setErrors({ ...errors, japaMeditation: null });
-          }}>
+          <button
+            onClick={() => {
+              handleSelection("japaMeditation", "no");
+              setErrors({ ...errors, japaMeditation: null });
+            }}
+          >
             <img
               src={japaMeditation === "no" ? No1Icon : NoIcon}
-              alt="No"
+              alt={t.no}
               className="deekshabooks-icon"
             />
           </button>
@@ -173,27 +218,29 @@ const DeekshaBooksForm = () => {
       </div>
 
       <div className="deekshabooks-formgroup">
-        <p className="deekshabooks-question">
-          Do you have any physical/mental disability?
-        </p>
+        <p className="deekshabooks-question">{t.disabilityQuestion}</p>
         <div className="deekshabooks-icon-container">
-          <button onClick={() => {
-            handleSelection("disability", "yes");
-            setErrors({ ...errors, disability: null });
-          }}>
+          <button
+            onClick={() => {
+              handleSelection("disability", "yes");
+              setErrors({ ...errors, disability: null });
+            }}
+          >
             <img
               src={disability === "yes" ? YesIcon : Yes1Icon}
-              alt="Yes"
+              alt={t.yes}
               className="deekshabooks-icon"
             />
           </button>
-          <button onClick={() => {
-            handleSelection("disability", "no");
-            setErrors({ ...errors, disability: null });
-          }}>
+          <button
+            onClick={() => {
+              handleSelection("disability", "no");
+              setErrors({ ...errors, disability: null });
+            }}
+          >
             <img
               src={disability === "no" ? No1Icon : NoIcon}
-              alt="No"
+              alt={t.no}
               className="deekshabooks-icon"
             />
           </button>
@@ -204,27 +251,29 @@ const DeekshaBooksForm = () => {
       </div>
 
       <div className="deekshabooks-formgroup">
-        <p className="deekshabooks-question">
-          Can you hear well?
-        </p>
+        <p className="deekshabooks-question">{t.hearingQuestion}</p>
         <div className="deekshabooks-icon-container">
-          <button onClick={() => {
-            handleSelection("hearing", "yes");
-            setErrors({ ...errors, hearing: null });
-          }}>
+          <button
+            onClick={() => {
+              handleSelection("hearing", "yes");
+              setErrors({ ...errors, hearing: null });
+            }}
+          >
             <img
               src={hearing === "yes" ? YesIcon : Yes1Icon}
-              alt="Yes"
+              alt={t.yes}
               className="deekshabooks-icon"
             />
           </button>
-          <button onClick={() => {
-            handleSelection("hearing", "no");
-            setErrors({ ...errors, hearing: null });
-          }}>
+          <button
+            onClick={() => {
+              handleSelection("hearing", "no");
+              setErrors({ ...errors, hearing: null });
+            }}
+          >
             <img
               src={hearing === "no" ? No1Icon : NoIcon}
-              alt="No"
+              alt={t.no}
               className="deekshabooks-icon"
             />
           </button>
@@ -235,17 +284,11 @@ const DeekshaBooksForm = () => {
       </div>
 
       <div className="deekshabooks-button-container">
-        <button
-          onClick={handleBack}
-          className="deekshabooksform-back-button"
-        >
-          Back
+        <button onClick={handleBack} className="deekshabooksform-back-button">
+          {t.back}
         </button>
-        <button 
-          onClick={handleNext}
-          className="deekshabooksform-next-button"
-        >
-          Next
+        <button onClick={handleNext} className="deekshabooksform-next-button">
+          {t.next}
         </button>
       </div>
     </div>

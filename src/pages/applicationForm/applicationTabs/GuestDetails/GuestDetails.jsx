@@ -26,6 +26,41 @@ const GuestDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const searchInputRef = useRef(null);
   const dropdownRef = useRef(null);
+  const [isDeekshaDropdownOpen, setIsDeekshaDropdownOpen] = useState(false);
+  const [deekshaSearchQuery, setDeekshaSearchQuery] = useState("");
+  const deekshaDropdownRef = useRef(null);
+
+  // Add new state for managing custom deeksha inputs for each guest
+  const [showCustomDeekshas, setShowCustomDeekshas] = useState({});
+  const [customDeekshas, setCustomDeekshas] = useState({});
+
+  const deekshaOptions = [
+    "Srimat Swami Atmasthanandaji Maharaj",
+    "Srimat Swami Bhuteshanandaji Maharaj",
+    "Srimat Swami Divyanandaji Maharaj",
+    "Srimat Swami Gahananandaji Maharaj",
+    "Srimat Swami Gambhiranandaji Maharaj",
+    "Srimat Swami Gautamanandaji Maharaj",
+    "Srimat Swami Girishanandaji Maharaj",
+    "Srimat Swami Gitanandaji Maharaj",
+    "Srimat Swami Kailashanandaji Maharaj",
+    "Srimat Swami Madhavanandaji Maharaj",
+    "Srimat Swami Nirvananandaji Maharaj",
+    "Srimat Swami Omkaranandaji Maharaj",
+    "Srimat Swami Prabhanandaji Maharaj",
+    "Srimat Swami Prameyanandaji Maharaj",
+    "Srimat Swami Ranganathanandaji Maharaj",
+    "Srimat Swami Shivamayanandaji Maharaj",
+    "Srimat Swami Smarananandaji Maharaj",
+    "Srimat Swami Suhitanandaji Maharaj",
+    "Srimat Swami Tapasyanandaji Maharaj",
+    "Srimat Swami Vagishanandaji Maharaj",
+    "Srimat Swami Vimalatmanandaji Maharaj",
+    "Srimat Swami Vireshwaranandaji Maharaj",
+    "Srimat Swami Yatiswaranandaji Maharaj",
+    "Others",
+    "none",
+  ];
 
   useEffect(() => {
     // Initialize empty guests array if needed
@@ -143,6 +178,23 @@ const GuestDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
     };
   }, []);
 
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        deekshaDropdownRef.current &&
+        !deekshaDropdownRef.current.contains(event.target)
+      ) {
+        setIsDeekshaDropdownOpen(false);
+        setDeekshaSearchQuery("");
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
   const validateGuestField = (index, name, value) => {
     switch (name) {
       case "guestTitle":
@@ -154,8 +206,19 @@ const GuestDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
         break;
 
       case "guestName":
+        const nameRegex = /^[A-Za-z\s]+$/; // Only letters and spaces allowed
         if (!value) {
           setErrors(`guestName${index}`, "Name is required");
+        } else if (value.length < 2) {
+          setErrors(
+            `guestName${index}`,
+            "Name must be at least 2 characters long"
+          );
+        } else if (!nameRegex.test(value)) {
+          setErrors(
+            `guestName${index}`,
+            "Name can only contain letters and spaces"
+          );
         } else {
           setErrors(`guestName${index}`, "");
         }
@@ -191,10 +254,12 @@ const GuestDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
       case "guestNumber":
         if (!value) {
           setErrors(`guestNumber${index}`, "Phone number is required");
+        } else if (value.length < 10) {
+          setErrors(`guestNumber${index}`, "Phone number must be 10 digits");
         } else if (!/^\d{10}$/.test(value)) {
           setErrors(
             `guestNumber${index}`,
-            "Phone number must be 10 digits long"
+            "Phone number must contain exactly 10 digits"
           );
         } else {
           setErrors(`guestNumber${index}`, "");
@@ -278,9 +343,7 @@ const GuestDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
 
       case "guestEmail":
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!value) {
-          setErrors(`guestEmail${index}`, "Email is required");
-        } else if (!emailRegex.test(value)) {
+        if (value && !emailRegex.test(value)) {
           setErrors(`guestEmail${index}`, "Please enter a valid email address");
         } else {
           setErrors(`guestEmail${index}`, "");
@@ -298,6 +361,21 @@ const GuestDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
     // Ensure guests array exists
     const guests = formData.guests || [];
     if (!guests[index]) {
+      return;
+    }
+
+    if (name === "guestName") {
+      // Only allow letters and spaces
+      const sanitizedValue = value.replace(/[^A-Za-z\s]/g, "");
+      setGuestData(index, name, sanitizedValue);
+      console.log("Guest Input Change:", {
+        guestIndex: index,
+        field: name,
+        value: sanitizedValue,
+        currentGuest: formData.guests[index],
+      });
+      validateGuestField(index, name, sanitizedValue);
+      setActiveTab(sanitizedValue || `Guest ${index + 1}`);
       return;
     }
 
@@ -342,10 +420,24 @@ const GuestDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
               ...updatedAddress,
               state: postOffice.State,
               district: postOffice.District,
+              postOffice: postOffice.Name,
             };
             setGuestData(index, parent, updatedAddressWithLocation);
+            console.log("Address Details Updated:", {
+              state: postOffice.State,
+              district: postOffice.District,
+              postOffice: postOffice.Name,
+            });
           } else {
             setErrors(`guestAddressPinCode${index}`, "Invalid pincode");
+            // Clear the fields on invalid pincode
+            const clearedAddress = {
+              ...updatedAddress,
+              state: "",
+              district: "",
+              postOffice: "",
+            };
+            setGuestData(index, parent, clearedAddress);
           }
         } catch (error) {
           console.error("Error fetching address details:", error);
@@ -353,9 +445,25 @@ const GuestDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
             `guestAddressPinCode${index}`,
             "Error fetching address details"
           );
+          // Clear the fields on error
+          const clearedAddress = {
+            ...updatedAddress,
+            state: "",
+            district: "",
+            postOffice: "",
+          };
+          setGuestData(index, parent, clearedAddress);
         }
       }
     } else {
+      if (name === "guestNumber") {
+        // Only allow digits and limit to 10 characters
+        const numericValue = value.replace(/\D/g, "").slice(0, 10);
+        setGuestData(index, name, numericValue);
+        validateGuestField(index, name, numericValue);
+        return;
+      }
+
       setGuestData(index, name, value);
       console.log("Guest Input Change:", {
         guestIndex: index,
@@ -376,56 +484,58 @@ const GuestDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
   };
 
   const handleProceed = () => {
-    console.log("Proceed Attempt - Current Form Status:", {
-      totalGuests: formData.guestMembers,
-      currentGuests: formData.guests,
-      currentTab: activeTab,
-      validationErrors: errors,
-      formValidation: {
-        hasErrors: Object.keys(errors).length > 0,
-        errorFields: Object.keys(errors),
-      },
-    });
-
     // Find current guest index
     const currentGuestIndex = guestTabs.indexOf(activeTab);
+    let emptyFields = [];
 
-    // Validate current guest's required fields
-    let currentGuestHasErrors = false;
+    // Required fields for validation (removed email)
     const requiredFields = [
-      "guestTitle",
-      "guestName",
-      "guestAge",
-      "guestGender",
-      "guestEmail",
-      "guestNumber",
-      "guestRelation",
+      { key: "guestTitle", label: "Title" },
+      { key: "guestName", label: "Name" },
+      { key: "guestAge", label: "Age" },
+      { key: "guestGender", label: "Gender" },
+      { key: "guestNumber", label: "Phone Number" },
+      { key: "guestRelation", label: "Relation with Applicant" },
+      { key: "guestOccupation", label: "Occupation" },
+      { key: "guestDeeksha", label: "Deeksha" },
+      { key: "guestAadhaar", label: "Aadhaar" },
     ];
 
-    // Log validation status for current guest
-    console.log("Validating Current Guest:", {
-      guestIndex: currentGuestIndex,
-      guestName: formData.guests[currentGuestIndex].guestName,
-      missingFields: requiredFields.filter(
-        (field) => !formData.guests[currentGuestIndex][field]
-      ),
-      currentErrors: Object.keys(errors).filter((key) =>
-        key.includes(currentGuestIndex)
-      ),
-    });
+    // Required address fields
+    const requiredAddressFields = [
+      { key: "pinCode", label: "Pin Code" },
+      { key: "state", label: "State" },
+      { key: "district", label: "District" },
+    ];
 
-    requiredFields.forEach((field) => {
-      if (!formData.guests[currentGuestIndex][field]) {
-        setErrors(
-          `${field}${currentGuestIndex}`,
-          `${field.replace("guest", "")} is required`
-        );
-        currentGuestHasErrors = true;
+    // Check required fields for current guest
+    requiredFields.forEach(({ key, label }) => {
+      if (!formData.guests[currentGuestIndex][key]) {
+        emptyFields.push(label);
+        setErrors(`${key}${currentGuestIndex}`, `${label} is required`);
       }
     });
 
-    if (currentGuestHasErrors) {
-      console.log("Current Guest Validation Failed:", errors);
+    // Check required address fields if not using same as applicant address
+    if (!formData.guests[currentGuestIndex].sameAsApplicant) {
+      requiredAddressFields.forEach(({ key, label }) => {
+        if (!formData.guests[currentGuestIndex].guestAddress?.[key]) {
+          emptyFields.push(`Address ${label}`);
+          setErrors(
+            `guestAddress${key}${currentGuestIndex}`,
+            `${label} is required`
+          );
+        }
+      });
+    }
+
+    // Show alert if there are empty fields
+    if (emptyFields.length > 0) {
+      alert(
+        `Please fill in the following required fields for ${activeTab}:\n${emptyFields.join(
+          "\n"
+        )}`
+      );
       window.scrollTo({ top: 0, behavior: "smooth" });
       return;
     }
@@ -439,33 +549,46 @@ const GuestDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
       return;
     }
 
-    // If we're on the last guest and all validations pass, proceed to next step
+    // Validate all guests before final proceed
     let hasErrors = false;
     formData.guests.forEach((guest, index) => {
-      requiredFields.forEach((field) => {
-        if (!guest[field]) {
-          setErrors(
-            `${field}${index}`,
-            `${field.replace("guest", "")} is required`
-          );
+      let guestEmptyFields = [];
+
+      // Check required fields for each guest
+      requiredFields.forEach(({ key, label }) => {
+        if (!guest[key]) {
+          guestEmptyFields.push(label);
+          setErrors(`${key}${index}`, `${label} is required`);
           hasErrors = true;
         }
       });
+
+      // Check required address fields for each guest
+      if (!guest.sameAsApplicant) {
+        requiredAddressFields.forEach(({ key, label }) => {
+          if (!guest.guestAddress?.[key]) {
+            guestEmptyFields.push(`Address ${label}`);
+            setErrors(`guestAddress${key}${index}`, `${label} is required`);
+            hasErrors = true;
+          }
+        });
+      }
+
+      if (guestEmptyFields.length > 0) {
+        alert(
+          `Please fill in the following required fields for Guest ${
+            index + 1
+          }:\n${guestEmptyFields.join("\n")}`
+        );
+        setActiveTab(guestTabs[index]);
+        window.scrollTo({ top: 0, behavior: "smooth" });
+        return;
+      }
     });
 
     if (!hasErrors) {
       console.log("Guest Details Validation Successful");
       goToNextStep();
-    } else {
-      console.log("Guest Details Validation Failed:", errors);
-      // Move to the first guest with errors
-      const firstErrorIndex = formData.guests.findIndex((guest) =>
-        requiredFields.some((field) => !guest[field])
-      );
-      if (firstErrorIndex !== -1) {
-        setActiveTab(guestTabs[firstErrorIndex]);
-        window.scrollTo({ top: 0, behavior: "smooth" });
-      }
     }
   };
 
@@ -483,12 +606,14 @@ const GuestDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
     setGuestData(index, "sameAsApplicant", newSameAsApplicant);
 
     if (newSameAsApplicant) {
-      // Copy applicant's address to guest
+      // Copy applicant's address to guest, including streetName and postOffice
       const guestAddress = {
         state: formData.address.state,
         district: formData.address.district,
         pinCode: formData.address.pinCode,
         houseNumber: formData.address.houseNumber,
+        streetName: formData.address.streetName,
+        postOffice: formData.address.postOffice,
       };
 
       Object.entries(guestAddress).forEach(([key, value]) => {
@@ -548,7 +673,7 @@ const GuestDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
 
   return (
     <div className="guest-details" style={{ marginLeft: "50px" }}>
-      <h2 style={{ marginTop: "55px" }}>Kamarpukur Guesthouse Booking</h2>
+      <h2 style={{ marginTop: "55px" }}>Guest Details</h2>
 
       <div className="form-tabs custom-form-tab">
         {guestTabs.map((tab, index) => (
@@ -776,8 +901,24 @@ const GuestDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
                         type="text"
                         name="guestNumber"
                         value={formData.guests[index].guestNumber || ""}
-                        onChange={(e) => handleGuestInputChange(e, index)}
-                        placeholder="921234902"
+                        onChange={(e) => {
+                          const value = e.target.value
+                            .replace(/\D/g, "")
+                            .slice(0, 10);
+                          handleGuestInputChange(
+                            {
+                              target: {
+                                name: "guestNumber",
+                                value,
+                              },
+                            },
+                            index
+                          );
+                        }}
+                        placeholder="Phone Number"
+                        maxLength="10"
+                        pattern="\d{10}"
+                        title="Please enter exactly 10 digits"
                       />
                     </div>
                     {errors[`guestNumber${index}`] && (
@@ -807,26 +948,153 @@ const GuestDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
 
                   <div className="form-group">
                     <label>Initiation / Mantra Diksha from</label>
-                    <select
-                      name="guestDeeksha"
-                      value={formData.guests[index].guestDeeksha || ""}
-                      onChange={(e) => handleGuestInputChange(e, index)}
+                    <div
+                      className="custom-dropdown"
+                      style={{ position: "relative" }}
+                      ref={deekshaDropdownRef}
                     >
-                      <option value="">Select Deeksha</option>
-                      <option value="Sri Ramakrishna – Life and Teachings">
-                        Sri Ramakrishna – Life and Teachings
-                      </option>
-                      <option value="Sri Sarada Devi – Life and Teachings">
-                        Sri Sarada Devi – Life and Teachings
-                      </option>
-                      <option value="Swami Vivekananda – His Life and Legacy">
-                        Swami Vivekananda – His Life and Legacy
-                      </option>
-                      <option value="The Gospel of Sri Ramakrishna">
-                        The Gospel of Sri Ramakrishna
-                      </option>
-                      <option value="none">None</option>
-                    </select>
+                      <div
+                        className="dropdown-header"
+                        onClick={() => {
+                          setIsDeekshaDropdownOpen(!isDeekshaDropdownOpen);
+                        }}
+                        style={{
+                          padding: "10px",
+                          border: "1px solid #ccc",
+                          borderRadius: "4px",
+                          cursor: "pointer",
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "center",
+                          backgroundColor: "#fff",
+                        }}
+                      >
+                        <span>
+                          {formData.guests[index].guestDeeksha ||
+                            "Select Deeksha"}
+                        </span>
+                        <svg
+                          width="16"
+                          height="16"
+                          viewBox="0 0 16 16"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                          style={{
+                            transform: isDeekshaDropdownOpen
+                              ? "rotate(180deg)"
+                              : "rotate(0deg)",
+                            transition: "transform 0.2s ease",
+                          }}
+                        >
+                          <path
+                            d="M4 6L8 10L12 6"
+                            stroke="#6B7280"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                        </svg>
+                      </div>
+                      {isDeekshaDropdownOpen && (
+                        <div
+                          className="dropdown-options"
+                          style={{
+                            position: "absolute",
+                            top: "100%",
+                            left: 0,
+                            right: 0,
+                            maxHeight: "200px",
+                            overflowY: "auto",
+                            backgroundColor: "white",
+                            border: "1px solid #ccc",
+                            borderRadius: "4px",
+                            zIndex: 1000,
+                            boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+                          }}
+                        >
+                          <input
+                            ref={searchInputRef}
+                            type="text"
+                            placeholder="Search..."
+                            value={deekshaSearchQuery}
+                            onChange={(e) =>
+                              setDeekshaSearchQuery(e.target.value)
+                            }
+                            style={{
+                              width: "100%",
+                              padding: "8px",
+                              border: "none",
+                              borderBottom: "1px solid #ccc",
+                              outline: "none",
+                            }}
+                            onClick={(e) => e.stopPropagation()}
+                            autoFocus
+                          />
+                          {deekshaOptions
+                            .filter((option) =>
+                              option
+                                .toLowerCase()
+                                .includes(deekshaSearchQuery.toLowerCase())
+                            )
+                            .map((option) => (
+                              <div
+                                key={option}
+                                onClick={() => {
+                                  if (option === "Others") {
+                                    setShowCustomDeekshas((prev) => ({
+                                      ...prev,
+                                      [index]: true,
+                                    }));
+                                    setCustomDeekshas((prev) => ({
+                                      ...prev,
+                                      [index]: "",
+                                    }));
+                                    // Don't set deeksha value here, wait for custom input
+                                    setGuestData(index, "guestDeeksha", "");
+                                  } else {
+                                    setShowCustomDeekshas((prev) => ({
+                                      ...prev,
+                                      [index]: false,
+                                    }));
+                                    setGuestData(index, "guestDeeksha", option);
+                                  }
+                                  setIsDeekshaDropdownOpen(false);
+                                  setDeekshaSearchQuery("");
+                                }}
+                                style={{
+                                  padding: "10px",
+                                  cursor: "pointer",
+                                  ":hover": {
+                                    backgroundColor: "#f5f5f5",
+                                  },
+                                }}
+                              >
+                                {option}
+                              </div>
+                            ))}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Custom deeksha input - this value will be stored in the database */}
+                    {showCustomDeekshas[index] && (
+                      <input
+                        type="text"
+                        placeholder="Please specify your Mantra Diksha"
+                        value={customDeekshas[index] || ""}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          setCustomDeekshas((prev) => ({
+                            ...prev,
+                            [index]: value,
+                          }));
+                          // Directly set the custom value as guestDeeksha
+                          setGuestData(index, "guestDeeksha", value);
+                        }}
+                        style={{ marginTop: "10px" }}
+                      />
+                    )}
+
                     {errors[`guestDeeksha${index}`] && (
                       <span className="error">
                         {errors[`guestDeeksha${index}`]}
@@ -840,7 +1108,20 @@ const GuestDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
                       type="text"
                       name="guestAadhaar"
                       value={formData.guests[index].guestAadhaar || ""}
-                      onChange={(e) => handleGuestInputChange(e, index)}
+                      onChange={(e) => {
+                        const value = e.target.value
+                          .replace(/\D/g, "")
+                          .slice(0, 12);
+                        handleGuestInputChange(
+                          {
+                            target: {
+                              name: "guestAadhaar",
+                              value,
+                            },
+                          },
+                          index
+                        );
+                      }}
                       placeholder="••••••••••••"
                     />
                     {errors[`guestAadhaar${index}`] && (
@@ -932,7 +1213,7 @@ const GuestDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
                       )}
                     </div>
                     <div className="form-group">
-                      <label>Flat/House No</label>
+                      <label>Flat / House / Apartment No</label>
                       <input
                         type="text"
                         name="guestAddress.houseNumber"
@@ -942,43 +1223,6 @@ const GuestDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
                         }
                         onChange={(e) => handleGuestInputChange(e, index)}
                         placeholder="House Number"
-                        disabled={formData.guests[index].sameAsApplicant}
-                      />
-                    </div>
-                  </div>
-
-                  <div className="addressInputBox">
-                    <div className="form-group">
-                      <label>District</label>
-                      <input
-                        type="text"
-                        name="guestAddress.district"
-                        value={
-                          (formData.guests[index].guestAddress || {})
-                            .district || ""
-                        }
-                        onChange={(e) => handleGuestInputChange(e, index)}
-                        placeholder="Enter your district"
-                        readOnly
-                        disabled={formData.guests[index].sameAsApplicant}
-                      />
-                      {errors[`guestAddressDistrict${index}`] && (
-                        <span className="error">
-                          {errors[`guestAddressDistrict${index}`]}
-                        </span>
-                      )}
-                    </div>
-                    <div className="form-group">
-                      <label>Street Name</label>
-                      <input
-                        type="text"
-                        name="guestAddress.streetName"
-                        value={
-                          (formData.guests[index].guestAddress || {})
-                            .streetName || ""
-                        }
-                        onChange={(e) => handleGuestInputChange(e, index)}
-                        placeholder="Enter street name"
                         disabled={formData.guests[index].sameAsApplicant}
                       />
                     </div>
@@ -996,7 +1240,6 @@ const GuestDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
                         }
                         onChange={(e) => handleGuestInputChange(e, index)}
                         placeholder="Enter your state"
-                        readOnly
                         disabled={formData.guests[index].sameAsApplicant}
                       />
                       {errors[`guestAddressState${index}`] && (
@@ -1006,16 +1249,52 @@ const GuestDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
                       )}
                     </div>
                     <div className="form-group">
-                      <label>Landmark</label>
+                      <label>Street Name / Landmark</label>
                       <input
                         type="text"
-                        name="guestAddress.landmark"
+                        name="guestAddress.streetName"
                         value={
                           (formData.guests[index].guestAddress || {})
-                            .landmark || ""
+                            .streetName || ""
                         }
                         onChange={(e) => handleGuestInputChange(e, index)}
-                        placeholder="Enter nearby landmark"
+                        placeholder="Enter street name"
+                        disabled={formData.guests[index].sameAsApplicant}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="addressInputBox">
+                    <div className="form-group">
+                      <label>District</label>
+                      <input
+                        type="text"
+                        name="guestAddress.district"
+                        value={
+                          (formData.guests[index].guestAddress || {})
+                            .district || ""
+                        }
+                        onChange={(e) => handleGuestInputChange(e, index)}
+                        placeholder="Enter your district"
+                        disabled={formData.guests[index].sameAsApplicant}
+                      />
+                      {errors[`guestAddressDistrict${index}`] && (
+                        <span className="error">
+                          {errors[`guestAddressDistrict${index}`]}
+                        </span>
+                      )}
+                    </div>
+                    <div className="form-group">
+                      <label>Post Office</label>
+                      <input
+                        type="text"
+                        name="guestAddress.postOffice"
+                        value={
+                          (formData.guests[index].guestAddress || {})
+                            .postOffice || ""
+                        }
+                        onChange={(e) => handleGuestInputChange(e, index)}
+                        placeholder="Enter post office"
                         disabled={formData.guests[index].sameAsApplicant}
                       />
                     </div>

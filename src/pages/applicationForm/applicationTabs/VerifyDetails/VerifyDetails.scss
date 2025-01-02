@@ -21,13 +21,13 @@
       width: 90%;
       border-collapse: collapse;
       min-width: 600px;
-      
+
       th {
         padding: 10px;
         border: 1px solid #000;
         font-size: 15px;
         color: black;
-        font-weight: 500;
+        font-weight: 300;
         white-space: nowrap;
       }
 
@@ -36,7 +36,7 @@
         border: 1px solid #000;
         font-size: 15px;
         color: black;
-        font-weight: 200;
+        font-weight: 700;
       }
     }
   }
@@ -44,11 +44,9 @@
   .details-section {
     margin-left: 26px;
     padding: 10px;
-    margin-top: 20px;
     font-size: 14px;
     display: flex;
     flex-direction: column;
-    gap: 10px;
 
     p {
       margin: 5px 0;
@@ -56,11 +54,10 @@
     }
 
     strong {
-     font-size: 18px;
-    }
-    span{
       font-size: 18px;
-
+    }
+    span {
+      font-size: 18px;
     }
   }
   .edit-icon {
@@ -70,10 +67,10 @@
   }
 
   .address-details {
-    margin: 10px 0;
+    margin: 10px 0 0;
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    margin-left: 55px;
 
     h2 {
       font-size: 23px;
@@ -84,14 +81,13 @@
     }
 
     .address-block {
-      
       padding: 10px;
       // border: 1px solid #ddd;
       border-radius: 5px;
       display: flex;
       gap: 20px;
       flex-direction: column;
-      margin-left: 37px;                                                                         
+      margin-left: 37px;
 
       h3 {
         font-size: 21px;
@@ -113,9 +109,8 @@
         strong {
           font-size: 18px;
         }
-        span{
+        span {
           font-size: 18px;
-
         }
       }
     }
@@ -127,7 +122,6 @@
   }
 
   .button-container {
-   
     display: flex;
     flex-direction: row;
     justify-content: flex-end;
@@ -136,9 +130,8 @@
     gap: 10px;
 
     .save {
-     
       background-color: #fff2ea;
-      color: #EA7704;
+      color: #ea7704;
       width: 150px;
       height: 40px;
       text-align: center;
@@ -150,8 +143,7 @@
       display: flex;
       justify-content: center;
       align-items: center;
-     
-    
+
       white-space: nowrap;
     }
 
@@ -168,7 +160,77 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      
+    }
+  }
+
+  .document-preview {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    .preview-icon {
+      transition: opacity 0.2s;
+      &:hover {
+        opacity: 0.8;
+      }
+    }
+  }
+
+  .modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+  }
+
+  .modal-content {
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 800px;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #eee;
+
+      h3 {
+        margin: 0;
+        color: #333;
+      }
+
+      .close-button {
+        background: none;
+        border: none;
+        font-size: 24px;
+        cursor: pointer;
+        color: #666;
+        padding: 0 8px;
+
+        &:hover {
+          color: #333;
+        }
+      }
+    }
+
+    .modal-body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 200px;
     }
   }
 }
@@ -187,16 +249,16 @@
       margin: 10px 0;
       padding: 0;
       width: 100%;
-      
+
       table {
         width: 100%;
         min-width: unset;
-        
+
         th {
           padding: 8px;
           font-size: 13px;
         }
-        
+
         td {
           padding: 8px;
           font-size: 13px;
@@ -210,8 +272,9 @@
 
       p {
         font-size: 16px;
-        
-        strong, span {
+
+        strong,
+        span {
           font-size: 16px;
         }
       }
@@ -237,12 +300,13 @@
         p {
           flex-direction: column;
           gap: 10px;
-          
+
           div {
             width: 100%;
           }
 
-          strong, span {
+          strong,
+          span {
             font-size: 16px;
           }
         }
@@ -252,8 +316,9 @@
     .button-container {
       margin: 20px 0;
       justify-content: center;
-      
-      .save, .submit-button {
+
+      .save,
+      .submit-button {
         width: 120px;
         height: 35px;
         font-size: 16px;
@@ -268,16 +333,16 @@
     .table-container {
       margin: 10px 0;
       width: 100%;
-      
+
       table {
         width: 100%;
         min-width: unset;
-        
+
         th {
           padding: 6px;
           font-size: 12px;
         }
-        
+
         td {
           padding: 6px;
           font-size: 12px;
@@ -288,8 +353,9 @@
     .details-section {
       p {
         font-size: 14px;
-        
-        strong, span {
+
+        strong,
+        span {
           font-size: 14px;
         }
       }
@@ -302,7 +368,8 @@
         }
 
         p {
-          strong, span {
+          strong,
+          span {
             font-size: 14px;
           }
         }
@@ -312,8 +379,9 @@
     .button-container {
       flex-direction: column;
       gap: 15px;
-      
-      .save, .submit-button {
+
+      .save,
+      .submit-button {
         width: 100%;
         max-width: 200px;
       }

@@ -6,34 +6,16 @@
     justify-content: space-between;
     align-items: center;
     margin-bottom: 20px;
+    padding: 0 20px;
 
     .page-title {
-      font-size: 24px;
-      font-weight: 500;
-      color: #333;
+      margin: 0;
     }
 
-    .export-btn {
+    .export-buttons {
       display: flex;
+      gap: 10px;
       align-items: center;
-      gap: 8px;
-      padding: 8px 16px;
-      background-color: white;
-      border: 1px solid #e0e0e0;
-      border-radius: 6px;
-      color: #333;
-      font-size: 14px;
-      cursor: pointer;
-      transition: all 0.2s ease;
-
-      .download-icon {
-        font-size: 16px;
-        color: #666;
-      }
-
-      &:hover {
-        background-color: #f5f5f5;
-      }
     }
   }
 
@@ -170,7 +152,7 @@
     .filter-options {
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      // gap: 12px;
       margin-bottom: 16px;
     }
 
@@ -273,6 +255,95 @@
       border: 1px solid #e4e7ec;
       background: #ffffff;
       font-size: 14px;
+    }
+  }
+
+  .export-container {
+    position: relative;
+
+    .dropdown-container {
+      position: relative;
+
+      .export-btn {
+        display: flex;
+        align-items: center;
+        padding: 8px 16px;
+        background-color: #fff;
+        color: #000;
+        border: 1px solid #e0e0e0;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+        transition: background-color 0.3s ease;
+
+        .download-icon {
+          margin-right: 8px;
+          font-size: 16px;
+        }
+      }
+
+      .export-dropdown {
+        position: absolute;
+        top: 100%;
+        right: 0;
+        margin-top: 4px;
+        background-color: white;
+        border-radius: 4px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        z-index: 1000;
+        min-width: 160px;
+
+        .export-option {
+          display: block;
+          width: 100%;
+          padding: 10px 16px;
+          text-align: left;
+          border: none;
+          background: none;
+          color: #333;
+          font-size: 14px;
+          cursor: pointer;
+          transition: background-color 0.2s ease;
+
+          &:hover {
+            background-color: #f5f5f5;
+          }
+
+          &:first-child {
+            border-top-left-radius: 4px;
+            border-top-right-radius: 4px;
+          }
+
+          &:last-child {
+            border-bottom-left-radius: 4px;
+            border-bottom-right-radius: 4px;
+          }
+
+          &:not(:last-child) {
+            border-bottom: 1px solid #eee;
+          }
+        }
+      }
+    }
+  }
+
+  .time-filter-buttons {
+    display: flex;
+    gap: 10px;
+    margin-right: 20px;
+
+    .filter-button {
+      padding: 8px 16px;
+      border: 1px solid #ea7704;
+      border-radius: 4px;
+      background: white;
+      cursor: pointer;
+      transition: all 0.3s ease;
+
+      &.active {
+        background: #ea7704;
+        color: white;
+      }
     }
   }
 }

@@ -4,6 +4,7 @@ import "./VisitDetails.scss";
 import useApplicationStore from "../../../../../useApplicationStore";
 import { BASE_URL } from "../../../../../services/apiClient";
 import { useNavigate } from "react-router-dom";
+import { fetchCelebrations } from "../../../../../services/src/services/celebrationsService";
 
 const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
   const { formData, errors, setVisitFormData, setFile, setErrors } =
@@ -13,10 +14,38 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
 
   const [visited, setVisited] = useState(formData.visited);
   const [showExtendedStayReason, setShowExtendedStayReason] = useState(false);
+  const [showUploadSuccess, setShowUploadSuccess] = useState(false);
+  const [celebrations, setCelebrations] = useState([]);
+  const [showCelebrationWarning, setShowCelebrationWarning] = useState(false);
+  const [celebrationWarnings, setCelebrationWarnings] = useState([]);
+
+  // Add useEffect for smooth scroll to top
+  useEffect(() => {
+    window.scrollTo({
+      top: 0,
+      left: 0,
+      behavior: "smooth",
+    });
+  }, []); // Empty dependency array means this runs once when component mounts
+
+  // Add useEffect for fetching celebrations
+  useEffect(() => {
+    const getCelebrations = async () => {
+      try {
+        const celebrationsData = await fetchCelebrations();
+        console.log("Fetched celebrations:", celebrationsData.data); // Debug log
+        setCelebrations(celebrationsData.data);
+      } catch (error) {
+        console.error("Error fetching celebrations:", error);
+      }
+    };
+
+    getCelebrations();
+  }, []); // Empty dependency array means this runs once when component mounts
 
   const handleNext = () => {
-    navigate('/application-form', { 
-      state: { activeTab: '3' }
+    navigate("/application-form", {
+      state: { activeTab: "3" },
     });
   };
 
@@ -31,10 +60,10 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
         visited: formData.visited,
         previousVisitDate: formData.previousVisitDate,
         reason: formData.reason,
-        file: formData.file
+        file: formData.file,
       },
       errors,
-      fullState: formData
+      fullState: formData,
     });
   }, [formData, errors]);
 
@@ -43,75 +72,134 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
     if (!arrivalDate) return null;
     const date = new Date(arrivalDate);
     date.setDate(date.getDate() + 3);
-    return date.toISOString().split('T')[0];
+    return date.toISOString().split("T")[0];
   };
 
-  // Generate time options in 12-hour format
-  const generate12HourTimeOptions = () => {
-    const options = [];
-    for (let hour = 0; hour < 24; hour++) {
-      for (let minute = 0; minute < 60; minute += 30) {
-        const period = hour < 12 ? 'AM' : 'PM';
-        const displayHour = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
-        const displayMinute = minute.toString().padStart(2, '0');
-        const value = `${hour.toString().padStart(2, '0')}:${displayMinute}`;
-        const label = `${displayHour}:${displayMinute} ${period}`;
-        options.push({ value, label });
-      }
-    }
-    return options;
-  };
-
-  // Update handleInputChange to set next day as departure date
+  // Update handleInputChange to set departure date 2 days after arrival
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    
+    console.log("Input Change:", { name, value });
+
+    // First set the form data for all fields
     setVisitFormData(name, value);
 
-    if (name === 'arrivalTime') {
-      setVisitFormData('visitTime', value);
-    }
-
-    // Set default departure date when arrival date is selected
-    if (name === 'visitDate') {
-      const arrivalDate = new Date(value);
-      if (!isNaN(arrivalDate.getTime())) {
-        const nextDay = new Date(arrivalDate);
-        nextDay.setDate(nextDay.getDate() + 1);
-        const formattedNextDay = nextDay.toISOString().split('T')[0];
-        setVisitFormData('departureDate', formattedNextDay);
-      }
-    }
-
-    // Modified stay duration calculation
-    if (name === 'visitDate' || name === 'departureDate') {
-      let visitDate = name === 'visitDate' ? value : formData.visitDate;
-      let departureDate = name === 'departureDate' ? value : formData.departureDate;
+    // Special handling for date-related fields
+    if (name === "visitDate" || name === "departureDate") {
+      // Get both dates
+      const visitDate = name === "visitDate" ? value : formData.visitDate;
+      const departureDate =
+        name === "departureDate" ? value : formData.departureDate;
 
       if (visitDate && departureDate) {
-        visitDate = new Date(visitDate);
-        departureDate = new Date(departureDate);
-        
-        if (!isNaN(visitDate.getTime()) && !isNaN(departureDate.getTime())) {
-          // Calculate the difference in days
-          const timeDiff = departureDate - visitDate;
-          const daysDiff = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
-          
-          // Show extended stay reason if stay is more than 2 days (3 nights)
-          setShowExtendedStayReason(daysDiff > 2);
-          
-          console.log('Stay Duration:', {
-            visitDate: visitDate.toISOString(),
-            departureDate: departureDate.toISOString(),
-            daysDiff,
-            showExtendedStay: daysDiff > 2
-          });
+        // Get all dates in the range
+        const dateRange = [];
+        const start = new Date(visitDate);
+        const end = new Date(departureDate);
+
+        for (
+          let date = new Date(start);
+          date <= end;
+          date.setDate(date.getDate() + 1)
+        ) {
+          dateRange.push(date.toISOString().split("T")[0]);
+        }
+
+        const matchingCelebrations = [];
+
+        celebrations.forEach((celebration) => {
+          const celebrationDate = celebration.attributes?.gregorian_date;
+          if (celebrationDate && dateRange.includes(celebrationDate)) {
+            matchingCelebrations.push({
+              event: celebration.attributes.event_name,
+              type: celebration.attributes.event_type,
+              date: celebrationDate,
+              isArrival: celebrationDate === visitDate,
+              isDeparture: celebrationDate === departureDate,
+            });
+          }
+        });
+
+        if (matchingCelebrations.length > 0) {
+          console.log("Found matching celebrations:", matchingCelebrations);
+          setShowCelebrationWarning(true);
+          setCelebrationWarnings(matchingCelebrations);
+        } else {
+          setShowCelebrationWarning(false);
+          setCelebrationWarnings([]);
+        }
+      }
+
+      // Handle departure date changes
+      if (name === "departureDate") {
+        const arrivalDate = new Date(formData.visitDate);
+        const departureDate = new Date(value);
+
+        if (!isNaN(arrivalDate.getTime()) && !isNaN(departureDate.getTime())) {
+          const daysDiff = Math.ceil(
+            (departureDate - arrivalDate) / (1000 * 60 * 60 * 24)
+          );
+
+          // If stay is 3 days, force departure time to 7:30
+          if (daysDiff === 3) {
+            setVisitFormData("departureTime", "7:30");
+          }
+        }
+      }
+
+      // Prevent departure time changes if stay is 3 days
+      if (name === "departureTime") {
+        const daysDiff = Math.ceil(
+          (new Date(formData.departureDate) - new Date(formData.visitDate)) /
+            (1000 * 60 * 60 * 24)
+        );
+
+        if (daysDiff === 3) {
+          return; // Don't allow time changes for 3-day stays
+        }
+        setVisitFormData(name, value);
+      }
+
+      // Add validation for knownToMath field
+      if (name === "knownToMath") {
+        // Only allow letters and spaces
+        if (/^[A-Za-z\s]*$/.test(value) || value === "") {
+          setVisitFormData(name, value);
+        }
+        return;
+      }
+
+      // Modified stay duration calculation
+      if (name === "visitDate" || name === "departureDate") {
+        let visitDate = name === "visitDate" ? value : formData.visitDate;
+        let departureDate =
+          name === "departureDate" ? value : formData.departureDate;
+
+        if (visitDate && departureDate) {
+          visitDate = new Date(visitDate);
+          departureDate = new Date(departureDate);
+
+          if (!isNaN(visitDate.getTime()) && !isNaN(departureDate.getTime())) {
+            // Calculate the difference in days
+            const timeDiff = departureDate - visitDate;
+            const daysDiff = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
+
+            // Show extended stay reason if stay is more than 2 days (3 nights)
+            setShowExtendedStayReason(daysDiff > 1);
+
+            console.log("Stay Duration:", {
+              visitDate: visitDate.toISOString(),
+              departureDate: departureDate.toISOString(),
+              daysDiff,
+              showExtendedStay: daysDiff > 1,
+            });
+          }
         }
       }
     }
 
+    // Clear errors if they exist
     if (errors[name]) {
-      setErrors(name, '');
+      setErrors(name, "");
     }
   };
 
@@ -119,38 +207,47 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
     const { value } = e.target;
     setVisited(value);
     setVisitFormData("visited", value);
-    console.log("Previous Visit Status Change:", { 
+    console.log("Previous Visit Status Change:", {
       value,
-      requiresAdditionalInfo: value === "yes"
+      requiresAdditionalInfo: value === "yes",
     });
   };
 
   const handleFileUpload = async (file) => {
     try {
       const formData = new FormData();
-      formData.append('files', file);
+      formData.append("files", file);
 
       const response = await fetch(`${BASE_URL}/upload`, {
-        method: 'POST',
+        method: "POST",
         body: formData,
         headers: {
-          'Authorization': `Bearer dab72e1a44ce33db65569da89fdc1927935e21775c16a6d6f8f035533fb939552a712001461dd2cabfbffb50b81b3635d6ffb080a24c475f1b8246bbc399da4189dfd3fae5fed6998811fc81e9954d670b6b60e4859bda4634148a94f3ddfecf9c4364858523f5f447bbce967ffc679e35810f1f3c282a6a6f4ee877b58fb8ee`,
+          Authorization: `Bearer dab72e1a44ce33db65569da89fdc1927935e21775c16a6d6f8f035533fb939552a712001461dd2cabfbffb50b81b3635d6ffb080a24c475f1b8246bbc399da4189dfd3fae5fed6998811fc81e9954d670b6b60e4859bda4634148a94f3ddfecf9c4364858523f5f447bbce967ffc679e35810f1f3c282a6a6f4ee877b58fb8ee`,
         },
       });
 
       if (!response.ok) {
-        throw new Error('Upload failed');
+        throw new Error("Upload failed");
       }
 
       const data = await response.json();
       setFile({
         ...data[0],
-        fileId: data[0].id
+        fileId: data[0].id,
       });
+
+      // Show success popup
+      setShowUploadSuccess(true);
+
+      // Hide popup after 3 seconds
+      setTimeout(() => {
+        setShowUploadSuccess(false);
+      }, 3000);
+
       console.log("File Upload Success:", data[0]);
     } catch (error) {
       console.error("File Upload Error:", error);
-      setErrors('file', 'Failed to upload file');
+      setErrors("file", "Failed to upload file");
     }
   };
 
@@ -158,10 +255,10 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
     const file = e.target.files[0];
     if (file) {
       handleFileUpload(file);
-      console.log("File Upload Initiated:", { 
+      console.log("File Upload Initiated:", {
         fileName: file?.name,
         fileType: file?.type,
-        fileSize: file?.size
+        fileSize: file?.size,
       });
     }
   };
@@ -171,10 +268,10 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
     const file = e.dataTransfer.files[0];
     if (file) {
       handleFileUpload(file);
-      console.log("File Drop Upload Initiated:", { 
+      console.log("File Drop Upload Initiated:", {
         fileName: file?.name,
         fileType: file?.type,
-        fileSize: file?.size
+        fileSize: file?.size,
       });
     }
   };
@@ -186,18 +283,21 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
     let hasErrors = false;
-    
+
     // Validate required fields
     const fieldsToValidate = [
       "visitDate",
       "visitTime",
       "departureDate",
-      "departureTime"
+      "departureTime",
     ];
 
     fieldsToValidate.forEach((field) => {
       if (!formData[field]) {
-        setErrors(field, `${field.charAt(0).toUpperCase() + field.slice(1)} is required`);
+        setErrors(
+          field,
+          `${field.charAt(0).toUpperCase() + field.slice(1)} is required`
+        );
         hasErrors = true;
       }
     });
@@ -214,10 +314,10 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
     }
 
     if (!hasErrors) {
-      navigate('/application-form', { 
-        state: { 
-          activeTab: '3'  // Pass as string to match the expected format
-        }
+      navigate("/application-form", {
+        state: {
+          activeTab: "3", // Pass as string to match the expected format
+        },
       });
     } else {
       console.log("Visit Details Validation Failed:", errors);
@@ -230,30 +330,30 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
       (state) => state,
       (newState, prevState) => {
         const visitFields = [
-          'visitDate', 
-          'visitTime', 
-          'departureDate', 
-          'departureTime',
-          'visited',
-          'previousVisitDate',
-          'reason',
-          'file'
+          "visitDate",
+          "visitTime",
+          "departureDate",
+          "departureTime",
+          "visited",
+          "previousVisitDate",
+          "reason",
+          "file",
         ];
-        
+
         const changes = visitFields.reduce((acc, field) => {
           if (newState.formData[field] !== prevState.formData[field]) {
             acc[field] = {
               from: prevState.formData[field],
-              to: newState.formData[field]
+              to: newState.formData[field],
             };
           }
           return acc;
         }, {});
 
         if (Object.keys(changes).length > 0) {
-          console.log('VisitDetails - Store Updates:', {
+          console.log("VisitDetails - Store Updates:", {
             changes,
-            timestamp: new Date().toISOString()
+            timestamp: new Date().toISOString(),
           });
         }
       }
@@ -262,11 +362,97 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
     return () => unsubscribe();
   }, []);
 
+  const generateTimeOptions = () => {
+    const options = [];
+
+    // Add 7:30 AM as first option
+    options.push(
+      <option key="7:30" value="7:30">
+        7:30 AM
+      </option>
+    );
+
+    // Generate regular hourly options
+    for (let hour = 0; hour <= 23; hour++) {
+      const time24 = `${hour.toString().padStart(2, "0")}:00`;
+      let hour12 = hour % 12;
+      hour12 = hour12 === 0 ? 12 : hour12;
+      const period = hour < 12 ? "AM" : "PM";
+      const timeDisplay = `${hour12}:00 ${period}`;
+
+      options.push(
+        <option key={time24} value={time24}>
+          {timeDisplay}
+        </option>
+      );
+    }
+
+    return options;
+  };
+
+  const generateArrivalTimeOptions = () => {
+    const morningTimes = [
+      { value: "7:30", label: "7:30 AM" },
+      { value: "8:00", label: "8:00 AM" },
+      { value: "8:30", label: "8:30 AM" },
+      { value: "9:00", label: "9:00 AM" },
+      { value: "9:30", label: "9:30 AM" },
+      { value: "10:00", label: "10:00 AM" },
+      { value: "10:30", label: "10:30 AM" },
+      { value: "11:00", label: "11:00 AM" },
+    ];
+
+    const eveningTimes = [
+      { value: "15:30", label: "3:30 PM" },
+      { value: "16:00", label: "4:00 PM" },
+      { value: "16:30", label: "4:30 PM" },
+      { value: "17:00", label: "5:00 PM" },
+    ];
+
+    return (
+      <>
+        <option value="">Select Time</option>
+        <optgroup label="Morning (7:30 AM - 11:00 AM)">
+          {morningTimes.map((time) => (
+            <option key={time.value} value={time.value}>
+              {time.label}
+            </option>
+          ))}
+        </optgroup>
+        <optgroup label="Evening (3:30 PM - 5:00 PM)">
+          {eveningTimes.map((time) => (
+            <option key={time.value} value={time.value}>
+              {time.label}
+            </option>
+          ))}
+        </optgroup>
+      </>
+    );
+  };
+
+  const warningStyle = {
+    position: "fixed",
+    top: (index) => `${20 + index * 140}px`,
+    right: "20px",
+    backgroundColor: "#f39c12",
+    color: "white",
+    padding: "15px 25px",
+    borderRadius: "5px",
+    boxShadow: "0 2px 5px rgba(0,0,0,0.2)",
+    zIndex: 9999,
+    maxWidth: "600px",
+    width: "600px",
+    fontSize: "16px",
+    animation: "fadeIn 0.3s ease-in",
+    marginBottom: "15px",
+    position: "relative",
+  };
+
   return (
     <div className="application-form">
       <form onSubmit={handleSubmit}>
         <div className="div">
-          <h2>Kamarpukur Guesthouse Booking</h2>
+          <h2>Visit Details</h2>
           <div className="form-section">
             <div className="form-left-section">
               <div className="form-group">
@@ -276,10 +462,12 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
                 <input
                   type="date"
                   name="visitDate"
-                  value={formData.arrivalDate || formData.visitDate || ''}
+                  value={formData.arrivalDate || formData.visitDate || ""}
                   onChange={handleInputChange}
                 />
-                {errors.visitDate && <span className="error">{errors.visitDate}</span>}
+                {errors.visitDate && (
+                  <span className="error">{errors.visitDate}</span>
+                )}
               </div>
 
               <div className="form-group">
@@ -289,13 +477,131 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
                 <input
                   type="date"
                   name="departureDate"
-                  value={formData.departureDate || ''}
+                  value={formData.departureDate || ""}
                   onChange={handleInputChange}
-                  min={formData.visitDate || ''}
-                  max={formData.visitDate ? getMaxDepartureDate(formData.visitDate) : ''}
+                  min={formData.visitDate || ""}
+                  max={
+                    formData.visitDate
+                      ? getMaxDepartureDate(formData.visitDate)
+                      : ""
+                  }
                 />
-                {errors.departureDate && <span className="error">{errors.departureDate}</span>}
+                {errors.departureDate && (
+                  <span className="error">{errors.departureDate}</span>
+                )}
               </div>
+
+              <div className="form-group">
+                <label>Additional Message or Special Requests (Optional)</label>
+                <textarea
+                  name="additionalMessage"
+                  value={formData.additionalMessage || ""}
+                  onChange={handleInputChange}
+                  placeholder="Enter any additional message or special requests..."
+                  rows={3}
+                />
+                {errors.additionalMessage && (
+                  <span className="error">{errors.additionalMessage}</span>
+                )}
+              </div>
+            </div>
+
+            <div className="form-right-section">
+              <div className="form-group">
+                <label>
+                  Arrival Time (Official Timming){" "}
+                  <span className="required"> *</span>
+                </label>
+                <select
+                  name="visitTime"
+                  value={formData.visitTime || ""}
+                  onChange={handleInputChange}
+                  className="form-control"
+                >
+                  {generateArrivalTimeOptions()}
+                </select>
+                {errors.visitTime && (
+                  <span className="error">{errors.visitTime}</span>
+                )}
+              </div>
+
+              <div className="form-group">
+                <label>
+                  Departure Time <span className="required"> *</span>
+                  {Math.ceil(
+                    (new Date(formData.departureDate) -
+                      new Date(formData.visitDate)) /
+                      (1000 * 60 * 60 * 24)
+                  ) === 3 && (
+                    <span
+                      style={{
+                        marginLeft: "5px",
+                        fontSize: "14px",
+                        color: "red",
+                      }}
+                    >
+                      (You have to depart by 7:30 a.m, as only 3 nights are
+                      allowed for accommodation)
+                    </span>
+                  )}
+                </label>
+                <select
+                  name="departureTime"
+                  value={formData.departureTime || ""}
+                  onChange={handleInputChange}
+                  disabled={
+                    Math.ceil(
+                      (new Date(formData.departureDate) -
+                        new Date(formData.visitDate)) /
+                        (1000 * 60 * 60 * 24)
+                    ) === 3
+                  }
+                >
+                  <option value="">Select Time</option>
+                  {generateTimeOptions()}
+                </select>
+                {errors.departureTime && (
+                  <span className="error">{errors.departureTime}</span>
+                )}
+              </div>
+
+              <div className="form-group">
+                <label>
+                  Are you known to any of our Ramakrishna Math / Mission /
+                  Branch Centre / Monk(s)?
+                </label>
+                <input
+                  type="text"
+                  name="knownToMath"
+                  value={formData.knownToMath || ""}
+                  onChange={handleInputChange}
+                  placeholder="Enter details if applicable"
+                  pattern="[A-Za-z\s]*"
+                  title="Only letters and spaces are allowed"
+                />
+                {errors.knownToMath && (
+                  <span className="error">{errors.knownToMath}</span>
+                )}
+              </div>
+              {/* 
+              {showExtendedStayReason && (
+                <div className="form-group">
+                  <label>
+                    State reason for more than 3 nights stay?{" "}
+                    <span className="required"> *</span>
+                  </label>
+                  <textarea
+                    rows={3}
+                    name="extendedStayReason"
+                    value={formData.extendedStayReason || ""}
+                    onChange={handleInputChange}
+                    placeholder="State your reason"
+                  />
+                  {errors.extendedStayReason && (
+                    <span className="error">{errors.extendedStayReason}</span>
+                  )}
+                </div>
+              )} */}
 
               <div className="form-group file-upload-section">
                 <label>Recommendation Letter (If any)</label>
@@ -321,70 +627,12 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
                 {errors.file && <span className="error">{errors.file}</span>}
               </div>
             </div>
-
-            <div className="form-right-section">
-              <div className="form-group">
-                <label>
-                  Arrival Time <span className="required"> *</span>
-                </label>
-                <select
-                  name="arrivalTime"
-                  value={formData.arrivalTime || ''}
-                  onChange={handleInputChange}
-                >
-                  <option value="">Select Time</option>
-                  {generate12HourTimeOptions().map((time) => (
-                    <option key={time.value} value={time.value}>
-                      {time.label}
-                    </option>
-                  ))}
-                </select>
-                {errors.arrivalTime && <span className="error">{errors.arrivalTime}</span>}
-              </div>
-
-              <div className="form-group">
-                <label>
-                  Departure Time <span className="required"> *</span>
-                </label>
-                <select
-                  name="departureTime"
-                  value={formData.departureTime || ''}
-                  onChange={handleInputChange}
-                >
-                  <option value="">Select Time</option>
-                  {generate12HourTimeOptions().map((time) => (
-                    <option key={time.value} value={time.value}>
-                      {time.label}
-                    </option>
-                  ))}
-                </select>
-                {errors.departureTime && <span className="error">{errors.departureTime}</span>}
-              </div>
-
-              {showExtendedStayReason && (
-                <div className="form-group">
-                  <label>
-                    State reason for more than 3 nights stay? <span className="required"> *</span>
-                  </label>
-                  <textarea
-                    rows={3}
-                    name="extendedStayReason"
-                    value={formData.extendedStayReason || ''}
-                    onChange={handleInputChange}
-                    placeholder="State your reason"
-                  />
-                  {errors.extendedStayReason && (
-                    <span className="error">{errors.extendedStayReason}</span>
-                  )}
-                </div>
-              )}
-            </div>
           </div>
         </div>
 
         <div className="previously-visited-section">
           <h2>Previously Visited Detail</h2>
-          
+
           <div className="form-group" style={{ paddingTop: "10px" }}>
             <label>Previously Visited?</label>
             <div style={{ display: "flex", gap: 40, paddingTop: "10px" }}>
@@ -421,7 +669,7 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
                 <input
                   type="date"
                   name="previousVisitDate"
-                  value={formData.previousVisitDate || ''}
+                  value={formData.previousVisitDate || ""}
                   onChange={handleInputChange}
                 />
                 {errors.previousVisitDate && (
@@ -438,7 +686,9 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
                   onChange={handleInputChange}
                   placeholder="State reason for re-visit"
                 />
-                {errors.reason && <span className="error">{errors.reason}</span>}
+                {errors.reason && (
+                  <span className="error">{errors.reason}</span>
+                )}
               </div>
             </>
           )}
@@ -483,6 +733,93 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
           </div>
         )}
       </form>
+
+      {/* Success Popup */}
+      {showUploadSuccess && (
+        <div
+          style={{
+            position: "fixed",
+            top: "20px",
+            right: "20px",
+            backgroundColor: "#4CAF50",
+            color: "white",
+            padding: "15px 25px",
+            borderRadius: "5px",
+            boxShadow: "0 2px 5px rgba(0,0,0,0.2)",
+            zIndex: 1000,
+            animation: "fadeIn 0.3s ease-in",
+          }}
+        >
+          Recommendation letter uploaded successfully!
+        </div>
+      )}
+
+      {showCelebrationWarning && celebrationWarnings.length > 0 && (
+        <div className="celebration-warnings">
+          {celebrationWarnings.map((celebration, index) => (
+            <div
+              key={`${celebration.event}-${celebration.date}-${index}`}
+              style={{
+                position: "fixed",
+                top: `${20 + index * 140}px`,
+                right: "20px",
+                backgroundColor: "#f39c12",
+                color: "white",
+                padding: "15px 25px",
+                borderRadius: "5px",
+                boxShadow: "0 2px 5px rgba(0,0,0,0.2)",
+                zIndex: 9999,
+                maxWidth: "600px",
+                width: "600px",
+                fontSize: "16px",
+                animation: "fadeIn 0.3s ease-in",
+                marginBottom: "15px",
+              }}
+            >
+              <svg
+                onClick={() => {
+                  const newWarnings = celebrationWarnings.filter(
+                    (_, i) => i !== index
+                  );
+                  setCelebrationWarnings(newWarnings);
+                  if (newWarnings.length === 0) {
+                    setShowCelebrationWarning(false);
+                  }
+                }}
+                style={{
+                  position: "absolute",
+                  top: "10px",
+                  right: "10px",
+                  cursor: "pointer",
+                  width: "16px",
+                  height: "16px",
+                }}
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
+              <strong>High Occupancy Alert!</strong>
+              <p>
+                {celebration.event} ({celebration.type}) celebration is
+                scheduled on {celebration.date}
+                {celebration.isArrival
+                  ? " (your arrival date)"
+                  : celebration.isDeparture
+                  ? " (your departure date)"
+                  : ""}{" "}
+                . Expect higher than usual occupancy. Please consider alternate
+                dates or submit special requests if needed.
+              </p>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };

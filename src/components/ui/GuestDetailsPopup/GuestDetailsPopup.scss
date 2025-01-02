@@ -11,7 +11,7 @@
 .popup-content {
   background: white;
   border-radius: 8px;
-  padding: 40px 20px;
+  padding: 20px 20px 0px;
   width: 100%;
   max-width: 1200px;
   max-height: 150vh;
@@ -106,7 +106,7 @@
           background: #f8f8ff;
           padding: 4px 12px;
           border-radius: 4px;
-          border: 1px solid #e8e8ff;
+          border: 1px solid #066bff;
 
           img {
             width: 14px;
@@ -187,21 +187,22 @@
 
   .close-btn {
     position: absolute;
-    top: 0px;
-    right: 16px;
+    top: -8px;
+    right: -6px;
     background: none;
     border: none;
     cursor: pointer;
     padding: 8px;
-
-    &:hover {
-      opacity: 0.8;
-    }
+    z-index: 1001;
 
     .icon {
       width: 20px;
       height: 20px;
       filter: invert(40%);
+    }
+
+    &:hover {
+      opacity: 0.8;
     }
   }
 }
@@ -435,6 +436,7 @@
     display: flex;
     justify-content: flex-end;
     gap: 12px;
+    margin-left: auto;
 
     button {
       padding: 8px 24px;
@@ -811,6 +813,34 @@
 
       &:hover:not(.selected) {
         background: #f8f8f8;
+      }
+    }
+  }
+
+  table {
+    tr {
+      transition: background-color 0.3s ease;
+
+      &.selected-guest-visit {
+        background-color: #f0f0f0; // or any color you prefer
+      }
+
+      &.highlighted {
+        background-color: rgba(
+          152,
+          103,
+          233,
+          0.1
+        ); // your existing highlight color
+      }
+
+      &.selected-guest-visit.highlighted {
+        background-color: rgba(
+          152,
+          103,
+          233,
+          0.2
+        ); // slightly darker highlight for selected guest
       }
     }
   }

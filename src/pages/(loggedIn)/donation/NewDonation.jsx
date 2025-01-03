@@ -776,6 +776,15 @@ const NewDonation = () => {
       email: "",
       identityNumber: "",
     });
+
+    // Update receipt number based on current tab and highest numbers
+    const nextNumber =
+      selectedTab === "Mission"
+        ? highestNumbers.MSN + 1
+        : highestNumbers.MT + 1;
+    const prefix = selectedTab === "Mission" ? "MSN" : "MT";
+    const newReceiptNumber = `${prefix} ${nextNumber}`;
+    setReceiptNumber(newReceiptNumber);
   };
 
   // Add this validation function
@@ -924,6 +933,7 @@ const NewDonation = () => {
   const handleConfirmPrint = async () => {
     try {
       console.log("Counter being used in donation creation:", user?.counter);
+
       // If there's existing donation data, update its status first
       if (donationId) {
         const updatePayload = {
@@ -954,9 +964,16 @@ const NewDonation = () => {
         guestId = guestResponse.data.id;
       }
 
-      // Create receipt details with completed status
+      // Create receipt details with completed status and update receipt numbers
+      const nextNumber =
+        selectedTab === "Mission"
+          ? highestNumbers.MSN + 1
+          : highestNumbers.MT + 1;
+      const prefix = selectedTab === "Mission" ? "MSN" : "MT";
+      const newReceiptNumber = `${prefix} ${nextNumber}`;
+
       const receiptPayload = {
-        Receipt_number: receiptNumber,
+        Receipt_number: newReceiptNumber, // Use the new receipt number
         status: "completed",
         amount: currentReceipt?.donationDetails?.amount,
         unique_no: uniqueDonorId,
@@ -1012,6 +1029,13 @@ const NewDonation = () => {
         await createNewDonation(donationPayload);
       }
 
+      // Update states with new receipt number
+      setReceiptNumber(newReceiptNumber);
+      setHighestNumbers((prev) => ({
+        ...prev,
+        [selectedTab === "Mission" ? "MSN" : "MT"]: nextNumber,
+      }));
+
       // Create and handle the print frame
       const printFrame = document.createElement("iframe");
       printFrame.style.display = "none";
@@ -1026,7 +1050,7 @@ const NewDonation = () => {
 
       const receiptContent = ReceiptTemplate({
         uniqueDonorId,
-        receiptNumber,
+        receiptNumber: newReceiptNumber, // Use the new receipt number
         formattedDate,
         donorDetails,
         currentReceipt,
@@ -1047,7 +1071,6 @@ const NewDonation = () => {
           document.body.removeChild(printFrame);
           setIsModalOpen(false);
           resetFormData();
-          // Show success toast instead of navigating
           toast.success(
             `Donation of ₹${currentReceipt?.donationDetails?.amount} successfully added!`,
             {
@@ -1358,11 +1381,24 @@ const NewDonation = () => {
         donationResponse
       );
 
+      // After successful creation, update the receipt number
+      const nextNumber =
+        selectedTab === "Mission"
+          ? highestNumbers.MSN + 1
+          : highestNumbers.MT + 1;
+      const prefix = selectedTab === "Mission" ? "MSN" : "MT";
+      const newReceiptNumber = `${prefix} ${nextNumber}`;
+
+      // Update states
+      setReceiptNumber(newReceiptNumber);
+      setHighestNumbers((prev) => ({
+        ...prev,
+        [selectedTab === "Mission" ? "MSN" : "MT"]: nextNumber,
+      }));
+
       // Reset form and close modal
       resetFormData();
       setShowPendingConfirm(false);
-
-      // Navigate to donation page with success message
       toast.success("Donation successfully added to pending");
       navigate("/newDonation");
     } catch (error) {
@@ -1516,7 +1552,7 @@ const NewDonation = () => {
       // Reset form and close modal
       resetFormData();
       setShowCancelConfirm(false);
-      toast.success("Donation cancelled successfully");
+      toast.success("Donation cancelled successfully", { autoClose: 10000 });
       navigate("/newDonation");
     } catch (error) {
       console.error("Error processing cancelled donation:", error);

@@ -872,7 +872,7 @@ const NewDonation = () => {
       if (!details?.ddDate) errors.ddDate = "Date is required";
       if (!details?.ddNumber) errors.ddNumber = "Number is required";
       if (!details?.bankName) errors.bankName = "Bank name is required";
-      if (!details?.branchName) errors.branchName = "Branch name is required";
+      // if (!details?.branchName) errors.branchName = "Branch name is required";
     }
 
     return errors;
@@ -2235,6 +2235,7 @@ const NewDonation = () => {
         disabled={shouldDisableFields()}
         className={shouldDisableFields() ? "disabled-input" : ""}
       >
+         <option value="" >Title</option>
         <option value="Sri">Sri</option>
         <option value="Smt">Smt.</option>
         <option value="Mr">Mr.</option>
@@ -2479,6 +2480,7 @@ const NewDonation = () => {
       <div className="error-message">{validationErrors.pincode}</div>
     )}
   </div>;
+  
 
   // Modify the validateIdentityInput function
   const validateIdentityInput = (type, value) => {
@@ -2650,6 +2652,7 @@ const NewDonation = () => {
               alignItems: "center",
               gap: "20px",
               flex: 1,
+              
             }}
           >
             <div className="tabs">
@@ -3171,6 +3174,9 @@ const NewDonation = () => {
                   <span className="error-message">{validationErrors.mantraDiksha}</span>
                 )}
               </div>
+   
+
+
 
               <div className="form-group" style={{ flex: 1 }}>
                 <label>Guest House Room No.</label>
@@ -4084,11 +4090,15 @@ const NewDonation = () => {
                     }
                     onChange={(e) => {
                       if (shouldDisableFields()) return;
+                  
+                      // Only allow numeric input
+                      const inputValue = e.target.value;
+                      if (!/^\d*$/.test(inputValue)) return;
+                  
                       handleDonationDetailsUpdate({
                         transactionDetails: {
-                          ...currentReceipt?.donationDetails
-                            ?.transactionDetails,
-                          ddNumber: e.target.value,
+                          ...currentReceipt?.donationDetails?.transactionDetails,
+                          ddNumber: inputValue,
                         },
                       });
                     }}

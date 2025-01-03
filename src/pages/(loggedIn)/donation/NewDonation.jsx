@@ -1363,7 +1363,8 @@ const NewDonation = () => {
       setShowPendingConfirm(false);
 
       // Navigate to donation page with success message
-      navigate("/donation#recent-donations");
+      toast.success("Donation successfully added to pending");
+      navigate("/newDonation");
     } catch (error) {
       console.error("Error processing pending donation:", error);
       console.error("Error details:", error.response?.data || error.message);
@@ -1515,7 +1516,8 @@ const NewDonation = () => {
       // Reset form and close modal
       resetFormData();
       setShowCancelConfirm(false);
-      navigate("/donation#recent-donations");
+      toast.success("Donation cancelled successfully");
+      navigate("/newDonation");
     } catch (error) {
       console.error("Error processing cancelled donation:", error);
       console.error("Error details:", error.response?.data || error.message);

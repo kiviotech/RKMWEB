@@ -1071,6 +1071,7 @@ const NewDonation = () => {
           document.body.removeChild(printFrame);
           setIsModalOpen(false);
           resetFormData();
+          navigate("/allDonationDetails");
           toast.success(
             `Donation of ₹${currentReceipt?.donationDetails?.amount} successfully added!`,
             {

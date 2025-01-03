@@ -62,6 +62,7 @@ const AllDonationDetails = () => {
 
   const handleSearch = (e) => {
     setSearchTerm(e.target.value);
+    setCurrentPage(1);
   };
 
   const handleDateChange = (e) => {

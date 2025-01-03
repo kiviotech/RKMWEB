@@ -884,7 +884,7 @@ const NewDonation = () => {
       if (!details?.ddDate) errors.ddDate = "Date is required";
       if (!details?.ddNumber) errors.ddNumber = "Number is required";
       if (!details?.bankName) errors.bankName = "Bank name is required";
-      if (!details?.branchName) errors.branchName = "Branch name is required";
+      // if (!details?.branchName) errors.branchName = "Branch name is required";
     }
 
     return errors;
@@ -1233,8 +1233,8 @@ const NewDonation = () => {
           if (!details?.ddDate) newErrors.ddDate = "Date is required";
           if (!details?.ddNumber) newErrors.ddNumber = "Number is required";
           if (!details?.bankName) newErrors.bankName = "Bank name is required";
-          if (!details?.branchName)
-            newErrors.branchName = "Branch name is required";
+          // if (!details?.branchName)
+          //   newErrors.branchName = "Branch name is required";
         }
 
         setValidationErrors(newErrors);
@@ -1971,7 +1971,7 @@ const NewDonation = () => {
         ddDate: !details?.ddDate ? "Date is required" : "",
         ddNumber: !details?.ddNumber ? "Number is required" : "",
         bankName: !details?.bankName ? "Bank name is required" : "",
-        branchName: !details?.branchName ? "Branch name is required" : "",
+        // branchName: !details?.branchName ? "Branch name is required" : "",
       };
 
       setTransactionValidationErrors(errors);
@@ -1988,7 +1988,21 @@ const NewDonation = () => {
     // Allow empty string or valid number with up to 2 decimal places
     if (value === "" || /^\d*\.?\d{0,2}$/.test(value)) {
       const numericValue = parseFloat(value) || 0;
-      setShowPANField(numericValue > 9999);
+
+      // Show PAN field and set default value to "none" if amount > 9999
+      if (numericValue > 9999) {
+        setShowPANField(true);
+        setDonorDetails((prev) => ({
+          ...prev,
+          panNumber: "none",
+        }));
+      } else {
+        setShowPANField(false);
+        setDonorDetails((prev) => ({
+          ...prev,
+          panNumber: "",
+        }));
+      }
 
       const updatedDonationDetails = {
         ...currentReceipt?.donationDetails,
@@ -2301,20 +2315,26 @@ const NewDonation = () => {
           value={donorDetails.name}
           onChange={(e) => {
             if (shouldDisableFields()) return;
-            const newValue = e.target.value.replace(/[^A-Za-z\s.]/g, "");
+            // Modified regex to allow alphanumeric characters and spaces
+            const newValue = e.target.value.replace(/[^A-Za-z0-9\s.]/g, "");
             setDonorDetails((prev) => ({
               ...prev,
               name: newValue,
             }));
             setSearchTerm(newValue);
             setShowDropdown(true);
-            // Remove the validation error setting from here
           }}
           onBlur={() => {
             setTimeout(() => {
               setShowDropdown(false);
             }, 200);
-            // Remove the validation error setting from here
+
+            if (!donorDetails.name.trim()) {
+              setValidationErrors((prev) => ({
+                ...prev,
+                name: "Donor name is required",
+              }));
+            }
           }}
           placeholder="Enter donor name"
           className={`${validationErrors.name ? "error" : ""} ${
@@ -2840,8 +2860,9 @@ const NewDonation = () => {
                       value={donorDetails.name}
                       onChange={(e) => {
                         if (shouldDisableFields()) return;
+                        // Modified regex to allow alphanumeric characters and spaces
                         const newValue = e.target.value.replace(
-                          /[^A-Za-z\s.]/g,
+                          /[^A-Za-z0-9\s.]/g,
                           ""
                         );
                         setDonorDetails((prev) => ({
@@ -2850,19 +2871,17 @@ const NewDonation = () => {
                         }));
                         setSearchTerm(newValue);
                         setShowDropdown(true);
-                        // Remove the validation error setting from here
                       }}
                       onBlur={() => {
-                        // Delay hiding dropdown to allow for click events
                         setTimeout(() => {
                           setShowDropdown(false);
                         }, 200);
 
                         if (!donorDetails.name.trim()) {
-                          // setValidationErrors((prev) => ({
-                          //   ...prev,
-                          //   name: "Donor name is required",
-                          // }));
+                          setValidationErrors((prev) => ({
+                            ...prev,
+                            name: "Donor name is required",
+                          }));
                         }
                       }}
                       placeholder="Enter donor name"
@@ -3979,37 +3998,55 @@ const NewDonation = () => {
                 <label>
                   PAN Number <span className="required">*</span>
                 </label>
-                <input
-                  type="text"
-                  value={
-                    donorDetails.panNumber ||
-                    (donorDetails.identityType === "PAN"
-                      ? donorDetails.identityNumber
-                      : "")
-                  }
+                <select
+                  value={donorDetails.panNumber}
                   onChange={(e) => {
-                    const value = e.target.value.toUpperCase();
-                    setDonorDetails({
-                      ...donorDetails,
-                      panNumber: value,
-                      // If identity type is PAN, also update identityNumber
-                      ...(donorDetails.identityType === "PAN" && {
-                        identityNumber: value,
-                      }),
-                    });
-                    const panError = validatePAN(value);
-                    setValidationErrors((prev) => ({
+                    const value = e.target.value;
+                    setDonorDetails((prev) => ({
                       ...prev,
-                      pan: panError,
-                      ...(donorDetails.identityType === "PAN" && {
-                        identityNumber: panError,
-                      }),
+                      panNumber: value,
                     }));
+                    // Clear PAN validation error when "none" is selected
+                    if (value === "none") {
+                      setValidationErrors((prev) => ({
+                        ...prev,
+                        pan: "",
+                      }));
+                    }
                   }}
-                  className={validationErrors.pan ? "error" : ""}
-                />
+                  disabled={shouldDisableFields()}
+                  className={`${validationErrors.pan ? "error" : ""} ${
+                    shouldDisableFields() ? "disabled-input" : ""
+                  }`}
+                >
+                  <option value="">Select PAN option</option>
+                  <option value="none">None</option>
+                  <option value="manual">Enter PAN Number</option>
+                </select>
+
+                {donorDetails.panNumber === "manual" && (
+                  <input
+                    type="text"
+                    value={donorDetails.panValue || ""}
+                    onChange={(e) => {
+                      const value = e.target.value.toUpperCase();
+                      if (/^[A-Z0-9]*$/.test(value) && value.length <= 10) {
+                        setDonorDetails((prev) => ({
+                          ...prev,
+                          panValue: value,
+                        }));
+                      }
+                    }}
+                    placeholder="Enter PAN number"
+                    disabled={shouldDisableFields()}
+                    className={`${validationErrors.pan ? "error" : ""} ${
+                      shouldDisableFields() ? "disabled-input" : ""
+                    }`}
+                    style={{ marginTop: "10px" }}
+                  />
+                )}
                 {validationErrors.pan && (
-                  <span className="error-message">{validationErrors.pan}</span>
+                  <div className="error-message">{validationErrors.pan}</div>
                 )}
               </div>
             )}
@@ -4360,9 +4397,9 @@ const NewDonation = () => {
                         </p>
                       )}
                       {/* Show PAN if available, otherwise show other identity */}
-                      {donorDetails.panNumber ? (
+                      {donorDetails.panNumber === "manual" ? (
                         <p>
-                          <strong>PAN: {donorDetails.panNumber}</strong>
+                          <strong>PAN: {donorDetails.panValue}</strong>
                         </p>
                       ) : (
                         donorDetails.identityNumber && (
@@ -5002,6 +5039,10 @@ const NewDonation = () => {
           color: #6b7280;
           font-size: 0.9em;
           margin-top: 4px;
+        }
+
+        .pan-input {
+          margin-top: 10px;
         }
       `}</style>
     </div>

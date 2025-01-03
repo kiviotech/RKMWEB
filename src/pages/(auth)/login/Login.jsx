@@ -48,7 +48,7 @@ const Login = () => {
       try {
         setIsLoading(true);
         const response = await loginUser({
-          identifier: formValues.username,
+          identifier: formValues.username.trim(),
           password: formValues.password,
         });
 

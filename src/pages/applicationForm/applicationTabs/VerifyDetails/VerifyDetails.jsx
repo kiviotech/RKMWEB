@@ -70,7 +70,8 @@ const VerifyDetails = () => {
         name: `${formData.title} ${formData.name}`.trim(),
         unique_no: uniqueNo, // Add unique number for main applicant
         phone_number: `+${formData.countryCode}${formData.phoneNumber}`,
-        aadhaar_number: formData.aadhaar,
+        identity_proof: "Aadhaar",
+        identity_number: guest.guestAadhaar,
         occupation: formData.occupation,
         address: `${formData.address.houseNumber}, ${formData.address.streetName}, ${formData.address.district}, ${formData.address.state}, ${formData.address.pinCode}`,
         age: parseInt(formData.age),
@@ -96,7 +97,8 @@ const VerifyDetails = () => {
             name: `${guest.guestTitle} ${guest.guestName}`.trim(),
             unique_no: `C${parseInt(uniqueNo?.substring(1)) + index + 1}`, // Add incremented unique number for each guest
             phone_number: `+${guest.countryCode}${guest.guestNumber}`,
-            aadhaar_number: guest.guestAadhaar,
+            identity_proof: "Aadhaar",
+            identity_number: guest.guestAadhaar,
             occupation: guest.guestOccupation,
             address: `${guest.guestAddress.houseNumber}, ${guest.guestAddress.district}, ${guest.guestAddress.state}, ${guest.guestAddress.pinCode}`,
             age: parseInt(guest.guestAge),

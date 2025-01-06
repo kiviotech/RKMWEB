@@ -339,7 +339,7 @@ const DonorDetails = ({ activeTab }) => {
     // Filter suggestions based on identity input
     if (value.length > 0) {
       const filtered = guestList.filter((guest) =>
-        guest.attributes.identity_number.includes(value)
+        guest.attributes.identity_number?.includes(value)
       );
       setIdentitySuggestions(filtered);
       setShowIdentitySuggestions(filtered.length > 0);

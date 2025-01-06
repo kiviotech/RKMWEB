@@ -50,7 +50,7 @@ const DonationHistory = () => {
             {donationHistory.length > 0 ? (
               donationHistory.map((donation, index) => (
                 <tr key={index}>
-                  <td>{donation.date}</td>
+                  <td>{new Date(donation.date).toLocaleDateString("en-GB")}</td>
                   <td>{donation.donationFor}</td>
                   <td>{donation.transactionMode}</td>
                   <td>₹{donation.amount}</td>

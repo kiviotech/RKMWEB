@@ -1,0 +1,52 @@
+.transaction-container {
+  background-color: #ffb888;
+  padding: 2rem;
+  border-radius: 8px;
+  max-width: 500px;
+  font-family: "Poppins", sans-serif;
+
+  h2 {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.5rem;
+    font-weight: 300;
+  }
+
+  .transaction-form {
+    display: flex;
+    flex-direction: column;
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+
+      label {
+        font-size: 16px;
+        font-weight: 500 !important;
+        font-size: clamp(14px, 2vw, 15px);
+
+        .required {
+          color: red;
+          margin-left: 4px;
+        }
+      }
+
+      .form-input {
+        padding: 0.75rem;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 1rem;
+        font-weight: bold;
+        width: 100%;
+        background-color: white;
+        height: 40px;
+
+        &:focus {
+          outline: none;
+          border-color: #ff9b71;
+          box-shadow: 0 0 0 2px rgba(255, 155, 113, 0.2);
+        }
+      }
+    }
+  }
+}

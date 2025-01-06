@@ -153,7 +153,7 @@ const AppRoutes = () => {
             </SubAdminRoute>
           }
         />
-        <Route path="/allDonationDetails" element={<AllDonationDetails />} />
+        <Route path="/allDonationDetails" element={<AllDonationDetails />} />
 
         <Route
           path="/donationdetail"

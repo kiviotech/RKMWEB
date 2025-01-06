@@ -39,3 +39,11 @@
     height: 82vh !important;
   }
 }
+
+@media screen and (max-width: 768px) {
+  .content {
+    .outlet {
+      padding: 0px 40px 50px 40px;
+    }
+  }
+}

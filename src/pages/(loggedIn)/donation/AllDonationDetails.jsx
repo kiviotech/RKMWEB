@@ -29,7 +29,6 @@ const AllDonationDetails = () => {
     donatedFor: true,
     donationStatus: true,
     donationAmount: true,
-    counter: true,
     action: true,
   });
   const filterDropdownRef = useRef(null);
@@ -62,7 +61,6 @@ const AllDonationDetails = () => {
 
   const handleSearch = (e) => {
     setSearchTerm(e.target.value);
-    setCurrentPage(1);
   };
 
   const handleDateChange = (e) => {
@@ -134,7 +132,7 @@ const AllDonationDetails = () => {
         </h1>
         <div className="export-buttons">
           {user?.user_role === "superadmin" && <DDFExport />}
-          <ExportDonations timeFilter={timeFilter} dateRange={dateRange} />
+          <ExportDonations timeFilter={timeFilter} />
         </div>
       </div>
       <div className="donation-header">
@@ -188,7 +186,6 @@ const AllDonationDetails = () => {
                 name="startDate"
                 value={dateRange.startDate}
                 onChange={handleDateChange}
-                max={new Date().toISOString().split("T")[0]}
               />
               <span>To</span>
               <input
@@ -196,7 +193,6 @@ const AllDonationDetails = () => {
                 name="endDate"
                 value={dateRange.endDate}
                 onChange={handleDateChange}
-                max={new Date().toISOString().split("T")[0]}
               />
             </div>
           )}

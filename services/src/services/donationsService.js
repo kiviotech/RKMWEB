@@ -32,9 +32,9 @@ export const fetchDonationById = async (id) => {
 };
 
 // Create a new donation
-export const createNewDonation = async (donationData) => {
+export const createNewDonation = async (data) => {
   try {
-    const response = await createDonation(donationData);
+    const response = await createDonation(data);
     return response.data;
   } catch (error) {
     console.error("Error creating donation:", error);

@@ -8,7 +8,9 @@ import * as XLSX from "xlsx";
 import { useNavigate } from "react-router-dom";
 import { loginUser } from "../../../../services/auth";
 import { useAuthStore } from "../../../../store/authStore";
-import { toast } from "react-toastify";
+import useDonationStore from "../../../../donationStore";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const AllDonation = ({
   searchTerm = "",
@@ -26,7 +28,6 @@ const AllDonation = ({
     donatedFor: true,
     donationStatus: true,
     donationAmount: true,
-    counter: true,
     action: true,
   },
 }) => {
@@ -133,178 +134,222 @@ const AllDonation = ({
   const getCurrentPageData = () => {
     // Sort donations by date in descending order (newest first)
     const sortedDonations = [...filteredDonations].sort((a, b) => {
-      // Get the most relevant date for each donation
-      const dateA = new Date(
-        a.attributes.createdAt ||
-          a.attributes.receipt_detail?.data?.attributes?.donation_date ||
-          a.attributes.updatedAt
+      // Get all possible dates for debugging
+      const aCreatedAt = new Date(a.attributes.createdAt);
+      const bCreatedAt = new Date(b.attributes.createdAt);
+      const aUpdatedAt = new Date(a.attributes.updatedAt);
+      const bUpdatedAt = new Date(b.attributes.updatedAt);
+      const aDonationDate = new Date(
+        a.attributes.receipt_detail?.data?.attributes?.donation_date || ""
       );
-      const dateB = new Date(
-        b.attributes.createdAt ||
-          b.attributes.receipt_detail?.data?.attributes?.donation_date ||
-          b.attributes.updatedAt
+      const bDonationDate = new Date(
+        b.attributes.receipt_detail?.data?.attributes?.donation_date || ""
       );
-      return dateB - dateA; // Sort in descending order (newest first)
+
+      // Use the most recent date for each donation
+      const dateA = new Date(Math.max(aCreatedAt, aUpdatedAt, aDonationDate));
+      const dateB = new Date(Math.max(bCreatedAt, bUpdatedAt, bDonationDate));
+
+      console.log("Comparing dates:", {
+        a: { id: a.id, date: dateA },
+        b: { id: b.id, date: dateB },
+      });
+
+      return dateB - dateA;
     });
 
     const startIndex = (currentPage - 1) * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
     const currentData = sortedDonations.slice(startIndex, endIndex);
-    console.log("Current Page Data:", currentData);
+    console.log(
+      "Sorted Donations:",
+      sortedDonations.map((d) => ({
+        id: d.id,
+        createdAt: d.attributes.createdAt,
+        updatedAt: d.attributes.updatedAt,
+        donationDate:
+          d.attributes.receipt_detail?.data?.attributes?.donation_date,
+      }))
+    );
     return currentData;
   };
 
   const handleCancelClick = (donationId) => {
-    const donationToCancel = donations.find((d) => d.id === donationId);
-    const donationCounter =
-      donationToCancel?.attributes?.receipt_detail?.data?.attributes?.counter;
-    const userCounter = user?.counter;
-
-    // Check if user's counter matches donation counter or if user has Counter 3
-    if (userCounter === "Counter 3" || userCounter === donationCounter) {
-      setSelectedDonationId(donationId);
-      setShowPasswordModal(true);
-      setPassword("");
-      setPasswordError("");
-    } else {
-      // Show error toast for unauthorized cancellation
-      toast.error("You can only cancel donations from your assigned counter");
-    }
+    console.log("Cancelling donation with ID:", donationId);
+    setSelectedDonationId(donationId);
+    setShowPasswordModal(true);
+    setPassword("");
+    setPasswordError("");
   };
 
   const handleCancelDonation = async (donationId) => {
     try {
-      const donationToCancel = donations.find((d) => d.id === donationId);
-      const donationCounter =
-        donationToCancel?.attributes?.receipt_detail?.data?.attributes?.counter;
-      const userCounter = user?.counter;
+      // Verify password using stored username
+      await loginUser({
+        identifier: user.username,
+        password: password,
+      });
 
-      // Check if user's counter matches donation counter or if user has Counter 3
-      if (userCounter === "Counter 3" || userCounter === donationCounter) {
-        // Verify password using stored username
-        await loginUser({
-          identifier: user.username,
-          password: password,
-        });
+      // If password verification succeeds, proceed with cancellation
+      await updateDonationById(donationId, {
+        data: {
+          status: "cancelled",
+        },
+      });
 
-        // If password verification succeeds, proceed with cancellation
-        await updateDonationById(donationId, {
-          data: {
-            status: "cancelled",
-          },
-        });
+      // Update local state
+      setDonations(
+        donations.map((donation) =>
+          donation.id === donationId
+            ? {
+                ...donation,
+                attributes: { ...donation.attributes, status: "cancelled" },
+              }
+            : donation
+        )
+      );
 
-        // Update local state
-        setDonations(
-          donations.map((donation) =>
-            donation.id === donationId
-              ? {
-                  ...donation,
-                  attributes: { ...donation.attributes, status: "cancelled" },
-                }
-              : donation
-          )
-        );
+      // Close modal and reset states
+      setShowPasswordModal(false);
+      setPassword("");
+      setPasswordError("");
+      setSelectedDonationId(null);
 
-        // Close modal and reset states
-        setShowPasswordModal(false);
-        setPassword("");
-        setPasswordError("");
-        setSelectedDonationId(null);
-
-        // Show success toast
-        toast.success("Donation cancelled successfully");
-      } else {
-        // Show error toast for unauthorized cancellation
-        toast.error("You can only cancel donations from your assigned counter");
-        setShowPasswordModal(false);
-        setPassword("");
-        setPasswordError("");
-        setSelectedDonationId(null);
-      }
+      // Add success toast notification
+      toast.success("Donation cancelled successfully!", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
     } catch (error) {
       console.error("Error:", error);
       setPasswordError("Invalid password");
-      toast.error("Failed to cancel donation");
     }
   };
 
   const handleSubmit = (donation) => {
-    console.log("Submitting donation:", donation);
-    console.log("Donation data being passed:", donation);
-    navigate("/newDonation", {
-      state: {
-        donationData: {
-          id: donation.id,
-          receiptNumber:
-            donation.attributes.receipt_detail?.data?.attributes
-              ?.Receipt_number,
-          donorName: donation.attributes.guest?.data?.attributes?.name,
-          donationDate:
-            donation.attributes.receipt_detail?.data?.attributes?.donation_date,
-          phoneNumber:
-            donation.attributes.guest?.data?.attributes?.phone_number,
-          donatedFor: donation.attributes.donationFor,
-          status: donation.attributes.status,
-          amount: donation.attributes.donationAmount,
-          createdBy:
-            donation.attributes.receipt_detail?.data?.attributes?.createdBy
-              ?.data?.id || donation.attributes.createdBy?.data?.id,
-        },
+    console.log("AllDonation - Processing pending donation:", donation);
+
+    // Extract guest data for easier access
+    const guestData = donation.attributes.guest?.data?.attributes || {};
+    const receiptData =
+      donation.attributes.receipt_detail?.data?.attributes || {};
+
+    // Format the address components
+    const address = guestData.address || "";
+    const addressParts = address.split(", ");
+
+    // Determine transaction type
+    const transactionType = donation.attributes.transactionType || "Cash";
+
+    const donationData = {
+      donorDetails: {
+        title: guestData.name?.split(" ")[0] || "",
+        name: guestData.name?.split(" ").slice(1).join(" ") || "",
+        phone: guestData.phone_number?.replace("+91", "") || "",
+        email: guestData.email || "",
+        deeksha: guestData.deeksha || "",
+        identityType: guestData.identity_proof || "",
+        identityNumber: guestData.identity_number || "",
+        flatNo: addressParts[0] || "",
+        streetName: addressParts[1] || "",
+        postOffice: addressParts[2] || "",
+        district: addressParts[3] || "",
+        state: addressParts[4] || "",
+        pincode: addressParts[5] || "",
       },
+      donationDetails: {
+        purpose: donation.attributes.purpose || "",
+        donationType: donation.attributes.type || "",
+        amount: donation.attributes.donationAmount || "",
+        transactionType: transactionType,
+        inMemoryOf: donation.attributes.InMemoryOf || "",
+        donationFor: donation.attributes.donationFor || "Math",
+        status: "pending",
+        donationId: donation.id,
+      },
+      transactionDetails: {
+        date: donation.attributes.ddch_date || "",
+        transactionId: donation.attributes.ddch_number || "",
+        bankName: donation.attributes.bankName || "",
+        branchName: donation.attributes.branchName || "",
+      },
+      donationId: donation.id,
+    };
+
+    console.log("AllDonation - Prepared pending donation data:", donationData);
+
+    // Initialize the donation store with the data
+    useDonationStore.getState().initializeFromDonationData(donationData);
+
+    navigate("/newDonation", {
+      state: { donationData },
     });
   };
 
   const handleViewDonation = (donation) => {
-    navigate("/newDonation", {
-      state: {
-        donationData: {
-          id: donation.id,
-          receiptNumber:
-            donation.attributes.receipt_detail?.data?.attributes
-              ?.Receipt_number,
-          donorName: donation.attributes.guest?.data?.attributes?.name,
-          donationDate:
-            donation.attributes.receipt_detail?.data?.attributes?.donation_date,
-          phoneNumber:
-            donation.attributes.guest?.data?.attributes?.phone_number,
-          donatedFor: donation.attributes.donationFor,
-          status: donation.attributes.status,
-          amount: donation.attributes.donationAmount,
-          createdBy:
-            donation.attributes.receipt_detail?.data?.attributes?.createdBy
-              ?.data?.id || donation.attributes.createdBy?.data?.id,
-          // Add counter information
-          counter:
-            donation.attributes.receipt_detail?.data?.attributes?.counter,
-          // Rest of the existing fields...
-          inMemoryOf: donation.attributes.InMemoryOf,
-          bankName: donation.attributes.bankName,
-          ddchDate: donation.attributes.ddch_date,
-          ddchNumber: donation.attributes.ddch_number,
-          purpose: donation.attributes.purpose,
-          transactionType: donation.attributes.transactionType,
-          type: donation.attributes.type,
-          // Guest details
-          guestDetails: {
-            aadhaarNumber:
-              donation.attributes.guest?.data?.attributes?.aadhaar_number,
-            address: donation.attributes.guest?.data?.attributes?.address,
-            age: donation.attributes.guest?.data?.attributes?.age,
-            arrivalDate:
-              donation.attributes.guest?.data?.attributes?.arrival_date,
-            departureDate:
-              donation.attributes.guest?.data?.attributes?.departure_date,
-            deeksha: donation.attributes.guest?.data?.attributes?.deeksha,
-            email: donation.attributes.guest?.data?.attributes?.email,
-            gender: donation.attributes.guest?.data?.attributes?.gender,
-            occupation: donation.attributes.guest?.data?.attributes?.occupation,
-            relationship:
-              donation.attributes.guest?.data?.attributes?.relationship,
-            guestStatus: donation.attributes.guest?.data?.attributes?.status,
-          },
-        },
+    console.log("AllDonation - Processing donation:", donation);
+
+    // Extract guest data for easier access
+    const guestData = donation.attributes.guest?.data?.attributes || {};
+    const receiptData =
+      donation.attributes.receipt_detail?.data?.attributes || {};
+
+    // Format the address components
+    const address = guestData.address || "";
+    const addressParts = address.split(", ");
+
+    // Determine transaction type
+    const transactionType = donation.attributes.transactionType || "Cash";
+
+    const donationData = {
+      donorDetails: {
+        title: guestData.name?.split(" ")[0] || "",
+        name: guestData.name?.split(" ").slice(1).join(" ") || "",
+        phone: guestData.phone_number?.replace("+91", "") || "",
+        email: guestData.email || "",
+        deeksha: guestData.deeksha || "",
+        identityType: guestData.identity_proof || "",
+        identityNumber: guestData.identity_number || "",
+        flatNo: addressParts[0] || "",
+        streetName: addressParts[1] || "",
+        postOffice: addressParts[2] || "",
+        district: addressParts[3] || "",
+        state: addressParts[4] || "",
+        pincode: addressParts[5] || "",
       },
+      donationDetails: {
+        purpose: donation.attributes.purpose || "",
+        donationType: donation.attributes.type || "",
+        amount: donation.attributes.donationAmount || "",
+        transactionType: transactionType,
+        inMemoryOf: donation.attributes.InMemoryOf || "",
+        donationFor: donation.attributes.donationFor || "Math",
+        status: "completed",
+        donationId: donation.id,
+      },
+      transactionDetails: {
+        date: donation.attributes.ddch_date || "",
+        transactionId: donation.attributes.ddch_number || "",
+        bankName: donation.attributes.bankName || "",
+        branchName: donation.attributes.branchName || "",
+      },
+      donationId: donation.id,
+    };
+
+    console.log(
+      "AllDonation - Prepared completed donation data:",
+      donationData
+    );
+
+    // Initialize the donation store with the data
+    useDonationStore.getState().initializeFromDonationData(donationData);
+
+    navigate("/newDonation", {
+      state: { donationData },
     });
   };
 
@@ -334,57 +379,59 @@ const AllDonation = ({
           }}
         >
           <h3>Enter Password to Confirm</h3>
-          <div style={{ position: "relative", width: "100%" }}>
+          <div style={{ position: "relative" }}>
             <input
               type={showPassword ? "text" : "password"}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Enter your password"
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  handleCancelDonation(selectedDonationId);
+                }
+              }}
               style={{
                 width: "100%",
                 padding: "8px",
                 marginTop: "10px",
                 marginBottom: "10px",
-                paddingRight: "35px", // Add space for the eye icon
+                paddingRight: "35px",
               }}
             />
-            <button
-              type="button"
+            <span
               onClick={() => setShowPassword(!showPassword)}
               style={{
                 position: "absolute",
-                right: "8px",
+                right: "10px",
                 top: "50%",
                 transform: "translateY(-50%)",
-                border: "none",
-                background: "transparent",
                 cursor: "pointer",
-                padding: "4px",
+                color: "#666",
+                marginTop: "3px",
               }}
             >
               {showPassword ? (
                 <svg
+                  xmlns="http://www.w3.org/2000/svg"
                   width="20"
                   height="20"
+                  viewBox="0 0 24 24"
                   fill="currentColor"
-                  viewBox="0 0 16 16"
                 >
-                  <path d="M13.359 11.238C15.06 9.72 16 8 16 8s-3-5.5-8-5.5a7.028 7.028 0 0 0-2.79.588l.77.771A5.944 5.944 0 0 1 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13.134 13.134 0 0 1 14.828 8c-.058.087-.122.183-.195.288-.335.48-.83 1.12-1.465 1.755-.165.165-.337.328-.517.486l.708.709z" />
-                  <path d="M11.297 9.176a3.5 3.5 0 0 0-4.474-4.474l.823.823a2.5 2.5 0 0 1 2.829 2.829l.822.822zm-2.943 1.299.822.822a3.5 3.5 0 0 1-4.474-4.474l.823.823a2.5 2.5 0 0 0 2.829 2.829z" />
-                  <path d="M3.35 5.47c-.18.16-.353.322-.518.487A13.134 13.134 0 0 0 1.172 8l.195.288c.335.48.83 1.12 1.465 1.755C4.121 11.332 5.881 12.5 8 12.5c.716 0 1.39-.133 2.02-.36l.77.772A7.029 7.029 0 0 1 8 13.5C3 13.5 0 8 0 8s.939-1.721 2.641-3.238l.708.709zm10.296 8.884-12-12 .708-.708 12 12-.708.708z" />
+                  <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z" />
                 </svg>
               ) : (
                 <svg
+                  xmlns="http://www.w3.org/2000/svg"
                   width="20"
                   height="20"
+                  viewBox="0 0 24 24"
                   fill="currentColor"
-                  viewBox="0 0 16 16"
                 >
-                  <path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8zM1.173 8a13.133 13.133 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13.133 13.133 0 0 1 14.828 8c-.058.087-.122.183-.195.288-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5c-2.12 0-3.879-1.168-5.168-2.457A13.134 13.134 0 0 1 1.172 8z" />
-                  <path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5zM4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0z" />
+                  <path d="M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 3.43-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-3.98.7l2.16 2.16C10.74 7.13 11.35 7 12 7zM2 4.27l2.28 2.28.46.46C3.08 8.3 1.78 10.02 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3 2 4.27zM7.53 9.8l1.55 1.55c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3 .22 0 .44-.03.65-.08l1.55 1.55c-.67.33-1.41.53-2.2.53-2.76 0-5-2.24-5-5 0-.79.2-1.53.53-2.2zm4.31-.78l3.15 3.15.02-.16c0-1.66-1.34-3-3-3l-.17.01z" />
                 </svg>
               )}
-            </button>
+            </span>
           </div>
           {passwordError && <p style={{ color: "red" }}>{passwordError}</p>}
           <div
@@ -438,6 +485,7 @@ const AllDonation = ({
 
   return (
     <div className="all-donations-container">
+      <ToastContainer />
       {renderPasswordModal()}
       <div className="donations-section">
         <div className="table-container">
@@ -452,7 +500,6 @@ const AllDonation = ({
                   {filterOptions.donatedFor && <th>Donated For</th>}
                   {filterOptions.donationStatus && <th>Donation Status</th>}
                   {filterOptions.donationAmount && <th>Donation Amount</th>}
-                  {filterOptions.counter && <th>Counter</th>}
                   {filterOptions.action && <th>Action</th>}
                 </tr>
               </thead>
@@ -499,70 +546,56 @@ const AllDonation = ({
                     {filterOptions.donationStatus && (
                       <td>
                         <span
-                          className={`status-badge ${donation.attributes.status}`}
+                          className={`status-badge ${donation.attributes.status.toLowerCase()}`}
                         >
                           {donation.attributes.status}
                         </span>
                       </td>
                     )}
                     {filterOptions.donationAmount && (
-                      <td>
-                        ₹{" "}
-                        {Number(
-                          donation.attributes.donationAmount
-                        ).toLocaleString("en-IN")}
-                      </td>
-                    )}
-                    {filterOptions.counter && (
-                      <td>
-                        {
-                          donation.attributes.receipt_detail?.data?.attributes
-                            ?.counter
-                        }
-                      </td>
+                      <td>₹ {donation.attributes.donationAmount}</td>
                     )}
                     {filterOptions.action && (
                       <td className="action-cell">
-                        {donation.attributes.status &&
-                          (donation.attributes.status.toLowerCase() ===
-                            "pending" ||
-                            donation.attributes.status.toLowerCase() ===
-                              "completed") && (
-                            <>
+                        {(donation.attributes.status.toLowerCase() ===
+                          "pending" ||
+                          donation.attributes.status.toLowerCase() ===
+                            "completed") && (
+                          <>
+                            <button
+                              className="cancel-btn"
+                              onClick={() => handleCancelClick(donation.id)}
+                            >
+                              Cancel
+                            </button>
+                            {donation.attributes.status.toLowerCase() ===
+                              "completed" && (
                               <button
-                                className="cancel-btn"
-                                onClick={() => handleCancelClick(donation.id)}
+                                className="view-btn"
+                                style={{
+                                  color: "#ea7704",
+                                  background: "transparent",
+                                  border: "none",
+                                  cursor: "pointer",
+                                  padding: "5px 10px",
+                                  fontSize: "14px",
+                                }}
+                                onClick={() => handleViewDonation(donation)}
                               >
-                                Cancel
+                                View
                               </button>
-                              {donation.attributes.status.toLowerCase() ===
-                                "completed" && (
-                                <button
-                                  className="view-btn"
-                                  style={{
-                                    color: "#ea7704",
-                                    background: "transparent",
-                                    border: "none",
-                                    cursor: "pointer",
-                                    padding: "5px 10px",
-                                    fontSize: "14px",
-                                  }}
-                                  onClick={() => handleViewDonation(donation)}
-                                >
-                                  View
-                                </button>
-                              )}
-                              {donation.attributes.status.toLowerCase() ===
-                                "pending" && (
-                                <button
-                                  className="submit-btn"
-                                  onClick={() => handleSubmit(donation)}
-                                >
-                                  Submit
-                                </button>
-                              )}
-                            </>
-                          )}
+                            )}
+                            {donation.attributes.status.toLowerCase() ===
+                              "pending" && (
+                              <button
+                                className="submit-btn"
+                                onClick={() => handleSubmit(donation)}
+                              >
+                                Submit
+                              </button>
+                            )}
+                          </>
+                        )}
                       </td>
                     )}
                   </tr>

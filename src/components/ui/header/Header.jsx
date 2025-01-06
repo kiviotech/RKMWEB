@@ -116,8 +116,9 @@ const Header = ({ hideElements }) => {
                 className={({ isActive }) =>
                   (isActive && location.hash === "#tomorrows-guests") ||
                   (location.pathname === "/donation" &&
-                    location.hash === "#tomorrows-guests") ||
-                  location.pathname === "/donation"
+                    location.hash === "#tomorrows-guests")
+                    ? "active"
+                    : location.pathname === "/donation"
                     ? "active"
                     : ""
                 }

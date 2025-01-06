@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { fetchGuestUniqueNo } from "./services/src/services/guestDetailsService";
 
 const useApplicationStore = create((set) => ({
   formData: {
@@ -59,6 +60,8 @@ const useApplicationStore = create((set) => ({
     additionalMessage: "",
   },
   errors: {},
+  nextUniqueNumber: 1,
+  uniqueNo: "",
 
   setFormData: (name, value) =>
     set((state) => ({
@@ -228,6 +231,26 @@ const useApplicationStore = create((set) => ({
       },
       errors: {},
     })),
+
+  fetchLatestUniqueNumber: async () => {
+    try {
+      const guestDetails = await fetchGuestUniqueNo();
+
+      const uniqueNumbers = guestDetails.data
+        .filter((item) => item.attributes.unique_no)
+        .map((item) => parseInt(item.attributes.unique_no.substring(1)));
+
+      const highestUniqueNo =
+        uniqueNumbers.length > 0 ? Math.max(...uniqueNumbers) + 1 : 1;
+
+      set((state) => ({
+        nextUniqueNumber: highestUniqueNo,
+        uniqueNo: `C${highestUniqueNo}`,
+      }));
+    } catch (error) {
+      console.error("Failed to fetch unique number:", error);
+    }
+  },
 }));
 
 export default useApplicationStore;

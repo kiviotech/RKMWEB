@@ -1,0 +1,202 @@
+.atth-donation-wrapper {
+  padding: 0 0 20px 0;
+}
+
+.atth-donation-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 0 0 0;
+
+  @media screen and (max-width: 992px) {
+    flex-direction: column;
+    gap: 1rem;
+    padding: 0.75rem 0 0.5rem 0;
+  }
+
+  .atth-header-left {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+
+    .atth-header-title {
+      font-size: 24px;
+      font-weight: 400;
+      margin: 0;
+    }
+
+    .atth-header-actions {
+      display: flex;
+
+      .atth-btn-donor {
+        background-color: #e4e4e4;
+        color: #eb831c;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 30px;
+        cursor: pointer;
+      }
+
+      .atth-btn-add {
+        background-color: #fff;
+        color: #eb831c;
+        border: 1px solid #eb831c;
+        padding: 8px 16px;
+        border-radius: 4px;
+        cursor: pointer;
+        margin-top: 5px;
+      }
+    }
+
+    @media screen and (max-width: 576px) {
+      flex-direction: column;
+      align-items: flex-start;
+      width: 100%;
+      gap: 1rem;
+
+      .atth-header-actions {
+        width: 100%;
+
+        .atth-btn-donor,
+        .atth-btn-add {
+          flex: 1;
+          text-align: center;
+        }
+      }
+    }
+  }
+
+  .atth-header-right {
+    display: flex;
+    gap: 2rem;
+    background: #fff;
+    padding: 1rem;
+    border-radius: 8px;
+
+    @media screen and (max-width: 768px) {
+      width: 100%;
+      padding: 0.75rem;
+    }
+
+    .atth-info-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+
+      @media screen and (max-width: 480px) {
+        flex-direction: row;
+        align-items: center;
+        gap: 0.5rem;
+
+        .atth-label {
+          font-size: 0.8rem;
+        }
+
+        .atth-value {
+          font-size: 0.9rem;
+        }
+      }
+    }
+  }
+}
+
+.atth-donation-subheader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-radius: 8px;
+
+  @media screen and (max-width: 768px) {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: flex-start;
+  }
+
+  .atth-tab-group {
+    display: flex;
+    gap: 0.5rem;
+    background-color: #e4e4e4;
+    padding: 0.3rem;
+    border-radius: 8px;
+
+    .atth-tab {
+      padding: 0.5rem 1.5rem;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      background-color: #e4e4e4;
+      color: #495057;
+
+      &.atth-active {
+        color: #000;
+
+        &[data-tab="math"] {
+          background-color: #ffb888; // Orange for Math
+        }
+
+        &[data-tab="mission"] {
+          background-color: #99fb98; // Light green for Mission
+        }
+      }
+    }
+
+    @media screen and (max-width: 576px) {
+      width: 100%;
+
+      .atth-tab {
+        flex: 1;
+        text-align: center;
+        padding: 0.5rem 0.75rem;
+      }
+    }
+  }
+
+  .atth-receipt-info {
+    color: #374151;
+
+    .atth-receipt-number {
+      font-weight: 500;
+    }
+  }
+
+  .atth-btn-reset {
+    color: #7c3aed;
+    background: none;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+.atth-subheader-left {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 2rem;
+
+  @media screen and (max-width: 768px) {
+    width: 100%;
+    flex-direction: column;
+    gap: 1rem;
+  }
+}
+
+.atth-label {
+  font-size: 0.8rem;
+  color: #666;
+  font-weight: 500;
+  margin-bottom: 0.25rem;
+  text-align: center;
+}
+.atth-value {
+  font-size: 1rem;
+  color: #333;
+  text-align: center;
+}

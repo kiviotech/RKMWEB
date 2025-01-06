@@ -17,8 +17,14 @@ export const generateDonationReport = (donations, reportType) => {
       };
     }
 
+    // Only add to totals if donation is not cancelled
+    const amount =
+      donation.attributes.status === "cancelled"
+        ? 0
+        : parseFloat(donation.attributes.donationAmount || 0);
+
     // Calculate mode total
-    acc[mode].total += parseFloat(donation.attributes.donationAmount || 0);
+    acc[mode].total += amount;
 
     // Group by type within each mode
     const type = donation.attributes.type || "Unknown";
@@ -30,9 +36,7 @@ export const generateDonationReport = (donations, reportType) => {
     }
 
     // Calculate type total
-    acc[mode].types[type].total += parseFloat(
-      donation.attributes.donationAmount || 0
-    );
+    acc[mode].types[type].total += amount;
 
     // Group by purpose within each type
     const purpose = donation.attributes.purpose || "General";
@@ -44,9 +48,7 @@ export const generateDonationReport = (donations, reportType) => {
     }
 
     // Calculate purpose total and store donation
-    acc[mode].types[type].purposes[purpose].total += parseFloat(
-      donation.attributes.donationAmount || 0
-    );
+    acc[mode].types[type].purposes[purpose].total += amount;
     acc[mode].types[type].purposes[purpose].donations.push(donation);
 
     return acc;
@@ -54,7 +56,10 @@ export const generateDonationReport = (donations, reportType) => {
 
   const grandTotal = donations.reduce(
     (sum, donation) =>
-      sum + parseFloat(donation.attributes.donationAmount || 0),
+      sum +
+      (donation.attributes.status === "cancelled"
+        ? 0
+        : parseFloat(donation.attributes.donationAmount || 0)),
     0
   );
 

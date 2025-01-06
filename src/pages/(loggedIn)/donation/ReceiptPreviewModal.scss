@@ -1,0 +1,103 @@
+.receipt-preview-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+
+  .receipt-preview-content {
+    background: white;
+    border-radius: 8px;
+    width: 100%;
+    max-width: 600px;
+    padding: 20px;
+  }
+
+  .receipt-preview-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+
+    h2 {
+      margin: 0;
+      font-size: 1.5rem;
+    }
+
+    .close-button {
+      background: none;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+    }
+  }
+
+  .receipt-preview-body {
+    .receipt-header {
+      .receipt-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 20px;
+      }
+    }
+
+    .receipt-details {
+      .detail-row {
+        display: flex;
+        margin-bottom: 15px;
+
+        .label {
+          color: #666;
+          margin-right: 10px;
+        }
+
+        .value {
+          font-weight: 500;
+        }
+      }
+
+      .address-block {
+        margin: 15px 0;
+
+        p {
+          margin: 5px 0;
+        }
+      }
+
+      .amount {
+        margin: 20px 0;
+        font-size: 1.2rem;
+        font-weight: bold;
+      }
+    }
+
+    .receipt-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 20px;
+
+      button {
+        padding: 8px 20px;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+
+      .cancel-button {
+        background: white;
+        border: 1px solid #ccc;
+      }
+
+      .confirm-print-button {
+        background: #f26722;
+        color: white;
+        border: none;
+      }
+    }
+  }
+}

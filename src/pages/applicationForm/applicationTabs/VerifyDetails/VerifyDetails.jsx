@@ -8,7 +8,7 @@ import { useNavigate } from "react-router-dom";
 import { MEDIA_BASE_URL } from "../../../../../services/apiClient";
 
 const VerifyDetails = () => {
-  const { formData } = useApplicationStore();
+  const { formData, uniqueNo, fetchLatestUniqueNumber } = useApplicationStore();
   const navigate = useNavigate();
   const [showPreview, setShowPreview] = useState(false);
 
@@ -17,6 +17,10 @@ const VerifyDetails = () => {
       top: 0,
       behavior: "smooth",
     });
+  }, []);
+
+  useEffect(() => {
+    fetchLatestUniqueNumber();
   }, []);
 
   // Format date and time
@@ -61,9 +65,10 @@ const VerifyDetails = () => {
 
   const handleSubmit = async () => {
     try {
-      // Create main applicant guest details
+      // Create main applicant guest details with unique_no
       const applicantData = {
         name: `${formData.title} ${formData.name}`.trim(),
+        unique_no: uniqueNo, // Add unique number for main applicant
         phone_number: `+${formData.countryCode}${formData.phoneNumber}`,
         aadhaar_number: formData.aadhaar,
         occupation: formData.occupation,
@@ -84,11 +89,12 @@ const VerifyDetails = () => {
       const mainGuestResponse = await createNewGuestDetails(applicantData);
       const mainGuestId = mainGuestResponse.data.id;
 
-      // Create guest details for additional guests
+      // Create guest details for additional guests with incremented unique numbers
       const guestResponses = await Promise.all(
-        formData.guests.map((guest) => {
+        formData.guests.map((guest, index) => {
           const guestData = {
             name: `${guest.guestTitle} ${guest.guestName}`.trim(),
+            unique_no: `C${parseInt(uniqueNo?.substring(1)) + index + 1}`, // Add incremented unique number for each guest
             phone_number: `+${guest.countryCode}${guest.guestNumber}`,
             aadhaar_number: guest.guestAadhaar,
             occupation: guest.guestOccupation,
@@ -172,6 +178,7 @@ const VerifyDetails = () => {
           <thead>
             <tr>
               <th style={{ width: "5%" }}>Sl No.</th>
+              <th style={{ width: "5%" }}>Unique No.</th>
               <th style={{ width: "20%" }}>Name (s)</th>
               <th style={{ width: "5%", textAlign: "center" }}>Age</th>
               <th style={{ width: "5%", textAlign: "center" }}>Gender</th>
@@ -186,6 +193,7 @@ const VerifyDetails = () => {
             {/* Applicant Row */}
             <tr>
               <td>1</td>
+              <td>{uniqueNo}</td>
               <td>{`${formData.title} ${formData.name}`}</td>
               <td style={{ textAlign: "center" }}>{formData.age}</td>
               <td style={{ textAlign: "center" }}>{formData.gender}</td>
@@ -209,6 +217,7 @@ const VerifyDetails = () => {
             {formData.guests.map((guest, index) => (
               <tr key={index}>
                 <td>{index + 2}</td>
+                <td>{`C${parseInt(uniqueNo?.substring(1)) + index + 1}`}</td>
                 <td>{`${guest.guestTitle} ${guest.guestName}`}</td>
                 <td style={{ textAlign: "center" }}>{guest.guestAge}</td>
                 <td style={{ textAlign: "center" }}>{guest.guestGender}</td>

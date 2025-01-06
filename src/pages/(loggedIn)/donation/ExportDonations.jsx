@@ -3,7 +3,7 @@ import { fetchDonations } from "../../../../services/src/services/donationsServi
 import "./ExportDonations.scss";
 import { generateDonationReport } from "./generateDonationReport";
 
-const ExportDonations = ({ timeFilter, dateRange }) => {
+const ExportDonations = ({ timeFilter }) => {
   const [showExportDropdown, setShowExportDropdown] = useState(false);
 
   useEffect(() => {
@@ -42,7 +42,7 @@ const ExportDonations = ({ timeFilter, dateRange }) => {
         ? response
         : response.data || [];
 
-      // Filter donations based on date, reportType, and date range
+      // Filter donations based on date and reportType
       const donations = allDonations.filter((donation) => {
         const donationFor = donation.attributes.donationFor?.toUpperCase();
         const isCorrectType =
@@ -50,20 +50,13 @@ const ExportDonations = ({ timeFilter, dateRange }) => {
             ? donationFor === "MATH"
             : donationFor === "MISSION";
 
-        const donationDate = new Date(donation.attributes.createdAt)
-          .toISOString()
-          .split("T")[0];
-
+        // Add date filtering for today
         if (timeFilter === "today") {
           const today = new Date().toISOString().split("T")[0];
+          const donationDate = new Date(donation.attributes.createdAt)
+            .toISOString()
+            .split("T")[0];
           return isCorrectType && donationDate === today;
-        } else if (dateRange.startDate && dateRange.endDate) {
-          // Filter by date range if provided
-          return (
-            isCorrectType &&
-            donationDate >= dateRange.startDate &&
-            donationDate <= dateRange.endDate
-          );
         }
 
         return isCorrectType;

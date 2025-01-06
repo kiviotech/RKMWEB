@@ -25,11 +25,10 @@ const DDFExport = () => {
 
   const formatDDFData = async (type, quarter) => {
     try {
-      const today = new Date();
-      const currentYear = today.getFullYear();
+      const currentYear = new Date().getFullYear();
 
       // Set date ranges
-      let cumulativeStartDate = `${currentYear}-01-01`; // Start of calendar year
+      let cumulativeStartDate = `${currentYear}-04-01`; // Start of fiscal year
       let quarterStartDate, quarterEndDate;
 
       switch (quarter) {
@@ -46,8 +45,8 @@ const DDFExport = () => {
           quarterEndDate = `${currentYear}-12-31`;
           break;
         case "Jan-Mar 4th Qtr":
-          quarterStartDate = `${currentYear}-01-01`;
-          quarterEndDate = `${currentYear}-03-31`;
+          quarterStartDate = `${currentYear + 1}-01-01`;
+          quarterEndDate = `${currentYear + 1}-03-31`;
           break;
         default:
           return [];

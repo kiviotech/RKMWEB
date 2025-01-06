@@ -23,3 +23,6 @@ export const getGuestDetailsByUserAndStatus = (userId, status) =>
 
 export const getGuestDetailsByUser = (userId) =>
   apiClient.get(`${guestDetailsEndpoints.getGuestDetails}?userId=${userId}`);
+
+export const getGuestUniqueNo = () =>
+  apiClient.get(guestDetailsEndpoints.getGuestUniqueNo);

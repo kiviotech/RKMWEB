@@ -1,0 +1,70 @@
+.donation-form {
+  background-color: #ffb888;
+  padding: 2rem;
+  border-radius: 8px;
+  max-width: 500px;
+  margin: 0 auto;
+  font-family: "Poppins", sans-serif;
+
+  h2 {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 300;
+  }
+
+  &__title {
+    margin-bottom: 1.5rem;
+    font-size: 1.5rem;
+  }
+
+  &__group {
+    margin-bottom: 1rem;
+  }
+
+  &__label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+  }
+
+  &__required {
+    color: red;
+  }
+
+  &__input,
+  &__select {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: white;
+    font-size: 1rem;
+
+    &:focus {
+      outline: none;
+      border-color: #666;
+    }
+  }
+
+  &__select {
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+    background-size: 1em;
+  }
+}
+.donation-form__label {
+  font-weight: 300 !important;
+  font-size: clamp(14px, 2vw, 15px);
+}
+.donation-form__input {
+  height: 40px;
+  font-weight: bold;
+}
+input::placeholder {
+  font-weight: 300;
+}
+.mission-bg {
+  background-color: #99fb98;
+}

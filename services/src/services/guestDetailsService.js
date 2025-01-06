@@ -6,6 +6,7 @@ import {
   deleteGuestDetails,
   getGuestDetailsByUserAndStatus,
   getGuestDetailsByUser,
+  getGuestUniqueNo,
 } from "../api/repositories/guestDetailsRepository";
 
 // Fetch all guest details
@@ -84,6 +85,17 @@ export const fetchGuestDetailsByUser = async (userId) => {
     return response.data;
   } catch (error) {
     console.error(`Error fetching guest details by user ID ${userId}:`, error);
+    throw error;
+  }
+};
+
+// Fetch guest unique numbers
+export const fetchGuestUniqueNo = async () => {
+  try {
+    const response = await getGuestUniqueNo();
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching guest unique numbers:", error);
     throw error;
   }
 };

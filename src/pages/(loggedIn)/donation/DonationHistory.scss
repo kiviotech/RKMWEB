@@ -1,0 +1,38 @@
+.donation-container {
+  padding: 20px;
+  border-radius: 8px;
+
+  h2 {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 300;
+  }
+}
+
+.table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.donation-table {
+  width: 100%;
+  border-collapse: collapse;
+
+  th,
+  td {
+    padding: 12px;
+    text-align: left;
+  }
+
+  th {
+    font-weight: 400;
+    font-size: 15px;
+    border-bottom: 1px solid #ddd;
+  }
+
+  .empty-message {
+    text-align: center;
+    padding: 20px;
+    color: #666;
+  }
+}

@@ -4,6 +4,7 @@ const guestDetailsEndpoints = {
   createGuestDetails: "/guest-details",
   updateGuestDetails: (id) => `/guest-details${id}`,
   deleteGuestDetails: (id) => `/guest-details${id}`,
+  getGuestUniqueNo: "/guest-details?fields=unique_no",
 };
 
 export default guestDetailsEndpoints;

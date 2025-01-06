@@ -88,6 +88,10 @@ const DonationAction = ({
     }
 
     // Donor Details validation
+    if (!donorDetails.title) {
+      missingFields.push("Title");
+      errors.donor.title = "Title is required";
+    }
     if (!donorDetails.name) {
       missingFields.push("Name of Donor");
       errors.donor.name = "Name is required";

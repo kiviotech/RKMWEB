@@ -71,7 +71,7 @@ const VerifyDetails = () => {
         unique_no: uniqueNo, // Add unique number for main applicant
         phone_number: `+${formData.countryCode}${formData.phoneNumber}`,
         identity_proof: "Aadhaar",
-        identity_number: guest.guestAadhaar,
+        identity_number: formData.aadhaar,
         occupation: formData.occupation,
         address: `${formData.address.houseNumber}, ${formData.address.streetName}, ${formData.address.district}, ${formData.address.state}, ${formData.address.pinCode}`,
         age: parseInt(formData.age),

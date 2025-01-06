@@ -701,6 +701,7 @@ const DonorDetails = ({ activeTab }) => {
                         onClick={() => handleSuggestionClick(guest)}
                         style={{
                           padding: "8px 12px",
+                          lineHeight: "1.5",
                           cursor: "pointer",
                           borderBottom: "1px solid #eee",
                         }}
@@ -711,7 +712,20 @@ const DonorDetails = ({ activeTab }) => {
                           (e.target.style.backgroundColor = "white")
                         }
                       >
-                        {guest.attributes.name}
+                        Name: <b>{guest.attributes.name}</b>
+                        <br />
+                        Phone:{" "}
+                        <b>
+                          {guest.attributes.phone_number.replace("+91", "")}
+                        </b>
+                        <br />
+                        Identity Proof:{" "}
+                        <b>{guest.attributes.identity_number}</b>
+                        <br />
+                        Address:{" "}
+                        <b>
+                          {guest.attributes.address.replace(/^,\s*,\s*/, "")}
+                        </b>
                       </li>
                     ))}
                   </ul>
@@ -767,6 +781,7 @@ const DonorDetails = ({ activeTab }) => {
                       onClick={() => handleSuggestionClick(guest)}
                       style={{
                         padding: "8px 12px",
+                        lineHeight: "1.5",
                         cursor: "pointer",
                         borderBottom: "1px solid #eee",
                       }}
@@ -777,9 +792,15 @@ const DonorDetails = ({ activeTab }) => {
                         (e.target.style.backgroundColor = "white")
                       }
                     >
-                      {`${
-                        guest.attributes.name
-                      } - ${guest.attributes.phone_number.replace("+91", "")}`}
+                      Name: <b>{guest.attributes.name}</b>
+                      <br />
+                      Phone:{" "}
+                      <b>{guest.attributes.phone_number.replace("+91", "")}</b>
+                      <br />
+                      Identity Proof: <b>{guest.attributes.identity_number}</b>
+                      <br />
+                      Address:{" "}
+                      <b>{guest.attributes.address.replace(/^,\s*,\s*/, "")}</b>
                     </li>
                   ))}
                 </ul>
@@ -1079,6 +1100,7 @@ const DonorDetails = ({ activeTab }) => {
                         onClick={() => handleSuggestionClick(guest)}
                         style={{
                           padding: "8px 12px",
+                          lineHeight: "1.5",
                           cursor: "pointer",
                           borderBottom: "1px solid #eee",
                         }}
@@ -1089,7 +1111,20 @@ const DonorDetails = ({ activeTab }) => {
                           (e.target.style.backgroundColor = "white")
                         }
                       >
-                        {`${guest.attributes.name} - ${guest.attributes.identity_number}`}
+                        Name: <b>{guest.attributes.name}</b>
+                        <br />
+                        Phone:{" "}
+                        <b>
+                          {guest.attributes.phone_number.replace("+91", "")}
+                        </b>
+                        <br />
+                        Identity Proof:{" "}
+                        <b>{guest.attributes.identity_number}</b>
+                        <br />
+                        Address:{" "}
+                        <b>
+                          {guest.attributes.address.replace(/^,\s*,\s*/, "")}
+                        </b>
                       </li>
                     ))}
                   </ul>

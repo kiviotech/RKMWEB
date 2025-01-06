@@ -126,7 +126,7 @@ export const generateDonationReport = (donations, reportType) => {
             display: grid;
             grid-template-columns: 80px 100px 120px 120px 200px 100px;
             margin-bottom: 5px;
-            border-bottom: 1px solid #eee;
+            border-bottom: 1px solid #000;
             gap: 10px;
             line-height: 1.6;
             padding: 4px 0;

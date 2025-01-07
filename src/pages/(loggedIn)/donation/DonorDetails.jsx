@@ -248,7 +248,8 @@ const DonorDetails = ({ activeTab }) => {
   };
 
   const handleNameChange = (e) => {
-    const value = e.target.value;
+    // Get the value, remove leading spaces, and replace multiple spaces with single space
+    let value = e.target.value.trimLeft().replace(/\s+/g, " ");
 
     // Check if we have guest data
     if (currentDonorDetails.guestData) {
@@ -282,8 +283,8 @@ const DonorDetails = ({ activeTab }) => {
       });
     }
 
-    // Allow letters, numbers, spaces, and dots
-    if (/^[A-Za-z0-9\s.]*$/.test(value)) {
+    // Allow only letters, numbers, and single spaces (no leading spaces)
+    if (/^[A-Za-z0-9][A-Za-z0-9\s]*$/.test(value) || value === "") {
       updateAndSyncDonorDetails({ name: value });
       clearFieldError("name");
 
@@ -307,12 +308,12 @@ const DonorDetails = ({ activeTab }) => {
         });
       }
     } else {
-      // Set error for invalid characters
+      // Update error message to reflect new requirements
       setFieldErrors({
         ...fieldErrors,
         donor: {
           ...fieldErrors.donor,
-          name: "Please enter only letters, numbers, spaces, and dots",
+          name: "Name must start with a letter or number (single spaces between words only)",
         },
       });
     }

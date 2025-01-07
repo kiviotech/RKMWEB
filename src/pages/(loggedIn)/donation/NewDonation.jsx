@@ -1,6 +1,4 @@
 import React, { useEffect, useLayoutEffect, useState } from "react";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import DonationHeader from "./DonationHeader";
 import DonorDetails from "./DonorDetails";
 import Details from "./Details";
@@ -24,6 +22,7 @@ const NewDonation = () => {
   const [activeTab, setActiveTab] = useState("Math");
   const [transactionType, setTransactionType] = useState("Cash");
   const [isMobile, setIsMobile] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
 
   // Listen for screen size changes
   useEffect(() => {
@@ -51,6 +50,17 @@ const NewDonation = () => {
     }
   }, [location.state, initializeFromDonationData]);
 
+  // Add message display timeout handler
+  useEffect(() => {
+    if (successMessage) {
+      const timer = setTimeout(() => {
+        setSuccessMessage("");
+      }, 3000); // Message will disappear after 3 seconds
+
+      return () => clearTimeout(timer);
+    }
+  }, [successMessage]);
+
   const containerStyle = {
     display: "flex",
     flexDirection: isMobile ? "column" : "row",
@@ -68,19 +78,6 @@ const NewDonation = () => {
     width: isMobile ? "100%" : "30%",
   };
 
-  // Add this function to show success toast
-  const showSuccessToast = () => {
-    toast.success("Donation created successfully!", {
-      position: "top-right",
-      autoClose: 3000,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-      progress: undefined,
-    });
-  };
-
   // Add this function to check if transaction details should be shown
   const shouldShowTransactionDetails = () => {
     const currentSection = activeTab.toLowerCase();
@@ -93,7 +90,25 @@ const NewDonation = () => {
 
   return (
     <div>
-      <ToastContainer />
+      {successMessage && (
+        <div
+          style={{
+            backgroundColor: "#4CAF50",
+            color: "white",
+            padding: "10px",
+            textAlign: "center",
+            position: "fixed",
+            top: "20px",
+            left: "50%",
+            transform: "translateX(-50%)",
+            borderRadius: "4px",
+            zIndex: 1000,
+            boxShadow: "0 2px 5px rgba(0,0,0,0.2)",
+          }}
+        >
+          {successMessage}
+        </div>
+      )}
       <DonationHeader onTabChange={setActiveTab} />
       <div className="container" style={containerStyle}>
         <div style={leftSectionStyle}>
@@ -101,7 +116,9 @@ const NewDonation = () => {
           <DonationAction
             activeTab={activeTab}
             transactionType={transactionType}
-            onDonationSuccess={showSuccessToast}
+            onDonationSuccess={() =>
+              setSuccessMessage("Donation created successfully!")
+            }
           />
         </div>
         <div style={rightSectionStyle}>

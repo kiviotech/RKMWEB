@@ -637,13 +637,15 @@ const DonorDetails = ({ activeTab }) => {
                 }}
               >
                 <option value="">Title</option>
-                <option value="Sri">Sri</option>
-                <option value="Smt">Smt</option>
-                <option value="Mr">Mr</option>
-                <option value="Mrs">Mrs</option>
-                <option value="Ms">Ms</option>
-                <option value="Dr">Dr</option>
-                <option value="Prof">Prof</option>
+                <option value="Sri.">Sri.</option>
+                <option value="Smt.">Smt.</option>
+                <option value="Mr.">Mr.</option>
+                <option value="Mrs.">Mrs.</option>
+                <option value="Swami.">Swami.</option>
+                <option value="Dr.">Dr.</option>
+                <option value="Prof.">Prof.</option>
+                <option value="Kumari.">Kumari.</option>
+                <option value="Ms.">Ms.</option>
               </select>
               <div
                 className="autocomplete-container"

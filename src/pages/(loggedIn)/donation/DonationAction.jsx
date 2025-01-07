@@ -1029,13 +1029,22 @@ const DonationAction = ({
     donorTabs[activeTabId][currentSection]?.donationDetails?.status ===
     "completed";
 
+  // Add this helper function for Indian number formatting
+  const formatIndianNumber = (num) => {
+    const formatted = new Intl.NumberFormat("en-IN", {
+      maximumFractionDigits: 2,
+      minimumFractionDigits: 2,
+    }).format(num);
+    return formatted;
+  };
+
   return (
     <>
       <ToastContainer />
       <div className="donation-action-bar">
         <div className="donation-total-amount">
           <span>Total Donation Amount</span>
-          <span>₹ {calculatedTotalAmount().toFixed(2)}</span>
+          <span>₹ {formatIndianNumber(calculatedTotalAmount())}</span>
         </div>
 
         <div className="donation-actions">

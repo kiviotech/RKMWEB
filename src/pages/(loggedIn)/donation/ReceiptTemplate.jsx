@@ -186,13 +186,13 @@ const ReceiptTemplate = ({
               <div class="receipt-details">
                 <div class="receipt-row">
                   <span>Receipt <b>No: ${uniqueDonorId} / ${receiptNumber}</b></span>
-                  <span class="date">Date: <b>${new Date(formattedDate)
-                    .toLocaleDateString("en-GB", {
-                      day: "2-digit",
-                      month: "2-digit",
-                      year: "numeric",
-                    })
-                    .replace(/\//g, "-")}</b></span>
+                  <span class="date">Date: <b>${new Date(
+                    formattedDate
+                  ).toLocaleDateString("en-GB", {
+                    day: "2-digit",
+                    month: "2-digit",
+                    year: "numeric",
+                  })}</b></span>
                 </div>
                 <div class="donor-details">
                   <p style="margin: 0;">

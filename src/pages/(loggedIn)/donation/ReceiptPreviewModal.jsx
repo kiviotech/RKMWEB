@@ -282,7 +282,8 @@ const ReceiptPreviewModal = ({
                   month: "2-digit",
                   year: "numeric",
                 })
-                .replace(/\//g, "-")}
+                .split("/")
+                .join("/")}
             </span>
           </div>
 

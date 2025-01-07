@@ -110,6 +110,15 @@ const TransactionDetails = ({ activeTab }) => {
     return `${year}-${month}-${day}`;
   };
 
+  const getSixMonthsAgo = () => {
+    const date = new Date();
+    date.setMonth(date.getMonth() - 6);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  };
+
   return (
     <div
       className="transaction-container"
@@ -133,7 +142,7 @@ const TransactionDetails = ({ activeTab }) => {
             placeholder="dd-mm-yyyy"
             value={currentTransactionDetails.date}
             onChange={handleDateChange}
-            min={getTodayDate()}
+            min={getSixMonthsAgo()}
             disabled={isCompleted}
             style={{
               backgroundColor: isCompleted ? "#f5f5f5" : "white",

@@ -173,11 +173,9 @@ const Details = ({ activeTab, onTransactionTypeChange }) => {
 
   const handlePanSelectionChange = (e) => {
     const value = e.target.value;
+    setShowPanInput(value === "enter");
     if (value === "None") {
-      setShowPanInput(false);
       handlePanNumberChange({ target: { value: "" } });
-    } else {
-      setShowPanInput(true);
     }
   };
 
@@ -335,7 +333,7 @@ const Details = ({ activeTab, onTransactionTypeChange }) => {
             </label>
             <select
               className="donation-form__select"
-              value="enter"
+              value={showPanInput ? "enter" : "None"}
               onChange={handlePanSelectionChange}
               disabled={isCompleted || hasGuestData()}
               style={{

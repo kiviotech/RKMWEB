@@ -227,6 +227,7 @@ const DonationAction = ({
           email: currentDonorDetails.email,
           identity_proof: currentDonorDetails.identityType,
           identity_number: currentDonorDetails.identityNumber,
+          pan_number: currentDonationDetails.panNumber || "",
           unique_no: currentTab.uniqueNo,
           address: [
             currentDonorDetails.flatNo,

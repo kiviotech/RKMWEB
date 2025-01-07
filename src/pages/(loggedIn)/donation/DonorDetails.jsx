@@ -621,6 +621,10 @@ const DonorDetails = ({ activeTab }) => {
     };
   }, []);
 
+  const hasGuestData = () => {
+    return !!currentDonorDetails.guestData;
+  };
+
   return (
     <div
       className={`donor-details ${
@@ -1067,10 +1071,11 @@ const DonorDetails = ({ activeTab }) => {
                 className="identity-select"
                 value={currentDonorDetails.identityType}
                 onChange={handleIdentityTypeChange}
-                disabled={isCompleted}
+                disabled={isCompleted || hasGuestData()}
                 style={{
-                  backgroundColor: isCompleted ? "#f5f5f5" : "white",
-                  opacity: isCompleted ? 0.7 : 1,
+                  backgroundColor:
+                    isCompleted || hasGuestData() ? "#f5f5f5" : "white",
+                  opacity: isCompleted || hasGuestData() ? 0.7 : 1,
                 }}
               >
                 <option>Aadhaar</option>
@@ -1089,10 +1094,11 @@ const DonorDetails = ({ activeTab }) => {
                   type="text"
                   value={currentDonorDetails.identityNumber}
                   onChange={handleIdentityInputChange}
-                  disabled={isCompleted}
+                  disabled={isCompleted || hasGuestData()}
                   style={{
-                    backgroundColor: isCompleted ? "#f5f5f5" : "white",
-                    opacity: isCompleted ? 0.7 : 1,
+                    backgroundColor:
+                      isCompleted || hasGuestData() ? "#f5f5f5" : "white",
+                    opacity: isCompleted || hasGuestData() ? 0.7 : 1,
                   }}
                 />
                 {showIdentitySuggestions && identitySuggestions.length > 0 && (

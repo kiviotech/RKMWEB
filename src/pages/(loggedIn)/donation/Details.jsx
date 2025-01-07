@@ -189,6 +189,10 @@ const Details = ({ activeTab, onTransactionTypeChange }) => {
     }
   }, [activeTabId, currentSection]);
 
+  const hasGuestData = () => {
+    return !!donorTabs[activeTabId][currentSection].donorDetails.guestData;
+  };
+
   return (
     <div
       className={`donation-form ${
@@ -311,10 +315,11 @@ const Details = ({ activeTab, onTransactionTypeChange }) => {
               className="donation-form__select"
               value="enter"
               onChange={handlePanSelectionChange}
-              disabled={isCompleted}
+              disabled={isCompleted || hasGuestData()}
               style={{
-                backgroundColor: isCompleted ? "#f5f5f5" : "white",
-                opacity: isCompleted ? 0.7 : 1,
+                backgroundColor:
+                  isCompleted || hasGuestData() ? "#f5f5f5" : "white",
+                opacity: isCompleted || hasGuestData() ? 0.7 : 1,
               }}
             >
               <option value="None">None</option>
@@ -328,11 +333,12 @@ const Details = ({ activeTab, onTransactionTypeChange }) => {
                 placeholder="Enter PAN Number"
                 value={currentDonationDetails.panNumber}
                 onChange={handlePanNumberChange}
-                disabled={isCompleted}
+                disabled={isCompleted || hasGuestData()}
                 style={{
                   marginTop: "10px",
-                  backgroundColor: isCompleted ? "#f5f5f5" : "white",
-                  opacity: isCompleted ? 0.7 : 1,
+                  backgroundColor:
+                    isCompleted || hasGuestData() ? "#f5f5f5" : "white",
+                  opacity: isCompleted || hasGuestData() ? 0.7 : 1,
                 }}
               />
             )}

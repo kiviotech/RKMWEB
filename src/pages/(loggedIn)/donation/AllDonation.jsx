@@ -305,6 +305,11 @@ const AllDonation = ({
     // Determine transaction type
     const transactionType = donation.attributes.transactionType || "Cash";
 
+    // Check if PAN number exists
+    const hasPanNumber =
+      guestData.pan_number ||
+      (guestData.identity_proof === "PAN Card" && guestData.identity_number);
+
     const donationData = {
       donorDetails: {
         title: guestData.name?.split(" ")[0] || "",
@@ -322,6 +327,7 @@ const AllDonation = ({
         pincode: addressParts[5] || "",
         panNumber: guestData.pan_number || "",
         guestData: donation.attributes.guest?.data || {},
+        showPanInput: hasPanNumber,
       },
       donationDetails: {
         purpose: donation.attributes.purpose || "",

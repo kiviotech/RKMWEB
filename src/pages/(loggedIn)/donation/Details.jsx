@@ -180,22 +180,25 @@ const Details = ({ activeTab, onTransactionTypeChange }) => {
   };
 
   useEffect(() => {
-    // Modified to check for both PAN Card identity and pan_number from guest data
     const donorDetails = donorTabs[activeTabId][currentSection].donorDetails;
 
-    if (
+    // Check if we have a PAN number from any source
+    const hasPanNumber =
+      donorDetails.panNumber ||
       (donorDetails.identityType === "PAN Card" &&
         donorDetails.identityNumber) ||
-      donorDetails.guestData?.attributes?.pan_number
-    ) {
-      setShowPanInput(true);
+      donorDetails.guestData?.attributes?.pan_number;
 
-      // Use PAN from guest data if available, otherwise use identity number
+    // Set the showPanInput state based on whether we have a PAN number
+    setShowPanInput(!!hasPanNumber);
+
+    if (hasPanNumber) {
       const panNumber =
-        donorDetails.guestData?.attributes?.pan_number ||
+        donorDetails.panNumber ||
         (donorDetails.identityType === "PAN Card"
           ? donorDetails.identityNumber
-          : "");
+          : "") ||
+        donorDetails.guestData?.attributes?.pan_number;
 
       updateDonationDetails(activeTabId, currentSection, {
         panNumber: panNumber,

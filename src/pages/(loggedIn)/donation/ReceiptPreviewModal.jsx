@@ -470,7 +470,12 @@ const ReceiptPreviewModal = ({
               </span>
               <span style={{ color: "#696969", fontWeight: 300 }}>
                 {receiptData.donationType}
-                {receiptData.purpose && ` for ${receiptData.purpose}`}
+                {receiptData.purpose &&
+                  ` for ${
+                    receiptData.purpose === "Other"
+                      ? receiptData.otherPurpose
+                      : receiptData.purpose
+                  }`}
               </span>
             </div>
 

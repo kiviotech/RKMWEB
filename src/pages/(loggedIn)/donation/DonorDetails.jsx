@@ -969,18 +969,21 @@ const DonorDetails = ({ activeTab }) => {
                 onChange={(e) => {
                   if (!isCompleted) {
                     const value = e.target.value;
-                    setCustomDeeksha(value);
-                    updateAndSyncDonorDetails({ deeksha: value });
-                    if (value.trim()) {
-                      clearFieldError("deeksha");
-                    } else {
-                      setFieldErrors({
-                        ...fieldErrors,
-                        donor: {
-                          ...fieldErrors.donor,
-                          deeksha: "Please specify Mantra Diksha",
-                        },
-                      });
+                    // Only allow letters, spaces, and dots
+                    if (/^[A-Za-z\s.]*$/.test(value)) {
+                      setCustomDeeksha(value);
+                      updateAndSyncDonorDetails({ deeksha: value });
+                      if (value.trim()) {
+                        clearFieldError("deeksha");
+                      } else {
+                        setFieldErrors({
+                          ...fieldErrors,
+                          donor: {
+                            ...fieldErrors.donor,
+                            deeksha: "Please specify Mantra Diksha",
+                          },
+                        });
+                      }
                     }
                   }
                 }}

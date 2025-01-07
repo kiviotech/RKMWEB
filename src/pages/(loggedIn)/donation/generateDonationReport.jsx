@@ -138,6 +138,14 @@ export const generateDonationReport = (donations, reportType) => {
             white-space: nowrap;
             padding-right: 10px;
           }
+          .cancelled {
+            padding: 2px;
+            background-color: gray;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+            color-adjust: exact !important;
+            color: white;
+          }
           .total {
             text-align: right;
             margin-top: 5px;
@@ -226,10 +234,14 @@ export const generateDonationReport = (donations, reportType) => {
                             .map(
                               (donation) => `
                               <div class="receipt-row left">
-                                <div>${
-                                  donation.attributes.receipt_detail?.data
-                                    ?.attributes?.Receipt_number || ""
-                                }</div>
+                                <div class="${
+                                  donation.attributes.status === "cancelled"
+                                    ? "cancelled"
+                                    : ""
+                                }">${
+                                donation.attributes.receipt_detail?.data
+                                  ?.attributes?.Receipt_number || ""
+                              }</div>
                                 <div>${formatDate(
                                   donation.attributes.createdAt
                                 )}</div>
@@ -249,9 +261,13 @@ export const generateDonationReport = (donations, reportType) => {
                                     ? `${donation.attributes.bankName} - ${donation.attributes.ddch_number}`
                                     : ""
                                 }</div>
-                                <div class="amount">Rs. ${
-                                  donation.attributes.donationAmount
-                                }</div>
+                                <div class="amount ${
+                                  donation.attributes.status === "cancelled"
+                                    ? "cancelled"
+                                    : ""
+                                }">Rs. ${
+                                donation.attributes.donationAmount
+                              }</div>
                               </div>
                             `
                             )

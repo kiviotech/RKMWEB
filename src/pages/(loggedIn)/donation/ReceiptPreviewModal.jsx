@@ -362,7 +362,7 @@ const ReceiptPreviewModal = ({
                   color: "#696969",
                 }}
               >
-                The Sum of Rupees:
+                The Sum of Rupees :
               </span>
               <span style={{ color: "#666", fontWeight: 500 }}>
                 {numberToWords(parseFloat(receiptData.amount))} Only
@@ -466,7 +466,7 @@ const ReceiptPreviewModal = ({
                   color: "#696969",
                 }}
               >
-                As Donation for:
+                As Donation for :
               </span>
               <span style={{ color: "#696969", fontWeight: 300 }}>
                 {receiptData.donationType}
@@ -487,7 +487,13 @@ const ReceiptPreviewModal = ({
                 marginTop: "20px",
               }}
             >
-              <span>₹ {receiptData.amount}</span>
+              <span>
+                ₹{" "}
+                {receiptData.amount
+                  .toString()
+                  .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                  .replace(/,(\d{3})$/, ",$1")}
+              </span>
             </div>
           </div>
 

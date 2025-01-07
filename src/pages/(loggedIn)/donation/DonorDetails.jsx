@@ -178,6 +178,43 @@ const DonorDetails = ({ activeTab }) => {
   const handleInputChange = (e) => {
     const { name, value } = e.target;
 
+    // Check if we have guest data
+    if (currentDonorDetails.guestData) {
+      // Clear all guest data and fields
+      console.log("Clearing guest data due to manual edit");
+      updateAndSyncDonorDetails({
+        guestId: null,
+        guestData: null,
+        title: "",
+        name: "",
+        phone: "",
+        email: "",
+        deeksha: "",
+        identityType: "Aadhaar",
+        identityNumber: "",
+        pincode: "",
+        state: "",
+        district: "",
+        postOffice: "",
+        flatNo: "",
+        streetName: "",
+        roomNo: "",
+      });
+
+      // Also clear PAN number in donation details
+      updateDonationDetails(activeTabId, "math", {
+        panNumber: "",
+      });
+      updateDonationDetails(activeTabId, "mission", {
+        panNumber: "",
+      });
+
+      // Then set the current field value
+      updateAndSyncDonorDetails({ [name]: value });
+      return;
+    }
+
+    // Original input handling logic
     if (name === "email") {
       const error = validateEmail(value);
       setEmailError(error);
@@ -212,6 +249,38 @@ const DonorDetails = ({ activeTab }) => {
 
   const handleNameChange = (e) => {
     const value = e.target.value;
+
+    // Check if we have guest data
+    if (currentDonorDetails.guestData) {
+      // Clear all guest data and fields
+      console.log("Clearing guest data due to manual edit");
+      updateAndSyncDonorDetails({
+        guestId: null,
+        guestData: null,
+        title: "",
+        name: "",
+        phone: "",
+        email: "",
+        deeksha: "",
+        identityType: "Aadhaar",
+        identityNumber: "",
+        pincode: "",
+        state: "",
+        district: "",
+        postOffice: "",
+        flatNo: "",
+        streetName: "",
+        roomNo: "",
+      });
+
+      // Also clear PAN number in donation details
+      updateDonationDetails(activeTabId, "math", {
+        panNumber: "",
+      });
+      updateDonationDetails(activeTabId, "mission", {
+        panNumber: "",
+      });
+    }
 
     // Allow letters, numbers, spaces, and dots
     if (/^[A-Za-z0-9\s.]*$/.test(value)) {
@@ -409,6 +478,38 @@ const DonorDetails = ({ activeTab }) => {
 
   const handlePhoneChange = (e) => {
     const value = e.target.value;
+
+    // Check if we have guest data
+    if (currentDonorDetails.guestData) {
+      // Clear all guest data and fields
+      console.log("Clearing guest data due to manual edit");
+      updateAndSyncDonorDetails({
+        guestId: null,
+        guestData: null,
+        title: "",
+        name: "",
+        phone: "",
+        email: "",
+        deeksha: "",
+        identityType: "Aadhaar",
+        identityNumber: "",
+        pincode: "",
+        state: "",
+        district: "",
+        postOffice: "",
+        flatNo: "",
+        streetName: "",
+        roomNo: "",
+      });
+
+      // Also clear PAN number in donation details
+      updateDonationDetails(activeTabId, "math", {
+        panNumber: "",
+      });
+      updateDonationDetails(activeTabId, "mission", {
+        panNumber: "",
+      });
+    }
 
     // Allow only numbers and limit to 10 digits
     if (/^\d*$/.test(value) && value.length <= 10) {

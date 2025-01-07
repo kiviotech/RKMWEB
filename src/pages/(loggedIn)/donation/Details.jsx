@@ -107,18 +107,40 @@ const Details = ({ activeTab, onTransactionTypeChange }) => {
   const handlePanNumberChange = (e) => {
     const value = e.target.value.toUpperCase();
 
-    // Only allow valid PAN characters
+    // Check if we have guest data
+    const donorDetails = donorTabs[activeTabId][currentSection].donorDetails;
+    if (donorDetails.guestData) {
+      // Clear all guest data and fields in donor details
+      console.log("Clearing guest data due to manual PAN edit");
+      updateDonorDetails(activeTabId, currentSection, {
+        guestId: null,
+        guestData: null,
+        title: "",
+        name: "",
+        phone: "",
+        email: "",
+        deeksha: "",
+        identityType: "Aadhaar",
+        identityNumber: "",
+        pincode: "",
+        state: "",
+        district: "",
+        postOffice: "",
+        flatNo: "",
+        streetName: "",
+        roomNo: "",
+      });
+    }
+
+    // Original PAN handling logic
     if (/^[A-Z0-9]*$/.test(value) && value.length <= 10) {
-      // Validate PAN format
       const error = validatePanNumber(value);
       setPanError(error);
 
-      // Update PAN number in donation details only
       updateDonationDetails(activeTabId, currentSection, {
         panNumber: value,
       });
 
-      // Update PAN in other section (math/mission) as well
       const otherSection = currentSection === "math" ? "mission" : "math";
       updateDonationDetails(activeTabId, otherSection, {
         panNumber: value,

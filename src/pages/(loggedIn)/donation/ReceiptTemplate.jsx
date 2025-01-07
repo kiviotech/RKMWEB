@@ -16,7 +16,7 @@ const ReceiptTemplate = ({
             <meta charset="UTF-8" />
             <meta name="viewport" content="width=device-width, initial-scale=1.0" />
             <title>Ramakrishna Math Letterhead</title>
-<style>
+            <style>
               body {
                 margin: 0;
                 background-color: #fff;
@@ -159,8 +159,8 @@ const ReceiptTemplate = ({
               .it-stamp {
                 position: absolute;
                 right: -80px;
-                top: -112px;
-                transform: translateY(-40%);
+                top: -100px;
+                transform: translateY(-65%);
                 border: 2px solid #000;
                 padding: 2px;
                 font-size: 14px;
@@ -222,6 +222,7 @@ const ReceiptTemplate = ({
                       }${
     donorDetails.pincode ? `Pin: ${donorDetails.pincode}` : ""
   }
+                    </p>
                     ${
                       donorDetails.identityNumber
                         ? `
@@ -231,64 +232,61 @@ const ReceiptTemplate = ({
                           ? `PAN: ${donorDetails.identityNumber}`
                           : `Aadhaar: ${donorDetails.identityNumber}`
                       }
-                      </p>
-                  `
+                    </p>`
                         : ""
                     }
                   </div>
                 </div>
-<div class="payment-details">
-  <p style="margin: 10px 0 0 0">
-    The sum of Rupees
-    <b
-      >${numberToWords(
-        parseFloat(currentReceipt?.donationDetails?.amount || 0)
-      )} Only</b
-    >
-  </p>
+                <div class="payment-details">
+                  <p style="margin: 10px 0 0 0">
+                    The sum of Rupees
+                    <b>${numberToWords(
+                      parseFloat(currentReceipt?.donationDetails?.amount || 0)
+                    )} Only</b>
+                  </p>
 
-  <div style="display: flex; align-items: center; flex-wrap: wrap;">
-    <p style="margin: 0;">
-      By ${currentReceipt?.donationDetails?.transactionType || "Cash"}
-      ${
-        currentReceipt?.donationDetails?.transactionDetails?.transactionId
-          ? `No. ${currentReceipt?.donationDetails?.transactionDetails?.transactionId}`
-          : ""
-      }
-      ${
-        currentReceipt?.donationDetails?.transactionDetails?.ddDate
-          ? ` Dt. ${new Date(
-              currentReceipt?.donationDetails?.transactionDetails?.ddDate
-            )
-              .toLocaleDateString("en-GB", {
-                day: "2-digit",
-                month: "2-digit",
-                year: "numeric",
-              })
-              .split("/")
-              .join("-")}`
-          : ""
-      }
-    </p>
-    ${
-      currentReceipt?.donationDetails?.transactionType?.toLowerCase() !== "cash"
-        ? `
-    <p style="margin: 0; width: 100%;">
-      On ${
-        currentReceipt?.donationDetails?.transactionDetails?.bankName || ""
-      }${
-            currentReceipt?.donationDetails?.transactionDetails?.branchName
-              ? `, ${currentReceipt?.donationDetails?.transactionDetails?.branchName}`
-              : ""
-          }
-    </p>
-    `
-        : ""
-    }
-  </div>
+                  <div style="display: flex; align-items: center; flex-wrap: wrap;">
+                    <p style="margin: 0;">
+                      By ${
+                        currentReceipt?.donationDetails?.transactionType ||
+                        "Cash"
+                      }
+                    </p>
+                    ${
+                      currentReceipt?.donationDetails?.transactionType?.toLowerCase() !==
+                        "cash" &&
+                      currentReceipt?.donationDetails?.transactionType?.toLowerCase() !==
+                        "m.o"
+                        ? `
+                    <p style="margin: 0; padding-left: 10px;">
+                      No. ${
+                        currentReceipt?.donationDetails?.transactionDetails
+                          ?.ddNumber || ""
+                      }
+                      Dt. ${
+                        currentReceipt?.donationDetails?.transactionDetails
+                          ?.ddDate || ""
+                      }
+                    </p>
+                    <p style="margin: 0; width: 100%;">
+                      On ${
+                        currentReceipt?.donationDetails?.transactionDetails
+                          ?.bankName || ""
+                      }, 
+                      ${
+                        currentReceipt?.donationDetails?.transactionDetails
+                          ?.branchName || ""
+                      }
+                    </p>
+                    `
+                        : ""
+                    }
+                  </div>
 
-  <p>
-    As Donation for ${currentReceipt?.donationDetails?.donationType} for ${
+                  <p>
+                    As Donation for ${
+                      currentReceipt?.donationDetails?.donationType
+                    } for ${
     currentReceipt?.donationDetails?.purpose === "Other"
       ? currentReceipt?.donationDetails?.otherPurpose
       : currentReceipt?.donationDetails?.purpose
@@ -297,40 +295,43 @@ const ReceiptTemplate = ({
       ? ` in memory of ${currentReceipt?.donationDetails?.inMemoryOf}`
       : ""
   }
-  </p>
-  <p class="amount">
-    <b
-      >Rs. ${parseFloat(
-        currentReceipt?.donationDetails?.amount || 0
-      ).toLocaleString("en-IN", {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2,
-      })}</b
-    >
-  </p>
-   ${
-     ["Bank Transfer", "Cheque", "DD", "Electronic Modes"].includes(
-       currentReceipt?.donationDetails?.transactionType
-     )
-       ? `<div class="stamp-container">
-                <div class="it-stamp">
-                  Donations are exempt under Clause (i) of first proviso to<br>
-                  sub-section (5) of Section 80G of Income Tax Act 1961,<br>
-                  vide Provisional Approval No. ${
-                    receiptNumber?.startsWith("MT")
-                      ? "AAATR3497PF2021A"
-                      : "AAAAR1077PF20214"
-                  }<br>
-                  dated 28-05-2021 valid from AY 2022-23 to AY 2026-27
+                  </p>
+                  <p class="amount">
+                    <b>Rs. ${parseFloat(
+                      currentReceipt?.donationDetails?.amount || 0
+                    ).toLocaleString("en-IN", {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}</b>
+                  </p>
+                  ${
+                    [
+                      "Bank Transfer",
+                      "Cheque",
+                      "DD",
+                      "Electronic Modes",
+                    ].includes(currentReceipt?.donationDetails?.transactionType)
+                      ? `<div class="stamp-container">
+                 <div class="it-stamp">
+                   Donations are exempt under Clause (i) of first proviso to<br>
+                   sub-section (5) of Section 80G of Income Tax Act 1961,<br>
+                   vide Provisional Approval No. ${
+                     uniqueDonorId?.startsWith("MT")
+                       ? "AAATR3497PF2021A"
+                       : "AAAAR1077PF20214"
+                   }<br>
+                   dated 28-05-2021 valid from AY 2022-23 to AY 2026-27
+                 </div>
+               </div>`
+                      : ""
+                  }
                 </div>
-              </div>`
-       : ""
-   }
-</div>
-
               </div>
               <div class="footer">
-                <p>${user?.username} (C${user?.counter})</p>
+                <p>${user?.username} (C${user?.counter?.replace(
+    /^Counter\s*/i,
+    ""
+  )})</p>
               </div>
             </div>
             <script>

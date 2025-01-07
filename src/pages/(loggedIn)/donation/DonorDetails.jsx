@@ -754,6 +754,7 @@ const DonorDetails = ({ activeTab }) => {
                 style={{
                   backgroundColor: isCompleted ? "#f5f5f5" : "white",
                   opacity: isCompleted ? 0.7 : 1,
+                  height: "45px",
                 }}
               >
                 <option value="">Title</option>

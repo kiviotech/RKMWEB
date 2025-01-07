@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./Details.scss";
 import useDonationStore from "../../../../donationStore";
 
@@ -113,7 +113,7 @@ const Details = ({ activeTab, onTransactionTypeChange }) => {
       const error = validatePanNumber(value);
       setPanError(error);
 
-      // Update PAN number in donation details
+      // Update PAN number in donation details only
       updateDonationDetails(activeTabId, currentSection, {
         panNumber: value,
       });
@@ -123,20 +123,6 @@ const Details = ({ activeTab, onTransactionTypeChange }) => {
       updateDonationDetails(activeTabId, otherSection, {
         panNumber: value,
       });
-
-      // If amount is > 9999, also update the identity proof in donor details
-      if (Number(currentDonationDetails.amount) > 9999) {
-        updateDonorDetails(activeTabId, currentSection, {
-          identityType: "PAN Card",
-          identityNumber: value,
-        });
-
-        // Sync with other section's donor details
-        updateDonorDetails(activeTabId, otherSection, {
-          identityType: "PAN Card",
-          identityNumber: value,
-        });
-      }
     }
   };
 
@@ -161,7 +147,7 @@ const Details = ({ activeTab, onTransactionTypeChange }) => {
     donorTabs[activeTabId][currentSection].donationDetails.status ===
     "completed";
 
-  const [showPanInput, setShowPanInput] = useState(false);
+  const [showPanInput, setShowPanInput] = useState(true);
 
   const handlePanSelectionChange = (e) => {
     const value = e.target.value;
@@ -172,6 +158,25 @@ const Details = ({ activeTab, onTransactionTypeChange }) => {
       setShowPanInput(true);
     }
   };
+
+  useEffect(() => {
+    // If donor has PAN Card as identity, auto-select and show PAN input
+    const donorDetails = donorTabs[activeTabId][currentSection].donorDetails;
+    if (
+      donorDetails.identityType === "PAN Card" &&
+      donorDetails.identityNumber
+    ) {
+      setShowPanInput(true);
+      updateDonationDetails(activeTabId, currentSection, {
+        panNumber: donorDetails.identityNumber,
+      });
+      // Update other section as well
+      const otherSection = currentSection === "math" ? "mission" : "math";
+      updateDonationDetails(activeTabId, otherSection, {
+        panNumber: donorDetails.identityNumber,
+      });
+    }
+  }, [activeTabId, currentSection]);
 
   return (
     <div
@@ -293,7 +298,7 @@ const Details = ({ activeTab, onTransactionTypeChange }) => {
             </label>
             <select
               className="donation-form__select"
-              value={showPanInput ? "enter" : "None"}
+              value="enter"
               onChange={handlePanSelectionChange}
               disabled={isCompleted}
               style={{

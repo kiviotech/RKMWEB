@@ -353,11 +353,11 @@ const DonorDetails = ({ activeTab }) => {
       case "PAN Card":
         if (/^[A-Z0-9]*$/.test(value) && value.length <= 10) {
           updateAndSyncDonorDetails({ identityNumber: value });
-          updateDonationDetails(activeTabId, currentSection, {
+          // Update PAN number in both math and mission donation details
+          updateDonationDetails(activeTabId, "math", {
             panNumber: value,
           });
-          const otherSection = currentSection === "math" ? "mission" : "math";
-          updateDonationDetails(activeTabId, otherSection, {
+          updateDonationDetails(activeTabId, "mission", {
             panNumber: value,
           });
         }

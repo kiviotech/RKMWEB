@@ -57,7 +57,6 @@ const Details = ({ activeTab, onTransactionTypeChange }) => {
 
   const handleSpecifiedPurposeChange = (e) => {
     const value = e.target.value;
-    // Only allow letters, spaces, and basic punctuation
     if (/^[A-Za-z\s.,()'-]*$/.test(value)) {
       updateDonationDetails(activeTabId, currentSection, {
         specifiedPurpose: value,
@@ -73,12 +72,10 @@ const Details = ({ activeTab, onTransactionTypeChange }) => {
 
   const handleAmountChange = (e) => {
     const value = e.target.value;
-    // Only allow positive integers
     if (/^\d*$/.test(value)) {
       updateDonationDetails(activeTabId, currentSection, { amount: value });
       clearFieldError("amount");
 
-      // Update amount in other section (math/mission) as well
       const otherSection = currentSection === "math" ? "mission" : "math";
       updateDonationDetails(activeTabId, otherSection, { amount: value });
     }
@@ -87,7 +84,7 @@ const Details = ({ activeTab, onTransactionTypeChange }) => {
   const [panError, setPanError] = useState("");
 
   const validatePanNumber = (value) => {
-    if (!value) return ""; // Don't show error for empty value
+    if (!value) return "";
 
     if (!/^[A-Z]{0,5}[0-9]{0,4}[A-Z]{0,1}$/.test(value)) {
       return "Invalid PAN format";
@@ -107,10 +104,8 @@ const Details = ({ activeTab, onTransactionTypeChange }) => {
   const handlePanNumberChange = (e) => {
     const value = e.target.value.toUpperCase();
 
-    // Check if we have guest data
     const donorDetails = donorTabs[activeTabId][currentSection].donorDetails;
     if (donorDetails.guestData) {
-      // Clear all guest data and fields in donor details
       console.log("Clearing guest data due to manual PAN edit");
       updateDonorDetails(activeTabId, currentSection, {
         guestId: null,
@@ -132,7 +127,6 @@ const Details = ({ activeTab, onTransactionTypeChange }) => {
       });
     }
 
-    // Original PAN handling logic
     if (/^[A-Z0-9]*$/.test(value) && value.length <= 10) {
       const error = validatePanNumber(value);
       setPanError(error);
@@ -158,7 +152,6 @@ const Details = ({ activeTab, onTransactionTypeChange }) => {
 
   const handleInMemoryOfChange = (e) => {
     const value = e.target.value;
-    // Only allow letters, spaces, and basic punctuation
     if (/^[A-Za-z\s.,()'-]*$/.test(value)) {
       updateDonationDetails(activeTabId, currentSection, { inMemoryOf: value });
       clearFieldError("inMemoryOf");
@@ -182,14 +175,12 @@ const Details = ({ activeTab, onTransactionTypeChange }) => {
   useEffect(() => {
     const donorDetails = donorTabs[activeTabId][currentSection].donorDetails;
 
-    // Check if we have a PAN number from any source
     const hasPanNumber =
       donorDetails.panNumber ||
       (donorDetails.identityType === "PAN Card" &&
         donorDetails.identityNumber) ||
       donorDetails.guestData?.attributes?.pan_number;
 
-    // Set the showPanInput state based on whether we have a PAN number
     setShowPanInput(!!hasPanNumber);
 
     if (hasPanNumber) {
@@ -204,7 +195,6 @@ const Details = ({ activeTab, onTransactionTypeChange }) => {
         panNumber: panNumber,
       });
 
-      // Update other section as well
       const otherSection = currentSection === "math" ? "mission" : "math";
       updateDonationDetails(activeTabId, otherSection, {
         panNumber: panNumber,

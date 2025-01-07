@@ -320,6 +320,8 @@ const AllDonation = ({
         district: addressParts[3] || "",
         state: addressParts[4] || "",
         pincode: addressParts[5] || "",
+        panNumber: guestData.pan_number || "",
+        guestData: donation.attributes.guest?.data || {},
       },
       donationDetails: {
         purpose: donation.attributes.purpose || "",
@@ -330,6 +332,7 @@ const AllDonation = ({
         donationFor: donation.attributes.donationFor || "Math",
         status: "completed",
         donationId: donation.id,
+        panNumber: guestData.pan_number || "",
       },
       transactionDetails: {
         date: donation.attributes.ddch_date || "",

@@ -483,7 +483,18 @@ const DonorDetails = ({ activeTab }) => {
       identity_number,
       address,
       unique_no,
+      pan_number,
     } = guest.attributes;
+
+    // Extract title and name
+    const titleMatch = name.match(
+      /^(Sri\.|Smt\.|Mr\.|Mrs\.|Ms\.|Dr\.|Prof\.|Kumari\.|Swami\.)\s*/
+    );
+    const title = titleMatch ? titleMatch[1] : "";
+    const nameWithoutTitle = name.replace(
+      /^(Sri\.|Smt\.|Mr\.|Mrs\.|Ms\.|Dr\.|Prof\.|Kumari\.|Swami\.)\s*/,
+      ""
+    );
 
     // Split address by commas and trim whitespace
     const addressParts = address.split(",").map((part) => part.trim());
@@ -503,7 +514,8 @@ const DonorDetails = ({ activeTab }) => {
     updateAndSyncDonorDetails({
       guestId: guest.id,
       guestData: guest,
-      name: name.replace(/^(Sri|Smt|Mr|Mrs|Ms|Dr|Prof)\s+/, ""),
+      title: title,
+      name: nameWithoutTitle,
       phone: phone_number.replace("+91", ""),
       email,
       deeksha,
@@ -513,20 +525,23 @@ const DonorDetails = ({ activeTab }) => {
       state,
       district,
       postOffice,
-      // If there's a street address, use it for both fields
       flatNo: streetAddress,
-      streetName: "", // Leave empty as we don't have a clear separation
+      streetName: "",
     });
+
+    // Add this: Update PAN number in donation details for both math and mission
+    if (pan_number) {
+      updateDonationDetails(activeTabId, "math", {
+        panNumber: pan_number,
+      });
+      updateDonationDetails(activeTabId, "mission", {
+        panNumber: pan_number,
+      });
+    }
 
     // Update unique_no if it exists
     if (unique_no) {
       updateUniqueNo(activeTabId, unique_no);
-    }
-
-    // Extract and set title if present
-    const titleMatch = name.match(/^(Sri|Smt|Mr|Mrs|Ms|Dr|Prof)/);
-    if (titleMatch) {
-      updateAndSyncDonorDetails({ title: titleMatch[0] });
     }
 
     setShowNameSuggestions(false);

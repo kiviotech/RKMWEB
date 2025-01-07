@@ -160,20 +160,31 @@ const Details = ({ activeTab, onTransactionTypeChange }) => {
   };
 
   useEffect(() => {
-    // If donor has PAN Card as identity, auto-select and show PAN input
+    // Modified to check for both PAN Card identity and pan_number from guest data
     const donorDetails = donorTabs[activeTabId][currentSection].donorDetails;
+
     if (
-      donorDetails.identityType === "PAN Card" &&
-      donorDetails.identityNumber
+      (donorDetails.identityType === "PAN Card" &&
+        donorDetails.identityNumber) ||
+      donorDetails.guestData?.attributes?.pan_number
     ) {
       setShowPanInput(true);
+
+      // Use PAN from guest data if available, otherwise use identity number
+      const panNumber =
+        donorDetails.guestData?.attributes?.pan_number ||
+        (donorDetails.identityType === "PAN Card"
+          ? donorDetails.identityNumber
+          : "");
+
       updateDonationDetails(activeTabId, currentSection, {
-        panNumber: donorDetails.identityNumber,
+        panNumber: panNumber,
       });
+
       // Update other section as well
       const otherSection = currentSection === "math" ? "mission" : "math";
       updateDonationDetails(activeTabId, otherSection, {
-        panNumber: donorDetails.identityNumber,
+        panNumber: panNumber,
       });
     }
   }, [activeTabId, currentSection]);

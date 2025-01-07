@@ -113,6 +113,11 @@ const DonationHeader = ({ onTabChange }) => {
     donorTabs[activeTabId]?.[donorTabs[activeTabId]?.activeSection]
       ?.donationDetails?.status === "pending";
 
+  const handleReset = () => {
+    // Clear the data for the active tab
+    clearInitializedData(activeTabId);
+  };
+
   return (
     <div className="atth-donation-wrapper">
       <div className="atth-donation-header">
@@ -244,7 +249,11 @@ const DonationHeader = ({ onTabChange }) => {
             <span className="atth-receipt-number">{currentReceiptNumber}</span>
           </div>
         </div>
-        {!isCompleted && <button className="atth-btn-reset">↻ Reset</button>}
+        {!isCompleted && (
+          <button className="atth-btn-reset" onClick={handleReset}>
+            ↻ Reset
+          </button>
+        )}
       </div>
     </div>
   );

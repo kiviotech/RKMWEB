@@ -165,9 +165,7 @@ const TransactionDetails = ({ activeTab }) => {
         </div>
 
         <div className="form-group">
-          <label style={{ fontWeight: "bold" }}>
-            {idLabel} <span className="required">*</span>
-          </label>
+          <label style={{ fontWeight: "bold" }}>{idLabel}</label>
           <input
             type="text"
             className="form-input"

@@ -135,10 +135,10 @@ const DonationAction = ({
         missingFields.push("Transaction Date");
         errors.transaction.date = "Date is required";
       }
-      if (!transactionDetails.transactionId) {
-        missingFields.push("Transaction Number");
-        errors.transaction.transactionId = "Transaction number is required";
-      }
+      // if (!transactionDetails.transactionId) {
+      //   missingFields.push("Transaction Number");
+      //   errors.transaction.transactionId = "Transaction number is required";
+      // }
       if (!transactionDetails.bankName) {
         missingFields.push("Bank Name");
         errors.transaction.bankName = "Bank name is required";

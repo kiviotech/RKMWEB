@@ -600,16 +600,13 @@ const DonorDetails = ({ activeTab }) => {
     // Split address by commas and trim whitespace
     const addressParts = address.split(",").map((part) => part.trim());
 
-    // Extract components from the end of the array
-    const pincode = addressParts[addressParts.length - 1] || "";
-    const state = addressParts[addressParts.length - 2] || "";
-    const district = addressParts[addressParts.length - 3] || "";
-    const postOffice = addressParts[addressParts.length - 4] || "";
-
-    // Remaining parts (if any) are considered street address
-    const streetAddress = addressParts
-      .slice(0, addressParts.length - 4)
-      .join(", ");
+    // Extract components based on position from the end
+    const pincode = addressParts[addressParts.length - 1] || ""; // Last
+    const state = addressParts[addressParts.length - 2] || ""; // 2nd last
+    const district = addressParts[addressParts.length - 3] || ""; // 3rd last
+    const postOffice = addressParts[addressParts.length - 4] || ""; // 4th last
+    const streetName = addressParts[addressParts.length - 5] || ""; // 5th last
+    const flatNo = addressParts[addressParts.length - 6] || ""; // 6th last
 
     // Update donor details
     updateAndSyncDonorDetails({
@@ -626,8 +623,8 @@ const DonorDetails = ({ activeTab }) => {
       state,
       district,
       postOffice,
-      flatNo: streetAddress,
-      streetName: "",
+      flatNo,
+      streetName,
     });
 
     // Add this: Update PAN number in donation details for both math and mission

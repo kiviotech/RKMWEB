@@ -61,16 +61,17 @@ const AllDonationDetails = () => {
 
   const handleSearch = (e) => {
     setSearchTerm(e.target.value);
+    setCurrentPage(1);
   };
 
   const handleDateChange = (e) => {
     const { name, value } = e.target;
+    setCurrentPage(1);
 
     if (name === "startDate") {
       setDateRange((prev) => ({
         ...prev,
         startDate: value,
-        // If end date exists and is before new start date, update end date
         endDate:
           prev.endDate && new Date(value) > new Date(prev.endDate)
             ? value
@@ -80,7 +81,6 @@ const AllDonationDetails = () => {
       setDateRange((prev) => ({
         ...prev,
         endDate: value,
-        // If start date exists and is after new end date, update start date
         startDate:
           prev.startDate && new Date(value) < new Date(prev.startDate)
             ? value
@@ -91,10 +91,12 @@ const AllDonationDetails = () => {
 
   const handleStatusChange = (e) => {
     setSelectedStatus(e.target.value);
+    setCurrentPage(1);
   };
 
   const handleDonatedForChange = (e) => {
     setDonatedFor(e.target.value);
+    setCurrentPage(1);
   };
 
   const handleFilterChange = (field) => {
@@ -110,6 +112,8 @@ const AllDonationDetails = () => {
 
   const handleTimeFilterChange = (filter) => {
     setTimeFilter(filter);
+    setCurrentPage(1);
+
     if (filter === "today") {
       const today = new Date().toISOString().split("T")[0];
       setDateRange({

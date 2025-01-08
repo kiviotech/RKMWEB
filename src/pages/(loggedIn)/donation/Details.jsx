@@ -325,7 +325,7 @@ const Details = ({ activeTab, onTransactionTypeChange }) => {
             </label>
             <select
               className="donation-form__select"
-              value={currentDonationDetails.panNumber ? "enter" : "None"}
+              value={showPanInput ? "enter" : "None"}
               onChange={handlePanSelectionChange}
               disabled={isCompleted || hasGuestData()}
               style={{

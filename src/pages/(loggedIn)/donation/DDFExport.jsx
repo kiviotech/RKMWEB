@@ -24,35 +24,21 @@ const DDFExport = () => {
     };
   }, []);
 
+  useEffect(() => {
+    const fetchAllDonations = async () => {
+      try {
+        const response = await fetchDonations({});
+        console.log("DDFEXPORT:", response.data);
+      } catch (error) {
+        console.error("Error fetching donations:", error);
+      }
+    };
+
+    fetchAllDonations();
+  }, []);
+
   const formatDDFData = async (type, quarter) => {
     try {
-      const currentYear = new Date().getFullYear();
-
-      // Set date ranges
-      let cumulativeStartDate = `${currentYear}-04-01`; // Start of fiscal year
-      let quarterStartDate, quarterEndDate;
-
-      switch (quarter) {
-        case "Apr-Jun 1st Qtr":
-          quarterStartDate = `${currentYear}-04-01`;
-          quarterEndDate = `${currentYear}-06-30`;
-          break;
-        case "July-Sept 2nd Qtr":
-          quarterStartDate = `${currentYear}-07-01`;
-          quarterEndDate = `${currentYear}-09-30`;
-          break;
-        case "Oct-Dec 3rd Qtr":
-          quarterStartDate = `${currentYear}-10-01`;
-          quarterEndDate = `${currentYear}-12-31`;
-          break;
-        case "Jan-Mar 4th Qtr":
-          quarterStartDate = `${currentYear + 1}-01-01`;
-          quarterEndDate = `${currentYear + 1}-03-31`;
-          break;
-        default:
-          return [];
-      }
-
       // Fetch all completed donations
       const response = await fetchDonations({
         status: "COMPLETED",
@@ -61,65 +47,50 @@ const DDFExport = () => {
 
       if (!Array.isArray(response.data)) return [];
 
-      // First, identify donors who made donations in the current quarter
-      const currentQuarterDonors = new Set(
-        response.data
-          .filter((donation) => {
-            const donationDate =
-              donation.attributes?.receipt_detail?.data?.attributes
-                ?.donation_date;
-            return (
-              donationDate >= quarterStartDate && donationDate <= quarterEndDate
-            );
-          })
-          .map(
-            (donation) =>
-              donation.attributes?.receipt_detail?.data?.attributes?.unique_no
-          )
-          .filter(Boolean)
-      );
+      // Define quarter date ranges
+      const getQuarterDateRange = (quarter) => {
+        const year = new Date().getFullYear();
+        switch (quarter) {
+          case "Apr-Jun 1st Qtr":
+            return { start: `${year}-04-01`, end: `${year}-06-30` };
+          case "July-Sept 2nd Qtr":
+            return { start: `${year}-07-01`, end: `${year}-09-30` };
+          case "Oct-Dec 3rd Qtr":
+            return { start: `${year}-10-01`, end: `${year}-12-31` };
+          case "Jan-Mar 4th Qtr":
+            return { start: `${year}-01-01`, end: `${year}-03-31` };
+          default:
+            return null;
+        }
+      };
 
-      // If they donated in current quarter, get their cumulative total
-      const uniqueDonations = {};
-      response.data.forEach((donation) => {
-        const uniqueNo =
-          donation.attributes?.receipt_detail?.data?.attributes?.unique_no;
+      const dateRange = getQuarterDateRange(quarter);
+
+      // Filter donations based on payment method and date
+      const filteredDonations = response.data.filter((donation) => {
+        const paymentMethod =
+          donation.attributes?.transactionType?.toUpperCase();
         const donationDate =
           donation.attributes?.receipt_detail?.data?.attributes?.donation_date;
-        const transactionType = donation.attributes?.transactionType;
 
-        // Only process if they donated in current quarter and transaction type is valid
-        if (uniqueNo && currentQuarterDonors.has(uniqueNo)) {
-          const hasValidTransactionType =
-            type === "80G"
-              ? ["Cheque", "Bank Transfer", "DD"].includes(transactionType)
-              : ["Cash", "M.O"].includes(transactionType);
+        // Check if donation date is within the quarter
+        const isInQuarter =
+          donationDate &&
+          donationDate >= dateRange.start &&
+          donationDate <= dateRange.end;
 
-          // Include donation if it's within the cumulative date range and has valid transaction type
-          if (
-            donationDate >= cumulativeStartDate &&
-            donationDate <= quarterEndDate &&
-            hasValidTransactionType
-          ) {
-            if (!uniqueDonations[uniqueNo]) {
-              uniqueDonations[uniqueNo] = { ...donation };
-            } else {
-              // Add to running total
-              const currentAmount =
-                parseFloat(
-                  uniqueDonations[uniqueNo].attributes.donationAmount
-                ) || 0;
-              const newAmount =
-                parseFloat(donation.attributes.donationAmount) || 0;
-              uniqueDonations[uniqueNo].attributes.donationAmount = (
-                currentAmount + newAmount
-              ).toString();
-            }
-          }
+        if (!isInQuarter) return false;
+
+        if (type === "80G") {
+          // For 80G: Include DD, Bank Transfer, and Cheque
+          return ["DD", "BANK_TRANSFER", "CHEQUE"].includes(paymentMethod);
+        } else {
+          // For Non-80G: Include Cash and Money Order
+          return ["CASH", "MONEY_ORDER", "MO"].includes(paymentMethod);
         }
       });
 
-      return Object.values(uniqueDonations);
+      return filteredDonations;
     } catch (error) {
       console.error("Error fetching donations:", error);
       return [];
@@ -131,7 +102,7 @@ const DDFExport = () => {
       const donations = await formatDDFData(type, quarter);
 
       if (!donations || donations.length === 0) {
-        alert("No donations found for the selected period");
+        alert("No donations found for the selected quarter");
         return;
       }
 
@@ -246,25 +217,25 @@ const DDFExport = () => {
                   className="quarter-button"
                   onClick={() => handleDDFExport("80G", "Apr-Jun 1st Qtr")}
                 >
-                  Apr-Jun 1st Qtr
+                  Apr-Jun 1st Qtr ({currentYear})
                 </button>
                 <button
                   className="quarter-button"
                   onClick={() => handleDDFExport("80G", "July-Sept 2nd Qtr")}
                 >
-                  July-Sept 2nd Qtr
+                  July-Sept 2nd Qtr ({currentYear})
                 </button>
                 <button
                   className="quarter-button"
                   onClick={() => handleDDFExport("80G", "Oct-Dec 3rd Qtr")}
                 >
-                  Oct-Dec 3rd Qtr
+                  Oct-Dec 3rd Qtr ({currentYear})
                 </button>
                 <button
                   className="quarter-button"
                   onClick={() => handleDDFExport("80G", "Jan-Mar 4th Qtr")}
                 >
-                  Jan-Mar 4th Qtr
+                  Jan-Mar 4th Qtr ({currentYear})
                 </button>
               </div>
             </div>
@@ -275,7 +246,7 @@ const DDFExport = () => {
                   className="quarter-button"
                   onClick={() => handleDDFExport("Non-80G", "Apr-Jun 1st Qtr")}
                 >
-                  Apr-Jun 1st Qtr
+                  Apr-Jun 1st Qtr ({currentYear})
                 </button>
                 <button
                   className="quarter-button"
@@ -283,19 +254,19 @@ const DDFExport = () => {
                     handleDDFExport("Non-80G", "July-Sept 2nd Qtr")
                   }
                 >
-                  July-Sept 2nd Qtr
+                  July-Sept 2nd Qtr ({currentYear})
                 </button>
                 <button
                   className="quarter-button"
                   onClick={() => handleDDFExport("Non-80G", "Oct-Dec 3rd Qtr")}
                 >
-                  Oct-Dec 3rd Qtr
+                  Oct-Dec 3rd Qtr ({currentYear})
                 </button>
                 <button
                   className="quarter-button"
                   onClick={() => handleDDFExport("Non-80G", "Jan-Mar 4th Qtr")}
                 >
-                  Jan-Mar 4th Qtr
+                  Jan-Mar 4th Qtr ({currentYear})
                 </button>
               </div>
             </div>

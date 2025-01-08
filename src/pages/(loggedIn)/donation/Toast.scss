@@ -2,14 +2,29 @@
   position: fixed;
   top: 20px;
   right: 20px;
-  padding: 8px 16px;
+  padding: 18px 16px;
   border-radius: 4px;
   z-index: 1000;
   min-width: 250px;
-  animation: toast-slide-in 0.3s ease-out forwards;
+  min-height: 60px;
   background-color: white;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   border: 1px solid #e0e0e0;
+
+  // Add these properties for smooth transitions
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.4s ease-in-out;
+
+  &.show {
+    opacity: 1;
+    visibility: visible;
+    animation: toast-slide-in 0.4s ease-out forwards;
+  }
+
+  &.hide {
+    animation: toast-slide-out 0.4s ease-in forwards;
+  }
 
   &.success {
     border-left: 4px solid #4caf50;
@@ -22,7 +37,10 @@
   .toast-content {
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 8px;
+    padding-right: 24px;
+    height: 100%;
   }
 
   .toast-icon {
@@ -39,8 +57,8 @@
   .toast-close {
     position: absolute;
     right: 8px;
-    top: 50%;
-    transform: translateY(-50%);
+    top: 8px;
+    transform: none;
     color: #999;
     cursor: pointer;
     font-size: 16px;
@@ -49,22 +67,30 @@
 
 @keyframes toast-slide-in {
   0% {
-    transform: translateX(100%);
+    transform: translateX(100%) translateY(0);
     opacity: 0;
   }
+  50% {
+    transform: translateX(-10%) translateY(0);
+    opacity: 0.8;
+  }
   100% {
-    transform: translateX(0);
+    transform: translateX(0) translateY(0);
     opacity: 1;
   }
 }
 
 @keyframes toast-slide-out {
   0% {
-    transform: translateX(0);
+    transform: translateX(0) translateY(0);
     opacity: 1;
   }
+  50% {
+    transform: translateX(-10%) translateY(0);
+    opacity: 0.8;
+  }
   100% {
-    transform: translateX(100%);
+    transform: translateX(100%) translateY(0);
     opacity: 0;
   }
 }

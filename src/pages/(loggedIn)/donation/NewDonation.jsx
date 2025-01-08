@@ -26,6 +26,7 @@ const NewDonation = () => {
   const [transactionType, setTransactionType] = useState("Cash");
   const [isMobile, setIsMobile] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
+  const [isExiting, setIsExiting] = useState(false);
 
   // Listen for screen size changes
   useEffect(() => {
@@ -91,18 +92,27 @@ const NewDonation = () => {
     return ["Cheque", "Bank Transfer", "DD"].includes(transactionType);
   };
 
+  const handleCloseToast = () => {
+    setIsExiting(true);
+    setTimeout(() => {
+      setSuccessMessage("");
+      setIsExiting(false);
+    }, 400); // Match this with animation duration
+  };
+
   return (
     <div>
       {successMessage && (
-        <div className="toast-notification success">
+        <div
+          className={`toast-notification success ${
+            isExiting ? "hide" : "show"
+          }`}
+        >
           <div className="toast-content">
             <FaCheckCircle className="toast-icon" />
             <span className="toast-message">{successMessage}</span>
           </div>
-          <IoClose
-            className="toast-close"
-            onClick={() => setSuccessMessage("")}
-          />
+          <IoClose className="toast-close" onClick={handleCloseToast} />
         </div>
       )}
       <DonationHeader onTabChange={setActiveTab} />

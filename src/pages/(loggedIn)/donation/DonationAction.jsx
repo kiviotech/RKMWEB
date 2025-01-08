@@ -322,6 +322,7 @@ const DonationAction = ({
       donorName: `${currentTab[currentSection].donorDetails.title} ${currentTab[currentSection].donorDetails.name}`,
       address: {
         flatNo: currentTab[currentSection].donorDetails.flatNo,
+        streetName: currentTab[currentSection].donorDetails.streetName,
         postOffice: currentTab[currentSection].donorDetails.postOffice,
         district: currentTab[currentSection].donorDetails.district,
         state: currentTab[currentSection].donorDetails.state,

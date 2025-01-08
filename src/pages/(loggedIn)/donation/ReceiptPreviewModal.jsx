@@ -317,6 +317,8 @@ const ReceiptPreviewModal = ({
                 }}
               >
                 {receiptData.address?.flatNo}
+                {receiptData.address?.streetName &&
+                  `, ${receiptData.address?.streetName}`}
               </p>
               <p
                 style={{

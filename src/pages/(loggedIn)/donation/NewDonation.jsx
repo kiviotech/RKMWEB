@@ -9,6 +9,9 @@ import useDonationStore from "../../../../donationStore";
 import { useAuthStore } from "../../../../store/authStore";
 import { BiBorderAll } from "react-icons/bi";
 import { useLocation } from "react-router-dom";
+import "./Toast.scss";
+import { FaCheckCircle } from "react-icons/fa";
+import { IoClose } from "react-icons/io5";
 
 const NewDonation = () => {
   const { initializeFromDonationData } = useDonationStore();
@@ -91,22 +94,15 @@ const NewDonation = () => {
   return (
     <div>
       {successMessage && (
-        <div
-          style={{
-            backgroundColor: "#4CAF50",
-            color: "white",
-            padding: "10px",
-            textAlign: "center",
-            position: "fixed",
-            top: "20px",
-            left: "50%",
-            transform: "translateX(-50%)",
-            borderRadius: "4px",
-            zIndex: 1000,
-            boxShadow: "0 2px 5px rgba(0,0,0,0.2)",
-          }}
-        >
-          {successMessage}
+        <div className="toast-notification success">
+          <div className="toast-content">
+            <FaCheckCircle className="toast-icon" />
+            <span className="toast-message">{successMessage}</span>
+          </div>
+          <IoClose
+            className="toast-close"
+            onClick={() => setSuccessMessage("")}
+          />
         </div>
       )}
       <DonationHeader onTabChange={setActiveTab} />

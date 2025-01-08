@@ -39,7 +39,6 @@ const DDFExport = () => {
 
   const formatDDFData = async (type, quarter) => {
     try {
-      // Fetch all completed donations
       const response = await fetchDonations({
         status: "COMPLETED",
         type: type === "80G" ? "SECTION_80G" : "NON_80G",
@@ -47,18 +46,30 @@ const DDFExport = () => {
 
       if (!Array.isArray(response.data)) return [];
 
-      // Define quarter date ranges
+      // Define quarter date ranges with cumulative ranges
       const getQuarterDateRange = (quarter) => {
-        const year = new Date().getFullYear();
+        const currentYear = new Date().getFullYear();
         switch (quarter) {
           case "Apr-Jun 1st Qtr":
-            return { start: `${year}-04-01`, end: `${year}-06-30` };
+            return {
+              start: `${currentYear}-04-01`,
+              end: `${currentYear}-06-30`,
+            };
           case "July-Sept 2nd Qtr":
-            return { start: `${year}-07-01`, end: `${year}-09-30` };
+            return {
+              start: `${currentYear}-04-01`,
+              end: `${currentYear}-09-30`,
+            }; // From April to Sept
           case "Oct-Dec 3rd Qtr":
-            return { start: `${year}-10-01`, end: `${year}-12-31` };
+            return {
+              start: `${currentYear}-04-01`,
+              end: `${currentYear}-12-31`,
+            }; // From April to Dec
           case "Jan-Mar 4th Qtr":
-            return { start: `${year}-01-01`, end: `${year}-03-31` };
+            return {
+              start: `${currentYear}-01-01`,
+              end: `${currentYear}-03-31`,
+            }; // Only Jan to Mar (no cumulative for now)
           default:
             return null;
         }
@@ -73,24 +84,45 @@ const DDFExport = () => {
         const donationDate =
           donation.attributes?.receipt_detail?.data?.attributes?.donation_date;
 
-        // Check if donation date is within the quarter
-        const isInQuarter =
+        // Check if donation date is within the cumulative range
+        const isInRange =
           donationDate &&
           donationDate >= dateRange.start &&
           donationDate <= dateRange.end;
 
-        if (!isInQuarter) return false;
+        if (!isInRange) return false;
 
         if (type === "80G") {
-          // For 80G: Include DD, Bank Transfer, and Cheque
           return ["DD", "BANK_TRANSFER", "CHEQUE"].includes(paymentMethod);
         } else {
-          // For Non-80G: Include Cash and Money Order
           return ["CASH", "MONEY_ORDER", "MO"].includes(paymentMethod);
         }
       });
 
-      return filteredDonations;
+      // Group donations by guest and sum their amounts
+      const groupedDonations = filteredDonations.reduce((acc, donation) => {
+        const guestId = donation.attributes?.guest?.data?.id;
+        if (!guestId) return acc;
+
+        if (!acc[guestId]) {
+          acc[guestId] = { ...donation };
+        } else {
+          // Sum up the donation amounts
+          const currentAmount = parseFloat(
+            acc[guestId].attributes?.donationAmount || 0
+          );
+          const newAmount = parseFloat(
+            donation.attributes?.donationAmount || 0
+          );
+          acc[guestId].attributes.donationAmount = (
+            currentAmount + newAmount
+          ).toString();
+        }
+        return acc;
+      }, {});
+
+      // Convert grouped donations back to array
+      return Object.values(groupedDonations);
     } catch (error) {
       console.error("Error fetching donations:", error);
       return [];

@@ -176,20 +176,19 @@ const Details = ({ activeTab, onTransactionTypeChange }) => {
     const donorDetails = donorTabs[activeTabId][currentSection].donorDetails;
 
     const hasPanNumber =
+      donorDetails.guestData?.attributes?.pan_number ||
       donorDetails.panNumber ||
-      (donorDetails.identityType === "PAN Card" &&
-        donorDetails.identityNumber) ||
-      donorDetails.guestData?.attributes?.pan_number;
+      (donorDetails.identityType === "PAN Card" && donorDetails.identityNumber);
 
     setShowPanInput(!!hasPanNumber);
 
     if (hasPanNumber) {
       const panNumber =
+        donorDetails.guestData?.attributes?.pan_number ||
         donorDetails.panNumber ||
         (donorDetails.identityType === "PAN Card"
           ? donorDetails.identityNumber
-          : "") ||
-        donorDetails.guestData?.attributes?.pan_number;
+          : "");
 
       updateDonationDetails(activeTabId, currentSection, {
         panNumber: panNumber,
@@ -326,7 +325,7 @@ const Details = ({ activeTab, onTransactionTypeChange }) => {
             </label>
             <select
               className="donation-form__select"
-              value={showPanInput ? "enter" : "None"}
+              value={currentDonationDetails.panNumber ? "enter" : "None"}
               onChange={handlePanSelectionChange}
               disabled={isCompleted || hasGuestData()}
               style={{
@@ -339,7 +338,7 @@ const Details = ({ activeTab, onTransactionTypeChange }) => {
               <option value="enter">Enter PAN Number</option>
             </select>
 
-            {showPanInput && (
+            {(showPanInput || currentDonationDetails.panNumber) && (
               <input
                 className="donation-form__input"
                 type="text"

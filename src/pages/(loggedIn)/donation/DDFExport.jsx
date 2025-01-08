@@ -9,6 +9,7 @@ const DDFExport = () => {
   const [showDropdown, setShowDropdown] = useState(false);
   const dropdownRef = useRef(null);
   const [previewData, setPreviewData] = useState(null);
+  const currentYear = new Date().getFullYear();
 
   useEffect(() => {
     const handleMouseLeave = (event) => {
@@ -243,30 +244,27 @@ const DDFExport = () => {
               <div className="nested-dropdown">
                 <button
                   className="quarter-button"
-                  onClick={() => {
-                    console.log("Clicked Apr-Jun 1st Qtr");
-                    handleDDFExport("80G", "Apr-Jun 1st Qtr");
-                  }}
+                  onClick={() => handleDDFExport("80G", "Apr-Jun 1st Qtr")}
                 >
-                  Apr-Jun 1st Qtr
+                  Apr-Jun 1st Qtr ({currentYear})
                 </button>
                 <button
                   className="quarter-button"
                   onClick={() => handleDDFExport("80G", "July-Sept 2nd Qtr")}
                 >
-                  July-Sept 2nd Qtr
+                  July-Sept 2nd Qtr ({currentYear})
                 </button>
                 <button
                   className="quarter-button"
                   onClick={() => handleDDFExport("80G", "Oct-Dec 3rd Qtr")}
                 >
-                  Oct-Dec 3rd Qtr
+                  Oct-Dec 3rd Qtr ({currentYear})
                 </button>
                 <button
                   className="quarter-button"
                   onClick={() => handleDDFExport("80G", "Jan-Mar 4th Qtr")}
                 >
-                  Jan-Mar 4th Qtr
+                  Jan-Mar 4th Qtr ({currentYear + 1})
                 </button>
               </div>
             </div>
@@ -277,7 +275,7 @@ const DDFExport = () => {
                   className="quarter-button"
                   onClick={() => handleDDFExport("Non-80G", "Apr-Jun 1st Qtr")}
                 >
-                  Apr-Jun 1st Qtr
+                  Apr-Jun 1st Qtr ({currentYear})
                 </button>
                 <button
                   className="quarter-button"
@@ -285,19 +283,19 @@ const DDFExport = () => {
                     handleDDFExport("Non-80G", "July-Sept 2nd Qtr")
                   }
                 >
-                  July-Sept 2nd Qtr
+                  July-Sept 2nd Qtr ({currentYear})
                 </button>
                 <button
                   className="quarter-button"
                   onClick={() => handleDDFExport("Non-80G", "Oct-Dec 3rd Qtr")}
                 >
-                  Oct-Dec 3rd Qtr
+                  Oct-Dec 3rd Qtr ({currentYear})
                 </button>
                 <button
                   className="quarter-button"
                   onClick={() => handleDDFExport("Non-80G", "Jan-Mar 4th Qtr")}
                 >
-                  Jan-Mar 4th Qtr
+                  Jan-Mar 4th Qtr ({currentYear + 1})
                 </button>
               </div>
             </div>

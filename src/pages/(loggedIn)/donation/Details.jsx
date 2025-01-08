@@ -325,7 +325,7 @@ const Details = ({ activeTab, onTransactionTypeChange }) => {
             </label>
             <select
               className="donation-form__select"
-              value={showPanInput ? "enter" : "None"}
+              value={currentDonationDetails.panNumber ? "enter" : "None"}
               onChange={handlePanSelectionChange}
               disabled={isCompleted || hasGuestData()}
               style={{
@@ -338,7 +338,7 @@ const Details = ({ activeTab, onTransactionTypeChange }) => {
               <option value="enter">Enter PAN Number</option>
             </select>
 
-            {(showPanInput || currentDonationDetails.panNumber) && (
+            {(currentDonationDetails.panNumber || showPanInput) && (
               <input
                 className="donation-form__input"
                 type="text"

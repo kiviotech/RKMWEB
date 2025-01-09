@@ -46,7 +46,7 @@ const DDFExport = () => {
 
       if (!Array.isArray(response.data)) return [];
 
-      // Define quarter date ranges with cumulative ranges
+      // Define quarter date ranges for specific quarters only (no cumulative)
       const getQuarterDateRange = (quarter) => {
         const currentYear = new Date().getFullYear();
         switch (quarter) {
@@ -57,19 +57,19 @@ const DDFExport = () => {
             };
           case "July-Sept 2nd Qtr":
             return {
-              start: `${currentYear}-04-01`,
+              start: `${currentYear}-07-01`,
               end: `${currentYear}-09-30`,
-            }; // From April to Sept
+            };
           case "Oct-Dec 3rd Qtr":
             return {
-              start: `${currentYear}-04-01`,
+              start: `${currentYear}-10-01`,
               end: `${currentYear}-12-31`,
-            }; // From April to Dec
+            };
           case "Jan-Mar 4th Qtr":
             return {
               start: `${currentYear}-01-01`,
               end: `${currentYear}-03-31`,
-            }; // Only Jan to Mar (no cumulative for now)
+            };
           default:
             return null;
         }

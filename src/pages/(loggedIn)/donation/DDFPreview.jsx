@@ -188,6 +188,7 @@ const DDFPreview = ({ donations, onConfirm, onCancel, type }) => {
                 <th>Type</th>
                 <th>Mode</th>
                 <th>Amount</th>
+                <th>Donation Date</th>
               </tr>
             </thead>
             <tbody>
@@ -224,6 +225,10 @@ const DDFPreview = ({ donations, onConfirm, onCancel, type }) => {
                     {parseFloat(
                       donation.attributes?.donationAmount || 0
                     ).toFixed(2)}
+                  </td>
+                  <td>
+                    {donation.attributes?.receipt_detail?.data?.attributes
+                      ?.donation_date || ""}
                   </td>
                 </tr>
               ))}

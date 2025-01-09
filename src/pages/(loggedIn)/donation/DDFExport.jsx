@@ -46,51 +46,59 @@ const DDFExport = () => {
 
       if (!Array.isArray(response.data)) return [];
 
-      // Define quarter date ranges for specific quarters only (no cumulative)
       const getQuarterDateRange = (quarter) => {
         const currentYear = new Date().getFullYear();
         switch (quarter) {
+          case "Jan-Mar 4th Qtr":
+            return {
+              start: `${currentYear}-01-01`,
+              end: `${currentYear}-03-31`,
+              quarterNumber: 4,
+              isLastQuarter: true,
+              previousQuartersStart: `${currentYear - 1}-04-01`,
+              previousQuartersEnd: `${currentYear - 1}-12-31`,
+            };
           case "Apr-Jun 1st Qtr":
             return {
               start: `${currentYear}-04-01`,
               end: `${currentYear}-06-30`,
+              quarterNumber: 1,
+              financialYearStart: `${currentYear}-04-01`,
             };
           case "July-Sept 2nd Qtr":
             return {
               start: `${currentYear}-07-01`,
               end: `${currentYear}-09-30`,
+              quarterNumber: 2,
+              financialYearStart: `${currentYear}-04-01`,
             };
           case "Oct-Dec 3rd Qtr":
             return {
               start: `${currentYear}-10-01`,
               end: `${currentYear}-12-31`,
-            };
-          case "Jan-Mar 4th Qtr":
-            return {
-              start: `${currentYear}-01-01`,
-              end: `${currentYear}-03-31`,
+              quarterNumber: 3,
+              financialYearStart: `${currentYear}-04-01`,
             };
           default:
             return null;
         }
       };
 
-      const dateRange = getQuarterDateRange(quarter);
+      const currentQuarterRange = getQuarterDateRange(quarter);
 
-      // Filter donations based on payment method and date
-      const filteredDonations = response.data.filter((donation) => {
+      // Filter current quarter donations
+      const currentQuarterDonations = response.data.filter((donation) => {
         const paymentMethod =
           donation.attributes?.transactionType?.toUpperCase();
         const donationDate =
           donation.attributes?.receipt_detail?.data?.attributes?.donation_date;
 
-        // Check if donation date is within the cumulative range
-        const isInRange =
+        const isInCurrentQuarter =
           donationDate &&
-          donationDate >= dateRange.start &&
-          donationDate <= dateRange.end;
+          donationDate >= currentQuarterRange.start &&
+          donationDate <= currentQuarterRange.end;
 
-        if (!isInRange) return false;
+        if (!isInCurrentQuarter) return false;
 
         if (type === "80G") {
           return ["DD", "BANK_TRANSFER", "CHEQUE"].includes(paymentMethod);
@@ -99,30 +107,73 @@ const DDFExport = () => {
         }
       });
 
-      // Group donations by guest and sum their amounts
-      const groupedDonations = filteredDonations.reduce((acc, donation) => {
-        const guestId = donation.attributes?.guest?.data?.id;
-        if (!guestId) return acc;
+      // Group donations by guest
+      const guestDonations = {};
 
-        if (!acc[guestId]) {
-          acc[guestId] = { ...donation };
-        } else {
-          // Sum up the donation amounts
-          const currentAmount = parseFloat(
-            acc[guestId].attributes?.donationAmount || 0
-          );
-          const newAmount = parseFloat(
+      // Process current quarter donations first
+      currentQuarterDonations.forEach((donation) => {
+        const guestId = donation.attributes?.guest?.data?.id;
+        if (!guestId) return;
+
+        if (!guestDonations[guestId]) {
+          guestDonations[guestId] = {
+            donation: { ...donation },
+            currentQuarterAmount: parseFloat(
+              donation.attributes?.donationAmount || 0
+            ),
+            previousQuartersAmount: 0,
+          };
+        }
+      });
+
+      // If it's 4th quarter, fetch and add previous quarters' amounts
+      if (currentQuarterRange.isLastQuarter) {
+        const previousQuartersDonations = response.data.filter((donation) => {
+          const donationDate =
+            donation.attributes?.receipt_detail?.data?.attributes
+              ?.donation_date;
+          const paymentMethod =
+            donation.attributes?.transactionType?.toUpperCase();
+
+          const isInPreviousQuarters =
+            donationDate &&
+            donationDate >= currentQuarterRange.previousQuartersStart &&
+            donationDate <= currentQuarterRange.previousQuartersEnd;
+
+          if (!isInPreviousQuarters) return false;
+
+          if (type === "80G") {
+            return ["DD", "BANK_TRANSFER", "CHEQUE"].includes(paymentMethod);
+          } else {
+            return ["CASH", "MONEY_ORDER", "MO"].includes(paymentMethod);
+          }
+        });
+
+        // Add previous quarters' amounts to guests who have current quarter donations
+        previousQuartersDonations.forEach((donation) => {
+          const guestId = donation.attributes?.guest?.data?.id;
+          if (!guestId || !guestDonations[guestId]) return;
+
+          guestDonations[guestId].previousQuartersAmount += parseFloat(
             donation.attributes?.donationAmount || 0
           );
-          acc[guestId].attributes.donationAmount = (
-            currentAmount + newAmount
-          ).toString();
-        }
-        return acc;
-      }, {});
+        });
+      }
 
-      // Convert grouped donations back to array
-      return Object.values(groupedDonations);
+      // Create final donations array with combined totals
+      const finalDonations = Object.values(guestDonations).map(
+        ({ donation, currentQuarterAmount, previousQuartersAmount }) => ({
+          ...donation,
+          attributes: {
+            ...donation.attributes,
+            donationAmount: currentQuarterRange.isLastQuarter
+              ? (currentQuarterAmount + previousQuartersAmount).toString() // Sum of all quarters
+              : currentQuarterAmount.toString(),
+          },
+        })
+      );
+
+      return finalDonations;
     } catch (error) {
       console.error("Error fetching donations:", error);
       return [];

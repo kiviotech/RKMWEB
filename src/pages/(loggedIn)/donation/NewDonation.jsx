@@ -65,6 +65,22 @@ const NewDonation = () => {
     }
   }, [successMessage]);
 
+  useEffect(() => {
+    // Scroll to top when component mounts or route changes
+    const scrollToTop = () => {
+      window.scrollTo({
+        top: 0,
+        left: 0,
+        behavior: "smooth", // Add smooth scrolling
+      });
+    };
+
+    scrollToTop();
+
+    // Also handle route changes
+    return () => scrollToTop();
+  }, [location.pathname]);
+
   const containerStyle = {
     display: "flex",
     flexDirection: isMobile ? "column" : "row",

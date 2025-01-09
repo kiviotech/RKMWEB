@@ -108,6 +108,20 @@ const AllDonationDetails = () => {
 
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
+    // Try one of these alternatives:
+
+    // Option 1: Force immediate scroll
+    window.scrollTo(0, 0);
+
+    // Option 2: Use setTimeout to ensure state is updated first
+    setTimeout(() => {
+      window.scrollTo(0, 0);
+    }, 0);
+
+    // Option 3: Target the specific container
+    document
+      .querySelector(".all-donation-details")
+      .scrollIntoView({ behavior: "smooth" });
   };
 
   const handleTimeFilterChange = (filter) => {

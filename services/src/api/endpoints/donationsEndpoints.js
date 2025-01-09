@@ -1,5 +1,6 @@
 const donationsEndpoints = {
-  getDonations: "/donations?populate=*",
+  getDonations:
+    "/donations?populate=*&pagination[start]=0&pagination[limit]=-1",
   getDonationById: (id) => `/donations/${id}?populate=*`,
   createDonation: "/donations",
   updateDonation: (id) => `/donations/${id}`,

@@ -162,6 +162,16 @@ const Header = ({ hideElements }) => {
               </NavLink>
             </li>
           </>
+        ) : location.pathname === "/coupons" ? (
+          // Coupons navigation item
+          <li>
+            <NavLink
+              to="/coupons"
+              className={({ isActive }) => (isActive ? "active" : "")}
+            >
+              Coupons
+            </NavLink>
+          </li>
         ) : (
           // Original navigation items
           <>

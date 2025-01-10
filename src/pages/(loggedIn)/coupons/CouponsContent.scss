@@ -1,0 +1,135 @@
+.coupons-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 20px;
+  width: 100%;
+  margin: 0 auto;
+  position: relative;
+  .controls-icon {
+    cursor: pointer;
+    background-color: #fff;
+    border: 1px solid #a5a5a5;
+    width: 30px;
+    height: 30px;
+    border-radius: 10%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+.coupon-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: white;
+  padding: 16px 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.coupon-label {
+  font-size: 16px;
+  color: #333;
+}
+
+.coupon-select,
+.coupon-input {
+  width: 120px;
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 16px;
+  background-color: white;
+
+  &:focus {
+    outline: none;
+    border-color: #007bff;
+  }
+}
+
+.coupon-input {
+  text-align: right;
+}
+
+.total-display {
+  margin: 0px 0px 20px auto;
+  border-top: 2px solid #000;
+  border-bottom: 2px solid #000;
+  padding: 10px 20px;
+
+  span {
+    color: #00b69b;
+    font-size: 18px;
+    font-weight: 500;
+  }
+}
+
+.filter-dropdown {
+  position: absolute;
+  top: 40px;
+  left: 10px;
+  width: 30%;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  padding: 12px;
+  z-index: 1000;
+
+  .filter-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 0;
+
+    input[type="checkbox"] {
+      margin: 0;
+    }
+
+    label {
+      font-size: 14px;
+      color: #333;
+    }
+  }
+
+  .customize-button {
+    width: 100%;
+    padding: 8px;
+    margin-top: 8px;
+    background: #4285f4;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+
+    &:hover {
+      background: #3367d6;
+    }
+  }
+}
+
+.controls-icon {
+  cursor: pointer;
+}
+
+.controls-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.update-button {
+  padding: 8px 16px;
+  background-color: #ea7704;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+
+  &:hover {
+    background-color: #d66c03;
+  }
+}

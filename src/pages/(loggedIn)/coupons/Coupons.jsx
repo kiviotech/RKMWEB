@@ -9,8 +9,8 @@ const Coupons = () => {
     <div>
       <CouponsHeader />
       <CouponsSection />
-      {/* <CouponsContent /> */}
-      <CouponsDetails />
+      <CouponsContent />
+      {/* <CouponsDetails /> */}
     </div>
   );
 };

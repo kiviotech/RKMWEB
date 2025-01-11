@@ -1,36 +1,35 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import "./CustomizeCategories.scss";
+import { fetchFoods } from "../../../../services/src/services/foodService";
+import { createNewFood } from "../../../../services/src/services/foodService";
 
-const CustomizeCategories = ({ isOpen, onClose }) => {
-  const [categories, setCategories] = useState([
-    {
-      id: "1",
-      name: "General Visitors/ Devotees",
-      type: "input",
-    },
-    {
-      id: "2",
-      name: "Maintenance Staff/Workers/Helpers",
-      type: "input",
-    },
-    {
-      id: "3",
-      name: "Monks/Sadhus",
-      type: "input",
-    },
-    {
-      id: "4",
-      name: "Poor People/Widow Mothers",
-      type: "input",
-    },
-    {
-      id: "5",
-      name: "Guest House",
-      type: "guesthouse",
-      hasMultipleSelects: true,
-    },
-  ]);
+const CustomizeCategories = ({ isOpen, onClose, onSave }) => {
+  const [categories, setCategories] = useState([]);
+  const [newFields, setNewFields] = useState([]);
+
+  const scrollContainerRef = useRef(null);
+  const lastInputRef = useRef(null);
+
+  useEffect(() => {
+    const getFoodsData = async () => {
+      try {
+        const foods = await fetchFoods();
+        const formattedCategories = foods.data.map((food) => ({
+          id: food.id,
+          name: food.attributes.category,
+          type: "input",
+        }));
+        setCategories(formattedCategories);
+      } catch (error) {
+        console.error("Error fetching foods:", error);
+      }
+    };
+
+    if (isOpen) {
+      getFoodsData();
+    }
+  }, [isOpen]);
 
   const handleDragEnd = (result) => {
     if (!result.destination) return;
@@ -40,6 +39,66 @@ const CustomizeCategories = ({ isOpen, onClose }) => {
     items.splice(result.destination.index, 0, reorderedItem);
 
     setCategories(items);
+  };
+
+  const handleAddField = () => {
+    const newField = {
+      id: `new-${Date.now()}`,
+      name: "",
+      type: "input",
+      isNew: true,
+    };
+    setNewFields([...newFields, newField]);
+
+    setTimeout(() => {
+      if (scrollContainerRef.current) {
+        scrollContainerRef.current.scrollTop =
+          scrollContainerRef.current.scrollHeight;
+      }
+      if (lastInputRef.current) {
+        lastInputRef.current.focus();
+      }
+    }, 100);
+  };
+
+  const handleNewFieldChange = (id, value) => {
+    setNewFields(
+      newFields.map((field) =>
+        field.id === id ? { ...field, name: value } : field
+      )
+    );
+  };
+
+  const handleSaveChanges = async () => {
+    try {
+      for (const field of newFields) {
+        if (field.name.trim()) {
+          await createNewFood({
+            category: field.name,
+            count: 0,
+            type: field.type,
+            date: new Date().toISOString().split("T")[0],
+          });
+        }
+      }
+
+      const foods = await fetchFoods();
+      const formattedCategories = foods.data.map((food) => ({
+        id: food.id,
+        name: food.attributes.category,
+        type: "input",
+      }));
+      setCategories(formattedCategories);
+      setNewFields([]);
+
+      if (onSave) {
+        onSave();
+      }
+
+      onClose();
+    } catch (error) {
+      console.error("Error saving changes:", error);
+    }
   };
 
   return (
@@ -53,11 +112,22 @@ const CustomizeCategories = ({ isOpen, onClose }) => {
           <DragDropContext onDragEnd={handleDragEnd}>
             <Droppable droppableId="categories">
               {(provided) => (
-                <div {...provided.droppableProps} ref={provided.innerRef}>
+                <div
+                  {...provided.droppableProps}
+                  ref={(el) => {
+                    provided.innerRef(el);
+                    scrollContainerRef.current = el;
+                  }}
+                  style={{
+                    maxHeight: "400px",
+                    overflowY: "auto",
+                    paddingRight: "10px",
+                  }}
+                >
                   {categories.map((category, index) => (
                     <Draggable
                       key={category.id}
-                      draggableId={category.id}
+                      draggableId={category.id.toString()}
                       index={index}
                     >
                       {(provided) => (
@@ -84,45 +154,18 @@ const CustomizeCategories = ({ isOpen, onClose }) => {
                           >
                             {category.name}
                           </span>
-                          {category.hasMultipleSelects ? (
-                            <div
-                              style={{ width: "37%" }}
-                              className="select-group"
+                          <div style={{ width: "37%" }}>
+                            <select
+                              defaultValue="input"
+                              style={{
+                                border: "1.5px solid #000",
+                                width: "45%",
+                                padding: "12px",
+                              }}
                             >
-                              <select
-                                defaultValue="fetch"
-                                style={{
-                                  width: "100%",
-                                  border: "1.5px solid #000",
-                                  padding: "12px",
-                                }}
-                              >
-                                <option value="fetch">Fetch Data</option>
-                              </select>
-                              <select
-                                defaultValue="booking"
-                                style={{
-                                  width: "100%",
-                                  border: "1.5px solid #000",
-                                }}
-                              >
-                                <option value="booking">GH Booking</option>
-                              </select>
-                            </div>
-                          ) : (
-                            <div style={{ width: "37%" }}>
-                              <select
-                                defaultValue="input"
-                                style={{
-                                  border: "1.5px solid #000",
-                                  width: "45%",
-                                  padding: "12px",
-                                }}
-                              >
-                                <option value="input">Input</option>
-                              </select>
-                            </div>
-                          )}
+                              <option value="input">Input</option>
+                            </select>
+                          </div>
                           <div
                             style={{
                               width: "10%",
@@ -171,6 +214,75 @@ const CustomizeCategories = ({ isOpen, onClose }) => {
                       )}
                     </Draggable>
                   ))}
+                  {newFields.map((field, index) => (
+                    <div key={field.id} className="category-row">
+                      <div className="drag-handle">⋮⋮</div>
+                      <input
+                        ref={
+                          index === newFields.length - 1 ? lastInputRef : null
+                        }
+                        style={{
+                          width: "50%",
+                          padding: "10px",
+                          borderRadius: "5px",
+                          border: "2px solid #eee",
+                          backgroundColor: "#fff",
+                        }}
+                        placeholder="Enter category name"
+                        value={field.name}
+                        onChange={(e) =>
+                          handleNewFieldChange(field.id, e.target.value)
+                        }
+                      />
+                      <div style={{ width: "37%" }}>
+                        <select
+                          defaultValue="input"
+                          style={{
+                            border: "1.5px solid #000",
+                            width: "45%",
+                            padding: "12px",
+                          }}
+                        >
+                          <option value="input">Input</option>
+                        </select>
+                      </div>
+                      <div
+                        style={{
+                          width: "10%",
+                          display: "flex",
+                          justifyContent: "space-evenly",
+                          alignItems: "center",
+                        }}
+                        className="actions"
+                      >
+                        <button
+                          className="delete-btn"
+                          onClick={() =>
+                            setNewFields(
+                              newFields.filter((f) => f.id !== field.id)
+                            )
+                          }
+                        >
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="16"
+                            height="16"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="#DE002E"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          >
+                            <polyline points="3 6 5 6 21 6"></polyline>
+                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                            <line x1="10" y1="11" x2="10" y2="17"></line>
+                            <line x1="14" y1="11" x2="14" y2="17"></line>
+                          </svg>
+                        </button>
+                      </div>
+                    </div>
+                  ))}
                   {provided.placeholder}
                 </div>
               )}
@@ -178,13 +290,17 @@ const CustomizeCategories = ({ isOpen, onClose }) => {
           </DragDropContext>
         </div>
 
-        <button className="add-field-btn">+ Add Field</button>
+        <button className="add-field-btn" onClick={handleAddField}>
+          + Add Field
+        </button>
 
         <div className="modal-actions">
           <button className="cancel-btn" onClick={onClose}>
             Cancel
           </button>
-          <button className="save-btn">Save Changes</button>
+          <button className="save-btn" onClick={handleSaveChanges}>
+            Save Changes
+          </button>
         </div>
       </div>
     </div>

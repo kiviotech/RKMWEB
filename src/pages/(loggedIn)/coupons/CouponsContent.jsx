@@ -1,12 +1,15 @@
 import React, { useState, useRef, useEffect } from "react";
 import "./CouponsContent.scss";
 import CustomizeCategories from "./CustomizeCategories";
+import { fetchFoods } from "../../../../services/src/services/foodService";
 
 const CouponsContent = () => {
   const [total, setTotal] = useState(1440);
   const [showFilter, setShowFilter] = useState(false);
   const [filterPosition, setFilterPosition] = useState({ top: 0, left: 0 });
   const [isCustomizeOpen, setIsCustomizeOpen] = useState(false);
+  const [foodsData, setFoodsData] = useState([]);
+  const [selectedFilters, setSelectedFilters] = useState([]);
 
   const filterRef = useRef(null);
 
@@ -21,6 +24,25 @@ const CouponsContent = () => {
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
+  }, []);
+
+  useEffect(() => {
+    const getFoodsData = async () => {
+      try {
+        const foods = await fetchFoods();
+        setFoodsData(foods.data);
+        setSelectedFilters(foods.data.map((food) => food.id));
+        const initialTotal = foods.data.reduce(
+          (acc, food) => acc + food.attributes.count,
+          0
+        );
+        setTotal(initialTotal);
+      } catch (error) {
+        console.error("Error fetching foods:", error);
+      }
+    };
+
+    getFoodsData();
   }, []);
 
   const handleFilterClick = (e) => {
@@ -39,6 +61,39 @@ const CouponsContent = () => {
       0
     );
     setTotal(sum);
+  };
+
+  const handleFilterChange = (foodId) => {
+    setSelectedFilters((prev) => {
+      if (prev.includes(foodId)) {
+        return prev.filter((id) => id !== foodId);
+      } else {
+        return [...prev, foodId];
+      }
+    });
+  };
+
+  const getFilteredData = () => {
+    if (selectedFilters.length === 0) return [];
+    return foodsData.filter((food) => selectedFilters.includes(food.id));
+  };
+
+  const handleSelectAll = (isSelected) => {
+    if (isSelected) {
+      setSelectedFilters(foodsData.map((food) => food.id));
+    } else {
+      setSelectedFilters([]);
+    }
+  };
+
+  const handleCustomizeSave = async () => {
+    try {
+      const foods = await fetchFoods();
+      setFoodsData(foods.data);
+      setSelectedFilters(foods.data.map((food) => food.id));
+    } catch (error) {
+      console.error("Error refreshing foods data:", error);
+    }
   };
 
   return (
@@ -98,24 +153,19 @@ const CouponsContent = () => {
             left: `${filterPosition.left}px`,
           }}
         >
-          <div className="filter-item">
-            <input type="checkbox" id="visitors" />
-            <label htmlFor="visitors">General Visitors/ Devotees</label>
-          </div>
-          <div className="filter-item">
-            <input type="checkbox" id="maintenance" />
-            <label htmlFor="maintenance">
-              Maintenance Staff/Workers/Helpers
-            </label>
-          </div>
-          <div className="filter-item">
-            <input type="checkbox" id="monks" />
-            <label htmlFor="monks">Monks/Sadhus</label>
-          </div>
-          <div className="filter-item">
-            <input type="checkbox" id="poor" />
-            <label htmlFor="poor">Poor People/Widow Mothers</label>
-          </div>
+          {foodsData.map((food) => (
+            <div className="filter-item" key={food.id}>
+              <input
+                type="checkbox"
+                id={`filter-${food.id}`}
+                checked={selectedFilters.includes(food.id)}
+                onChange={() => handleFilterChange(food.id)}
+              />
+              <label htmlFor={`filter-${food.id}`}>
+                {food.attributes.category}
+              </label>
+            </div>
+          ))}
           <button
             className="customize-button"
             onClick={() => setIsCustomizeOpen(true)}
@@ -125,55 +175,17 @@ const CouponsContent = () => {
         </div>
       )}
 
-      <div className="coupon-row">
-        <span className="coupon-label">General Visitors/ Devotees</span>
-        <input
-          type="number"
-          className="coupon-input"
-          defaultValue={1000}
-          onChange={calculateTotal}
-        />
-      </div>
-
-      <div className="coupon-row">
-        <span className="coupon-label">Maintenance Staff/Workers/Helpers</span>
-        <input
-          type="number"
-          className="coupon-input"
-          defaultValue={150}
-          onChange={calculateTotal}
-        />
-      </div>
-
-      <div className="coupon-row">
-        <span className="coupon-label">Monks/Sadhus</span>
-        <input
-          type="number"
-          className="coupon-input"
-          defaultValue={50}
-          onChange={calculateTotal}
-        />
-      </div>
-
-      <div className="coupon-row">
-        <span className="coupon-label">Poor People/Widow Mothers</span>
-        <input
-          type="number"
-          className="coupon-input"
-          defaultValue={10}
-          onChange={calculateTotal}
-        />
-      </div>
-
-      <div className="coupon-row">
-        <span className="coupon-label">Guest House</span>
-        <input
-          type="number"
-          className="coupon-input"
-          defaultValue={230}
-          onChange={calculateTotal}
-        />
-      </div>
+      {getFilteredData().map((food) => (
+        <div className="coupon-row" key={food.id}>
+          <span className="coupon-label">{food.attributes.category}</span>
+          <input
+            type="number"
+            className="coupon-input"
+            value={food.attributes.count}
+            onChange={calculateTotal}
+          />
+        </div>
+      ))}
 
       <div className="total-display">
         <span>Total {total}</span>
@@ -182,6 +194,7 @@ const CouponsContent = () => {
       <CustomizeCategories
         isOpen={isCustomizeOpen}
         onClose={() => setIsCustomizeOpen(false)}
+        onSave={handleCustomizeSave}
       />
     </div>
   );

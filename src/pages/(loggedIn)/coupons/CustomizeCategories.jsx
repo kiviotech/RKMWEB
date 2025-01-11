@@ -1,12 +1,20 @@
 import React, { useState, useEffect, useRef } from "react";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import "./CustomizeCategories.scss";
-import { fetchFoods } from "../../../../services/src/services/foodService";
+import {
+  fetchFoods,
+  updateFoodById,
+  deleteFoodById,
+} from "../../../../services/src/services/foodService";
 import { createNewFood } from "../../../../services/src/services/foodService";
+import { toast } from "react-toastify";
+
+const CATEGORY_ORDER_KEY = "categoryOrder";
 
 const CustomizeCategories = ({ isOpen, onClose, onSave }) => {
   const [categories, setCategories] = useState([]);
   const [newFields, setNewFields] = useState([]);
+  const [editingCategory, setEditingCategory] = useState(null);
 
   const scrollContainerRef = useRef(null);
   const lastInputRef = useRef(null);
@@ -15,11 +23,40 @@ const CustomizeCategories = ({ isOpen, onClose, onSave }) => {
     const getFoodsData = async () => {
       try {
         const foods = await fetchFoods();
-        const formattedCategories = foods.data.map((food) => ({
-          id: food.id,
-          name: food.attributes.category,
-          type: "input",
-        }));
+        const storedOrder = JSON.parse(
+          localStorage.getItem(CATEGORY_ORDER_KEY) || "[]"
+        );
+
+        // Create a map of all foods
+        const foodsMap = foods.data.reduce((acc, food) => {
+          acc[food.id] = food;
+          return acc;
+        }, {});
+
+        // Order categories based on stored order, putting new categories at the end
+        let formattedCategories = [];
+
+        // First add items that exist in stored order
+        storedOrder.forEach((id) => {
+          if (foodsMap[id]) {
+            formattedCategories.push({
+              id: id,
+              name: foodsMap[id].attributes.category,
+              type: "input",
+            });
+            delete foodsMap[id];
+          }
+        });
+
+        // Then add any remaining items
+        Object.values(foodsMap).forEach((food) => {
+          formattedCategories.push({
+            id: food.id,
+            name: food.attributes.category,
+            type: "input",
+          });
+        });
+
         setCategories(formattedCategories);
       } catch (error) {
         console.error("Error fetching foods:", error);
@@ -39,6 +76,11 @@ const CustomizeCategories = ({ isOpen, onClose, onSave }) => {
     items.splice(result.destination.index, 0, reorderedItem);
 
     setCategories(items);
+    // Store the new order in localStorage
+    localStorage.setItem(
+      CATEGORY_ORDER_KEY,
+      JSON.stringify(items.map((item) => item.id))
+    );
   };
 
   const handleAddField = () => {
@@ -71,17 +113,18 @@ const CustomizeCategories = ({ isOpen, onClose, onSave }) => {
 
   const handleSaveChanges = async () => {
     try {
-      for (const field of newFields) {
-        if (field.name.trim()) {
-          await createNewFood({
-            category: field.name,
-            count: 0,
-            type: field.type,
-            date: new Date().toISOString().split("T")[0],
-          });
-        }
+      const validFields = newFields.filter((field) => field.name.trim());
+
+      for (const field of validFields) {
+        await createNewFood({
+          category: field.name,
+          count: 0,
+          type: field.type,
+          date: new Date().toISOString().split("T")[0],
+        });
       }
 
+      // Refresh categories data
       const foods = await fetchFoods();
       const formattedCategories = foods.data.map((food) => ({
         id: food.id,
@@ -89,15 +132,70 @@ const CustomizeCategories = ({ isOpen, onClose, onSave }) => {
         type: "input",
       }));
       setCategories(formattedCategories);
-      setNewFields([]);
 
       if (onSave) {
-        onSave();
+        await onSave(validFields.length);
       }
 
+      setNewFields([]);
       onClose();
     } catch (error) {
       console.error("Error saving changes:", error);
+    }
+  };
+
+  const handleEdit = (category) => {
+    setEditingCategory(category);
+  };
+
+  const handleEditSave = async (id, newName) => {
+    try {
+      await updateFoodById(id, {
+        data: {
+          category: newName,
+          type: "input",
+          date: new Date().toISOString().split("T")[0],
+        },
+      });
+
+      // Update local categories state
+      setCategories((prevCategories) =>
+        prevCategories.map((cat) =>
+          cat.id === id ? { ...cat, name: newName } : cat
+        )
+      );
+
+      if (onSave) {
+        await onSave(0);
+      }
+
+      setEditingCategory(null);
+      toast.success("Category updated successfully!");
+    } catch (error) {
+      console.error("Error updating category:", error);
+      toast.error("Failed to update category");
+    }
+  };
+
+  const handleDelete = async (id) => {
+    if (window.confirm("Are you sure you want to delete this category?")) {
+      try {
+        await deleteFoodById(id);
+
+        // Update local categories state
+        setCategories((prevCategories) =>
+          prevCategories.filter((cat) => cat.id !== id)
+        );
+
+        if (onSave) {
+          await onSave(0);
+        }
+
+        toast.success("Category deleted successfully!");
+      } catch (error) {
+        console.error("Error deleting category:", error);
+        toast.error("Failed to delete category");
+      }
     }
   };
 
@@ -142,18 +240,53 @@ const CustomizeCategories = ({ isOpen, onClose, onSave }) => {
                           >
                             ⋮⋮
                           </div>
-                          <span
-                            style={{
-                              width: "50%",
-                              padding: "10px",
-                              borderRadius: "5px",
-                              border: "2px solid #eee",
-                              backgroundColor: "#fff",
-                              wordBreak: "break-word",
-                            }}
-                          >
-                            {category.name}
-                          </span>
+                          {editingCategory?.id === category.id ? (
+                            <input
+                              style={{
+                                width: "50%",
+                                padding: "10px",
+                                borderRadius: "5px",
+                                border: "2px solid #eee",
+                                backgroundColor: "#fff",
+                              }}
+                              value={editingCategory.name}
+                              onChange={(e) =>
+                                setEditingCategory({
+                                  ...editingCategory,
+                                  name: e.target.value,
+                                })
+                              }
+                              onBlur={() =>
+                                handleEditSave(
+                                  category.id,
+                                  editingCategory.name
+                                )
+                              }
+                              onKeyPress={(e) => {
+                                if (e.key === "Enter") {
+                                  e.preventDefault(); // Prevent form submission if within a form
+                                  handleEditSave(
+                                    category.id,
+                                    editingCategory.name
+                                  );
+                                }
+                              }}
+                              autoFocus
+                            />
+                          ) : (
+                            <span
+                              style={{
+                                width: "50%",
+                                padding: "10px",
+                                borderRadius: "5px",
+                                border: "2px solid #eee",
+                                backgroundColor: "#fff",
+                                wordBreak: "break-word",
+                              }}
+                            >
+                              {category.name}
+                            </span>
+                          )}
                           <div style={{ width: "37%" }}>
                             <select
                               defaultValue="input"
@@ -175,7 +308,10 @@ const CustomizeCategories = ({ isOpen, onClose, onSave }) => {
                             }}
                             className="actions"
                           >
-                            <button className="edit-btn">
+                            <button
+                              className="edit-btn"
+                              onClick={() => handleEdit(category)}
+                            >
                               <svg
                                 xmlns="http://www.w3.org/2000/svg"
                                 width="16"
@@ -191,7 +327,10 @@ const CustomizeCategories = ({ isOpen, onClose, onSave }) => {
                                 <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z" />
                               </svg>
                             </button>
-                            <button className="delete-btn">
+                            <button
+                              className="delete-btn"
+                              onClick={() => handleDelete(category.id)}
+                            >
                               <svg
                                 xmlns="http://www.w3.org/2000/svg"
                                 width="16"
@@ -233,6 +372,12 @@ const CustomizeCategories = ({ isOpen, onClose, onSave }) => {
                         onChange={(e) =>
                           handleNewFieldChange(field.id, e.target.value)
                         }
+                        onKeyPress={(e) => {
+                          if (e.key === "Enter") {
+                            e.preventDefault();
+                            handleSaveChanges();
+                          }
+                        }}
                       />
                       <div style={{ width: "37%" }}>
                         <select

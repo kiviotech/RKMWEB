@@ -1,7 +1,14 @@
 import React, { useState, useRef, useEffect } from "react";
 import "./CouponsContent.scss";
 import CustomizeCategories from "./CustomizeCategories";
-import { fetchFoods } from "../../../../services/src/services/foodService";
+import {
+  fetchFoods,
+  updateFoodById,
+} from "../../../../services/src/services/foodService";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
+const CATEGORY_ORDER_KEY = "categoryOrder";
 
 const CouponsContent = () => {
   const [total, setTotal] = useState(1440);
@@ -10,6 +17,7 @@ const CouponsContent = () => {
   const [isCustomizeOpen, setIsCustomizeOpen] = useState(false);
   const [foodsData, setFoodsData] = useState([]);
   const [selectedFilters, setSelectedFilters] = useState([]);
+  const [counts, setCounts] = useState({});
 
   const filterRef = useRef(null);
 
@@ -32,6 +40,14 @@ const CouponsContent = () => {
         const foods = await fetchFoods();
         setFoodsData(foods.data);
         setSelectedFilters(foods.data.map((food) => food.id));
+
+        // Initialize counts state with current values
+        const initialCounts = foods.data.reduce((acc, food) => {
+          acc[food.id] = food.attributes.count;
+          return acc;
+        }, {});
+        setCounts(initialCounts);
+
         const initialTotal = foods.data.reduce(
           (acc, food) => acc + food.attributes.count,
           0
@@ -54,13 +70,22 @@ const CouponsContent = () => {
     setShowFilter(!showFilter);
   };
 
-  const calculateTotal = (e) => {
-    const inputs = document.querySelectorAll(".coupon-input");
-    const sum = Array.from(inputs).reduce(
-      (acc, input) => acc + Number(input.value),
-      0
-    );
-    setTotal(sum);
+  const handleCountChange = (foodId, value) => {
+    const newValue = parseInt(value) || 0;
+    setCounts((prev) => {
+      const newCounts = {
+        ...prev,
+        [foodId]: newValue,
+      };
+
+      // Calculate new total using the updated counts
+      const newTotal = Object.entries(newCounts)
+        .filter(([id]) => selectedFilters.includes(parseInt(id)))
+        .reduce((acc, [, count]) => acc + count, 0);
+
+      setTotal(newTotal);
+      return newCounts;
+    });
   };
 
   const handleFilterChange = (foodId) => {
@@ -75,7 +100,35 @@ const CouponsContent = () => {
 
   const getFilteredData = () => {
     if (selectedFilters.length === 0) return [];
-    return foodsData.filter((food) => selectedFilters.includes(food.id));
+
+    const storedOrder = JSON.parse(
+      localStorage.getItem(CATEGORY_ORDER_KEY) || "[]"
+    );
+    const filteredData = foodsData.filter((food) =>
+      selectedFilters.includes(food.id)
+    );
+
+    // Create a map for quick lookup
+    const dataMap = filteredData.reduce((acc, item) => {
+      acc[item.id] = item;
+      return acc;
+    }, {});
+
+    // Order the data based on stored order
+    let orderedData = [];
+
+    // First add items that exist in stored order
+    storedOrder.forEach((id) => {
+      if (dataMap[id] && selectedFilters.includes(id)) {
+        orderedData.push(dataMap[id]);
+        delete dataMap[id];
+      }
+    });
+
+    // Then add any remaining items
+    orderedData = [...orderedData, ...Object.values(dataMap)];
+
+    return orderedData;
   };
 
   const handleSelectAll = (isSelected) => {
@@ -86,13 +139,66 @@ const CouponsContent = () => {
     }
   };
 
-  const handleCustomizeSave = async () => {
+  const handleCustomizeSave = async (categoriesCount) => {
     try {
       const foods = await fetchFoods();
       setFoodsData(foods.data);
       setSelectedFilters(foods.data.map((food) => food.id));
+
+      // Show success message with the number of categories created
+      if (categoriesCount > 0) {
+        toast.success(
+          `Successfully created ${categoriesCount} new ${
+            categoriesCount === 1 ? "category" : "categories"
+          }!`,
+          {
+            position: "top-right",
+            autoClose: 3000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+          }
+        );
+      }
     } catch (error) {
       console.error("Error refreshing foods data:", error);
+      toast.error("Failed to update categories. Please try again.", {
+        position: "top-right",
+        autoClose: 3000,
+      });
+    }
+  };
+
+  const handleUpdate = async () => {
+    try {
+      // Create an array of update promises
+      const updatePromises = Object.entries(counts).map(([foodId, count]) => {
+        return updateFoodById(foodId, {
+          data: {
+            count: count,
+          },
+        });
+      });
+
+      // Wait for all updates to complete
+      await Promise.all(updatePromises);
+
+      // Show success toast
+      toast.success("Categories updated successfully!", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
+    } catch (error) {
+      console.error("Error updating counts:", error);
+      toast.error("Failed to update categories. Please try again.", {
+        position: "top-right",
+        autoClose: 3000,
+      });
     }
   };
 
@@ -122,7 +228,7 @@ const CouponsContent = () => {
         <div>
           <button
             className="update-button"
-            onClick={() => console.log("Update clicked")}
+            onClick={handleUpdate}
             style={{ display: "flex", alignItems: "center", gap: "8px" }}
           >
             <svg
@@ -151,21 +257,26 @@ const CouponsContent = () => {
             position: "absolute",
             top: `${filterPosition.top}px`,
             left: `${filterPosition.left}px`,
+            maxHeight: "300px",
+            display: "flex",
+            flexDirection: "column",
           }}
         >
-          {foodsData.map((food) => (
-            <div className="filter-item" key={food.id}>
-              <input
-                type="checkbox"
-                id={`filter-${food.id}`}
-                checked={selectedFilters.includes(food.id)}
-                onChange={() => handleFilterChange(food.id)}
-              />
-              <label htmlFor={`filter-${food.id}`}>
-                {food.attributes.category}
-              </label>
-            </div>
-          ))}
+          <div style={{ overflowY: "auto", flex: 1 }}>
+            {getFilteredData().map((food) => (
+              <div className="filter-item" key={food.id}>
+                <input
+                  type="checkbox"
+                  id={`filter-${food.id}`}
+                  checked={selectedFilters.includes(food.id)}
+                  onChange={() => handleFilterChange(food.id)}
+                />
+                <label htmlFor={`filter-${food.id}`}>
+                  {food.attributes.category}
+                </label>
+              </div>
+            ))}
+          </div>
           <button
             className="customize-button"
             onClick={() => setIsCustomizeOpen(true)}
@@ -181,8 +292,9 @@ const CouponsContent = () => {
           <input
             type="number"
             className="coupon-input"
-            value={food.attributes.count}
-            onChange={calculateTotal}
+            value={counts[food.id] || 0}
+            onChange={(e) => handleCountChange(food.id, e.target.value)}
+            min="0"
           />
         </div>
       ))}

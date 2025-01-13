@@ -132,4 +132,9 @@
   &:hover {
     background-color: #d66c03;
   }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
 }

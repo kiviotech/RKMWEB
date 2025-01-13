@@ -7,6 +7,12 @@ import {
 } from "../../../../services/src/services/foodService";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import useCouponStore from "../../../../useCouponStore";
+import {
+  createNewCoupon,
+  fetchCoupons,
+  updateCouponById,
+} from "../../../../services/src/services/couponService";
 
 const CATEGORY_ORDER_KEY = "categoryOrder";
 
@@ -18,6 +24,7 @@ const CouponsContent = () => {
   const [foodsData, setFoodsData] = useState([]);
   const [selectedFilters, setSelectedFilters] = useState([]);
   const [counts, setCounts] = useState({});
+  const { selectedDate } = useCouponStore();
 
   const filterRef = useRef(null);
 
@@ -38,17 +45,21 @@ const CouponsContent = () => {
     const getFoodsData = async () => {
       try {
         const foods = await fetchFoods();
-        setFoodsData(foods.data);
-        setSelectedFilters(foods.data.map((food) => food.id));
+        const filteredFoods = foods.data.filter(
+          (food) => food.attributes.date === selectedDate
+        );
+
+        setFoodsData(filteredFoods);
+        setSelectedFilters(filteredFoods.map((food) => food.id));
 
         // Initialize counts state with current values
-        const initialCounts = foods.data.reduce((acc, food) => {
+        const initialCounts = filteredFoods.reduce((acc, food) => {
           acc[food.id] = food.attributes.count;
           return acc;
         }, {});
         setCounts(initialCounts);
 
-        const initialTotal = foods.data.reduce(
+        const initialTotal = filteredFoods.reduce(
           (acc, food) => acc + food.attributes.count,
           0
         );
@@ -59,7 +70,24 @@ const CouponsContent = () => {
     };
 
     getFoodsData();
-  }, []);
+  }, [selectedDate]);
+
+  useEffect(() => {
+    const getCouponsData = async () => {
+      try {
+        const couponsResponse = await fetchCoupons();
+        const filteredCoupon = couponsResponse.data.find(
+          (coupon) => coupon.attributes.date === selectedDate
+        );
+        console.log("All Coupons:", couponsResponse.data);
+        console.log("Filtered Coupon for selected date:", filteredCoupon);
+      } catch (error) {
+        console.error("Error fetching coupons:", error);
+      }
+    };
+
+    getCouponsData();
+  }, [selectedDate]);
 
   const handleFilterClick = (e) => {
     const buttonRect = e.currentTarget.getBoundingClientRect();
@@ -172,7 +200,7 @@ const CouponsContent = () => {
 
   const handleUpdate = async () => {
     try {
-      // Create an array of update promises
+      // First update all food counts
       const updatePromises = Object.entries(counts).map(([foodId, count]) => {
         return updateFoodById(foodId, {
           data: {
@@ -181,11 +209,32 @@ const CouponsContent = () => {
         });
       });
 
-      // Wait for all updates to complete
       await Promise.all(updatePromises);
 
+      // Fetch all coupons and filter by date
+      const couponsResponse = await fetchCoupons();
+      const existingCoupon = couponsResponse.data.find(
+        (coupon) => coupon.attributes.date === selectedDate
+      );
+
+      if (existingCoupon) {
+        // Update existing coupon
+        await updateCouponById(existingCoupon.id, {
+          data: {
+            total: total,
+            date: selectedDate,
+          },
+        });
+      } else {
+        // Create new coupon if none exists
+        await createNewCoupon({
+          total: total,
+          date: selectedDate,
+        });
+      }
+
       // Show success toast
-      toast.success("Categories updated successfully!", {
+      toast.success("Categories and coupon updated successfully!", {
         position: "top-right",
         autoClose: 3000,
         hideProgressBar: false,
@@ -194,8 +243,8 @@ const CouponsContent = () => {
         draggable: true,
       });
     } catch (error) {
-      console.error("Error updating counts:", error);
-      toast.error("Failed to update categories. Please try again.", {
+      console.error("Error updating:", error);
+      toast.error("Failed to update. Please try again.", {
         position: "top-right",
         autoClose: 3000,
       });
@@ -229,7 +278,14 @@ const CouponsContent = () => {
           <button
             className="update-button"
             onClick={handleUpdate}
-            style={{ display: "flex", alignItems: "center", gap: "8px" }}
+            disabled={foodsData.length === 0}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "8px",
+              opacity: foodsData.length === 0 ? "0.5" : "1",
+              cursor: foodsData.length === 0 ? "not-allowed" : "pointer",
+            }}
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"

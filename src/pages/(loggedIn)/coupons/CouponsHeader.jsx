@@ -1,7 +1,10 @@
 import React from "react";
 import "./CouponsHeader.scss";
+import useCouponStore from "../../../../useCouponStore";
 
 const CouponsHeader = () => {
+  const { selectedDate, setSelectedDate } = useCouponStore();
+
   return (
     <div className="coupons-header">
       {/* Date Container */}
@@ -9,10 +12,9 @@ const CouponsHeader = () => {
         <input
           type="date"
           className="coupons-header__date"
-          defaultValue={new Date().toISOString().split("T")[0]}
+          value={selectedDate}
           onChange={(e) => {
-            const date = new Date(e.target.value);
-            // Handle date change if needed
+            setSelectedDate(e.target.value);
           }}
         />
       </div>

@@ -8,6 +8,7 @@ import {
 } from "../../../../services/src/services/foodService";
 import { createNewFood } from "../../../../services/src/services/foodService";
 import { toast } from "react-toastify";
+import useCouponStore from "../../../../useCouponStore";
 
 const CATEGORY_ORDER_KEY = "categoryOrder";
 
@@ -19,21 +20,26 @@ const CustomizeCategories = ({ isOpen, onClose, onSave }) => {
   const scrollContainerRef = useRef(null);
   const lastInputRef = useRef(null);
 
+  const { selectedDate } = useCouponStore();
+
   useEffect(() => {
     const getFoodsData = async () => {
       try {
         const foods = await fetchFoods();
+        const filteredFoods = foods.data.filter(
+          (food) => food.attributes.date === selectedDate
+        );
+
         const storedOrder = JSON.parse(
           localStorage.getItem(CATEGORY_ORDER_KEY) || "[]"
         );
 
-        // Create a map of all foods
-        const foodsMap = foods.data.reduce((acc, food) => {
+        // Create a map of filtered foods
+        const foodsMap = filteredFoods.reduce((acc, food) => {
           acc[food.id] = food;
           return acc;
         }, {});
 
-        // Order categories based on stored order, putting new categories at the end
         let formattedCategories = [];
 
         // First add items that exist in stored order
@@ -66,7 +72,7 @@ const CustomizeCategories = ({ isOpen, onClose, onSave }) => {
     if (isOpen) {
       getFoodsData();
     }
-  }, [isOpen]);
+  }, [isOpen, selectedDate]);
 
   const handleDragEnd = (result) => {
     if (!result.destination) return;
@@ -120,7 +126,7 @@ const CustomizeCategories = ({ isOpen, onClose, onSave }) => {
           category: field.name,
           count: 0,
           type: field.type,
-          date: new Date().toISOString().split("T")[0],
+          date: selectedDate,
         });
       }
 
@@ -154,7 +160,7 @@ const CustomizeCategories = ({ isOpen, onClose, onSave }) => {
         data: {
           category: newName,
           type: "input",
-          date: new Date().toISOString().split("T")[0],
+          date: selectedDate,
         },
       });
 

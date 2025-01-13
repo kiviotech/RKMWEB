@@ -171,8 +171,12 @@ const CouponsContent = () => {
   const handleCustomizeSave = async (categoriesCount) => {
     try {
       const foods = await fetchFoods();
-      setFoodsData(foods.data);
-      setSelectedFilters(foods.data.map((food) => food.id));
+      // Filter foods based on selected date
+      const filteredFoods = foods.data.filter(
+        (food) => food.attributes.date === selectedDate
+      );
+      setFoodsData(filteredFoods);
+      setSelectedFilters(filteredFoods.map((food) => food.id));
 
       // Show success message with the number of categories created
       if (categoriesCount > 0) {

@@ -99,7 +99,8 @@ const CouponsContent = () => {
   };
 
   const handleCountChange = (foodId, value) => {
-    const newValue = parseInt(value) || 0;
+    // Only allow positive numbers
+    const newValue = Math.max(0, parseInt(value) || 0);
     setCounts((prev) => {
       const newCounts = {
         ...prev,
@@ -352,6 +353,12 @@ const CouponsContent = () => {
             className="coupon-input"
             value={counts[food.id] || 0}
             onChange={(e) => handleCountChange(food.id, e.target.value)}
+            onKeyDown={(e) => {
+              // Prevent minus, plus, and 'e' keys
+              if (e.key === "-" || e.key === "+" || e.key === "e") {
+                e.preventDefault();
+              }
+            }}
             min="0"
           />
         </div>

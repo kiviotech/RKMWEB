@@ -2,6 +2,8 @@ import React from "react";
 import "./CouponsSection.scss";
 
 const CouponsSection = () => {
+  const [specialCouponValue, setSpecialCouponValue] = React.useState(126);
+
   const stats = [
     {
       title: "Daily Coupon",
@@ -9,9 +11,22 @@ const CouponsSection = () => {
       total: "1440",
       color: "#0EC378",
     },
-    { title: "Special Coupon", value: "126", color: "#007AFF" },
+    {
+      title: "Special Coupon",
+      value: specialCouponValue,
+      color: "#007AFF",
+      hasControls: true,
+    },
     { title: "Total Coupons", value: "1566", color: "#65C466" },
   ];
+
+  const handleIncrement = () => {
+    setSpecialCouponValue((prev) => prev + 1);
+  };
+
+  const handleDecrement = () => {
+    setSpecialCouponValue((prev) => (prev > 0 ? prev - 1 : 0));
+  };
 
   return (
     <div className="stats-container">
@@ -36,9 +51,17 @@ const CouponsSection = () => {
               </div>
             </div>
           ) : (
-            <p className="stat-value" style={{ color: stat.color }}>
-              {stat.value}
-            </p>
+            <div className="stat-value-container">
+              <p className="stat-value" style={{ color: stat.color }}>
+                {stat.value}
+              </p>
+              {stat.hasControls && (
+                <div className="value-controls">
+                  <button onClick={handleIncrement}>▲</button>
+                  <button onClick={handleDecrement}>▼</button>
+                </div>
+              )}
+            </div>
           )}
         </div>
       ))}

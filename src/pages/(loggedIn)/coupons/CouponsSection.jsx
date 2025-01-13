@@ -15,7 +15,7 @@ const CouponsSection = () => {
     special_coupon: 0,
     id: null, // Add id to track the current coupon
   });
-  const { selectedDate } = useCouponStore();
+  const { selectedDate, refreshTrigger } = useCouponStore();
 
   useEffect(() => {
     const getCouponsData = async () => {
@@ -49,7 +49,7 @@ const CouponsSection = () => {
     };
 
     getCouponsData();
-  }, [selectedDate]);
+  }, [selectedDate, refreshTrigger]);
 
   const updateSpecialCoupon = async (newValue) => {
     try {

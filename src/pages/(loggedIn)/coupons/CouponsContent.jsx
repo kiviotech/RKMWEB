@@ -24,7 +24,7 @@ const CouponsContent = () => {
   const [foodsData, setFoodsData] = useState([]);
   const [selectedFilters, setSelectedFilters] = useState([]);
   const [counts, setCounts] = useState({});
-  const { selectedDate } = useCouponStore();
+  const { selectedDate, triggerRefresh } = useCouponStore();
 
   const filterRef = useRef(null);
 
@@ -233,7 +233,9 @@ const CouponsContent = () => {
         });
       }
 
-      // Show success toast
+      // After successful update
+      triggerRefresh();
+
       toast.success("Categories and coupon updated successfully!", {
         position: "top-right",
         autoClose: 3000,

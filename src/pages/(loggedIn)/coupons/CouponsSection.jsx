@@ -107,17 +107,20 @@ const CouponsSection = () => {
       running: couponData.running.toString(),
       total: couponData.total.toString(),
       color: "#0EC378",
+      width: "medium",
     },
     {
       title: "Special Coupon",
       value: specialCouponValue,
       color: "#007AFF",
       hasControls: true,
+      width: "medium",
     },
     {
       title: "Total Coupons",
       value: (couponData.total + specialCouponValue).toString(),
       color: "#65C466",
+      width: "large",
     },
   ];
 
@@ -126,7 +129,7 @@ const CouponsSection = () => {
       {stats.map((stat, index) => (
         <div
           key={index}
-          className="stat-card"
+          className={`stat-card ${stat.width}-card`}
           style={{ borderColor: stat.color }}
         >
           <h3 className="stat-title">{stat.title}</h3>

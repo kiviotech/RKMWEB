@@ -16,6 +16,7 @@ const CouponsHeader = () => {
           onChange={(e) => {
             setSelectedDate(e.target.value);
           }}
+          style={{ padding: "8px 12px", fontSize: "24px" }}
         />
       </div>
 

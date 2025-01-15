@@ -3,6 +3,9 @@
   gap: 20px;
   flex-wrap: wrap;
   padding: 20px;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
 
   .stat-card {
     background: white;
@@ -13,6 +16,23 @@
     border: 1px solid;
     flex: 1;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+    &.large-card {
+      flex: 3;
+      height: 200px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+
+      .stat-title {
+        font-size: 20px;
+      }
+
+      .stat-value {
+        font-size: 40px;
+      }
+    }
 
     .stat-title {
       font-size: 16px;
@@ -26,6 +46,18 @@
       font-size: 32px;
       font-weight: bold;
       margin: 0;
+    }
+
+    &.large-card {
+      flex: 3;
+    }
+
+    &.medium-card {
+      flex: 2;
+    }
+
+    &.small-card {
+      flex: 1;
     }
   }
 }

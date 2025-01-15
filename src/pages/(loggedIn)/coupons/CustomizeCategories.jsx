@@ -7,7 +7,8 @@ import {
   deleteFoodById,
 } from "../../../../services/src/services/foodService";
 import { createNewFood } from "../../../../services/src/services/foodService";
-import { toast } from "react-toastify";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import useCouponStore from "../../../../useCouponStore";
 
 const CATEGORY_ORDER_KEY = "categoryOrder";
@@ -207,6 +208,17 @@ const CustomizeCategories = ({ isOpen, onClose, onSave }) => {
 
   return (
     <div className={`customize-modal ${isOpen ? "open" : ""}`}>
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+      />
       <div className="customize-content">
         <h2>Customize Categories</h2>
 

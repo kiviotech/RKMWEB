@@ -89,6 +89,14 @@ const CouponsContent = () => {
     getCouponsData();
   }, [selectedDate]);
 
+  // Add cleanup effect
+  useEffect(() => {
+    return () => {
+      // Clear all toasts when component unmounts
+      toast.dismiss();
+    };
+  }, []);
+
   const handleFilterClick = (e) => {
     const buttonRect = e.currentTarget.getBoundingClientRect();
     setFilterPosition({
@@ -241,6 +249,7 @@ const CouponsContent = () => {
       // After successful update
       triggerRefresh();
 
+      // Add a callback to clear the toast when navigating away
       toast.success("Categories and coupon updated successfully!", {
         position: "top-right",
         autoClose: 3000,
@@ -248,12 +257,14 @@ const CouponsContent = () => {
         closeOnClick: true,
         pauseOnHover: true,
         draggable: true,
+        onClose: () => toast.dismiss(),
       });
     } catch (error) {
       console.error("Error updating:", error);
       toast.error("Failed to update. Please try again.", {
         position: "top-right",
         autoClose: 3000,
+        onClose: () => toast.dismiss(),
       });
     }
   };

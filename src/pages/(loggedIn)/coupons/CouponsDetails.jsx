@@ -199,7 +199,7 @@ const CouponsDetails = () => {
             <div class="prasada-coupon">
               <div class="prasada-coupon__header">
                 <div class="prasada-coupon__header-content">
-                  <img src="https://kamarpukur.rkmm.org/Logo%201-2.png" alt="Mission Logo" class="prasada-coupon__logo" />
+                  <img src="https://kamarpukur.rkmm.org/Logo%201-2.png" alt="Logo" class="prasada-coupon__logo" />
                   <h2 class="prasada-coupon__title">
                     Ramakrishna Math & Ramakrishna Mission, Kamarpukur
                   </h2>
@@ -415,7 +415,7 @@ const CouponsDetails = () => {
           <div class="prasada-coupon">
             <div class="prasada-coupon__header">
               <div class="prasada-coupon__header-content">
-                <img src="https://kamarpukur.rkmm.org/Logo%201-2.png" alt="Mission Logo" class="prasada-coupon__logo" />
+                <img src="https://kamarpukur.rkmm.org/Logo%201-2.png" alt="Logo" class="prasada-coupon__logo" />
                 <h2 class="prasada-coupon__title">
                   Ramakrishna Math & Ramakrishna Mission, Kamarpukur
                 </h2>

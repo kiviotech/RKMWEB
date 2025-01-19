@@ -60,3 +60,40 @@ export const deleteCouponById = async (id) => {
     throw error;
   }
 };
+
+// Update coupon amount collected
+export const updateCouponAmountCollected = async (date, amount) => {
+  try {
+    // First fetch the coupon for the given date
+    const response = await getCoupons();
+    const coupons = response.data.data;
+
+    const coupon = coupons.find(
+      (c) =>
+        new Date(c.attributes.date).toISOString().split("T")[0] ===
+        new Date(date).toISOString().split("T")[0]
+    );
+
+    if (coupon) {
+      // Update both total amount and running count
+      const currentAmount = parseFloat(
+        coupon.attributes.total_amount_collected || 0
+      );
+      const currentRunning = parseFloat(coupon.attributes.running || 0);
+      const newTotal = (currentAmount + parseFloat(amount)).toString();
+      const newRunning = (currentRunning + 1).toString();
+
+      const response = await updateCoupon(coupon.id, {
+        data: {
+          total_amount_collected: newTotal,
+          running: newRunning,
+        },
+      });
+      return response.data;
+    }
+    throw new Error("No coupon found for the given date");
+  } catch (error) {
+    console.error("Error updating coupon amount:", error);
+    throw error;
+  }
+};

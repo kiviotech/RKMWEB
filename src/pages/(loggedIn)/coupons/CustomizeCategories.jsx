@@ -7,9 +7,12 @@ import {
   deleteFoodById,
 } from "../../../../services/src/services/foodService";
 import { createNewFood } from "../../../../services/src/services/foodService";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import { toast } from "react-toastify";
 import useCouponStore from "../../../../useCouponStore";
+import {
+  fetchCoupons,
+  updateCouponById,
+} from "../../../../services/src/services/couponService";
 
 const CATEGORY_ORDER_KEY = "categoryOrder";
 
@@ -21,7 +24,7 @@ const CustomizeCategories = ({ isOpen, onClose, onSave }) => {
   const scrollContainerRef = useRef(null);
   const lastInputRef = useRef(null);
 
-  const { selectedDate } = useCouponStore();
+  const { selectedDate, triggerRefresh } = useCouponStore();
 
   useEffect(() => {
     const getFoodsData = async () => {
@@ -187,12 +190,40 @@ const CustomizeCategories = ({ isOpen, onClose, onSave }) => {
   const handleDelete = async (id) => {
     if (window.confirm("Are you sure you want to delete this category?")) {
       try {
+        // First fetch the food item to get its count
+        const foods = await fetchFoods();
+        const foodToDelete = foods.data.find((food) => food.id === id);
+        const foodCount = foodToDelete?.attributes?.count || 0;
+
+        // Delete the food
         await deleteFoodById(id);
+
+        // Update coupon total by subtracting the food count
+        const coupons = await fetchCoupons();
+        const currentCoupon = coupons.data.find(
+          (coupon) => coupon.attributes.date === selectedDate
+        );
+
+        if (currentCoupon) {
+          await updateCouponById(currentCoupon.id, {
+            data: {
+              ...currentCoupon.attributes,
+              total: Math.max(0, currentCoupon.attributes.total - foodCount),
+              running: Math.max(
+                0,
+                currentCoupon.attributes.running - foodCount
+              ),
+            },
+          });
+        }
 
         // Update local categories state
         setCategories((prevCategories) =>
           prevCategories.filter((cat) => cat.id !== id)
         );
+
+        // Trigger refresh of CouponsSection
+        triggerRefresh();
 
         if (onSave) {
           await onSave(0);
@@ -208,17 +239,6 @@ const CustomizeCategories = ({ isOpen, onClose, onSave }) => {
 
   return (
     <div className={`customize-modal ${isOpen ? "open" : ""}`}>
-      <ToastContainer
-        position="top-right"
-        autoClose={3000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-      />
       <div className="customize-content">
         <h2>Customize Categories</h2>
 

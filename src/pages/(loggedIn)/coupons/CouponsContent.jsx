@@ -17,7 +17,7 @@ import {
 const CATEGORY_ORDER_KEY = "categoryOrder";
 
 const CouponsContent = () => {
-  const [total, setTotal] = useState(1440);
+  const [total, setTotal] = useState(0);
   const [showFilter, setShowFilter] = useState(false);
   const [filterPosition, setFilterPosition] = useState({ top: 0, left: 0 });
   const [isCustomizeOpen, setIsCustomizeOpen] = useState(false);

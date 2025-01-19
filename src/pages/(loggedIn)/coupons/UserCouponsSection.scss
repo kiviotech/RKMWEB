@@ -1,0 +1,104 @@
+.stats-container {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  padding: 20px;
+}
+
+.stat-card {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border: 2px solid;
+
+  &.medium-card {
+    flex: 1;
+    min-width: 250px;
+  }
+
+  &.large-card {
+    flex: 2;
+    min-width: 300px;
+  }
+}
+
+.stat-title {
+  font-size: 1rem;
+  color: #666;
+  margin-bottom: 15px;
+}
+
+.stat-value-container {
+  .amount-display {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .currency {
+    color: #0ec378;
+    font-size: 24px;
+    font-weight: bold;
+  }
+
+  .amount {
+    color: #0ec378;
+    font-size: 32px;
+    font-weight: bold;
+  }
+}
+
+.split-stats {
+  display: flex;
+  flex-direction: column;
+  border-radius: 16px;
+}
+
+.stat-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  .stat-label,
+  .stat-number {
+    font-weight: bold;
+  }
+
+  .stat-label {
+    font-size: 20px;
+  }
+
+  .stat-number {
+    font-size: 28px;
+  }
+}
+
+.split-labels,
+.split-value {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  align-items: center;
+}
+
+.split-labels {
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.split-value {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.separator {
+  color: #666;
+}
+
+.issued-value,
+.remaining-value {
+  min-width: 60px;
+  text-align: center;
+}

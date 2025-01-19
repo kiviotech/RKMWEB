@@ -42,6 +42,7 @@ import WelcomePage from "../pages/applicationForm/WelcomePage";
 import Coupons from "../pages/(loggedIn)/coupons/Coupons";
 
 import ConsentLetter from "../pages/(loggedIn)/donation/ConsentLetter";
+import UserCoupons from "../pages/(loggedIn)/coupons/UserCoupons";
 
 const AppRoutes = () => {
   return (
@@ -78,6 +79,14 @@ const AppRoutes = () => {
           element={
             <SuperAdminRoute>
               <Coupons />
+            </SuperAdminRoute>
+          }
+        />
+        <Route
+          path="/user-coupons"
+          element={
+            <SuperAdminRoute>
+              <UserCoupons />
             </SuperAdminRoute>
           }
         />

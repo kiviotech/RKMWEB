@@ -62,7 +62,11 @@ export const deleteCouponById = async (id) => {
 };
 
 // Update coupon amount collected
-export const updateCouponAmountCollected = async (date, amount) => {
+export const updateCouponAmountCollected = async (
+  date,
+  amount,
+  noOfCoupons
+) => {
   try {
     // First fetch the coupon for the given date
     const response = await getCoupons();
@@ -75,13 +79,13 @@ export const updateCouponAmountCollected = async (date, amount) => {
     );
 
     if (coupon) {
-      // Update both total amount and running count
+      // Update total amount and set running count to noOfCoupons
       const currentAmount = parseFloat(
         coupon.attributes.total_amount_collected || 0
       );
       const currentRunning = parseFloat(coupon.attributes.running || 0);
       const newTotal = (currentAmount + parseFloat(amount)).toString();
-      const newRunning = (currentRunning + 1).toString();
+      const newRunning = (currentRunning + parseInt(noOfCoupons)).toString();
 
       const response = await updateCoupon(coupon.id, {
         data: {

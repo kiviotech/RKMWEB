@@ -4,6 +4,7 @@ import PrintableCoupon from "./PrintableCoupon";
 import { createNewCouponUser } from "../../../../services/src/services/couponUserService";
 import { toast } from "react-toastify";
 import { updateCouponAmountCollected } from "../../../../services/src/services/couponService";
+import useCouponStore from "../../../../useCouponStore";
 
 const CouponsDetails = () => {
   const COUPON_PRICE = 40;
@@ -25,6 +26,8 @@ const CouponsDetails = () => {
   });
 
   const couponNumbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+
+  const { setRefreshTrigger } = useCouponStore();
 
   const calculateBalance = () => {
     const amount = parseFloat(formData.amount) || 0;
@@ -319,9 +322,10 @@ const CouponsDetails = () => {
       // Print the iframe content
       printFrame.contentWindow.print();
 
-      // Remove the iframe after printing
+      // Refresh UserCouponsSection after printing
       printFrame.contentWindow.onafterprint = () => {
         document.body.removeChild(printFrame);
+        setRefreshTrigger((prev) => prev + 1);
       };
     } catch (error) {
       console.error("Error saving coupon data:", error);
@@ -519,9 +523,10 @@ const CouponsDetails = () => {
       // Print the iframe content
       printFrame.contentWindow.print();
 
-      // Remove the iframe after printing
+      // Refresh UserCouponsSection after printing
       printFrame.contentWindow.onafterprint = () => {
         document.body.removeChild(printFrame);
+        setRefreshTrigger((prev) => prev + 1);
       };
     } catch (error) {
       console.error("Error saving coupon data:", error);

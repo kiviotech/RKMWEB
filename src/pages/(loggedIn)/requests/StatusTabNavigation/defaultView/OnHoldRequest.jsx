@@ -4,7 +4,10 @@ import CommonButton from "../../../../../components/ui/Button";
 import PopUpFlagGuest from "../../../../../components/ui/PopUpFlagGuest";
 import GuestDetailsPopup from "../../../../../components/ui/GuestDetailsPopup/GuestDetailsPopup";
 import { useNavigate } from "react-router-dom";
-import { getBookingRequestsByStatus, updateBookingRequest } from "../../../../../../services/src/api/repositories/bookingRequestRepository"; // Ensure updateBookingRequest is imported
+import {
+  getBookingRequestsByStatus,
+  updateBookingRequest,
+} from "../../../../../../services/src/api/repositories/bookingRequestRepository"; // Ensure updateBookingRequest is imported
 import { getToken } from "../../../../../../services/src/utils/storage"; // Ensure this utility fetches your token
 
 const OnHoldRequest = ({ selectedDate, label }) => {
@@ -22,59 +25,61 @@ const OnHoldRequest = ({ selectedDate, label }) => {
   useEffect(() => {
     const fetchBookingRequests = async () => {
       try {
-        const data = await getBookingRequestsByStatus('on_hold');
+        const data = await getBookingRequestsByStatus("on_hold");
         const bookingData = data?.data?.data;
 
         if (bookingData) {
           const onHoldRequests = bookingData.map((item) => ({
-              id: item.id,
-              userImage: item.attributes.userImage || "",
-              createdAt: new Date(item.attributes.createdAt),
-              userDetails: {
-                name: item.attributes.name,
-                age: item.attributes.age,
-                gender: item.attributes.gender,
-                email: item.attributes.email,
-                addharNo: item.attributes.aadhaar_number,
-                mobile: item.attributes.phone_number,
-                arrivalDate: item.attributes.arrival_date,
-                departureDate: item.attributes.departure_date,
-                occupation: item.attributes.occupation,
-                deeksha: item.attributes.deeksha,
+            id: item.id,
+            userImage: item.attributes.userImage || "",
+            createdAt: new Date(item.attributes.createdAt),
+            userDetails: {
+              name: item.attributes.name,
+              age: item.attributes.age,
+              gender: item.attributes.gender,
+              email: item.attributes.email,
+              addharNo: item.attributes.aadhaar_number,
+              mobile: item.attributes.phone_number,
+              arrivalDate: item.attributes.arrival_date,
+              departureDate: item.attributes.departure_date,
+              occupation: item.attributes.occupation,
+              deeksha: item.attributes.deeksha,
+            },
+            assignBed: item.attributes.assignBed || "N/A",
+            noOfGuest: item.attributes.number_of_guest_members || "0",
+            isMarked: item.attributes.isMarked || false,
+            approved: item.attributes.approved || false,
+            icons: [
+              {
+                id: 1,
+                normal: icons.crossCircle,
+                filled: icons.filledRedCircle,
+                isActive: false,
               },
-              assignBed: item.attributes.assignBed || "N/A",
-              noOfGuest: item.attributes.number_of_guest_members || "0",
-              isMarked: item.attributes.isMarked || false,
-              approved: item.attributes.approved || false,
-              icons: [
-                {
-                  id: 1,
-                  normal: icons.crossCircle,
-                  filled: icons.filledRedCircle,
-                  isActive: false,
-                },
-                {
-                  id: 2,
-                  normal: icons.marked,
-                  filled: icons.markedYellow,
-                  isActive: true, // Since status is "on_hold"
-                },
-                {
-                  id: 3,
-                  normal: icons.checkCircle,
-                  filled: icons.checkCircleMarked,
-                  isActive: false,
-                },
-              ],
-              reason: item.attributes.reason || "No History",
-              guests: item.attributes.guests.data.map((guest) => ({
-                id: guest.id,
-                name: guest.attributes.name,
-                age: guest.attributes.age,
-                gender: guest.attributes.gender,
-                relation: guest.attributes.relationship,
-              })),
-            }));
+              {
+                id: 2,
+                normal: icons.marked,
+                filled: icons.markedYellow,
+                isActive: true, // Since status is "on_hold"
+              },
+              {
+                id: 3,
+                normal: icons.checkCircle,
+                filled: icons.checkCircleMarked,
+                isActive: false,
+              },
+            ],
+            reason: item.attributes.reason || "No History",
+            guests: item.attributes.guests.data.map((guest) => ({
+              id: guest.id,
+              name: guest.attributes.name,
+              age: guest.attributes.age,
+              gender: guest.attributes.gender,
+              relation: guest.attributes.relationship,
+              room: guest.attributes.room,
+            })),
+            recommendation_letter: item.attributes.recommendation_letter,
+          }));
 
           setRequests(onHoldRequests);
           setFilteredRequests(onHoldRequests); // Initialize filtered requests
@@ -136,8 +141,8 @@ const OnHoldRequest = ({ selectedDate, label }) => {
                 icons: request.icons.map((icon) => {
                   if (icon.id === 3 && newStatus === "approved") {
                     return { ...icon, isActive: true }; // Activate the check icon for approved
-                  // } else if (icon.id === 2 && newStatus === "on_hold") {
-                  //   return { ...icon, isActive: true }; // Activate the warning icon for on_hold
+                    // } else if (icon.id === 2 && newStatus === "on_hold") {
+                    //   return { ...icon, isActive: true }; // Activate the warning icon for on_hold
                   } else if (icon.id === 1 && newStatus === "rejected") {
                     return { ...icon, isActive: true }; // Activate the cross icon for rejected
                   } else {
@@ -198,9 +203,29 @@ const OnHoldRequest = ({ selectedDate, label }) => {
           <div
             key={request.id}
             className="requests-card"
-            style={{ borderColor: getCardBorderColor(request.icons) }}
+            style={{
+              borderColor: getCardBorderColor(request.icons),
+              position: "relative",
+            }}
             onClick={() => handleCardClick(request)}
           >
+            {request.recommendation_letter?.data?.length > 0 && (
+              <span
+                style={{
+                  backgroundColor: "#FFD700",
+                  color: "#000",
+                  padding: "2px 8px",
+                  borderRadius: "4px",
+                  fontSize: "12px",
+                  position: "absolute",
+                  top: "17px",
+                  right: "20px",
+                  zIndex: 1,
+                }}
+              >
+                Special Request
+              </span>
+            )}
             <div className="actions-button">
               {request.icons.map((icon) => (
                 <img
@@ -220,7 +245,7 @@ const OnHoldRequest = ({ selectedDate, label }) => {
             </div>
             <div className="request-details">
               <div className="request-user-image">
-                <img src={icons.userDummyImage} alt="user-image" />
+                {/* <img src={icons.userDummyImage} alt="user-image" /> */}
                 <p>{request.userDetails.name}</p>
               </div>
               <div className="reasons">
@@ -228,7 +253,7 @@ const OnHoldRequest = ({ selectedDate, label }) => {
                   <p style={{ color: getCardBorderColor(request.icons) }}>
                     {request.reason}
                   </p>
-                  <p>Number of guest members: {request.noOfGuest}</p>
+                  <p>Number of guest members: {request.guests.length}</p>
                   <p>Arrival Date: {request.userDetails.arrivalDate}</p>
                   <p>Departure Date: {request.userDetails.departureDate}</p>
                   {request.reason === "Has History" && (

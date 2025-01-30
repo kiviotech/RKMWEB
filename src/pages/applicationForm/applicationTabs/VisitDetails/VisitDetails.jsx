@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import CommonButton from "../../../../components/ui/Button";
 import "./VisitDetails.scss";
 import useApplicationStore from "../../../../../useApplicationStore";
-import { BASE_URL } from "../../../../../services/apiClient";
+import { BASE_URL, MEDIA_BASE_URL } from "../../../../../services/apiClient";
 import { useNavigate } from "react-router-dom";
 import { fetchCelebrations } from "../../../../../services/src/services/celebrationsService";
 
@@ -80,10 +80,23 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
     const { name, value } = e.target;
     console.log("Input Change:", { name, value });
 
-    // First set the form data for all fields
-    setVisitFormData(name, value);
+    // Special handling for arrival date changes
+    if (name === "visitDate") {
+      // Update departure date when arrival date changes
+      const newArrivalDate = new Date(value);
+      if (!isNaN(newArrivalDate.getTime())) {
+        // Set departure date to null or recalculate based on new arrival date
+        setVisitFormData("departureDate", ""); // Reset departure date
 
-    // Special handling for date-related fields
+        // Update the arrival date
+        setVisitFormData(name, value);
+      }
+    } else {
+      // Handle all other input changes normally
+      setVisitFormData(name, value);
+    }
+
+    // Rest of the existing handleInputChange logic
     if (name === "visitDate" || name === "departureDate") {
       // Get both dates
       const visitDate = name === "visitDate" ? value : formData.visitDate;
@@ -261,6 +274,8 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
         fileSize: file?.size,
       });
     }
+    // Reset the input value after upload
+    e.target.value = "";
   };
 
   const handleDrop = (e) => {
@@ -464,6 +479,7 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
                   name="visitDate"
                   value={formData.arrivalDate || formData.visitDate || ""}
                   onChange={handleInputChange}
+                  min={new Date().toISOString().split("T")[0]}
                 />
                 {errors.visitDate && (
                   <span className="error">{errors.visitDate}</span>
@@ -612,17 +628,90 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
                     accept=".jpeg, .png, .svg"
                     onChange={handleFileChange}
                     style={{ display: "none" }}
+                    key={formData.file ? "file-present" : "no-file"}
                   />
-                  <label htmlFor="file-upload" className="upload-label">
-                    <div className="upload-icon">&#8593;</div>
-                    <div className="upload-text">
-                      Drag and drop files here to upload.
-                      <br />
-                      <span className="upload-subtext">
-                        Only JPEG, PNG, and SVG files are allowed.
-                      </span>
+                  {formData.file ? (
+                    <div
+                      className="uploaded-file"
+                      style={{
+                        border: "1px solid #ddd",
+                        borderRadius: "8px",
+                        padding: "15px",
+                        backgroundColor: "#f5f5f5",
+                        width: "100%",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        boxShadow: "inset 0 1px 3px rgba(0,0,0,0.1)",
+                      }}
+                    >
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "10px",
+                        }}
+                      >
+                        <img
+                          src={
+                            formData.file.url.startsWith("http")
+                              ? formData.file.url
+                              : `${MEDIA_BASE_URL}${formData.file.url}`
+                          }
+                          alt="Recommendation Letter"
+                          style={{
+                            width: "50px",
+                            height: "50px",
+                            objectFit: "cover",
+                            borderRadius: "4px",
+                          }}
+                        />
+                        <span style={{ color: "#333", fontSize: "14px" }}>
+                          {formData.file.name || "Recommendation Letter"}
+                        </span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setFile(null);
+                          setVisitFormData("file", null);
+                          // Reset the file input
+                          const fileInput =
+                            document.getElementById("file-upload");
+                          if (fileInput) fileInput.value = "";
+                        }}
+                        style={{
+                          backgroundColor: "#ff4444",
+                          color: "white",
+                          border: "none",
+                          borderRadius: "4px",
+                          padding: "8px 15px",
+                          cursor: "pointer",
+                          fontSize: "14px",
+                          transition: "background-color 0.2s",
+                        }}
+                        onMouseOver={(e) =>
+                          (e.target.style.backgroundColor = "#ff0000")
+                        }
+                        onMouseOut={(e) =>
+                          (e.target.style.backgroundColor = "#ff4444")
+                        }
+                      >
+                        Remove File
+                      </button>
                     </div>
-                  </label>
+                  ) : (
+                    <label htmlFor="file-upload" className="upload-label">
+                      <div className="upload-icon">&#8593;</div>
+                      <div className="upload-text">
+                        Drag and drop files here to upload.
+                        <br />
+                        <span className="upload-subtext">
+                          Only JPEG, PNG, and SVG files are allowed.
+                        </span>
+                      </div>
+                    </label>
+                  )}
                 </div>
                 {errors.file && <span className="error">{errors.file}</span>}
               </div>
@@ -807,7 +896,15 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
               <strong>High Occupancy Alert!</strong>
               <p>
                 {celebration.event} ({celebration.type}) celebration is
-                scheduled on {celebration.date}
+                scheduled on{" "}
+                {new Date(celebration.date)
+                  .toLocaleDateString("en-GB", {
+                    day: "2-digit",
+                    month: "2-digit",
+                    year: "numeric",
+                  })
+                  .split("/")
+                  .join("-")}
                 {celebration.isArrival
                   ? " (your arrival date)"
                   : celebration.isDeparture

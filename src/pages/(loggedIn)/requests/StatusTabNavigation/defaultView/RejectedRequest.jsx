@@ -21,59 +21,61 @@ const RejectedRequest = ({ selectedDate, label }) => {
   useEffect(() => {
     const fetchBookingRequests = async () => {
       try {
-        const data = await getBookingRequestsByStatus('rejected');
+        const data = await getBookingRequestsByStatus("rejected");
         const bookingData = data?.data?.data;
 
         if (bookingData) {
           const rejectedRequests = bookingData.map((item) => ({
-              id: item.id,
-              userImage: item.attributes.userImage || "",
-              createdAt: new Date(item.attributes.createdAt),
-              userDetails: {
-                name: item.attributes.name,
-                age: item.attributes.age,
-                gender: item.attributes.gender,
-                email: item.attributes.email,
-                addharNo: item.attributes.aadhaar_number,
-                mobile: item.attributes.phone_number,
-                arrivalDate: item.attributes.arrival_date,
-                departureDate: item.attributes.departure_date,
-                occupation: item.attributes.occupation,
-                deeksha: item.attributes.deeksha,
+            id: item.id,
+            userImage: item.attributes.userImage || "",
+            createdAt: new Date(item.attributes.createdAt),
+            userDetails: {
+              name: item.attributes.name,
+              age: item.attributes.age,
+              gender: item.attributes.gender,
+              email: item.attributes.email,
+              addharNo: item.attributes.aadhaar_number,
+              mobile: item.attributes.phone_number,
+              arrivalDate: item.attributes.arrival_date,
+              departureDate: item.attributes.departure_date,
+              occupation: item.attributes.occupation,
+              deeksha: item.attributes.deeksha,
+            },
+            assignBed: item.attributes.assignBed || "N/A",
+            noOfGuest: item.attributes.number_of_guest_members || "0",
+            isMarked: item.attributes.isMarked || false,
+            approved: item.attributes.approved || false,
+            icons: [
+              {
+                id: 1,
+                normal: icons.crossCircle,
+                filled: icons.filledRedCircle,
+                isActive: true, // Active icon for rejected status
               },
-              assignBed: item.attributes.assignBed || "N/A",
-              noOfGuest: item.attributes.number_of_guest_members || "0",
-              isMarked: item.attributes.isMarked || false,
-              approved: item.attributes.approved || false,
-              icons: [
-                {
-                  id: 1,
-                  normal: icons.crossCircle,
-                  filled: icons.filledRedCircle,
-                  isActive: true, // Active icon for rejected status
-                },
-                {
-                  id: 2,
-                  normal: icons.marked,
-                  filled: icons.markedYellow,
-                  isActive: false,
-                },
-                {
-                  id: 3,
-                  normal: icons.checkCircle,
-                  filled: icons.checkCircleMarked,
-                  isActive: false,
-                },
-              ],
-              reason: item.attributes.reason || "No History",
-              guests: item.attributes.guests.data.map((guest) => ({
-                id: guest.id,
-                name: guest.attributes.name,
-                age: guest.attributes.age,
-                gender: guest.attributes.gender,
-                relation: guest.attributes.relationship,
-              })),
-            }));
+              {
+                id: 2,
+                normal: icons.marked,
+                filled: icons.markedYellow,
+                isActive: false,
+              },
+              {
+                id: 3,
+                normal: icons.checkCircle,
+                filled: icons.checkCircleMarked,
+                isActive: false,
+              },
+            ],
+            reason: item.attributes.reason || "No History",
+            guests: item.attributes.guests.data.map((guest) => ({
+              id: guest.id,
+              name: guest.attributes.name,
+              age: guest.attributes.age,
+              gender: guest.attributes.gender,
+              relation: guest.attributes.relationship,
+              room: guest.attributes.room,
+            })),
+            recommendation_letter: item.attributes.recommendation_letter,
+          }));
 
           setRequests(rejectedRequests);
           setFilteredRequests(rejectedRequests); // Initialize filtered requests
@@ -168,9 +170,29 @@ const RejectedRequest = ({ selectedDate, label }) => {
           <div
             key={request.id}
             className="requests-card"
-            style={{ borderColor: getCardBorderColor(request.icons) }}
+            style={{
+              borderColor: getCardBorderColor(request.icons),
+              position: "relative",
+            }}
             onClick={() => handleCardClick(request)}
           >
+            {request.recommendation_letter?.data?.length > 0 && (
+              <span
+                style={{
+                  backgroundColor: "#FFD700",
+                  color: "#000",
+                  padding: "2px 8px",
+                  borderRadius: "4px",
+                  fontSize: "12px",
+                  position: "absolute",
+                  top: "17px",
+                  right: "20px",
+                  zIndex: 1,
+                }}
+              >
+                Special Request
+              </span>
+            )}
             <div className="actions-button">
               {request.icons.map((icon) => (
                 <img
@@ -190,7 +212,7 @@ const RejectedRequest = ({ selectedDate, label }) => {
             </div>
             <div className="request-details">
               <div className="request-user-image">
-                <img src={icons.userDummyImage} alt="user-image" />
+                {/* <img src={icons.userDummyImage} alt="user-image" /> */}
                 <p>{request.userDetails.name}</p>
               </div>
               <div className="reasons">
@@ -198,9 +220,21 @@ const RejectedRequest = ({ selectedDate, label }) => {
                   <p style={{ color: getCardBorderColor(request.icons) }}>
                     {request.reason}
                   </p>
-                  <p>Number of guest members: {request.noOfGuest}</p>
-                  <p>Arrival Date: {request.userDetails.arrivalDate}</p>
-                  <p>Departure Date: {request.userDetails.departureDate}</p>
+                  <p>Number of guest members: {request.guests.length}</p>
+                  <p>
+                    Arrival Date:{" "}
+                    {new Date(request.userDetails.arrivalDate)
+                      .toLocaleDateString("en-GB")
+                      .split("/")
+                      .join("-")}
+                  </p>
+                  <p>
+                    Departure Date:{" "}
+                    {new Date(request.userDetails.departureDate)
+                      .toLocaleDateString("en-GB")
+                      .split("/")
+                      .join("-")}
+                  </p>
                 </div>
               </div>
             </div>

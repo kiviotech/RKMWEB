@@ -18,9 +18,6 @@ const NewDonation = () => {
   const location = useLocation();
   const donationStore = useDonationStore();
   const { activeTabId, setActiveSection } = donationStore;
-  console.log("Full Donation Store State:", donationStore);
-  console.log("Active Tab ID:", activeTabId);
-  console.log("Donor Tabs:", donationStore.donorTabs);
 
   const [activeTab, setActiveTab] = useState("Math");
   const [transactionType, setTransactionType] = useState("Cash");

@@ -136,8 +136,7 @@ const VerifyDetails = () => {
         departure_date: formData.departureDate,
         deeksha: formData.deeksha,
         guests: [mainGuestId, ...guestIds],
-        // Add the file to accommodation_requirements if it exists
-        accommodation_requirements: formData.file ? [formData.file] : [],
+        recommendation_letter: formData.file ? [formData.file] : [],
         // Add default values for required fields
         number_of_male_devotees: "0",
         number_of_female_devotees: "0",

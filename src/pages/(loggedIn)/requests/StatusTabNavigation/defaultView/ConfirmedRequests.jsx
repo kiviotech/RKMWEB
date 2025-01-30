@@ -71,6 +71,7 @@ const ConfirmedRequests = ({ selectedDate, searchQuery, label }) => {
               relation: guest.attributes.relationship,
               roomNumber: guest.attributes.room?.data?.attributes?.room_number,
             })),
+            recommendation_letter: item.attributes.recommendation_letter,
           }));
 
           console.log("Processed Booking Requests:", bookingRequests);
@@ -132,9 +133,26 @@ const ConfirmedRequests = ({ selectedDate, searchQuery, label }) => {
           <div
             key={request.id}
             className="requests-card"
-            style={{ borderColor: "#A3D65C" }}
+            style={{ borderColor: "#A3D65C", position: "relative" }}
             onClick={() => handleCardClick(request)}
           >
+            {request.recommendation_letter?.data?.length > 0 && (
+              <span
+                style={{
+                  backgroundColor: "#FFD700",
+                  color: "#000",
+                  padding: "2px 8px",
+                  borderRadius: "4px",
+                  fontSize: "12px",
+                  position: "absolute",
+                  top: "17px",
+                  right: "20px",
+                  zIndex: 1,
+                }}
+              >
+                Special Request
+              </span>
+            )}
             <div className="actions-button">
               {request.icons.map((icon) => (
                 <img
@@ -151,15 +169,27 @@ const ConfirmedRequests = ({ selectedDate, searchQuery, label }) => {
             </div>
             <div className="request-details">
               <div className="request-user-image">
-                <img src={icons.userDummyImage} alt="user" />
+                {/* <img src={icons.userDummyImage} alt="user" /> */}
                 <p>{request.userDetails.name}</p>
               </div>
               <div className="reasons">
                 <div>
                   <p style={{ color: "#A3D65C" }}>{request.reason}</p>
-                  <p>Number of guest members: {request.noOfGuest}</p>
-                  <p>Arrival Date: {request.userDetails.arrivalDate}</p>
-                  <p>Departure Date: {request.userDetails.departureDate}</p>
+                  <p>Number of guest members: {request.guests.length}</p>
+                  <p>
+                    Arrival Date:{" "}
+                    {new Date(request.userDetails.arrivalDate)
+                      .toLocaleDateString("en-GB")
+                      .split("/")
+                      .join("-")}
+                  </p>
+                  <p>
+                    Departure Date:{" "}
+                    {new Date(request.userDetails.departureDate)
+                      .toLocaleDateString("en-GB")
+                      .split("/")
+                      .join("-")}
+                  </p>
                   <p>Assigned Room: {request.assignBed}</p>
                 </div>
               </div>

@@ -6,6 +6,8 @@ import { getToken } from "../../../../services/src/utils/storage";
 import RejectionEmailPopup from "./RejectionEmailPopup";
 import { useNavigate } from "react-router-dom";
 import { getCelebrations } from "../../../../services/src/api/repositories/celebrationsRepository";
+import { MEDIA_BASE_URL } from "../../../../services/apiClient";
+import { toast } from "react-toastify";
 
 const icons = {
   Reminder: "https://api.iconify.design/mdi:bell-ring-outline.svg",
@@ -18,6 +20,7 @@ const icons = {
   Clock: "https://api.iconify.design/mdi:clock-outline.svg",
   Edit: "https://api.iconify.design/mdi:pencil.svg",
   Delete: "https://api.iconify.design/mdi:delete.svg",
+  Eye: "https://api.iconify.design/mdi:eye.svg",
 };
 
 const GuestDetailsPopup = ({
@@ -28,6 +31,13 @@ const GuestDetailsPopup = ({
   onStatusChange,
   label,
 }) => {
+  console.log("GuestDetailsPopup Props:", {
+    isOpen,
+    guestDetails,
+    guests,
+    label,
+  });
+
   const [selectedRow, setSelectedRow] = useState(null);
   const [selectedVisitRow, setSelectedVisitRow] = useState(null);
   const [selectedGuestName, setSelectedGuestName] = useState(
@@ -36,6 +46,7 @@ const GuestDetailsPopup = ({
   const [showRejectionEmail, setShowRejectionEmail] = useState(false);
   const navigate = useNavigate();
   const [upcomingCelebration, setUpcomingCelebration] = useState(null);
+  const [showPreviewModal, setShowPreviewModal] = useState(false);
 
   useEffect(() => {
     if (guestDetails?.guests?.length > 0) {
@@ -51,7 +62,7 @@ const GuestDetailsPopup = ({
     const fetchCelebrations = async () => {
       try {
         const response = await getCelebrations();
-        console.log("Celebrations response:", response.data);
+        console.log("Celebrations Response:", response?.data);
 
         // Convert arrival and departure dates to Date objects
         const arrivalDate = new Date(guestDetails?.userDetails?.arrivalDate);
@@ -70,6 +81,7 @@ const GuestDetailsPopup = ({
         });
 
         if (upcoming) {
+          console.log("Upcoming Celebration:", upcoming);
           setUpcomingCelebration(upcoming.attributes);
         }
       } catch (error) {
@@ -79,14 +91,6 @@ const GuestDetailsPopup = ({
 
     fetchCelebrations();
   }, [guestDetails]);
-
-  console.log("GuestDetailsPopup - Full guestDetails:", guestDetails);
-  console.log("GuestDetailsPopup - User Details:", guestDetails?.userDetails);
-  console.log("GuestDetailsPopup - Guests:", guestDetails?.guests);
-  console.log("GuestDetailsPopup - Stay Duration:", {
-    arrivalDate: guestDetails?.userDetails?.arrivalDate,
-    departureDate: guestDetails?.userDetails?.departureDate,
-  });
 
   const handleRowClick = (guestId) => {
     setSelectedRow(guestId);
@@ -113,6 +117,7 @@ const GuestDetailsPopup = ({
       const token = await getToken();
       if (!token) {
         console.error("No token available for API requests");
+        toast.error("Authentication error. Please login again.");
         return;
       }
 
@@ -129,13 +134,28 @@ const GuestDetailsPopup = ({
       if (response) {
         onStatusChange && onStatusChange(requestId, newStatus);
         onClose(); // Close the popup after successful status change
+
+        // Show success message based on status
+        switch (newStatus) {
+          case "on_hold":
+            toast.success("Request has been put on hold successfully");
+            break;
+          case "approved":
+            toast.success("Request has been approved successfully");
+            break;
+          case "rejected":
+            toast.success("Request has been rejected successfully");
+            break;
+          default:
+            toast.success("Status updated successfully");
+        }
       }
     } catch (error) {
       console.error(
         `Failed to update the booking request to ${newStatus}:`,
         error
       );
-      // You might want to show an error message to the user here
+      toast.error(`Failed to update request status. Please try again.`);
     }
   };
 
@@ -161,12 +181,7 @@ const GuestDetailsPopup = ({
   };
 
   const handleButtonClick = (request) => {
-    console.log("Main Request ID:", request.id);
-    console.log(
-      "Guest IDs:",
-      request.guests.map((guest) => guest.id)
-    );
-
+    console.log("Request Data:", request);
     const guestData = {
       requestId: request.id,
       name: request.userDetails.name,
@@ -185,16 +200,16 @@ const GuestDetailsPopup = ({
         roomNo: guest.room?.data?.attributes?.room_number || "-",
       })),
     };
-
-    console.log("Formatted Guest Data IDs:", {
-      requestId: request.id,
-      guestIds: guestData.additionalGuests.map((guest) => guest.id),
-    });
+    console.log("Formatted Guest Data:", guestData);
 
     navigate("/book-room", {
       state: { guestData },
     });
-    onClose(); // Close the popup after navigation
+    onClose();
+  };
+
+  const handlePreviewClick = () => {
+    setShowPreviewModal(true);
   };
 
   if (showRejectionEmail) {
@@ -299,12 +314,12 @@ const GuestDetailsPopup = ({
             {/* Main Info Section */}
             <div className="main-info">
               <div className="left-section">
-                <div className="avatar">
+                {/* <div className="avatar">
                   <img
                     src={guestDetails?.userImage || icons.DefaultAvatar}
                     alt="profile"
                   />
-                </div>
+                </div> */}
                 <div className="user-details">
                   <h2>{guestDetails?.userDetails?.name || "N/A"}</h2>
                   <div className="info-grid">
@@ -358,10 +373,35 @@ const GuestDetailsPopup = ({
                         </strong>
                       </span>
                     </div>
-                    {/* <div className="info-item">
-                                            <span className="label">Initiation by</span>
-                                            <span className="value">Gurudev Name</span>
-                                        </div> */}
+                    {guestDetails?.recommendation_letter?.data?.[0]?.attributes
+                      ?.url && (
+                      <div className="info-item">
+                        <span className="label">Recommendation Letter</span>
+                        <span className="value">
+                          <button
+                            onClick={handlePreviewClick}
+                            style={{
+                              border: "none",
+                              background: "none",
+                              cursor: "pointer",
+                              padding: 0,
+                              display: "inline-flex",
+                              alignItems: "center",
+                              gap: "5px",
+                              color: "#066bff",
+                              paddingTop: "5px",
+                            }}
+                          >
+                            <img
+                              src={icons.Eye}
+                              alt="preview"
+                              style={{ width: "16px", height: "16px" }}
+                            />
+                            <span style={{ fontSize: "14px" }}>Preview</span>
+                          </button>
+                        </span>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -591,6 +631,41 @@ const GuestDetailsPopup = ({
           </div>
         </div>
       </div>
+
+      {/* Preview Modal */}
+      {showPreviewModal && (
+        <div
+          className="preview-modal-overlay"
+          onClick={() => setShowPreviewModal(false)}
+        >
+          <div
+            className="preview-modal-content"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              className="modal-close-btn"
+              onClick={() => setShowPreviewModal(false)}
+            >
+              <img
+                src={icons.Close}
+                alt="close"
+                style={{ width: "20px", height: "20px" }}
+              />
+            </button>
+            <div className="preview-image-container">
+              <img
+                src={`${MEDIA_BASE_URL}${guestDetails?.recommendation_letter?.data?.[0]?.attributes?.url}`}
+                alt="Recommendation Letter"
+                style={{
+                  maxWidth: "100%",
+                  maxHeight: "80vh",
+                  objectFit: "contain",
+                }}
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 };

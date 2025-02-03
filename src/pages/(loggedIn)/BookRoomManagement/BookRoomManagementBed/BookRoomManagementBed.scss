@@ -1,0 +1,62 @@
+.bed-management-container {
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 20px;
+
+  .bed-grid {
+    width: 100%;
+    border-collapse: collapse;
+
+    .header-row {
+      display: grid;
+      grid-template-columns: 100px repeat(5, 1fr);
+      gap: 10px;
+      margin-bottom: 15px;
+
+      .date-header {
+        text-align: center;
+        font-weight: 600;
+        padding: 10px;
+      }
+    }
+
+    .room-row {
+      display: grid;
+      grid-template-columns: 100px repeat(5, 1fr);
+      gap: 10px;
+      margin-bottom: 15px;
+
+      .room-number {
+        display: flex;
+        align-items: center;
+        font-weight: 600;
+      }
+
+      .bed-cell {
+        border: 1px solid #ffa07a;
+        border-radius: 8px;
+        padding: 10px;
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+
+        .bed-group {
+          display: flex;
+          justify-content: center;
+          gap: 10px;
+
+          .bed-icon {
+            width: 24px;
+            height: 24px;
+            object-fit: contain;
+
+            &:hover {
+              cursor: pointer;
+              opacity: 0.8;
+            }
+          }
+        }
+      }
+    }
+  }
+}

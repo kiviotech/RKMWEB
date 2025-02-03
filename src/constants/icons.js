@@ -26,6 +26,7 @@ import informationIcon from "../assets/icons/informationIcon.png";
 import down_arrow from "../assets/icons/down_arrow.png";
 import edit_icon from "../assets/icons/edit_icon.png";
 
+import Group2 from "../assets/icons/Group2.png";
 import checkCircleMarked from "../assets/icons/checkCircleMarked.png";
 import checkCircle from "../assets/icons/checkCircle.png";
 import markedYellow from "../assets/icons/markedYellow.png";
@@ -99,4 +100,5 @@ export default {
   Donation,
   Deeksha,
   missionLogo,
+  Group2,
 };

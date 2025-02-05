@@ -1,5 +1,5 @@
 .bed-management-container {
-  padding: 20px;
+  padding: 10px 0;
   background-color: #fff;
   border-radius: 20px;
   width: 100%;
@@ -17,9 +17,10 @@
       z-index: 2;
       background: white;
       flex-shrink: 0;
+      margin-top: 60px;
 
       .room-number {
-        height: 100px;
+        height: 90px;
         width: 80px;
         display: flex;
         align-items: center;

@@ -5,17 +5,25 @@ import BookRoomManagementSetting from "./BookRoomManagementSetting/BookRoomManag
 
 const BookRoomManagement = () => {
   const [refreshTrigger, setRefreshTrigger] = useState(0);
+  const [selectedBlockId, setSelectedBlockId] = useState(null);
 
   const handleBlockCreated = () => {
     setRefreshTrigger((prev) => prev + 1);
   };
 
+  const handleBlockSelect = (blockId) => {
+    setSelectedBlockId(blockId);
+  };
+
   return (
     <div>
-      <BookRoomManagementHeader refreshTrigger={refreshTrigger} />
+      <BookRoomManagementHeader
+        refreshTrigger={refreshTrigger}
+        onBlockSelect={handleBlockSelect}
+      />
       <div style={{ display: "flex" }}>
         <div style={{ width: "70%" }}>
-          <BookRoomManagementBed />
+          <BookRoomManagementBed blockId={selectedBlockId} />
         </div>
         <div style={{ width: "30%" }}>
           <BookRoomManagementSetting onBlockCreated={handleBlockCreated} />

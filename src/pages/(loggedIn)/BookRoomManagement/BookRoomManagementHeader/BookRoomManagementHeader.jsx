@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import "./BookRoomManagementHeader.scss";
 import * as blockService from "../../../../../services/src/services/blockService";
 
-const BookRoomManagementHeader = () => {
+const BookRoomManagementHeader = ({ refreshTrigger }) => {
   const [blocks, setBlocks] = useState([]);
   const [activeBlock, setActiveBlock] = useState("");
 
@@ -24,7 +24,7 @@ const BookRoomManagementHeader = () => {
     };
 
     getBlocks();
-  }, []);
+  }, [refreshTrigger]);
 
   return (
     <div className="book-room-header">

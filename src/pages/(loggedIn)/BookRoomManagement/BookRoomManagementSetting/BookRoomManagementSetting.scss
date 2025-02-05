@@ -1,0 +1,125 @@
+.booking-management-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 0 20px 20px;
+  max-width: 400px;
+  margin: 0 auto;
+
+  .add-block-btn,
+  .add-room-btn {
+    width: 100%;
+    padding: 12px;
+    border-radius: 5px;
+    font-size: 14x;
+    font-weight: 500;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.3s ease;
+  }
+
+  .add-block-btn {
+    background-color: #ff6b00;
+    color: white;
+    border: none;
+    margin-bottom: 10px;
+  }
+
+  .add-room-btn {
+    background-color: #fff;
+    color: #ff6b00;
+    border: 1px solid #ff6b00;
+
+    &:hover {
+      background-color: rgba(255, 107, 0, 0.05);
+    }
+  }
+
+  .back-btn {
+    margin-bottom: 20px;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    background-color: #f0f0f0;
+    cursor: pointer;
+
+    &:hover {
+      background-color: #e0e0e0;
+    }
+  }
+
+  .booking-management-form {
+    width: 100%;
+    max-width: 400px;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: white;
+
+    .booking-tab-controls {
+      display: flex;
+      margin-bottom: 20px;
+      background: #f5f5f5;
+      border-radius: 5px;
+      padding: 3px;
+      border: 1px solid #ddd;
+
+      .booking-tab-btn {
+        flex: 1;
+        padding: 12px 24px;
+        border: none;
+        background: transparent;
+        cursor: pointer;
+        font-size: 14px;
+        border-radius: 5px;
+        transition: all 0.3s ease;
+        color: #333;
+
+        &.active {
+          background-color: #ff6b00;
+          color: white;
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+      }
+    }
+
+    .booking-input-group {
+      margin-bottom: 15px;
+
+      label {
+        display: block;
+        margin-bottom: 5px;
+        color: #333;
+      }
+
+      select,
+      input {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        color: #666;
+
+        &:focus {
+          outline: none;
+          border-color: #ff6b00;
+        }
+      }
+    }
+
+    .booking-submit-btn {
+      width: 100%;
+      padding: 12px;
+      background-color: #ff6b00;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-top: 10px;
+
+      &:hover {
+        background-color: darken(#f77f00, 5%);
+      }
+    }
+  }
+}

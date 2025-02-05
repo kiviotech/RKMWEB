@@ -2,7 +2,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 2rem;
+  padding: 2rem 2rem 2rem 0;
 
   .filter-options {
     display: flex;
@@ -18,7 +18,7 @@
       transition: all 0.3s ease;
 
       &.active {
-        background-color: #f77f00;
+        background-color: #ff6b00;
         color: white;
       }
     }

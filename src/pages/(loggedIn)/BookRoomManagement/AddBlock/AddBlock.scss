@@ -1,0 +1,137 @@
+.add-block-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.add-block-content {
+  background: white;
+  border-radius: 8px;
+  width: 90%;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+
+  &.add-block-step {
+    max-width: 400px;
+  }
+
+  &.room-details-step {
+    max-width: 600px;
+  }
+}
+
+.add-block-header {
+  padding: 30px 40px 0px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  h2 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 500;
+  }
+
+  .add-block-close-button {
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    color: #666;
+    padding: 0;
+    line-height: 1;
+  }
+}
+
+.add-block-body {
+  padding: 10px 40px;
+
+  .room-number-label {
+    font-size: 14px;
+    color: #333;
+    margin-bottom: 12px;
+  }
+
+  .room-inputs-container {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 24px;
+
+    input {
+      flex: 1;
+      padding: 8px 12px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 14px;
+
+      &::placeholder {
+        color: #999;
+      }
+
+      &:focus {
+        outline: none;
+        border-color: #ff6b00;
+      }
+    }
+  }
+}
+
+.add-block-footer {
+  padding: 10px 40px 30px;
+  display: flex;
+  justify-content: space-between;
+
+  .footer-left {
+    // Left side container
+  }
+
+  .footer-right {
+    display: flex;
+    gap: 16px;
+  }
+
+  button {
+    padding: 8px 20px;
+    border-radius: 4px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .add-block-cancel-btn {
+    background: transparent;
+    border: 1px solid #ff6b00;
+    color: #ff6b00;
+
+    &:hover {
+      background: rgba(255, 107, 0, 0.05);
+    }
+  }
+
+  .add-block-back-btn {
+    background: transparent;
+    border: none;
+    color: #ff6b00;
+    padding: 8px 12px;
+
+    &:hover {
+      background: rgba(255, 107, 0, 0.05);
+    }
+  }
+
+  .add-block-next-btn {
+    background: #ff6b00;
+    border: none;
+    color: white;
+
+    &:hover {
+      background: darken(#ff6b00, 5%);
+    }
+  }
+}

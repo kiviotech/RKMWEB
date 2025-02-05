@@ -1,0 +1,48 @@
+.add-more-room-btn {
+  color: #f85a47;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px 0;
+  width: 100%;
+  text-align: right;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+
+  .error-message {
+    color: red;
+    font-size: 12px;
+    margin-top: 4px;
+  }
+}
+
+.room-inputs-container {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.block-details-section {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 20px;
+
+  .input-group {
+    flex: 1;
+
+    input {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+  }
+}

@@ -3,7 +3,7 @@ import "./BookRoomManagementBed.scss";
 import { icons } from "../../../../constants";
 import * as blockService from "../../../../../services/src/services/blockService";
 
-const BookRoomManagementBed = ({ blockId }) => {
+const BookRoomManagementBed = ({ blockId, refreshTrigger }) => {
   const dates = ["21st Nov", "22nd Nov", "23rd Nov", "24th Nov", "25th Nov"];
   const [rooms, setRooms] = useState([]);
 
@@ -21,7 +21,7 @@ const BookRoomManagementBed = ({ blockId }) => {
     };
 
     fetchBlockDetails();
-  }, [blockId]);
+  }, [blockId, refreshTrigger]);
 
   const renderBeds = (numberOfBeds) => {
     const beds = [];

@@ -5,7 +5,11 @@ import AddBlock from "../AddBlock/AddBlock";
 import AddRoom from "../AddRoom/AddRoom";
 import "./BookRoomManagementSetting.scss";
 
-const BookRoomManagementSetting = ({ onBlockCreated }) => {
+const BookRoomManagementSetting = ({
+  onBlockCreated,
+  selectedBlockId,
+  onRoomAdded,
+}) => {
   const [activeTab, setActiveTab] = useState("block"); // "block" or "book"
   const [showAddBlock, setShowAddBlock] = useState(false);
   const [showAddRoom, setShowAddRoom] = useState(false);
@@ -32,7 +36,13 @@ const BookRoomManagementSetting = ({ onBlockCreated }) => {
           onBlockCreated={onBlockCreated}
         />
       )}
-      {showAddRoom && <AddRoom onClose={() => setShowAddRoom(false)} />}
+      {showAddRoom && (
+        <AddRoom
+          onClose={() => setShowAddRoom(false)}
+          selectedBlockId={selectedBlockId}
+          onRoomAdded={onRoomAdded}
+        />
+      )}
 
       <div className="action-buttons">
         <button className="add-block-btn" onClick={handleAddBlockClick}>

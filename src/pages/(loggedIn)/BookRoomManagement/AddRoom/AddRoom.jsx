@@ -1,7 +1,13 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { createNewRoom } from "../../../../../services/src/services/roomService";
+import {
+  updateBlockById,
+  fetchBlockById,
+} from "../../../../../services/src/services/blockService";
+import { toast } from "react-toastify";
 import "./AddRoom.scss";
 
-const AddRoom = ({ onClose }) => {
+const AddRoom = ({ onClose, selectedBlockId, onRoomAdded }) => {
   const [rooms, setRooms] = useState([{ roomNumber: "", beds: "" }]);
 
   const handleAddRoom = (e) => {
@@ -15,10 +21,46 @@ const AddRoom = ({ onClose }) => {
     setRooms(newRooms);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Form submitted", { rooms });
-    // Add your submission logic here
+    try {
+      // Get current block data to preserve existing room IDs
+      const currentBlock = await fetchBlockById(selectedBlockId);
+      const existingRoomIds =
+        currentBlock.data.attributes.rooms?.data?.map((room) => room.id) || [];
+
+      // Create all new rooms and collect their IDs
+      const newRoomIds = [];
+      for (const room of rooms) {
+        const response = await createNewRoom({
+          room_number: room.roomNumber,
+          no_of_beds: parseInt(room.beds),
+          blockId: selectedBlockId,
+        });
+        const roomId = response.data.id;
+        newRoomIds.push(roomId);
+      }
+
+      // Combine existing and new room IDs
+      const updatedRoomIds = [...existingRoomIds, ...newRoomIds];
+
+      // Update block with the combined room IDs
+      await updateBlockById(selectedBlockId, {
+        data: {
+          rooms: updatedRoomIds,
+        },
+      });
+
+      toast.success(
+        `Successfully added ${rooms.length} room${rooms.length > 1 ? "s" : ""}`
+      );
+      console.log("Rooms created and block updated successfully");
+      onRoomAdded?.();
+      onClose();
+    } catch (error) {
+      toast.error("Failed to create rooms. Please try again.");
+      console.error("Error creating rooms:", error);
+    }
   };
 
   return (

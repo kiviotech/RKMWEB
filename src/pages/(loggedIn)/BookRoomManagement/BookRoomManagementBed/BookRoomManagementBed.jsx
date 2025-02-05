@@ -45,19 +45,41 @@ const BookRoomManagementBed = ({ blockId, refreshTrigger }) => {
     fetchBlockDetails();
   }, [blockId, refreshTrigger]);
 
-  const renderBeds = (numberOfBeds) => {
+  const renderBeds = (numberOfBeds, roomBlockings, currentDate) => {
     const beds = [];
+    const isBlocked = roomBlockings?.some((blocking) => {
+      const fromDate = new Date(blocking.attributes.from_date);
+      const toDate = new Date(blocking.attributes.to_date);
+
+      // Create date object for current date being rendered
+      const checkDate = new Date(
+        currentDate.year,
+        new Date(Date.parse(`01 ${currentDate.month} 2000`)).getMonth(),
+        currentDate.day,
+        0,
+        0,
+        0
+      );
+
+      // Set time to start of day for consistent comparison
+      fromDate.setHours(0, 0, 0, 0);
+      toDate.setHours(0, 0, 0, 0);
+
+      // Include the from_date and to_date in the comparison
+      return checkDate >= fromDate && checkDate <= toDate;
+    });
+
+    const bedIcon = isBlocked ? icons.filledBed : icons.Group2;
 
     if (numberOfBeds === 3) {
-      // Special case for 3 beds - L-shaped arrangement
       beds.push(
         <div key="three-bed-layout" className="three-bed-layout">
           <div className="top-row">
-            <img src={icons.Group2} alt="bed" className="bed-icon" />
-            <img src={icons.Group2} alt="bed" className="bed-icon" />
+            <img src={bedIcon} alt="bed" className="bed-icon" />
+            <img src={bedIcon} alt="bed" className="bed-icon" />
           </div>
           <div className="bottom-row">
-            <img src={icons.Group2} alt="bed" className="bed-icon" />
+            <img src={bedIcon} alt="bed" className="bed-icon" />
           </div>
         </div>
       );
@@ -69,8 +91,8 @@ const BookRoomManagementBed = ({ blockId, refreshTrigger }) => {
       for (let i = 0; i < fullGroups; i++) {
         beds.push(
           <div key={`group-${i}`} className="bed-group">
-            <img src={icons.Group2} alt="bed" className="bed-icon" />
-            <img src={icons.Group2} alt="bed" className="bed-icon" />
+            <img src={bedIcon} alt="bed" className="bed-icon" />
+            <img src={bedIcon} alt="bed" className="bed-icon" />
           </div>
         );
       }
@@ -78,7 +100,7 @@ const BookRoomManagementBed = ({ blockId, refreshTrigger }) => {
       if (remainingBeds > 0) {
         beds.push(
           <div key="remaining" className="bed-group">
-            <img src={icons.Group2} alt="bed" className="bed-icon" />
+            <img src={bedIcon} alt="bed" className="bed-icon" />
           </div>
         );
       }
@@ -114,9 +136,13 @@ const BookRoomManagementBed = ({ blockId, refreshTrigger }) => {
           {rooms.map((room) => (
             <div key={room.id} className="room-row">
               <div className="scrollable-beds">
-                {dates.map((_, dateIndex) => (
+                {dates.map((date, dateIndex) => (
                   <div key={dateIndex} className="bed-cell">
-                    {renderBeds(room.attributes.no_of_beds)}
+                    {renderBeds(
+                      room.attributes.no_of_beds,
+                      room.attributes.room_blockings?.data,
+                      date
+                    )}
                   </div>
                 ))}
               </div>

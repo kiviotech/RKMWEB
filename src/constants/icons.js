@@ -18,6 +18,7 @@ import angleRight from "../assets/icons/angleRight.png";
 import angleLeft from "../assets/icons/angleLeft.png";
 import bed from "../assets/icons/bed.png";
 import bookedBed from "../assets/icons/booked-bed.png";
+import filledBed from "../assets/icons/filledBedImage.jpeg";
 import tooltip from "../assets/image/tooltip.png";
 import user from "../assets/icons/user.png";
 import userDummyImage from "../assets/image/user-dummy-image.png";
@@ -101,4 +102,5 @@ export default {
   Deeksha,
   missionLogo,
   Group2,
+  filledBed,
 };

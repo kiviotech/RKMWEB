@@ -3,7 +3,7 @@ import * as blockService from "../../../../../services/src/services/blockService
 import * as roomBlockingService from "../../../../../services/src/services/roomBlockingService";
 import { toast } from "react-toastify";
 
-const BlockRoom = ({ selectedBlockId }) => {
+const BlockRoom = ({ selectedBlockId, onRoomBlocked }) => {
   const [rooms, setRooms] = useState([]);
 
   const [formData, setFormData] = useState({
@@ -58,6 +58,11 @@ const BlockRoom = ({ selectedBlockId }) => {
         fromDate: "",
         toDate: "",
       });
+
+      // Trigger refresh of BookRoomManagementBed
+      if (onRoomBlocked) {
+        onRoomBlocked();
+      }
     } catch (error) {
       console.error("Error blocking room:", error);
       toast.error("Failed to block room. Please try again.");

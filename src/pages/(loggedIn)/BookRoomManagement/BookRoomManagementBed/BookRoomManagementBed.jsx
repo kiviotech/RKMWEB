@@ -90,9 +90,17 @@ const BookRoomManagementBed = ({ blockId, refreshTrigger }) => {
   return (
     <div className="bed-management-container">
       <div className="bed-grid">
+        <div className="room-numbers-column">
+          <div className="room-header fixed-column"></div>
+          {rooms.map((room) => (
+            <div key={room.id} className="room-number">
+              {room.attributes.room_number}
+            </div>
+          ))}
+        </div>
+
         <div className="scrollable-content" ref={scrollContainerRef}>
           <div className="header-row">
-            <div className="room-header fixed-column"></div>
             <div className="scrollable-dates">
               {dates.map((date, index) => (
                 <div key={index} className="date-header">
@@ -105,9 +113,6 @@ const BookRoomManagementBed = ({ blockId, refreshTrigger }) => {
 
           {rooms.map((room) => (
             <div key={room.id} className="room-row">
-              <div className="room-number fixed-column">
-                {room.attributes.room_number}
-              </div>
               <div className="scrollable-beds">
                 {dates.map((_, dateIndex) => (
                   <div key={dateIndex} className="bed-cell">

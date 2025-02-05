@@ -73,7 +73,11 @@ const BookRoomManagementSetting = ({
           </button>
         </div>
 
-        {activeTab === "block" ? <BlockRoom /> : <BookRoom />}
+        {activeTab === "block" ? (
+          <BlockRoom selectedBlockId={selectedBlockId} />
+        ) : (
+          <BookRoom />
+        )}
       </div>
     </div>
   );

@@ -4,59 +4,97 @@
   border-radius: 20px;
 
   .bed-grid {
+    position: relative;
+    overflow-x: auto;
     width: 100%;
-    border-collapse: collapse;
 
-    .header-row {
-      display: grid;
-      grid-template-columns: 100px repeat(5, 1fr);
-      gap: 10px;
-      margin-bottom: 15px;
+    .scrollable-content {
+      display: flex;
+      flex-direction: column;
+      min-width: 100%;
+    }
 
-      .date-header {
-        text-align: center;
-        font-weight: 600;
-        padding: 10px;
+    .header-row,
+    .room-row {
+      display: flex;
+      position: relative;
+    }
+
+    .fixed-column {
+      position: sticky;
+      left: 0;
+      z-index: 2;
+      background: white;
+      padding: 10px;
+      min-width: 80px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .scrollable-dates,
+    .scrollable-beds {
+      display: flex;
+    }
+
+    .date-header {
+      min-width: 150px;
+      text-align: center;
+      padding: 10px;
+      border-bottom: 1px solid #eee;
+      font-weight: 500;
+    }
+
+    .bed-cell {
+      min-width: 100px;
+      height: 80px;
+      border: 1px solid #ffd7b5;
+      border-radius: 8px;
+      margin: 5px;
+      padding: 10px;
+
+      .bed-group {
+        display: flex;
+        justify-content: space-around;
+        margin-bottom: 5px;
+
+        .bed-icon {
+          width: 23px;
+          height: 23px;
+          margin: 0 5px;
+        }
       }
     }
 
     .room-row {
-      display: grid;
-      grid-template-columns: 100px repeat(5, 1fr);
-      gap: 10px;
-      margin-bottom: 15px;
-
       .room-number {
+        font-weight: 500;
+      }
+
+      .scrollable-beds {
         display: flex;
         align-items: center;
-        font-weight: 600;
-      }
-
-      .bed-cell {
-        border: 1px solid #ffa07a;
-        border-radius: 8px;
-        padding: 10px;
-        display: flex;
-        flex-direction: column;
-        gap: 5px;
-
-        .bed-group {
-          display: flex;
-          justify-content: center;
-          gap: 10px;
-
-          .bed-icon {
-            width: 24px;
-            height: 24px;
-            object-fit: contain;
-
-            &:hover {
-              cursor: pointer;
-              opacity: 0.8;
-            }
-          }
-        }
       }
     }
+  }
+}
+
+.three-bed-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  .top-row {
+    display: flex;
+    gap: 4px;
+  }
+
+  .bottom-row {
+    display: flex;
+  }
+  .bed-icon {
+    width: 23px;
+    height: 23px;
+    margin: 0 6px;
   }
 }

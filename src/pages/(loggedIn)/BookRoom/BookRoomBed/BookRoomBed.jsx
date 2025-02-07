@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import { icons } from "../../../../constants";
 import * as blockService from "../../../../../services/src/services/blockService";
+import "./BookRoomBed.scss";
 
 const BookRoomBed = ({
   blockId,
@@ -54,17 +55,105 @@ const BookRoomBed = ({
     fetchBlockDetails();
   }, [blockId, refreshTrigger]);
 
+  const getTooltipContent = (roomBlockings, roomAllocations, currentDate) => {
+    // Check for allocations first
+    const allocation = roomAllocations?.data?.find((allocation) => {
+      const fromDate = new Date(
+        allocation.attributes.guests.data[0].attributes.arrival_date
+      );
+      const toDate = new Date(
+        allocation.attributes.guests.data[0].attributes.departure_date
+      );
+      const checkDate = new Date(
+        currentDate.year,
+        new Date(Date.parse(`01 ${currentDate.month} 2000`)).getMonth(),
+        currentDate.day
+      );
+      fromDate.setHours(0, 0, 0, 0);
+      toDate.setHours(0, 0, 0, 0);
+      checkDate.setHours(0, 0, 0, 0);
+      return checkDate >= fromDate && checkDate <= toDate;
+    });
+
+    if (allocation) {
+      const guests = allocation.attributes.guests.data;
+      return (
+        <div className="tooltip-content">
+          <h4>Room Allocation Details:</h4>
+          {guests.map((guest, index) => (
+            <div key={index} className="guest-details">
+              <p>
+                <strong>Guest {index + 1}:</strong>
+              </p>
+              <p>Name: {guest.attributes.name}</p>
+              <p>From: {guest.attributes.arrival_date}</p>
+              <p>To: {guest.attributes.departure_date}</p>
+              <p>Phone: {guest.attributes.phone_number}</p>
+            </div>
+          ))}
+        </div>
+      );
+    }
+
+    // Check for blockings if no allocation
+    const blocking = roomBlockings?.find((blocking) => {
+      const fromDate = new Date(blocking.attributes.from_date);
+      const toDate = new Date(blocking.attributes.to_date);
+      const checkDate = new Date(
+        currentDate.year,
+        new Date(Date.parse(`01 ${currentDate.month} 2000`)).getMonth(),
+        currentDate.day
+      );
+      fromDate.setHours(0, 0, 0, 0);
+      toDate.setHours(0, 0, 0, 0);
+      checkDate.setHours(0, 0, 0, 0);
+      return checkDate >= fromDate && checkDate <= toDate;
+    });
+
+    if (blocking) {
+      return (
+        <div className="tooltip-content">
+          <h4>Room Blocking Details:</h4>
+          <p>
+            <strong>Status:</strong> {blocking.attributes.room_block_status}
+          </p>
+          <p>
+            <strong>From:</strong> {blocking.attributes.from_date}
+          </p>
+          <p>
+            <strong>To:</strong> {blocking.attributes.to_date}
+          </p>
+          <p>
+            <strong>Reason:</strong> {blocking.attributes.reason_for_blocking}
+          </p>
+          <p>
+            <strong>Created:</strong>{" "}
+            {new Date(blocking.attributes.createdAt).toLocaleString()}
+          </p>
+          <p>
+            <strong>Last Updated:</strong>{" "}
+            {new Date(blocking.attributes.updatedAt).toLocaleString()}
+          </p>
+        </div>
+      );
+    }
+
+    return null;
+  };
+
   const renderBeds = (
     numberOfBeds,
     roomBlockings,
+    roomAllocations,
     currentDate,
     isFirstAvailableRoom
   ) => {
     const beds = [];
+
+    // Check blockings
     const isBlocked = roomBlockings?.some((blocking) => {
       const fromDate = new Date(blocking.attributes.from_date);
       const toDate = new Date(blocking.attributes.to_date);
-
       const checkDate = new Date(
         currentDate.year,
         new Date(Date.parse(`01 ${currentDate.month} 2000`)).getMonth(),
@@ -73,12 +162,37 @@ const BookRoomBed = ({
         0,
         0
       );
-
       fromDate.setHours(0, 0, 0, 0);
       toDate.setHours(0, 0, 0, 0);
-
       return checkDate >= fromDate && checkDate <= toDate;
     });
+
+    // Get number of allocated beds for current date
+    const allocatedBedsCount =
+      roomAllocations?.data?.reduce((count, allocation) => {
+        const fromDate = new Date(
+          allocation.attributes.guests.data[0].attributes.arrival_date
+        );
+        const toDate = new Date(
+          allocation.attributes.guests.data[0].attributes.departure_date
+        );
+        const checkDate = new Date(
+          currentDate.year,
+          new Date(Date.parse(`01 ${currentDate.month} 2000`)).getMonth(),
+          currentDate.day,
+          0,
+          0,
+          0
+        );
+        fromDate.setHours(0, 0, 0, 0);
+        toDate.setHours(0, 0, 0, 0);
+
+        if (checkDate >= fromDate && checkDate <= toDate) {
+          // Count the number of guests in this allocation
+          return count + allocation.attributes.guests.data.length;
+        }
+        return count;
+      }, 0) || 0;
 
     const isSelected =
       selectedDateRange &&
@@ -94,7 +208,13 @@ const BookRoomBed = ({
         return checkDate >= arrivalDate && checkDate <= departureDate;
       })();
 
-    // Determine which icon to use for each bed
+    const tooltipContent = getTooltipContent(
+      roomBlockings,
+      roomAllocations,
+      currentDate
+    );
+
+    // Modify renderBedIcon to handle allocated beds count
     const renderBedIcon = (bedIndex) => {
       if (
         isSelected &&
@@ -104,6 +224,9 @@ const BookRoomBed = ({
         return icons.selectedImage;
       } else if (isBlocked) {
         return icons.filledBed;
+      } else if (bedIndex < allocatedBedsCount) {
+        // Show filled bed for each guest
+        return icons.filledBed;
       } else {
         return icons.Group2;
       }
@@ -111,7 +234,15 @@ const BookRoomBed = ({
 
     if (numberOfBeds === 3) {
       beds.push(
-        <div key="three-bed-layout" className="three-bed-layout">
+        <div
+          key="three-bed-layout"
+          className="three-bed-layout"
+          title={tooltipContent ? "" : undefined}
+          data-tooltip={tooltipContent ? "true" : undefined}
+        >
+          {tooltipContent && (
+            <div className="custom-tooltip">{tooltipContent}</div>
+          )}
           <div className="top-row">
             <img src={renderBedIcon(0)} alt="bed" className="bed-icon" />
             <img src={renderBedIcon(1)} alt="bed" className="bed-icon" />
@@ -127,8 +258,9 @@ const BookRoomBed = ({
       const remainingBeds = numberOfBeds % 2;
       let bedCount = 0;
 
+      const bedGroups = [];
       for (let i = 0; i < fullGroups; i++) {
-        beds.push(
+        bedGroups.push(
           <div key={`group-${i}`} className="bed-group">
             <img
               src={renderBedIcon(bedCount++)}
@@ -145,12 +277,26 @@ const BookRoomBed = ({
       }
 
       if (remainingBeds > 0) {
-        beds.push(
+        bedGroups.push(
           <div key="remaining" className="bed-group">
             <img src={renderBedIcon(bedCount)} alt="bed" className="bed-icon" />
           </div>
         );
       }
+
+      beds.push(
+        <div
+          key="bed-layout"
+          className="bed-layout"
+          title={tooltipContent ? "" : undefined}
+          data-tooltip={tooltipContent ? "true" : undefined}
+        >
+          {tooltipContent && (
+            <div className="custom-tooltip">{tooltipContent}</div>
+          )}
+          {bedGroups}
+        </div>
+      );
     }
 
     return beds;
@@ -272,6 +418,7 @@ const BookRoomBed = ({
                       {renderBeds(
                         room.attributes.no_of_beds,
                         room.attributes.room_blockings?.data,
+                        room.attributes.room_allocations,
                         date,
                         isFirstAvailableRoom(roomIndex, date)
                       )}

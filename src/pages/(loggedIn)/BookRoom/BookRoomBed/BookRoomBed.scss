@@ -1,0 +1,45 @@
+.bed-cell {
+  position: relative;
+
+  .custom-tooltip {
+    display: none;
+    position: absolute;
+    background: white;
+    border: 1px solid #ccc;
+    padding: 15px;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    min-width: 250px;
+    left: 105%;
+    top: 0;
+
+    h4 {
+      margin: 0 0 10px 0;
+      color: #333;
+      border-bottom: 1px solid #eee;
+      padding-bottom: 5px;
+    }
+
+    p {
+      margin: 5px 0;
+      font-size: 0.9em;
+
+      strong {
+        color: #555;
+      }
+    }
+  }
+
+  &:hover {
+    .custom-tooltip {
+      display: block;
+    }
+  }
+}
+
+[data-tooltip="true"] {
+  cursor: pointer;
+}
+
+// Include your existing styles...

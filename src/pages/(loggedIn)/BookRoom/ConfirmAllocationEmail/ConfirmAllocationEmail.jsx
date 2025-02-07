@@ -18,7 +18,7 @@ const ConfirmAllocationEmail = ({
   const handleSendEmail = async () => {
     try {
       const allocationData = {
-        room_status: "occupied",
+        room_status: "allocated",
         guests: {
           connect: allocatedGuests.map((guest) => guest.id),
         },

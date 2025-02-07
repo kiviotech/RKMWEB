@@ -94,8 +94,6 @@ const BookRoomManagementBed = ({ blockId, refreshTrigger }) => {
                 <p>From: {guest.attributes.arrival_date}</p>
                 <p>To: {guest.attributes.departure_date}</p>
                 <p>Phone: {guest.attributes.phone_number}</p>
-                <p>Identity: {guest.attributes.identity_proof}</p>
-                <p>Status: {guest.attributes.status}</p>
               </div>
             ))}
           </div>
@@ -132,10 +130,6 @@ const BookRoomManagementBed = ({ blockId, refreshTrigger }) => {
             </p>
             <p>
               <strong>Reason:</strong> {blocking.attributes.reason_for_blocking}
-            </p>
-            <p>
-              <strong>Created:</strong>{" "}
-              {new Date(blocking.attributes.createdAt).toLocaleString()}
             </p>
             <p>
               <strong>Last Updated:</strong>{" "}

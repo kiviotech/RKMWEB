@@ -1,0 +1,152 @@
+.arrival-date-picker {
+  position: relative;
+
+  input[type="date"] {
+    border: none;
+    outline: none;
+  }
+
+  &::before {
+    content: "Arrival date";
+    position: absolute;
+    top: -8px;
+    left: 12px;
+    background-color: #fff5f1;
+    padding: 0 5px;
+    font-size: 0.75rem;
+    color: #666;
+  }
+
+  .date-input {
+    padding: 0 0.5rem;
+    border: 1px solid #ddd;
+    border-radius: 25px;
+    width: 140px;
+    font-size: 0.9rem;
+    color: #666;
+    background-color: transparent;
+
+    /* Remove default date input styling */
+    &::-webkit-datetime-edit {
+      padding: 0;
+    }
+    &::-webkit-datetime-edit-fields-wrapper {
+      background: transparent;
+    }
+    &::-webkit-datetime-edit-text {
+      color: #666;
+      padding: 0 2px;
+    }
+    &::-webkit-datetime-edit-month-field {
+      color: #666;
+    }
+    &::-webkit-datetime-edit-day-field {
+      color: #666;
+    }
+    &::-webkit-datetime-edit-year-field {
+      color: #666;
+    }
+    &::-webkit-inner-spin-button {
+      display: none;
+    }
+    &::-webkit-calendar-picker-indicator {
+      opacity: 1;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24'%3E%3Cpath fill='%23666' d='M19 4h-1V2h-2v2H8V2H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11z'/%3E%3C/svg%3E");
+      cursor: pointer;
+      padding-right: 8px;
+    }
+
+    &::placeholder {
+      color: #666;
+    }
+
+    /* Remove focus outline */
+    &:focus {
+      outline: none;
+      border-color: #ddd;
+    }
+  }
+}
+.arrival-date-picker,
+.departure-date-picker {
+  padding: 0.5rem;
+  border: 1px solid #ddd;
+  border-radius: 15px;
+  background-color: white;
+  font-size: 0.9rem;
+  outline: none;
+
+  &:focus {
+    border-color: #ff6b00;
+  }
+}
+
+.departure-date-picker {
+  position: relative;
+
+  input[type="date"] {
+    border: none;
+    outline: none;
+  }
+
+  &::before {
+    content: "Departure date";
+    position: absolute;
+    top: -8px;
+    left: 12px;
+    background-color: #fff5f1;
+    padding: 0 5px;
+    font-size: 0.75rem;
+    color: #666;
+  }
+
+  .date-input {
+    padding: 0 0.5rem;
+    border: 1px solid #ddd;
+    border-radius: 25px;
+    width: 140px;
+    font-size: 0.9rem;
+    color: #666;
+    background-color: transparent;
+
+    /* Remove default date input styling */
+    &::-webkit-datetime-edit {
+      padding: 0;
+    }
+    &::-webkit-datetime-edit-fields-wrapper {
+      background: transparent;
+    }
+    &::-webkit-datetime-edit-text {
+      color: #666;
+      padding: 0 2px;
+    }
+    &::-webkit-datetime-edit-month-field {
+      color: #666;
+    }
+    &::-webkit-datetime-edit-day-field {
+      color: #666;
+    }
+    &::-webkit-datetime-edit-year-field {
+      color: #666;
+    }
+    &::-webkit-inner-spin-button {
+      display: none;
+    }
+    &::-webkit-calendar-picker-indicator {
+      opacity: 1;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24'%3E%3Cpath fill='%23666' d='M19 4h-1V2h-2v2H8V2H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11z'/%3E%3C/svg%3E");
+      cursor: pointer;
+      padding-right: 8px;
+    }
+
+    &::placeholder {
+      color: #666;
+    }
+
+    /* Remove focus outline */
+    &:focus {
+      outline: none;
+      border-color: #ddd;
+    }
+  }
+}

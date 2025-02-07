@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-// import "./BookRoomHeader.scss";
+import "./BookRoomHeader.scss";
 import * as blockService from "../../../../../services/src/services/blockService";
 
 const BookRoomHeader = ({ refreshTrigger, onBlockSelect }) => {
@@ -50,8 +50,21 @@ const BookRoomHeader = ({ refreshTrigger, onBlockSelect }) => {
             <option value="Non AC">Non AC</option>
           </select>
         </div>
-        <div className="date-picker">
-          <input type="date" className="date-input" placeholder="dd-mm-yyyy" />
+        <div className="arrival-date-picker">
+          <input
+            type="date"
+            className="date-input"
+            placeholder="dd-mm-yyyy"
+            readOnly
+          />
+        </div>
+        <div className="departure-date-picker">
+          <input
+            type="date"
+            className="date-input"
+            placeholder="dd-mm-yyyy"
+            readOnly
+          />
         </div>
       </div>
     </div>

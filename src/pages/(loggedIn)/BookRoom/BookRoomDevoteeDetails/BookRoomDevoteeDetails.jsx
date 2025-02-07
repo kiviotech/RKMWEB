@@ -196,6 +196,7 @@ const BookRoomDevoteeDetails = ({
           requestId={requestId}
           allocatedGuests={allocatedGuests}
           allocatedRoomNumber={allocatedRoomNumber}
+          allocatedRoomId={allocatedRoomId}
         />
       )}
     </div>

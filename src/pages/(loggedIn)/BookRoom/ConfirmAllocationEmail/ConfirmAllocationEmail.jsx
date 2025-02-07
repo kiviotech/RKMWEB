@@ -1,4 +1,7 @@
 import React from "react";
+import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
+import { createNewRoomAllocation } from "../../../../../services/src/services/roomAllocationService";
 import "./ConfirmAllocationEmail.scss";
 
 const ConfirmAllocationEmail = ({
@@ -8,12 +11,42 @@ const ConfirmAllocationEmail = ({
   requestId,
   allocatedGuests,
   allocatedRoomNumber,
+  allocatedRoomId,
 }) => {
+  const navigate = useNavigate();
+
+  const handleSendEmail = async () => {
+    try {
+      const allocationData = {
+        room_status: "occupied",
+        guests: {
+          connect: allocatedGuests.map((guest) => guest.id),
+        },
+        booking_request: [requestId],
+        rooms: [allocatedRoomId],
+      };
+
+      await createNewRoomAllocation(allocationData);
+
+      toast.success("Room allocation created successfully!");
+
+      onSend();
+      onClose();
+
+      // Navigate to the Requests page
+      navigate("/Requests");
+    } catch (error) {
+      console.error("Error creating room allocation:", error);
+      toast.error("Failed to create room allocation. Please try again.");
+    }
+  };
+
   console.log("Email Component Data:", {
     requestId,
     guestEmail: guestData?.attributes?.email,
     allocatedGuests,
     roomNumber: allocatedRoomNumber,
+    roomId: allocatedRoomId,
   });
 
   return (
@@ -32,14 +65,16 @@ const ConfirmAllocationEmail = ({
           <div className="allocation-form-group">
             <label>To:</label>
             <div className="allocation-recipient-tags">
-              <div className="allocation-recipient-tag">
-                <span className="allocation-avatar">
-                  {guestData?.attributes?.email?.charAt(0)?.toUpperCase()}
-                </span>
-                <span className="allocation-name">
-                  {guestData?.attributes?.email}
-                </span>
-              </div>
+              {allocatedGuests.map((guest) => (
+                <div key={guest.id} className="allocation-recipient-tag">
+                  <span className="allocation-avatar">
+                    {guest.attributes.email?.charAt(0)?.toUpperCase()}
+                  </span>
+                  <span className="allocation-name">
+                    {guest.attributes.email}
+                  </span>
+                </div>
+              ))}
             </div>
           </div>
 
@@ -87,7 +122,10 @@ const ConfirmAllocationEmail = ({
             <button className="allocation-cancel-button" onClick={onClose}>
               Cancel
             </button>
-            <button className="allocation-send-button" onClick={onSend}>
+            <button
+              className="allocation-send-button"
+              onClick={handleSendEmail}
+            >
               Send
             </button>
           </div>

@@ -6,8 +6,7 @@ import ConfirmAllocationEmail from "../ConfirmAllocationEmail/ConfirmAllocationE
 const BookRoomDevoteeDetails = ({
   requestId,
   onAllocate,
-  allocatedRoomNumber,
-  allocatedRoomId,
+  allocatedRooms = [],
 }) => {
   const [guestData, setGuestData] = useState(null);
   const [selectedGuests, setSelectedGuests] = useState([]);
@@ -36,12 +35,8 @@ const BookRoomDevoteeDetails = ({
   }, [requestId]);
 
   useEffect(() => {
-    console.log(
-      "Room allocation updated:",
-      allocatedRoomNumber,
-      allocatedRoomId
-    );
-  }, [allocatedRoomNumber, allocatedRoomId]);
+    console.log("Room allocation updated:", allocatedRooms);
+  }, [allocatedRooms]);
 
   const handleGuestSelect = (guestId) => {
     setSelectedGuests((prev) =>
@@ -93,8 +88,8 @@ const BookRoomDevoteeDetails = ({
       guestEmail: guestData?.attributes?.email,
       allocatedGuests: allocatedGuests.map((guest) => ({
         ...guest,
-        roomNumber: allocatedRoomNumber,
-        roomId: allocatedRoomId,
+        roomNumber: allocatedRooms[0]?.roomNumber,
+        roomId: allocatedRooms[0]?.id,
       })),
     };
     console.log("Email Data:", emailData);
@@ -108,6 +103,21 @@ const BookRoomDevoteeDetails = ({
   const handleSendEmail = () => {
     // Add your email sending logic here
     setShowEmailModal(false);
+  };
+
+  const findRoomForGuest = (guestIndex) => {
+    if (!Array.isArray(allocatedRooms) || allocatedRooms.length === 0) {
+      return null;
+    }
+
+    let bedsCount = 0;
+    for (const room of allocatedRooms) {
+      bedsCount += room.bedsAllocated;
+      if (guestIndex < bedsCount) {
+        return room;
+      }
+    }
+    return null;
   };
 
   return (
@@ -127,15 +137,18 @@ const BookRoomDevoteeDetails = ({
                 </tr>
               </thead>
               <tbody>
-                {allocatedGuests.map((guest) => (
-                  <tr key={guest.id}>
-                    <td>{guest.attributes.name}</td>
-                    <td>{guest.attributes.age}</td>
-                    <td>{guest.attributes.gender}</td>
-                    <td>{guest.attributes.relationship}</td>
-                    <td>{allocatedRoomNumber || "Pending"}</td>
-                  </tr>
-                ))}
+                {allocatedGuests.map((guest, index) => {
+                  const room = findRoomForGuest(index);
+                  return (
+                    <tr key={guest.id}>
+                      <td>{guest.attributes.name}</td>
+                      <td>{guest.attributes.age}</td>
+                      <td>{guest.attributes.gender}</td>
+                      <td>{guest.attributes.relationship}</td>
+                      <td>{room ? room.roomNumber : "Pending"}</td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
             {!guestData?.attributes?.guests?.data?.length && (
@@ -202,8 +215,7 @@ const BookRoomDevoteeDetails = ({
           guestData={guestData}
           requestId={requestId}
           allocatedGuests={allocatedGuests}
-          allocatedRoomNumber={allocatedRoomNumber}
-          allocatedRoomId={allocatedRoomId}
+          allocatedRooms={allocatedRooms}
         />
       )}
     </div>

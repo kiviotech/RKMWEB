@@ -2,6 +2,7 @@ import React from "react";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import { createNewRoomAllocation } from "../../../../../services/src/services/roomAllocationService";
+import { updateBookingRequestById } from "../../../../../services/src/services/bookingRequestService";
 import "./ConfirmAllocationEmail.scss";
 
 const ConfirmAllocationEmail = ({
@@ -10,43 +11,79 @@ const ConfirmAllocationEmail = ({
   guestData,
   requestId,
   allocatedGuests,
-  allocatedRoomNumber,
-  allocatedRoomId,
+  allocatedRooms,
 }) => {
   const navigate = useNavigate();
 
   const handleSendEmail = async () => {
     try {
-      const allocationData = {
-        room_status: "allocated",
-        guests: {
-          connect: allocatedGuests.map((guest) => guest.id),
+      let guestIndex = 0; // Keep track of which guests have been allocated
+
+      // Create separate allocations for each room
+      for (const room of allocatedRooms) {
+        // Get the specific guests for this room
+        const guestsForRoom = allocatedGuests.slice(
+          guestIndex,
+          guestIndex + room.bedsAllocated
+        );
+
+        // Update the guest index for the next room
+        guestIndex += room.bedsAllocated;
+
+        const allocationData = {
+          room_status: "allocated",
+          guests: {
+            connect: guestsForRoom.map((guest) => guest.id),
+          },
+          booking_request: [requestId],
+          room: [room.roomId],
+        };
+
+        console.log(`Creating allocation for room ${room.roomNumber}:`, {
+          roomNumber: room.roomNumber,
+          guestCount: guestsForRoom.length,
+          guestIds: guestsForRoom.map((g) => g.id),
+        });
+
+        await createNewRoomAllocation(allocationData);
+      }
+
+      // Update booking request status to confirmed
+      const updateData = {
+        data: {
+          status: "confirmed",
         },
-        booking_request: [requestId],
-        room: [allocatedRoomId],
       };
 
-      await createNewRoomAllocation(allocationData);
+      await updateBookingRequestById(requestId, updateData);
+      console.log("Booking request status updated to confirmed");
 
-      toast.success("Room allocation created successfully!");
-
+      toast.success(
+        "Room allocations created and booking request updated successfully!"
+      );
       onSend();
       onClose();
-
-      // Navigate to the Requests page
       navigate("/Requests");
     } catch (error) {
-      console.error("Error creating room allocation:", error);
-      toast.error("Failed to create room allocation. Please try again.");
+      console.error("Error in room allocation process:", error);
+      toast.error(
+        "Failed to complete the allocation process. Please try again."
+      );
     }
+  };
+
+  // Format room numbers for display
+  const formatRoomNumbers = () => {
+    return allocatedRooms
+      .map((room) => `${room.roomNumber} (${room.bedsAllocated} beds)`)
+      .join(", ");
   };
 
   console.log("Email Component Data:", {
     requestId,
     guestEmail: guestData?.attributes?.email,
     allocatedGuests,
-    roomNumber: allocatedRoomNumber,
-    roomId: allocatedRoomId,
+    allocatedRooms,
   });
 
   return (
@@ -93,8 +130,8 @@ const ConfirmAllocationEmail = ({
               i.e. arrival {guestData?.attributes?.arrival_date} and departure{" "}
               {guestData?.attributes?.departure_date} after breakfast at 07:30
               a.m. The accommodation will be kept reserved for{" "}
-              {allocatedGuests?.length} devotees in Room No.{" "}
-              {allocatedRoomNumber}
+              {allocatedGuests?.length} devotees in Room Numbers:{" "}
+              {formatRoomNumbers()}
             </p>
 
             <p>
@@ -107,7 +144,7 @@ const ConfirmAllocationEmail = ({
 
             <p>
               May Sri Ramakrishna, Holy Mother Sri Sarada Devi and Swami
-              Vivekananda bless you all I
+              Vivekananda bless you all!
             </p>
 
             <p>With best regards and namaskar again.</p>

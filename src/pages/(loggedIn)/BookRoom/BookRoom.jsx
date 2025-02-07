@@ -11,6 +11,7 @@ const BookRoom = () => {
   const [selectedGuestCount, setSelectedGuestCount] = useState(0);
   const [allocatedRoomNumber, setAllocatedRoomNumber] = useState(null);
   const [allocatedRoomId, setAllocatedRoomId] = useState(null);
+  const [allocatedRooms, setAllocatedRooms] = useState([]);
   const location = useLocation();
   const requestId = location.state?.requestId;
 
@@ -30,10 +31,9 @@ const BookRoom = () => {
     setSelectedGuestCount(guestCount);
   };
 
-  const handleRoomAllocation = (roomNumber, roomId) => {
-    console.log("Room allocated:", roomNumber, roomId);
-    setAllocatedRoomNumber(roomNumber);
-    setAllocatedRoomId(roomId);
+  const handleRoomAllocation = (roomAllocations) => {
+    console.log("Rooms allocated:", roomAllocations);
+    setAllocatedRooms(roomAllocations);
   };
 
   return (
@@ -56,8 +56,7 @@ const BookRoom = () => {
           <BookRoomDevoteeDetails
             requestId={requestId}
             onAllocate={handleAllocate}
-            allocatedRoomNumber={allocatedRoomNumber}
-            allocatedRoomId={allocatedRoomId}
+            allocatedRooms={allocatedRooms}
           />
         </div>
       </div>

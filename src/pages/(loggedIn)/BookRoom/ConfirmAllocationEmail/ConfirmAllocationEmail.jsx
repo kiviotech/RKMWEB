@@ -23,7 +23,7 @@ const ConfirmAllocationEmail = ({
           connect: allocatedGuests.map((guest) => guest.id),
         },
         booking_request: [requestId],
-        rooms: [allocatedRoomId],
+        room: [allocatedRoomId],
       };
 
       await createNewRoomAllocation(allocationData);

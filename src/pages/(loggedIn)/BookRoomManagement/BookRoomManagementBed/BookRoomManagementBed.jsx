@@ -6,6 +6,7 @@ import * as blockService from "../../../../../services/src/services/blockService
 const BookRoomManagementBed = ({ blockId, refreshTrigger }) => {
   const [rooms, setRooms] = useState([]);
   const [dates, setDates] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
   const scrollContainerRef = useRef(null);
 
   // Generate dates for the entire year
@@ -33,11 +34,14 @@ const BookRoomManagementBed = ({ blockId, refreshTrigger }) => {
     const fetchBlockDetails = async () => {
       if (blockId) {
         try {
+          setIsLoading(true);
           const blockData = await blockService.fetchBlockById(blockId);
           const roomsData = blockData.data.attributes.rooms.data;
           setRooms(roomsData);
         } catch (error) {
           console.error("Error fetching block details:", error);
+        } finally {
+          setIsLoading(false);
         }
       }
     };
@@ -111,45 +115,51 @@ const BookRoomManagementBed = ({ blockId, refreshTrigger }) => {
 
   return (
     <div className="bed-management-container">
-      <div className="bed-grid">
-        <div className="room-numbers-column">
-          <div className="room-header fixed-column"></div>
-          {rooms.map((room) => (
-            <div key={room.id} className="room-number">
-              {room.attributes.room_number}
-            </div>
-          ))}
+      {isLoading ? (
+        <div className="loader-container">
+          <div className="loader"></div>
         </div>
-
-        <div className="scrollable-content" ref={scrollContainerRef}>
-          <div className="header-row">
-            <div className="scrollable-dates">
-              {dates.map((date, index) => (
-                <div key={index} className="date-header">
-                  <div className="year">{date.year}</div>
-                  <div>{`${date.day} ${date.month}`}</div>
-                </div>
-              ))}
-            </div>
+      ) : (
+        <div className="bed-grid">
+          <div className="room-numbers-column">
+            <div className="room-header fixed-column"></div>
+            {rooms.map((room) => (
+              <div key={room.id} className="room-number">
+                {room.attributes.room_number}
+              </div>
+            ))}
           </div>
 
-          {rooms.map((room) => (
-            <div key={room.id} className="room-row">
-              <div className="scrollable-beds">
-                {dates.map((date, dateIndex) => (
-                  <div key={dateIndex} className="bed-cell">
-                    {renderBeds(
-                      room.attributes.no_of_beds,
-                      room.attributes.room_blockings?.data,
-                      date
-                    )}
+          <div className="scrollable-content" ref={scrollContainerRef}>
+            <div className="header-row">
+              <div className="scrollable-dates">
+                {dates.map((date, index) => (
+                  <div key={index} className="date-header">
+                    <div className="year">{date.year}</div>
+                    <div>{`${date.day} ${date.month}`}</div>
                   </div>
                 ))}
               </div>
             </div>
-          ))}
+
+            {rooms.map((room) => (
+              <div key={room.id} className="room-row">
+                <div className="scrollable-beds">
+                  {dates.map((date, dateIndex) => (
+                    <div key={dateIndex} className="bed-cell">
+                      {renderBeds(
+                        room.attributes.no_of_beds,
+                        room.attributes.room_blockings?.data,
+                        date
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };

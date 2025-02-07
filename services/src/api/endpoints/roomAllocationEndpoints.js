@@ -1,9 +1,9 @@
-const roomAllocationsEndpoints = {
+const roomAllocationEndpoints = {
   getRoomAllocations: "/room-allocations?populate=*",
-  getRoomAllocationsById: (id) => `/room-allocations/${id}`,
-  createRoomAllocations: "/room-allocations",
-  updateRoomAllocations: (id) => `/room-allocations/${id}`,
-  deleteRoomAllocations: (id) => `/room-allocations/${id}`,
+  getRoomAllocationById: (id) => `/room-allocations/${id}?populate=*`,
+  createRoomAllocation: "/room-allocations",
+  updateRoomAllocation: (id) => `/room-allocations/${id}`,
+  deleteRoomAllocation: (id) => `/room-allocations/${id}`,
 };
 
-export default roomAllocationsEndpoints;
+export default roomAllocationEndpoints;

@@ -3,7 +3,7 @@ const bookingRequestEndpoints = {
   // getBookingRequestsByStatus: (status) => `/booking-requests?filters[status][$eq]=${status}&populate=*`, // GET booking requests based on status
   getBookingRequestsByStatus: (status) =>
     `/booking-requests?filters[status][$eq]=${status}&populate=*`, // GET booking requests based on status
-  getBookingRequestById: (id) => `/booking-requests/${id}`, // GET booking request by ID
+  getBookingRequestById: (id) => `/booking-requests/${id}?populate=*`, // GET booking request by ID
   createBookingRequest: "/booking-requests", // POST a new booking request
   updateBookingRequest: (id) => `/booking-requests/${id}`, // PUT to update a booking request by ID
   deleteBookingRequest: (id) => `/booking-requests/${id}`, // DELETE a booking request by ID

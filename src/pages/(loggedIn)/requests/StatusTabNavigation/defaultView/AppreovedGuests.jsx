@@ -16,41 +16,8 @@ const ApprovedGuests = ({ selectedDate, label }) => {
   const [error, setError] = useState(null);
 
   const handleButtonClick = (request) => {
-    console.log("Main Request ID:", request.id);
-    console.log(
-      "Guest IDs:",
-      request.guests.map((guest) => guest.id)
-    );
-
-    const guestData = {
-      requestId: request.id,
-      name: request.userDetails.name,
-      arrivalDate: request.userDetails.arrivalDate,
-      departureDate: request.userDetails.departureDate,
-      numberOfGuests: request.noOfGuest,
-      guestDetails: {
-        ...request.userDetails,
-      },
-      additionalGuests: request.guests.map((guest) => {
-        console.log("Processing guest ID:", guest.id);
-        return {
-          id: guest.id,
-          name: guest.name,
-          age: guest.age,
-          gender: guest.gender,
-          relation: guest.relation,
-          roomNo: guest.room?.data?.attributes?.room_number || "-",
-        };
-      }),
-    };
-
-    console.log("Formatted Guest Data IDs:", {
-      requestId: request.id,
-      guestIds: guestData.additionalGuests.map((guest) => guest.id),
-    });
-
     navigate("/book-room", {
-      state: { guestData },
+      state: { requestId: request.id },
     });
   };
 

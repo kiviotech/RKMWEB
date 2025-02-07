@@ -1,27 +1,22 @@
 import apiClient from "../../../apiClient";
-import roomAllocationsEndpoints from "../endpoints/roomAllocationEndpoints";
+import roomAllocationEndpoints from "../endpoints/roomAllocationEndpoints";
 
+// Fetch all room allocations
 export const getRoomAllocations = () =>
-  apiClient.get(roomAllocationsEndpoints.getRoomAllocations);
+  apiClient.get(roomAllocationEndpoints.getRoomAllocations);
 
+// Fetch a specific room allocation by ID
 export const getRoomAllocationById = (id) =>
-  apiClient.get(roomAllocationsEndpoints.getRoomAllocationsById(id));
+  apiClient.get(roomAllocationEndpoints.getRoomAllocationById(id));
 
+// Create a new room allocation
 export const createRoomAllocation = (data) =>
-  apiClient.post(roomAllocationsEndpoints.createRoomAllocations, { data });
+  apiClient.post(roomAllocationEndpoints.createRoomAllocation, { data });
 
+// Update a room allocation by ID
 export const updateRoomAllocation = (id, data) =>
-  apiClient.put(roomAllocationsEndpoints.updateRoomAllocations(id), { data });
+  apiClient.put(roomAllocationEndpoints.updateRoomAllocation(id), { data });
 
+// Delete a room allocation by ID
 export const deleteRoomAllocation = (id) =>
-  apiClient.delete(roomAllocationsEndpoints.deleteRoomAllocations(id));
-
-export const getRoomAllocationsByUserAndStatus = (userId, status) =>
-  apiClient.get(
-    `${roomAllocationsEndpoints.getRoomAllocations}?userId=${userId}&status=${status}`
-  );
-
-export const getRoomAllocationsByUser = (userId) =>
-  apiClient.get(
-    `${roomAllocationsEndpoints.getRoomAllocations}?userId=${userId}`
-  );
+  apiClient.delete(roomAllocationEndpoints.deleteRoomAllocation(id));

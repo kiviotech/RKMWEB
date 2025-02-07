@@ -1,0 +1,137 @@
+.allocation-email-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.allocation-email-modal {
+  background: white;
+  padding: 50px;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 800px;
+  position: relative;
+  height: 80vh;
+  display: flex;
+
+  .allocation-close-button {
+    position: absolute;
+    right: 18px;
+    top: 15px;
+    border: none;
+    background: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: #666;
+  }
+}
+
+.allocation-email-form {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+
+  .allocation-form-group {
+    margin-bottom: 15px;
+
+    label {
+      display: inline-block;
+      width: 50px;
+      color: #333;
+    }
+
+    .allocation-from-email {
+      margin-left: 8px;
+      color: #333;
+    }
+
+    input {
+      width: calc(100% - 60px);
+      padding: 8px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+  }
+}
+
+.allocation-recipient-tags {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 8px;
+
+  .allocation-recipient-tag {
+    display: flex;
+    align-items: center;
+    background-color: #f0f0f0;
+    padding: 4px 8px;
+    border-radius: 16px;
+    gap: 8px;
+
+    .allocation-avatar {
+      background-color: #2196f3;
+      color: white;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+    }
+
+    .allocation-remove-tag {
+      border: none;
+      background: none;
+      cursor: pointer;
+      padding: 0;
+      color: #666;
+    }
+  }
+}
+
+.allocation-email-content {
+  line-height: 1.5;
+  flex: 1;
+  overflow-y: auto;
+  padding-right: 10px;
+
+  p {
+    margin-bottom: 10px;
+  }
+
+  &:focus {
+    outline: none;
+  }
+}
+
+.allocation-modal-actions {
+  padding-top: 10px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+
+  button {
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+
+  .allocation-cancel-button {
+    background: none;
+    border: 1px solid #ddd;
+  }
+
+  .allocation-send-button {
+    background-color: #8b5cf6;
+    color: white;
+    border: none;
+  }
+}

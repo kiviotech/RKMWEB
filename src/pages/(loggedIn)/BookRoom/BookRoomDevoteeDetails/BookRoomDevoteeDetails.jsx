@@ -35,6 +35,14 @@ const BookRoomDevoteeDetails = ({
     fetchRequestData();
   }, [requestId]);
 
+  useEffect(() => {
+    console.log(
+      "Room allocation updated:",
+      allocatedRoomNumber,
+      allocatedRoomId
+    );
+  }, [allocatedRoomNumber, allocatedRoomId]);
+
   const handleGuestSelect = (guestId) => {
     setSelectedGuests((prev) =>
       prev.includes(guestId)
@@ -53,9 +61,14 @@ const BookRoomDevoteeDetails = ({
       );
 
       setAllocatedGuests((prev) => [...prev, ...newAllocatedGuests]);
-
       const newTotalCount = totalAllocatedCount + selectedGuests.length;
       setTotalAllocatedCount(newTotalCount);
+
+      onAllocate(
+        guestData.attributes.arrival_date,
+        guestData.attributes.departure_date,
+        newTotalCount
+      );
 
       const updatedGuestData = {
         ...guestData,
@@ -71,12 +84,6 @@ const BookRoomDevoteeDetails = ({
       };
       setGuestData(updatedGuestData);
       setSelectedGuests([]);
-
-      onAllocate(
-        guestData.attributes.arrival_date,
-        guestData.attributes.departure_date,
-        newTotalCount
-      );
     }
   };
 

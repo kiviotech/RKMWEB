@@ -19,12 +19,19 @@ const BookRoom = () => {
   };
 
   const handleAllocate = (arrivalDate, departureDate, guestCount) => {
-    setSelectedDateRange({ arrivalDate, departureDate });
+    console.log("Allocation dates:", arrivalDate, departureDate);
+
+    // Use the date strings directly without creating Date objects
+    setSelectedDateRange({
+      arrivalDate: arrivalDate,
+      departureDate: departureDate,
+    });
     setAllocationBlockId(selectedBlockId);
     setSelectedGuestCount(guestCount);
   };
 
   const handleRoomAllocation = (roomNumber, roomId) => {
+    console.log("Room allocated:", roomNumber, roomId);
     setAllocatedRoomNumber(roomNumber);
     setAllocatedRoomId(roomId);
   };

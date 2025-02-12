@@ -1,15 +1,29 @@
 import React, { useEffect, useState } from "react";
 import "./BookRoomHeader.scss";
 import * as blockService from "../../../../../services/src/services/blockService";
+import icons from "../../../../constants/icons";
 
 const BookRoomHeader = ({
   refreshTrigger,
   onBlockSelect,
   arrivalDate,
   departureDate,
+  onViewChange,
 }) => {
   const [blocks, setBlocks] = useState([]);
   const [activeBlock, setActiveBlock] = useState("");
+  const [activeToggler, setActiveToggler] = useState("dashboard");
+
+  const getStyle = (view) => ({
+    cursor: "pointer",
+    borderRadius: "5px",
+    background: activeToggler === view ? "var(--primary-color)" : "transparent",
+  });
+
+  const handleTogglerClick = (view) => {
+    setActiveToggler(view);
+    onViewChange(view);
+  };
 
   useEffect(() => {
     const getBlocks = async () => {
@@ -54,6 +68,35 @@ const BookRoomHeader = ({
         ))}
       </div>
       <div className="sort-section">
+        <div
+          className="toggleGridView"
+          style={{
+            background: "#DEE4ED",
+            borderRadius: "5px",
+            display: "flex",
+          }}
+        >
+          <img
+            src={
+              activeToggler === "dashboard"
+                ? icons.toggglerDashboardWite
+                : icons.toggglerDashboard
+            }
+            alt="Dashboard"
+            onClick={() => handleTogglerClick("dashboard")}
+            style={getStyle("dashboard")}
+          />
+          <img
+            src={
+              activeToggler === "gridView"
+                ? icons.togglerGridViewWhite
+                : icons.togglerGridView
+            }
+            alt="Grid View"
+            onClick={() => handleTogglerClick("gridView")}
+            style={getStyle("gridView")}
+          />
+        </div>
         <div className="sort-by">
           <span>Sort by</span>
           <select className="sort-select">

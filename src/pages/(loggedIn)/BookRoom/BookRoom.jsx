@@ -16,6 +16,7 @@ const BookRoom = () => {
   const requestId = location.state?.requestId;
   const arrivalDate = location.state?.arrivalDate;
   const departureDate = location.state?.departureDate;
+  const [viewMode, setViewMode] = useState("dashboard");
 
   useEffect(() => {
     console.log("BookRoom received dates:", { arrivalDate, departureDate });
@@ -42,12 +43,17 @@ const BookRoom = () => {
     setAllocatedRooms(roomAllocations);
   };
 
+  const handleViewChange = (view) => {
+    setViewMode(view);
+  };
+
   return (
     <div>
       <BookRoomHeader
         onBlockSelect={handleBlockSelect}
         arrivalDate={arrivalDate}
         departureDate={departureDate}
+        onViewChange={handleViewChange}
       />
       <div style={{ display: "flex" }}>
         <div style={{ width: "70%" }}>
@@ -56,14 +62,13 @@ const BookRoom = () => {
             arrivalDate={arrivalDate}
             departureDate={departureDate}
             selectedDateRange={
-              selectedBlockId === allocationBlockId
-                ? selectedDateRange
-                : { arrivalDate, departureDate }
+              selectedBlockId === allocationBlockId ? selectedDateRange : null
             }
             numberOfBedsToAllocate={
               selectedBlockId === allocationBlockId ? selectedGuestCount : 0
             }
             onRoomAllocation={handleRoomAllocation}
+            viewMode={viewMode}
           />
         </div>
         <div style={{ width: "30%" }}>

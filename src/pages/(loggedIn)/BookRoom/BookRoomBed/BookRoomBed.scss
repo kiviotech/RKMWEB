@@ -43,3 +43,80 @@
 }
 
 // Include your existing styles...
+
+.list-view-container {
+  width: 100%;
+  overflow-x: auto;
+
+  .list-header {
+    display: flex;
+    background: #f5f5f5;
+    border-bottom: 1px solid #dee4ed;
+
+    .room-column {
+      min-width: 120px;
+      padding: 12px;
+      font-weight: 600;
+    }
+
+    .date-column {
+      min-width: 100px;
+      padding: 12px;
+      text-align: center;
+
+      .date {
+        font-size: 18px;
+        font-weight: 600;
+      }
+
+      .month {
+        font-size: 14px;
+      }
+    }
+  }
+
+  .list-row {
+    display: flex;
+    border-bottom: 1px solid #dee4ed;
+    align-items: center;
+
+    .room-info {
+      min-width: 120px;
+      padding: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+
+      .room-number {
+        font-weight: 500;
+      }
+
+      .room-capacity {
+        color: #666;
+        font-size: 14px;
+      }
+    }
+
+    .availability-cell {
+      min-width: 100px;
+      padding: 12px;
+      text-align: center;
+
+      span {
+        font-size: 16px;
+        font-weight: 600;
+        color: #6c5dd3;
+
+        &.full {
+          color: #e63757;
+        }
+      }
+
+      .label {
+        font-size: 12px;
+        color: #666;
+        margin-top: 4px;
+      }
+    }
+  }
+}

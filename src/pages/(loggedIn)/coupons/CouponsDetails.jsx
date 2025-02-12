@@ -5,6 +5,7 @@ import { createNewCouponUser } from "../../../../services/src/services/couponUse
 import { toast } from "react-toastify";
 import { updateCouponAmountCollected } from "../../../../services/src/services/couponService";
 import useCouponStore from "../../../../useCouponStore";
+import { handlePrintSeparate, handlePrintAll } from "./PrintHandlers";
 
 const CouponsDetails = () => {
   const COUPON_PRICE = 40;
@@ -114,423 +115,31 @@ const CouponsDetails = () => {
     });
   };
 
-  const handlePrintSeparate = async () => {
+  const handlePrintSeparateClick = async () => {
     try {
-      // Reset previous errors
-      setErrors({
-        name: "",
-        pincode: "",
-        address: "",
-      });
-
-      // First validate required fields
-      const newErrors = {};
-      const missingFields = [];
-
-      if (!formData.name.trim()) {
-        newErrors.name = "Name is required";
-        missingFields.push("Name");
-      }
-      if (!formData.pincode.trim()) {
-        newErrors.pincode = "Pincode is required";
-        missingFields.push("Pincode");
-      }
-      if (!formData.address.trim()) {
-        newErrors.address = "Address is required";
-        missingFields.push("Address");
-      }
-
-      // If there are missing fields, show alert and return
-      if (Object.keys(newErrors).length > 0) {
-        alert(
-          `Please fill in all required fields:\n${missingFields
-            .map((field) => `• ${field}`)
-            .join("\n")}`
-        );
-        setErrors(newErrors);
-        return;
-      }
-
-      // Then check if balance is 0
-      const balance = calculateBalance();
-      if (balance !== "0.00") {
-        alert("Please collect the full payment before printing coupons.");
-        return;
-      }
-
-      // If validations pass, create coupon user record
-      const currentDate = new Date().toISOString();
-      const couponData = {
-        date: currentDate,
-        name: formData.name,
-        address: `${formData.address} - ${formData.pincode}`,
-        no_of_coupon: selectedCoupons,
-        paid: parseFloat(formData.paid),
-      };
-
-      await createNewCouponUser(couponData);
-      await updateCouponAmountCollected(
-        currentDate,
-        formData.paid,
-        selectedCoupons
+      await handlePrintSeparate(
+        formData,
+        selectedCoupons,
+        setRefreshTrigger,
+        clearForm
       );
-      toast.success("Coupon created successfully!");
-
-      // Clear form immediately after successful creation
-      clearForm();
-
-      // Create a new hidden iframe for printing
-      const printFrame = document.createElement("iframe");
-      printFrame.style.display = "none";
-      document.body.appendChild(printFrame);
-
-      const formattedDate = new Date().toLocaleDateString("en-GB", {
-        day: "2-digit",
-        month: "long",
-        year: "numeric",
-      });
-
-      // Write the print content to the iframe
-      printFrame.contentDocument.write(`
-        <div class="print-container">
-          ${Array.from({ length: selectedCoupons })
-            .map(
-              (_, index) => `
-            <div class="prasada-coupon">
-              <div class="prasada-coupon__header">
-                <div class="prasada-coupon__header-content">
-                  <img src="https://kamarpukur.rkmm.org/Logo%201-2.png" alt="Logo" class="prasada-coupon__logo" />
-                  <h2 class="prasada-coupon__title">
-                    Ramakrishna Math & Ramakrishna Mission, Kamarpukur
-                  </h2>
-                </div>
-              </div>
-              
-              <h1 class="prasada-coupon__main-title">PRASADA COUPON</h1>
-              
-              <div class="prasada-coupon__details">
-                <div class="prasada-coupon__row">
-                  <span class="prasada-coupon__label">Date:</span>
-                  <span class="prasada-coupon__value">${formattedDate}</span>
-                </div>
-                <div class="prasada-coupon__row">
-                  <span class="prasada-coupon__label">Name:</span>
-                  <span class="prasada-coupon__value">${formData.name}</span>
-                </div>
-                <div class="prasada-coupon__row">
-                  <span class="prasada-coupon__label">No. Of Devotees:</span>
-                </div>
-                <div class="prasada-coupon__number">
-                  ${selectedCoupons}
-                </div>
-                <div class="prasada-coupon__page-number">
-                  ${index + 1}/${selectedCoupons}
-                </div>
-              </div>
-            </div>
-          `
-            )
-            .join("")}
-        </div>
-        <style>
-          @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
-          
-          * {
-            font-family: 'Poppins', sans-serif;
-          }
-          .print-container {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-          }
-          .prasada-coupon {
-            width: 300px;
-            padding: 20px;
-            border: 1px solid #000;
-            margin: 20px;
-            position: relative;
-          }
-          .prasada-coupon__header {
-            margin-bottom: 20px;
-          }
-          .prasada-coupon__header-content {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-          }
-          .prasada-coupon__logo {
-            width: 60px;
-            height: 60px;
-            flex-shrink: 0;
-          }
-          .prasada-coupon__title {
-            font-size: 16px;
-            font-weight: bold;
-            margin: 0;
-          }
-          .prasada-coupon__main-title {
-            text-align: center;
-            font-size: 20px;
-            margin: 20px 0;
-            border-top: 1px solid #000;
-            border-bottom: 1px solid #000;
-            padding: 10px 0;
-          }
-          .prasada-coupon__details {
-            margin-top: 20px;
-          }
-          .prasada-coupon__row {
-            margin: 10px 0;
-            display: flex;
-            gap: 10px;
-          }
-          .prasada-coupon__label {
-            font-weight: 500;
-            color: #666;
-          }
-          .prasada-coupon__value {
-            font-weight: bold;
-          }
-          .prasada-coupon__number {
-            font-size: 72px;
-            font-weight: bold;
-            text-align: center;
-            border: 1px solid #666;
-            border-radius: 8px;
-            margin: 20px auto;
-            width: 100%;
-            height: 120px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-          }
-          .prasada-coupon__page-number {
-            position: absolute;
-            bottom: 10px;
-            right: 10px;
-            font-size: 12px;
-            color: #666;
-            font-weight: 500;
-          }
-          @media print {
-            @page { margin: 1cm; }
-          }
-        </style>
-      `);
-      printFrame.contentDocument.close();
-
-      // Print the iframe content
-      printFrame.contentWindow.print();
-
-      // Refresh UserCouponsSection after printing
-      printFrame.contentWindow.onafterprint = () => {
-        document.body.removeChild(printFrame);
-        setRefreshTrigger((prev) => prev + 1);
-      };
+      clearForm(); // Clear form after successful operation
     } catch (error) {
-      console.error("Error saving coupon data:", error);
-      toast.error("Error saving coupon data. Please try again.");
+      console.error("Error in print separate:", error);
     }
   };
 
-  const handlePrintAll = async () => {
+  const handlePrintAllClick = async () => {
     try {
-      // Reset previous errors
-      setErrors({
-        name: "",
-        pincode: "",
-        address: "",
-      });
-
-      // First validate required fields
-      const newErrors = {};
-      const missingFields = [];
-
-      if (!formData.name.trim()) {
-        newErrors.name = "Name is required";
-        missingFields.push("Name");
-      }
-      if (!formData.pincode.trim()) {
-        newErrors.pincode = "Pincode is required";
-        missingFields.push("Pincode");
-      }
-      if (!formData.address.trim()) {
-        newErrors.address = "Address is required";
-        missingFields.push("Address");
-      }
-
-      // If there are missing fields, show alert and return
-      if (Object.keys(newErrors).length > 0) {
-        alert(
-          `Please fill in all required fields:\n${missingFields
-            .map((field) => `• ${field}`)
-            .join("\n")}`
-        );
-        setErrors(newErrors);
-        return;
-      }
-
-      // Then check if balance is 0
-      const balance = calculateBalance();
-      if (balance !== "0.00") {
-        alert("Please collect the full payment before printing coupons.");
-        return;
-      }
-
-      // If validations pass, create coupon user record
-      const currentDate = new Date().toISOString();
-      const couponData = {
-        date: currentDate,
-        name: formData.name,
-        address: `${formData.address} - ${formData.pincode}`,
-        no_of_coupon: selectedCoupons,
-        paid: parseFloat(formData.paid),
-      };
-
-      await createNewCouponUser(couponData);
-      await updateCouponAmountCollected(
-        currentDate,
-        formData.paid,
-        selectedCoupons
+      await handlePrintAll(
+        formData,
+        selectedCoupons,
+        setRefreshTrigger,
+        clearForm
       );
-      toast.success("Coupon created successfully!");
-
-      // Clear form immediately after successful creation
-      clearForm();
-
-      // Create a new hidden iframe for printing
-      const printFrame = document.createElement("iframe");
-      printFrame.style.display = "none";
-      document.body.appendChild(printFrame);
-
-      const formattedDate = new Date().toLocaleDateString("en-GB", {
-        day: "2-digit",
-        month: "long",
-        year: "numeric",
-      });
-
-      // Write the print content to the iframe - now only showing one card
-      printFrame.contentDocument.write(`
-        <div class="print-container">
-          <div class="prasada-coupon">
-            <div class="prasada-coupon__header">
-              <div class="prasada-coupon__header-content">
-                <img src="https://kamarpukur.rkmm.org/Logo%201-2.png" alt="Logo" class="prasada-coupon__logo" />
-                <h2 class="prasada-coupon__title">
-                  Ramakrishna Math & Ramakrishna Mission, Kamarpukur
-                </h2>
-              </div>
-            </div>
-            
-            <h1 class="prasada-coupon__main-title">PRASADA COUPON</h1>
-            
-            <div class="prasada-coupon__details">
-              <div class="prasada-coupon__row">
-                <span class="prasada-coupon__label">Date:</span>
-                <span class="prasada-coupon__value">${formattedDate}</span>
-              </div>
-              <div class="prasada-coupon__row">
-                <span class="prasada-coupon__label">Name:</span>
-                <span class="prasada-coupon__value">${formData.name}</span>
-              </div>
-              <div class="prasada-coupon__row">
-                <span class="prasada-coupon__label">No. Of Devotees:</span>
-              </div>
-              <div class="prasada-coupon__number">
-                ${selectedCoupons}
-              </div>
-            </div>
-          </div>
-        </div>
-        <style>
-          @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
-          
-          * {
-            font-family: 'Poppins', sans-serif;
-          }
-          .print-container {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-          }
-          .prasada-coupon {
-            width: 300px;
-            padding: 20px;
-            border: 1px solid #000;
-            margin: 20px;
-          }
-          .prasada-coupon__header {
-            margin-bottom: 20px;
-          }
-          .prasada-coupon__header-content {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-          }
-          .prasada-coupon__logo {
-            width: 60px;
-            height: 60px;
-            flex-shrink: 0;
-          }
-          .prasada-coupon__title {
-            font-size: 16px;
-            font-weight: bold;
-            margin: 0;
-          }
-          .prasada-coupon__main-title {
-            text-align: center;
-            font-size: 20px;
-            margin: 20px 0;
-            border-top: 1px solid #000;
-            border-bottom: 1px solid #000;
-            padding: 10px 0;
-          }
-          .prasada-coupon__details {
-            margin-top: 20px;
-          }
-          .prasada-coupon__row {
-            margin: 10px 0;
-            display: flex;
-            gap: 10px;
-          }
-          .prasada-coupon__label {
-            font-weight: 500;
-            color: #666;
-          }
-          .prasada-coupon__value {
-            font-weight: bold;
-          }
-          .prasada-coupon__number {
-            font-size: 72px;
-            font-weight: bold;
-            text-align: center;
-            border: 1px solid #666;
-            border-radius: 8px;
-            margin: 20px auto;
-            width: 100%;
-            height: 120px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-          }
-          @media print {
-            @page { margin: 1cm; }
-          }
-        </style>
-      `);
-      printFrame.contentDocument.close();
-
-      // Print the iframe content
-      printFrame.contentWindow.print();
-
-      // Refresh UserCouponsSection after printing
-      printFrame.contentWindow.onafterprint = () => {
-        document.body.removeChild(printFrame);
-        setRefreshTrigger((prev) => prev + 1);
-      };
+      clearForm(); // Clear form after successful operation
     } catch (error) {
-      console.error("Error saving coupon data:", error);
-      toast.error("Error saving coupon data. Please try again.");
+      console.error("Error in print all:", error);
     }
   };
 
@@ -685,7 +294,7 @@ const CouponsDetails = () => {
           <button
             type="button"
             className="coupon-details__btn coupon-details__btn--primary"
-            onClick={handlePrintAll}
+            onClick={handlePrintAllClick}
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -703,7 +312,7 @@ const CouponsDetails = () => {
           <button
             type="button"
             className="coupon-details__btn coupon-details__btn--secondary"
-            onClick={handlePrintSeparate}
+            onClick={handlePrintSeparateClick}
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"

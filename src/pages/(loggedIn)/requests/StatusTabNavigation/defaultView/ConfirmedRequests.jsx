@@ -1,7 +1,11 @@
 import React, { useEffect, useState } from "react";
 import icons from "../../../../../constants/icons";
 import GuestDetailsPopup from "../../../../../components/ui/GuestDetailsPopup/GuestDetailsPopup";
+import { updateBookingRequestById } from "../../../../../../services/src/services/bookingRequestService";
 import { getBookingRequestsByStatus } from "../../../../../../services/src/api/repositories/bookingRequestRepository";
+import { deleteRoomAllocationById } from "../../../../../../services/src/services/roomAllocationService";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const ConfirmedRequests = ({ selectedDate, searchQuery, label }) => {
   const [selectedGuest, setSelectedGuest] = useState(null);
@@ -37,8 +41,9 @@ const ConfirmedRequests = ({ selectedDate, searchQuery, label }) => {
               deeksha: item.attributes.deeksha,
             },
             assignBed:
-              item.attributes.guests?.data?.[0]?.attributes?.room?.data
-                ?.attributes?.room_number || "N/A",
+              item?.attributes?.room_allocations?.data[0]?.attributes?.room
+                ?.data?.attributes?.room_number,
+            roomAllocation: item?.attributes?.room_allocations?.data,
             noOfGuest: item.attributes.number_of_guest_members || "0",
             isMarked: item.attributes.isMarked || false,
             approved: item.attributes.approved || false,
@@ -126,8 +131,99 @@ const ConfirmedRequests = ({ selectedDate, searchQuery, label }) => {
     setSelectedGuest(null);
   };
 
+  const handleCancelBooking = async (e, request) => {
+    e.stopPropagation();
+    try {
+      const roomAllocationId = request?.roomAllocation?.[0]?.id;
+      if (roomAllocationId) {
+        await deleteRoomAllocationById(roomAllocationId);
+        // Update the booking request status to "awaiting"
+        await updateBookingRequestById(request.id, {
+          data: {
+            status: "awaiting",
+            room_allocations: {
+              disconnect: [roomAllocationId],
+            },
+          },
+        });
+
+        toast.success("Booking cancelled successfully!");
+
+        // Fetch updated data and process it the same way as initial load
+        const data = await getBookingRequestsByStatus("confirmed");
+        const bookingData = data?.data?.data;
+        if (bookingData) {
+          const bookingRequests = bookingData.map((item) => ({
+            id: item.id,
+            status: item.attributes.status,
+            userImage: item.attributes.userImage || "",
+            createdAt: new Date(item.attributes.createdAt),
+            userDetails: {
+              name: item.attributes.name,
+              age: item.attributes.age,
+              gender: item.attributes.gender,
+              email: item.attributes.email,
+              addharNo: item.attributes.aadhaar_number,
+              mobile: item.attributes.phone_number,
+              arrivalDate: item.attributes.arrival_date,
+              departureDate: item.attributes.departure_date,
+              occupation: item.attributes.occupation,
+              deeksha: item.attributes.deeksha,
+            },
+            assignBed:
+              item?.attributes?.room_allocations?.data[0]?.attributes?.room
+                ?.data?.attributes?.room_number,
+            roomAllocation: item?.attributes?.room_allocations?.data,
+            noOfGuest: item.attributes.number_of_guest_members || "0",
+            isMarked: item.attributes.isMarked || false,
+            approved: item.attributes.approved || false,
+            icons: [
+              {
+                id: 1,
+                normal: icons.crossCircle,
+                filled: icons.filledRedCircle,
+                isActive: false,
+              },
+              {
+                id: 2,
+                normal: icons.marked,
+                filled: icons.markedYellow,
+                isActive: false,
+              },
+              {
+                id: 3,
+                normal: icons.checkCircle,
+                filled: icons.checkCircleMarked,
+                isActive: true, // Set to true for confirmed requests
+              },
+            ],
+            reason: item.attributes.reason || "Confirmed",
+            guests: item.attributes.guests.data.map((guest) => ({
+              id: guest.id,
+              name: guest.attributes.name,
+              age: guest.attributes.age,
+              gender: guest.attributes.gender,
+              relation: guest.attributes.relationship,
+              roomNumber: guest.attributes.room?.data?.attributes?.room_number,
+            })),
+            recommendation_letter: item.attributes.recommendation_letter,
+          }));
+          setRequests(bookingRequests);
+          setFilteredRequests(bookingRequests);
+        }
+      } else {
+        toast.error("No room allocation found for this booking");
+        console.error("No room allocation ID found for this booking");
+      }
+    } catch (error) {
+      toast.error("Failed to cancel booking. Please try again.");
+      console.error("Error canceling booking:", error);
+    }
+  };
+
   return (
     <div className="Requests-main-container">
+      <ToastContainer position="top-right" autoClose={3000} />
       <div className="requests-cards-section">
         {filteredRequests.map((request) => (
           <div
@@ -191,8 +287,49 @@ const ConfirmedRequests = ({ selectedDate, searchQuery, label }) => {
                       .join("-")}
                   </p>
                   <p>Assigned Room: {request.assignBed}</p>
+                  {console.log("request", request)}
                 </div>
               </div>
+            </div>
+            <div
+              className="request-actions"
+              style={{
+                display: "flex",
+                justifyContent: "flex-end",
+                gap: "10px",
+                marginTop: "10px",
+                padding: "0 20px 10px",
+              }}
+            >
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  // Add reschedule logic here
+                }}
+                style={{
+                  padding: "8px 16px",
+                  backgroundColor: "#FFA500",
+                  color: "white",
+                  border: "none",
+                  borderRadius: "4px",
+                  cursor: "pointer",
+                }}
+              >
+                Reschedule
+              </button>
+              <button
+                onClick={(e) => handleCancelBooking(e, request)}
+                style={{
+                  padding: "8px 16px",
+                  backgroundColor: "#FF4444",
+                  color: "white",
+                  border: "none",
+                  borderRadius: "4px",
+                  cursor: "pointer",
+                }}
+              >
+                Cancel
+              </button>
             </div>
           </div>
         ))}

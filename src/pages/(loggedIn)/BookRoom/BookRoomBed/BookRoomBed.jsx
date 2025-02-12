@@ -9,6 +9,8 @@ const BookRoomBed = ({
   numberOfBedsToAllocate,
   refreshTrigger,
   onRoomAllocation,
+  arrivalDate,
+  departureDate,
 }) => {
   const [rooms, setRooms] = useState([]);
   const [dates, setDates] = useState([]);
@@ -17,15 +19,24 @@ const BookRoomBed = ({
   const [allocatedRoomNumber, setAllocatedRoomNumber] = useState(null);
   const [allocatedRooms, setAllocatedRooms] = useState([]);
 
-  // Generate dates for the entire year
+  useEffect(() => {
+    console.log("BookRoombed received dates:", {
+      arrivalDate,
+      departureDate,
+    });
+  }, []);
+
+  // Generate dates starting from arrival date
   useEffect(() => {
     const generateDates = () => {
       const datesArray = [];
-      const currentDate = new Date();
-      // Generate dates for next 365 days
+      if (!arrivalDate) return;
+
+      const startDate = new Date(arrivalDate);
+      // Generate dates for next 365 days starting from arrival date
       for (let i = 0; i < 365; i++) {
-        const date = new Date(currentDate);
-        date.setDate(currentDate.getDate() + i);
+        const date = new Date(startDate);
+        date.setDate(startDate.getDate() + i);
         datesArray.push({
           day: date.getDate(),
           month: date.toLocaleString("default", { month: "short" }),
@@ -36,7 +47,7 @@ const BookRoomBed = ({
     };
 
     generateDates();
-  }, []);
+  }, [arrivalDate]);
 
   useEffect(() => {
     const fetchBlockDetails = async () => {

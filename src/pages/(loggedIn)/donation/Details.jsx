@@ -201,6 +201,16 @@ const Details = ({ activeTab, onTransactionTypeChange }) => {
     }
   }, [activeTabId, currentSection]);
 
+  useEffect(() => {
+    if (!currentDonationDetails.purpose) {
+      const defaultPurpose =
+        activeTab === "Math" ? mathOptions[0] : missionOptions[0];
+      updateDonationDetails(activeTabId, currentSection, {
+        purpose: defaultPurpose,
+      });
+    }
+  }, [activeTabId, currentSection, activeTab]);
+
   const hasGuestData = () => {
     return !!donorTabs[activeTabId][currentSection].donorDetails.guestData;
   };
@@ -227,9 +237,6 @@ const Details = ({ activeTab, onTransactionTypeChange }) => {
               opacity: isCompleted ? 0.7 : 1,
             }}
           >
-            <option value="" disabled>
-              Select Purpose
-            </option>
             {(activeTab === "Math" ? mathOptions : missionOptions).map(
               (option) => (
                 <option key={option} value={option}>

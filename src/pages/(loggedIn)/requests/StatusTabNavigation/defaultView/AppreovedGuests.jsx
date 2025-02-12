@@ -16,8 +16,17 @@ const ApprovedGuests = ({ selectedDate, label }) => {
   const [error, setError] = useState(null);
 
   const handleButtonClick = (request) => {
+    const arrivalDate = request.userDetails.arrivalDate;
+    const departureDate = request.userDetails.departureDate;
+
+    console.log("Navigating with dates:", { arrivalDate, departureDate });
+
     navigate("/book-room", {
-      state: { requestId: request.id },
+      state: {
+        requestId: request.id,
+        arrivalDate: arrivalDate,
+        departureDate: departureDate,
+      },
     });
   };
 

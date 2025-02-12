@@ -74,14 +74,14 @@ const TransactionDetails = ({ activeTab }) => {
 
   const handleBankNameChange = (e) => {
     const value = e.target.value;
-    if (/^[A-Za-z\s.&-]*$/.test(value)) {
+    if (/^[A-Za-z0-9\s.&-]*$/.test(value)) {
       updateTransactionDetails(activeTabId, currentSection, {
         bankName: value,
       });
       setBankNameError("");
       clearFieldError("bankName");
     } else {
-      setBankNameError("Only letters and basic punctuation allowed");
+      setBankNameError("Only letters, numbers, and basic punctuation allowed");
     }
   };
 

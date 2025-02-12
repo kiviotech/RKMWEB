@@ -645,7 +645,7 @@ const CouponsDetails = () => {
           </div>
           <div className="coupon-details__form-group__data">
             <label className="coupon-details__label">
-              Paid <span className="coupon-details__required">*</span>
+              Donate <span className="coupon-details__required">*</span>
             </label>
             <input
               className="coupon-details__input"

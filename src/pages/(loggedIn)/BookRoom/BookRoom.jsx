@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import BookRoomHeader from "./BookRoomHeader/BookRoomHeader";
 import BookRoomBed from "./BookRoomBed/BookRoomBed";
@@ -14,6 +14,12 @@ const BookRoom = () => {
   const [allocatedRooms, setAllocatedRooms] = useState([]);
   const location = useLocation();
   const requestId = location.state?.requestId;
+  const arrivalDate = location.state?.arrivalDate;
+  const departureDate = location.state?.departureDate;
+
+  useEffect(() => {
+    console.log("BookRoom received dates:", { arrivalDate, departureDate });
+  }, [arrivalDate, departureDate]);
 
   const handleBlockSelect = (blockId) => {
     setSelectedBlockId(blockId);
@@ -38,13 +44,21 @@ const BookRoom = () => {
 
   return (
     <div>
-      <BookRoomHeader onBlockSelect={handleBlockSelect} />
+      <BookRoomHeader
+        onBlockSelect={handleBlockSelect}
+        arrivalDate={arrivalDate}
+        departureDate={departureDate}
+      />
       <div style={{ display: "flex" }}>
         <div style={{ width: "70%" }}>
           <BookRoomBed
             blockId={selectedBlockId}
+            arrivalDate={arrivalDate}
+            departureDate={departureDate}
             selectedDateRange={
-              selectedBlockId === allocationBlockId ? selectedDateRange : null
+              selectedBlockId === allocationBlockId
+                ? selectedDateRange
+                : { arrivalDate, departureDate }
             }
             numberOfBedsToAllocate={
               selectedBlockId === allocationBlockId ? selectedGuestCount : 0

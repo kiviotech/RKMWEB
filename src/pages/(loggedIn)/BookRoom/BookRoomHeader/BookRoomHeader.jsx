@@ -2,7 +2,12 @@ import React, { useEffect, useState } from "react";
 import "./BookRoomHeader.scss";
 import * as blockService from "../../../../../services/src/services/blockService";
 
-const BookRoomHeader = ({ refreshTrigger, onBlockSelect }) => {
+const BookRoomHeader = ({
+  refreshTrigger,
+  onBlockSelect,
+  arrivalDate,
+  departureDate,
+}) => {
   const [blocks, setBlocks] = useState([]);
   const [activeBlock, setActiveBlock] = useState("");
 
@@ -24,6 +29,13 @@ const BookRoomHeader = ({ refreshTrigger, onBlockSelect }) => {
 
     getBlocks();
   }, [refreshTrigger, onBlockSelect, activeBlock]);
+
+  useEffect(() => {
+    console.log("BookRoomHeader received dates:", {
+      arrivalDate,
+      departureDate,
+    });
+  }, [arrivalDate, departureDate]);
 
   return (
     <div className="book-room-header">
@@ -55,6 +67,7 @@ const BookRoomHeader = ({ refreshTrigger, onBlockSelect }) => {
             type="date"
             className="date-input"
             placeholder="dd-mm-yyyy"
+            value={arrivalDate || ""}
             readOnly
           />
         </div>
@@ -63,6 +76,7 @@ const BookRoomHeader = ({ refreshTrigger, onBlockSelect }) => {
             type="date"
             className="date-input"
             placeholder="dd-mm-yyyy"
+            value={departureDate || ""}
             readOnly
           />
         </div>

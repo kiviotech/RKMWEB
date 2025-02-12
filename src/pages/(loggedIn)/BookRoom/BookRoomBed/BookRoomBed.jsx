@@ -475,39 +475,53 @@ const BookRoomBed = ({
           <div className="room-column">Room No.</div>
           {dates.slice(0, 5).map((date, index) => (
             <div key={index} className="date-column">
-              <div className="date">{date.day}</div>
-              <div className="month">{date.month}</div>
+              {`${date.day}${getOrdinalSuffix(date.day)} ${date.month}`}
             </div>
           ))}
         </div>
 
-        {rooms.map((room) => {
-          const capacity = room.attributes.no_of_beds;
-          return (
-            <div key={room.id} className="list-row">
-              <div className="room-info">
-                <div className="room-number">
-                  {`${room.attributes.room_number}`}
-                </div>
-                <div className="room-capacity">({capacity})</div>
+        {rooms.map((room) => (
+          <div key={room.id} className="list-row">
+            <div className="room-info">
+              <div className="room-number">
+                {room.attributes.room_number}
+                <span className="capacity">({room.attributes.no_of_beds})</span>
               </div>
-
-              {dates.slice(0, 5).map((date, index) => {
-                const availableBeds = getAvailableBedsForDate(room, date);
-                return (
-                  <div key={index} className="availability-cell">
-                    <span className={availableBeds === 0 ? "full" : ""}>
-                      {availableBeds}
-                    </span>
-                    <div className="label">Available</div>
-                  </div>
-                );
-              })}
             </div>
-          );
-        })}
+
+            {dates.slice(0, 5).map((date, index) => {
+              const availableBeds = getAvailableBedsForDate(room, date);
+              const tooltipContent = getTooltipContent(
+                room.attributes.room_blockings?.data,
+                room.attributes.room_allocations,
+                date
+              );
+
+              return (
+                <div
+                  key={index}
+                  className="availability-box"
+                  data-tooltip={tooltipContent ? "true" : undefined}
+                >
+                  <div className="bed-count">{availableBeds}</div>
+                  <div className="availability-label">Available</div>
+                  {tooltipContent && (
+                    <div className="custom-tooltip">{tooltipContent}</div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        ))}
       </div>
     );
+  };
+
+  // Helper function to add ordinal suffix to dates
+  const getOrdinalSuffix = (day) => {
+    const suffixes = ["th", "st", "nd", "rd"];
+    const v = day % 100;
+    return suffixes[(v - 20) % 10] || suffixes[v] || suffixes[0];
   };
 
   // Add helper function to calculate available beds

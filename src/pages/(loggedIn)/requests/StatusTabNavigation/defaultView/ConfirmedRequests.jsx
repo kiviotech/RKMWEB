@@ -140,7 +140,7 @@ const ConfirmedRequests = ({ selectedDate, searchQuery, label }) => {
         // Update the booking request status to "awaiting"
         await updateBookingRequestById(request.id, {
           data: {
-            status: "awaiting",
+            status: "canceled",
             room_allocations: {
               disconnect: [roomAllocationId],
             },

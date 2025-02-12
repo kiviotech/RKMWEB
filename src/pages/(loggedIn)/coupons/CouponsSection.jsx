@@ -118,7 +118,7 @@ const CouponsSection = () => {
     },
     {
       title: "Total Coupons",
-      value: (couponData.total + specialCouponValue).toString(),
+      value: (couponData.running + specialCouponValue).toString(),
       color: "#65C466",
       width: "large",
     },

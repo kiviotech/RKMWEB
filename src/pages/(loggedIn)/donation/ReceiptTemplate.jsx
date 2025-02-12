@@ -223,18 +223,9 @@ const ReceiptTemplate = ({
     donorDetails.pincode ? `Pin: ${donorDetails.pincode}` : ""
   }
                     </p>
-                    ${
-                      donorDetails.identityNumber
-                        ? `
-                    <p style="margin: 0;">
-                      ${
-                        donorDetails.identityType === "PAN"
-                          ? `PAN: ${donorDetails.identityNumber}`
-                          : `Aadhaar: ${donorDetails.identityNumber}`
-                      }
-                    </p>`
-                        : ""
-                    }
+                    <p style="margin: 0;">${donorDetails.identityType}: ${
+    donorDetails.identityNumber
+  }</p>
                   </div>
                 </div>
                 <div class="payment-details">

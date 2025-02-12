@@ -203,7 +203,11 @@ const GuestDetailsPopup = ({
     console.log("Formatted Guest Data:", guestData);
 
     navigate("/book-room", {
-      state: { requestId: request.id },
+      state: {
+        requestId: request.id,
+        arrivalDate: guestDetails?.userDetails?.arrivalDate,
+        departureDate: guestDetails?.userDetails?.departureDate,
+      },
     });
     onClose();
   };

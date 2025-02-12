@@ -121,7 +121,7 @@ const ConfirmAllocationEmail = ({
             suppressContentEditableWarning={true}
             style={{ outline: "none" }}
           >
-            <p>Dear Devotee,</p>
+            <p>Dear {allocatedGuests[0]?.attributes?.name},</p>
             <p>Namaskar.</p>
 
             <p>

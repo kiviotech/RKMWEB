@@ -96,7 +96,7 @@ const DikshaForm = () => {
     maritalStatus: "",
     age: "",
   });
-  console.log(gender);
+  // console.log(gender);
 
   // Change 2: State for enabling the Next button
   const [isNextEnabled, setIsNextEnabled] = useState(false);
@@ -157,7 +157,7 @@ const DikshaForm = () => {
     setTimeout(validateForm, 500);
   };
 
-  console.log("DeekshaForm Store State:", useDeekshaFormStore.getState());
+  // console.log("DeekshaForm Store State:", useDeekshaFormStore.getState());
 
   const [showLanguagePopup, setShowLanguagePopup] = useState(true);
   const [selectedLanguage, setSelectedLanguage] = useState(null);

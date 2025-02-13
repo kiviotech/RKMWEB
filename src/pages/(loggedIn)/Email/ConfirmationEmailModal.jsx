@@ -60,7 +60,7 @@ RAMAKRISHNA MATH & RAMAKRISHNA MISSION, KAMANKUNUR`);
       onClose();
       navigate("/Requests");
     } catch (error) {
-      console.error("Error sending email:", error);
+      // console.error("Error sending email:", error);
       alert("Failed to send email and allocate rooms. Please try again.");
     }
   };

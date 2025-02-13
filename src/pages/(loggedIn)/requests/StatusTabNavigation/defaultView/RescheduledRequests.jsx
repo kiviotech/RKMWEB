@@ -115,7 +115,7 @@ const RescheduledRequests = ({ selectedDate, label }) => {
 
     const token = await getToken(); // Fetch token
     if (!token) {
-      console.error("No token available for API requests");
+      // console.error("No token available for API requests");
       return;
     }
 
@@ -127,10 +127,10 @@ const RescheduledRequests = ({ selectedDate, label }) => {
         },
       };
       const response = await updateBookingRequest(requestId, updatedData);
-      console.log(
-        `Booking request updated to ${newStatus} successfully`,
-        response
-      );
+      // console.log(
+      //   `Booking request updated to ${newStatus} successfully`,
+      //   response
+      // );
 
       // Update local state to reflect the status change
       setRequests((prevRequests) =>
@@ -155,10 +155,10 @@ const RescheduledRequests = ({ selectedDate, label }) => {
         )
       );
     } catch (error) {
-      console.error(
-        `Failed to update the booking request to ${newStatus}`,
-        error
-      );
+      // console.error(
+      //   `Failed to update the booking request to ${newStatus}`,
+      //   error
+      // );
       console.log("Error response data:", error.response?.data?.error);
     }
   };

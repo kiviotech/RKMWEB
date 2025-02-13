@@ -125,7 +125,7 @@ const DeekshaRelationForm = () => {
     }
     setErrors(newErrors);
 
-    console.log("Current Store State:", useDeekshaFormStore.getState());
+    // console.log("Current Store State:", useDeekshaFormStore.getState());
   };
 
   // Update relationship selection with validation
@@ -138,7 +138,7 @@ const DeekshaRelationForm = () => {
     delete newErrors.relationship;
     setErrors(newErrors);
 
-    console.log("Current Store State:", useDeekshaFormStore.getState());
+    // console.log("Current Store State:", useDeekshaFormStore.getState());
   };
 
   // Update Yes/No selection with validation
@@ -152,7 +152,7 @@ const DeekshaRelationForm = () => {
     }
     updateRelation({ hasInitiatedFamily: value });
 
-    console.log("Current Store State:", useDeekshaFormStore.getState());
+    // console.log("Current Store State:", useDeekshaFormStore.getState());
   };
 
   // Validate fields on blur

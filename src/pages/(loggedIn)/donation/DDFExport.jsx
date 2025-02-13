@@ -28,7 +28,7 @@ const DDFExport = () => {
     const fetchAllDonations = async () => {
       try {
         const response = await fetchDonations({});
-        console.log("DDFEXPORT:", response.data);
+        // console.log("DDFEXPORT:", response.data);
       } catch (error) {
         console.error("Error fetching donations:", error);
       }
@@ -175,7 +175,7 @@ const DDFExport = () => {
 
       return finalDonations;
     } catch (error) {
-      console.error("Error fetching donations:", error);
+      // console.error("Error fetching donations:", error);
       return [];
     }
   };
@@ -197,7 +197,7 @@ const DDFExport = () => {
       });
       setShowDropdown(false);
     } catch (error) {
-      console.error("Export error:", error);
+      // console.error("Export error:", error);
       alert("Error generating preview. Please try again.");
     }
   };

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { icons } from "../../../../../constants";
 import CommonButton from "../../../../../components/ui/Button";
-import { getBookingRequestsByStatus } from '../../../../../../services/src/api/repositories/bookingRequestRepository';
+import { getBookingRequestsByStatus } from "../../../../../../services/src/api/repositories/bookingRequestRepository";
 import { getToken } from "../../../../../../services/src/utils/storage";
 import { useNavigate } from "react-router-dom";
 
@@ -20,11 +20,11 @@ const TabApprovedGuestsGridView = ({ selectedDate }) => {
       try {
         const token = await getToken();
         if (!token) {
-          console.error("No token available for API requests");
+          // console.error("No token available for API requests");
           return;
         }
 
-        const data = await getBookingRequestsByStatus('approved');
+        const data = await getBookingRequestsByStatus("approved");
         const bookingData = data?.data?.data;
 
         if (bookingData) {
@@ -70,7 +70,11 @@ const TabApprovedGuestsGridView = ({ selectedDate }) => {
 
   useEffect(() => {
     if (selectedDate) {
-      const filtered = guests.filter(guest => new Date(guest.createdAt).toDateString() === selectedDate.toDateString());
+      const filtered = guests.filter(
+        (guest) =>
+          new Date(guest.createdAt).toDateString() ===
+          selectedDate.toDateString()
+      );
       setFilteredGuests(filtered);
     } else {
       setFilteredGuests(guests); // Show all if no date selected

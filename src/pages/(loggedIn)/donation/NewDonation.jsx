@@ -41,7 +41,7 @@ const NewDonation = () => {
 
   useEffect(() => {
     const donationData = location.state?.donationData;
-    console.log("NewDonation - Received donation data:", donationData);
+    // console.log("NewDonation - Received donation data:", donationData);
     if (donationData) {
       initializeFromDonationData(donationData);
       // Set the transaction type from the donation data

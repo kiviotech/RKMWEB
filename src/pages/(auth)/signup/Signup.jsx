@@ -84,12 +84,12 @@ const Signup = () => {
 
     try {
       const response = await signUpUser({ username, email, password });
-      console.log("Sign-up successful", response);
+      // console.log("Sign-up successful", response);
 
       // Redirect to login page after successful sign-up
       navigate("/");
     } catch (err) {
-      console.error("Error during sign-up:", err);
+      // console.error("Error during sign-up:", err);
       setError("Sign-up failed. Please try again.");
     }
   };

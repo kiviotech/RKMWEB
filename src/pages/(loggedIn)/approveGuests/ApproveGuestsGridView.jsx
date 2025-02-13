@@ -68,7 +68,7 @@ const ApproveGuestsGridView = () => {
 
     const token = await getToken(); // Fetch token
     if (!token) {
-      console.error("No token available for API requests");
+      // console.error("No token available for API requests");
       return;
     }
 
@@ -76,10 +76,10 @@ const ApproveGuestsGridView = () => {
       // Update the request on the server
       const updatedData = { data: { status: newStatus } };
       const response = await updateBookingRequest(guestId, updatedData);
-      console.log(
-        `Booking request updated to ${newStatus} successfully`,
-        response
-      );
+      // console.log(
+      //   `Booking request updated to ${newStatus} successfully`,
+      //   response
+      // );
 
       // Update local state to reflect the status change
       setGuests((prevGuests) =>

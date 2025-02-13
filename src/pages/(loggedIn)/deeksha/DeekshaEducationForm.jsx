@@ -207,7 +207,7 @@ const DeekshaEducationForm = () => {
       languages: languages,
     });
     // Log entire store after update
-    console.log("Current Zustand Store State:", useDeekshaFormStore.getState());
+    // console.log("Current Zustand Store State:", useDeekshaFormStore.getState());
   }, [education, occupation, languages, updateEducation]);
 
   // Get translations based on selected language

@@ -27,7 +27,7 @@ const Dashboard = () => {
       try {
         const response = await fetchBookingRequests();
         if (!response?.data) {
-          console.error("No data received from API");
+          // console.error("No data received from API");
           return;
         }
 

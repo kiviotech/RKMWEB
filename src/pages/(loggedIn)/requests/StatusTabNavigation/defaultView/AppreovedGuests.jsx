@@ -19,7 +19,7 @@ const ApprovedGuests = ({ selectedDate, label }) => {
     const arrivalDate = request.userDetails.arrivalDate;
     const departureDate = request.userDetails.departureDate;
 
-    console.log("Navigating with dates:", { arrivalDate, departureDate });
+    // console.log("Navigating with dates:", { arrivalDate, departureDate });
 
     navigate("/book-room", {
       state: {
@@ -36,7 +36,7 @@ const ApprovedGuests = ({ selectedDate, label }) => {
       try {
         const data = await getBookingRequestsByStatus("approved");
         const bookingData = data?.data?.data;
-        console.log("booking data", bookingData);
+        // console.log("booking data", bookingData);
 
         if (bookingData) {
           const bookingRequests = bookingData.map((item) => ({
@@ -91,13 +91,13 @@ const ApprovedGuests = ({ selectedDate, label }) => {
             })),
             recommendation_letter: item.attributes.recommendation_letter,
           }));
-          console.log("Transformed Booking Requests:", bookingRequests);
+          // console.log("Transformed Booking Requests:", bookingRequests);
           setRequests(bookingRequests);
           setFilteredRequests(bookingRequests);
         }
       } catch (error) {
         setError("Error fetching approved guests");
-        console.error("Error fetching approved booking requests:", error);
+        // console.error("Error fetching approved booking requests:", error);
       } finally {
         setLoading(false);
       }
@@ -111,7 +111,7 @@ const ApprovedGuests = ({ selectedDate, label }) => {
       const filtered = requests
         .filter((request) => {
           const requestDate = new Date(request.createdAt).toDateString();
-          console.log(request);
+          // console.log(request);
           return requestDate === selectedDate.toDateString(); // Compare only the date
         })
         .sort((a, b) => a.createdAt - b.createdAt); // Sort by date

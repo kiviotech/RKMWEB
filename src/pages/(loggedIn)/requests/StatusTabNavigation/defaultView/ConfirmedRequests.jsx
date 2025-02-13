@@ -18,9 +18,9 @@ const ConfirmedRequests = ({ selectedDate, searchQuery, label }) => {
     const fetchBookingRequests = async () => {
       try {
         const data = await getBookingRequestsByStatus("confirmed");
-        console.log("Raw API Response:", data);
+        // console.log("Raw API Response:", data);
         const bookingData = data?.data?.data;
-        console.log("Booking Data:", bookingData);
+        // console.log("Booking Data:", bookingData);
 
         if (bookingData) {
           const bookingRequests = bookingData.map((item) => ({
@@ -79,7 +79,7 @@ const ConfirmedRequests = ({ selectedDate, searchQuery, label }) => {
             recommendation_letter: item.attributes.recommendation_letter,
           }));
 
-          console.log("Processed Booking Requests:", bookingRequests);
+          // console.log("Processed Booking Requests:", bookingRequests);
           setRequests(bookingRequests);
           setFilteredRequests(bookingRequests);
         }
@@ -115,7 +115,7 @@ const ConfirmedRequests = ({ selectedDate, searchQuery, label }) => {
       );
     }
 
-    console.log("Filtered Requests:", filtered);
+    // console.log("Filtered Requests:", filtered);
     setFilteredRequests(filtered);
   }, [selectedDate, requests, searchQuery]);
 
@@ -213,11 +213,11 @@ const ConfirmedRequests = ({ selectedDate, searchQuery, label }) => {
         }
       } else {
         toast.error("No room allocation found for this booking");
-        console.error("No room allocation ID found for this booking");
+        // console.error("No room allocation ID found for this booking");
       }
     } catch (error) {
       toast.error("Failed to cancel booking. Please try again.");
-      console.error("Error canceling booking:", error);
+      // console.error("Error canceling booking:", error);
     }
   };
 
@@ -287,7 +287,7 @@ const ConfirmedRequests = ({ selectedDate, searchQuery, label }) => {
                       .join("-")}
                   </p>
                   <p>Assigned Room: {request.assignBed}</p>
-                  {console.log("request", request)}
+                  {/* {console.log("request", request)} */}
                 </div>
               </div>
             </div>

@@ -106,7 +106,7 @@ const Details = ({ activeTab, onTransactionTypeChange }) => {
 
     const donorDetails = donorTabs[activeTabId][currentSection].donorDetails;
     if (donorDetails.guestData) {
-      console.log("Clearing guest data due to manual PAN edit");
+      // console.log("Clearing guest data due to manual PAN edit");
       updateDonorDetails(activeTabId, currentSection, {
         guestId: null,
         guestData: null,

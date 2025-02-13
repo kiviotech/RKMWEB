@@ -46,10 +46,10 @@ const Deeksha = () => {
 
   useEffect(() => {
     const loadDeekshas = async () => {
-      console.log("Fetching deekshas...");
+      // console.log("Fetching deekshas...");
       try {
         const response = await fetchDeekshas();
-        console.log("Deekshas fetched successfully:", response);
+        // console.log("Deekshas fetched successfully:", response);
 
         // Calculate stats from response data
         const totalApplications = response.data.length;
@@ -103,7 +103,7 @@ const Deeksha = () => {
 
         setLoading(false);
       } catch (err) {
-        console.error("Error fetching deekshas:", err);
+        // console.error("Error fetching deekshas:", err);
         setError("Failed to fetch applications");
         setLoading(false);
       }

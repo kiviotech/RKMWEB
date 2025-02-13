@@ -31,11 +31,11 @@ const DonationHeader = ({ onTabChange }) => {
       const donorDetails = tab[activeSection]?.donorDetails;
 
       // Debug logs
-      console.log("Tab ID:", id);
-      console.log("Active Section:", activeSection);
-      console.log("Donor Details:", donorDetails);
-      console.log("Title:", donorDetails?.title);
-      console.log("Name:", donorDetails?.name);
+      // console.log("Tab ID:", id);
+      // console.log("Active Section:", activeSection);
+      // console.log("Donor Details:", donorDetails);
+      // console.log("Title:", donorDetails?.title);
+      // console.log("Name:", donorDetails?.name);
 
       return {
         id: Number(id),
@@ -56,10 +56,10 @@ const DonationHeader = ({ onTabChange }) => {
     fetchLatestReceiptNumbers();
   }, []);
 
-  useEffect(() => {
-    console.log("Next Available MT Number: MT", nextReceiptNumbers.mtNumber);
-    console.log("Next Available MSN Number: MSN", nextReceiptNumbers.msnNumber);
-  }, [nextReceiptNumbers]);
+  // useEffect(() => {
+  //   console.log("Next Available MT Number: MT", nextReceiptNumbers.mtNumber);
+  //   console.log("Next Available MSN Number: MSN", nextReceiptNumbers.msnNumber);
+  // }, [nextReceiptNumbers]);
 
   const handleTabChange = (section) => {
     if (!isCompleted) {

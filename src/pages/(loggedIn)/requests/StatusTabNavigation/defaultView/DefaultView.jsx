@@ -76,7 +76,7 @@ const DefaultView = ({ tabLabels }) => {
   };
 
   const handleFlag = (selectedReason, reqId = requestId, icon_Id = iconId) => {
-    console.log(`Flagging guest for reason: ${selectedReason}`);
+    // console.log(`Flagging guest for reason: ${selectedReason}`);
     setRequests((prevRequests) =>
       prevRequests.map((request) =>
         request.id === reqId

@@ -64,7 +64,7 @@ const BlockRoom = ({ selectedBlockId, onRoomBlocked }) => {
         onRoomBlocked();
       }
     } catch (error) {
-      console.error("Error blocking room:", error);
+      // console.error("Error blocking room:", error);
       toast.error("Failed to block room. Please try again.");
     }
   };

@@ -39,11 +39,11 @@ const ConfirmAllocationEmail = ({
           room: [room.roomId],
         };
 
-        console.log(`Creating allocation for room ${room.roomNumber}:`, {
-          roomNumber: room.roomNumber,
-          guestCount: guestsForRoom.length,
-          guestIds: guestsForRoom.map((g) => g.id),
-        });
+        // console.log(`Creating allocation for room ${room.roomNumber}:`, {
+        //   roomNumber: room.roomNumber,
+        //   guestCount: guestsForRoom.length,
+        //   guestIds: guestsForRoom.map((g) => g.id),
+        // });
 
         await createNewRoomAllocation(allocationData);
       }
@@ -56,7 +56,7 @@ const ConfirmAllocationEmail = ({
       };
 
       await updateBookingRequestById(requestId, updateData);
-      console.log("Booking request status updated to confirmed");
+      // console.log("Booking request status updated to confirmed");
 
       toast.success(
         "Room allocations created and booking request updated successfully!"
@@ -65,7 +65,7 @@ const ConfirmAllocationEmail = ({
       onClose();
       navigate("/Requests");
     } catch (error) {
-      console.error("Error in room allocation process:", error);
+      // console.error("Error in room allocation process:", error);
       toast.error(
         "Failed to complete the allocation process. Please try again."
       );
@@ -79,12 +79,12 @@ const ConfirmAllocationEmail = ({
       .join(", ");
   };
 
-  console.log("Email Component Data:", {
-    requestId,
-    guestEmail: guestData?.attributes?.email,
-    allocatedGuests,
-    allocatedRooms,
-  });
+  // console.log("Email Component Data:", {
+  //   requestId,
+  //   guestEmail: guestData?.attributes?.email,
+  //   allocatedGuests,
+  //   allocatedRooms,
+  // });
 
   return (
     <div className="allocation-email-overlay">

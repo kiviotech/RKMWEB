@@ -276,7 +276,7 @@ const DonationAction = ({
         };
       }
 
-      console.log("Donation data with IDs:", donationData);
+      // console.log("Donation data with IDs:", donationData);
       await createNewDonation(donationData);
 
       // alert(
@@ -294,10 +294,10 @@ const DonationAction = ({
 
       return receiptResponse;
     } catch (error) {
-      console.error(
-        "Error creating receipt, guest details, or donation:",
-        error
-      );
+      // console.error(
+      //   "Error creating receipt, guest details, or donation:",
+      //   error
+      // );
       alert("Failed to create receipt. Please try again.");
       throw error;
     }
@@ -360,18 +360,18 @@ const DonationAction = ({
         currentTab[currentSection]?.donationDetails?.donationId;
       const currentStatus = currentTab[currentSection]?.donationDetails?.status;
 
-      console.log("Current donation details:", {
-        donationId: currentDonationId,
-        status: currentStatus,
-        section: currentSection,
-        tab: currentTab,
-      });
+      // console.log("Current donation details:", {
+      //   donationId: currentDonationId,
+      //   status: currentStatus,
+      //   section: currentSection,
+      //   tab: currentTab,
+      // });
 
       if (currentStatus === "pending" && currentDonationId) {
-        console.log(
-          "Attempting to update pending donation:",
-          currentDonationId
-        );
+        // console.log(
+        //   "Attempting to update pending donation:",
+        //   currentDonationId
+        // );
 
         // Update donation status in the database
         const updateResponse = await updateDonationById(currentDonationId, {
@@ -382,7 +382,7 @@ const DonationAction = ({
           },
         });
 
-        console.log("Update response:", updateResponse);
+        // console.log("Update response:", updateResponse);
 
         if (!updateResponse || !updateResponse.data) {
           throw new Error("Failed to get response from update operation");
@@ -393,9 +393,9 @@ const DonationAction = ({
           status: "completed",
         });
 
-        console.log("Store updated successfully");
+        // console.log("Store updated successfully");
       } else {
-        console.log("Creating new receipt as donation is not pending");
+        // console.log("Creating new receipt as donation is not pending");
         await createReceipt("completed");
       }
 
@@ -412,7 +412,7 @@ const DonationAction = ({
       const { removeDonorTab } = useDonationStore.getState();
       removeDonorTab(activeTabId);
     } catch (error) {
-      console.error("Error in handleConfirmPrint:", error);
+      // console.error("Error in handleConfirmPrint:", error);
       alert(`Failed to process donation: ${error.message}`);
     }
   };
@@ -445,11 +445,11 @@ const DonationAction = ({
       const currentDonationId =
         currentTab[currentSection]?.donationDetails?.donationId;
 
-      console.log("Setting donation to pending:", {
-        donationId: currentDonationId,
-        section: currentSection,
-        tab: currentTab,
-      });
+      // console.log("Setting donation to pending:", {
+      //   donationId: currentDonationId,
+      //   section: currentSection,
+      //   tab: currentTab,
+      // });
 
       if (currentDonationId) {
         // Update existing donation status to pending
@@ -460,7 +460,7 @@ const DonationAction = ({
           },
         });
 
-        console.log("Update response:", updateResponse);
+        // console.log("Update response:", updateResponse);
 
         if (!updateResponse || !updateResponse.data) {
           throw new Error("Failed to update donation status");
@@ -472,11 +472,11 @@ const DonationAction = ({
         });
       } else {
         // Create new donation with pending status if no donation ID exists
-        console.log(
-          "No existing donation found, creating new pending donation"
-        );
+        // console.log(
+        //   "No existing donation found, creating new pending donation"
+        // );
         const receiptResponse = await createReceipt("pending");
-        console.log("New pending receipt created:", receiptResponse);
+        // console.log("New pending receipt created:", receiptResponse);
 
         // Update store with new donation details
         updateDonationDetails(activeTabId, currentSection, {
@@ -496,7 +496,7 @@ const DonationAction = ({
       const { removeDonorTab } = useDonationStore.getState();
       removeDonorTab(activeTabId);
     } catch (error) {
-      console.error("Error handling pending donation:", error);
+      // console.error("Error handling pending donation:", error);
       alert(`Failed to process pending donation: ${error.message}`);
     }
   };
@@ -514,7 +514,7 @@ const DonationAction = ({
       const donationId =
         currentTab[currentSection]?.donationDetails?.donationId;
 
-      console.log("Cancelling donation with ID:", donationId);
+      // console.log("Cancelling donation with ID:", donationId);
 
       // Verify password using stored username
       await loginUser({
@@ -554,11 +554,11 @@ const DonationAction = ({
         const { removeDonorTab } = useDonationStore.getState();
         removeDonorTab(activeTabId);
       } else {
-        console.error("No donation ID found");
+        // console.error("No donation ID found");
         setPasswordError("Unable to cancel donation: No donation ID found");
       }
     } catch (error) {
-      console.error("Error:", error);
+      // console.error("Error:", error);
       setPasswordError("Invalid password or unable to cancel donation");
     }
   };
@@ -821,7 +821,7 @@ const DonationAction = ({
       try {
         printFrame.contentWindow.print();
       } catch (error) {
-        console.error("Print failed:", error);
+        // console.error("Print failed:", error);
       } finally {
         // Remove the iframe after a short delay
         setTimeout(() => {
@@ -965,7 +965,7 @@ const DonationAction = ({
       try {
         printFrame.contentWindow.print();
       } catch (error) {
-        console.error("Print failed:", error);
+        // console.error("Print failed:", error);
       } finally {
         // Remove the iframe after a short delay
         setTimeout(() => {
@@ -1003,7 +1003,7 @@ const DonationAction = ({
       try {
         printFrame.contentWindow.print();
       } catch (error) {
-        console.error("Print failed:", error);
+        // console.error("Print failed:", error);
       } finally {
         // Remove the iframe after a short delay
         setTimeout(() => {

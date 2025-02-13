@@ -58,7 +58,7 @@ Swami Lokahanananda`;
       alert("Email sent successfully!");
       onClose();
     } catch (error) {
-      console.error("Error sending email:", error);
+      // console.error("Error sending email:", error);
       alert("Failed to send email and allocate rooms. Please try again.");
     }
   };

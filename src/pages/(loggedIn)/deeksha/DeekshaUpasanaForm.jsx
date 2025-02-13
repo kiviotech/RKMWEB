@@ -62,9 +62,9 @@ const DeekshaUpasanaForm = () => {
     fetchLanguages();
   }, []);
 
-  useEffect(() => {
-    console.log("Initial Zustand Store State:", useDeekshaFormStore.getState());
-  }, []);
+  // useEffect(() => {
+  //   console.log("Initial Zustand Store State:", useDeekshaFormStore.getState());
+  // }, []);
 
   // Validation function
   const validateForm = () => {
@@ -144,7 +144,7 @@ const DeekshaUpasanaForm = () => {
     };
 
     try {
-      console.log("Sending payload:", payload);
+      // console.log("Sending payload:", payload);
       const response = await createNewDeeksha(payload);
 
       if (response && response.data) {
@@ -155,7 +155,7 @@ const DeekshaUpasanaForm = () => {
         throw new Error("Invalid response format");
       }
     } catch (error) {
-      console.error("Error submitting form:", error);
+      // console.error("Error submitting form:", error);
       alert(`Error submitting form: ${error.message}`);
     }
   };
@@ -165,10 +165,10 @@ const DeekshaUpasanaForm = () => {
     if (e.target.value) {
       setErrors({ ...errors, language: null });
     }
-    console.log(
-      "Zustand Store State after language change:",
-      useDeekshaFormStore.getState()
-    );
+    // console.log(
+    //   "Zustand Store State after language change:",
+    //   useDeekshaFormStore.getState()
+    // );
   };
 
   return (

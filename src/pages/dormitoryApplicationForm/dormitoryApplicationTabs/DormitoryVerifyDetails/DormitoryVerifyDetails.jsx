@@ -25,30 +25,30 @@ const DormitoryVerifyDetails = () => {
   };
 
   // Log store data
-  useEffect(() => {
-    console.log("VerifyDetails - Current Zustand Store State:", {
-      applicantDetails: {
-        name: formData.name,
-        address: formData.address,
-        contact: formData.phoneNumber,
-      },
-      guestDetails: formData.guests,
-      visitDetails: {
-        arrival: formatDateTime(formData.visitDate, formData.visitTime),
-        departure: formatDateTime(
-          formData.departureDate,
-          formData.departureTime
-        ),
-        previousVisit: formData.previousVisitDate,
-      },
-    });
-  }, [formData]);
+  // useEffect(() => {
+  //   console.log("VerifyDetails - Current Zustand Store State:", {
+  //     applicantDetails: {
+  //       name: formData.name,
+  //       address: formData.address,
+  //       contact: formData.phoneNumber,
+  //     },
+  //     guestDetails: formData.guests,
+  //     visitDetails: {
+  //       arrival: formatDateTime(formData.visitDate, formData.visitTime),
+  //       departure: formatDateTime(
+  //         formData.departureDate,
+  //         formData.departureTime
+  //       ),
+  //       previousVisit: formData.previousVisitDate,
+  //     },
+  //   });
+  // }, [formData]);
 
   const handleSubmit = async () => {
     try {
       // Calculate total number of guests from male and female devotees
       const totalGuests = (
-        parseInt(formData.accommodation?.maleDevotees || 0) + 
+        parseInt(formData.accommodation?.maleDevotees || 0) +
         parseInt(formData.accommodation?.femaleDevotees || 0)
       ).toString();
 
@@ -63,7 +63,9 @@ const DormitoryVerifyDetails = () => {
         occupation: formData.occupation || "",
         aadhaar_number: formData.aadhaar,
         number_of_guest_members: totalGuests, // Using calculated total guests
-        recommendation_letter: formData.visitDetails?.file ? [formData.visitDetails.file] : [],
+        recommendation_letter: formData.visitDetails?.file
+          ? [formData.visitDetails.file]
+          : [],
         reason_for_revisit: formData.visitDetails?.reason || "",
         address: `${formData.address?.houseNumber}, ${formData.address?.streetName}, ${formData.address?.district}, ${formData.address?.state}, ${formData.address?.pinCode}`,
         notifications: [],
@@ -71,19 +73,21 @@ const DormitoryVerifyDetails = () => {
         arrival_date: formData.visitDetails?.visitDate,
         departure_date: formData.visitDetails?.departureDate,
         deeksha: formData.deeksha,
-        number_of_male_devotees: formData.accommodation?.maleDevotees?.toString() || "0",
-        number_of_female_devotees: formData.accommodation?.femaleDevotees?.toString() || "0",
+        number_of_male_devotees:
+          formData.accommodation?.maleDevotees?.toString() || "0",
+        number_of_female_devotees:
+          formData.accommodation?.femaleDevotees?.toString() || "0",
         additional_information: formData.accommodation?.specialRequests || "",
-        accommodation_requirements: []
+        accommodation_requirements: [],
       };
 
       const response = await createNewBookingRequest(bookingData);
-      
+
       if (response) {
         alert("Application submitted successfully!");
       }
     } catch (error) {
-      console.error("Error submitting application:", error);
+      // console.error("Error submitting application:", error);
       alert("Failed to submit application. Please try again.");
     }
   };
@@ -103,7 +107,8 @@ const DormitoryVerifyDetails = () => {
           <span className="detail-label">Institution Type:</span>
           <span className="detail-value">
             {formData.institutionType}
-            {formData.otherInstitutionType && ` - ${formData.otherInstitutionType}`}
+            {formData.otherInstitutionType &&
+              ` - ${formData.otherInstitutionType}`}
           </span>
         </div>
 
@@ -131,7 +136,9 @@ const DormitoryVerifyDetails = () => {
 
         <div className="detail-row">
           <span className="detail-label">Phone number:</span>
-          <span className="detail-value">+{formData.countryCode} {formData.phoneNumber}</span>
+          <span className="detail-value">
+            +{formData.countryCode} {formData.phoneNumber}
+          </span>
         </div>
 
         <div className="detail-row">
@@ -153,28 +160,36 @@ const DormitoryVerifyDetails = () => {
         <div className="detail-row">
           <span className="detail-label">Visit Date and Time:</span>
           <span className="detail-value">
-            {formatDateTime(formData.visitDetails.visitDate, formData.visitDetails.visitTime)}
+            {formatDateTime(
+              formData.visitDetails.visitDate,
+              formData.visitDetails.visitTime
+            )}
           </span>
         </div>
 
         <div className="detail-row">
           <span className="detail-label">Departure Date and Time:</span>
           <span className="detail-value">
-            {formatDateTime(formData.visitDetails.departureDate, formData.visitDetails.departureTime)}
+            {formatDateTime(
+              formData.visitDetails.departureDate,
+              formData.visitDetails.departureTime
+            )}
           </span>
         </div>
 
         <div className="detail-row">
           <span className="detail-label">Previous Visit:</span>
           <span className="detail-value">
-            {formData.visitDetails.visited === 'yes' ? 'Yes' : 'No'}
+            {formData.visitDetails.visited === "yes" ? "Yes" : "No"}
           </span>
         </div>
 
         {formData.visitDetails.previousVisitDate && (
           <div className="detail-row">
             <span className="detail-label">Previous Visit Date:</span>
-            <span className="detail-value">{formData.visitDetails.previousVisitDate}</span>
+            <span className="detail-value">
+              {formData.visitDetails.previousVisitDate}
+            </span>
           </div>
         )}
 
@@ -222,37 +237,49 @@ const DormitoryVerifyDetails = () => {
       <div className="accommodation-section">
         <div className="detail-row">
           <span className="detail-label">Total Number of People:</span>
-          <span className="detail-value">{formData.accommodation.totalPeople}</span>
+          <span className="detail-value">
+            {formData.accommodation.totalPeople}
+          </span>
         </div>
 
         <div className="detail-row">
           <span className="detail-label">Male Devotees:</span>
-          <span className="detail-value">{formData.accommodation.maleDevotees}</span>
+          <span className="detail-value">
+            {formData.accommodation.maleDevotees}
+          </span>
         </div>
 
         <div className="detail-row">
           <span className="detail-label">Female Devotees:</span>
-          <span className="detail-value">{formData.accommodation.femaleDevotees}</span>
+          <span className="detail-value">
+            {formData.accommodation.femaleDevotees}
+          </span>
         </div>
 
         {formData.accommodation.specialRequests && (
           <div className="detail-row">
             <span className="detail-label">Special Requests:</span>
-            <span className="detail-value">{formData.accommodation.specialRequests}</span>
+            <span className="detail-value">
+              {formData.accommodation.specialRequests}
+            </span>
           </div>
         )}
 
         {formData.visitDetails.file && (
           <div className="detail-row">
             <span className="detail-label">Uploaded File:</span>
-            <span className="detail-value">{formData.visitDetails.file.name}</span>
+            <span className="detail-value">
+              {formData.visitDetails.file.name}
+            </span>
           </div>
         )}
       </div>
 
       <div className="button-container">
         <button className="save-button">Save for later</button>
-        <button className="submit-button" onClick={handleSubmit}>Submit</button>
+        <button className="submit-button" onClick={handleSubmit}>
+          Submit
+        </button>
       </div>
     </div>
   );

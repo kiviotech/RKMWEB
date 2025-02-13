@@ -150,7 +150,7 @@ const DonorDetails = ({ activeTab }) => {
         });
       }
     } catch (error) {
-      console.error("Error fetching pincode data:", error);
+      // console.error("Error fetching pincode data:", error);
       // Clear related fields and show error for failed API call
       updateAndSyncDonorDetails({
         state: "",
@@ -181,7 +181,7 @@ const DonorDetails = ({ activeTab }) => {
     // Check if we have guest data
     if (currentDonorDetails.guestData) {
       // Clear all guest data and fields
-      console.log("Clearing guest data due to manual edit");
+      // console.log("Clearing guest data due to manual edit");
       updateAndSyncDonorDetails({
         guestId: null,
         guestData: null,
@@ -254,7 +254,7 @@ const DonorDetails = ({ activeTab }) => {
     // Check if we have guest data
     if (currentDonorDetails.guestData) {
       // Clear all guest data and fields
-      console.log("Clearing guest data due to manual edit");
+      // console.log("Clearing guest data due to manual edit");
       updateAndSyncDonorDetails({
         guestId: null,
         guestData: null,
@@ -483,7 +483,7 @@ const DonorDetails = ({ activeTab }) => {
     // Check if we have guest data
     if (currentDonorDetails.guestData) {
       // Clear all guest data and fields
-      console.log("Clearing guest data due to manual edit");
+      // console.log("Clearing guest data due to manual edit");
       updateAndSyncDonorDetails({
         guestId: null,
         guestData: null,
@@ -553,19 +553,19 @@ const DonorDetails = ({ activeTab }) => {
 
   const handleFetchGuests = async () => {
     try {
-      console.log("Fetching guest details...");
+      // console.log("Fetching guest details...");
       const guests = await fetchGuestDetails();
-      console.log("Fetched guest details:", guests);
-      console.log("Guest data structure:", {
-        fullResponse: guests,
-        dataArray: guests.data,
-        firstGuest: guests.data?.[0],
-        firstGuestAttributes: guests.data?.[0]?.attributes,
-      });
+      // console.log("Fetched guest details:", guests);
+      // console.log("Guest data structure:", {
+      //   fullResponse: guests,
+      //   dataArray: guests.data,
+      //   firstGuest: guests.data?.[0],
+      //   firstGuestAttributes: guests.data?.[0]?.attributes,
+      // });
 
       // Fetch and log receipt details
       const receipts = await fetchReceiptDetails();
-      console.log("All Receipts:", receipts);
+      // console.log("All Receipts:", receipts);
 
       setGuestList(guests.data);
     } catch (error) {
@@ -574,7 +574,7 @@ const DonorDetails = ({ activeTab }) => {
   };
 
   const handleSuggestionClick = (guest) => {
-    console.log("Selected Guest Data:", guest);
+    // console.log("Selected Guest Data:", guest);
 
     const {
       name,
@@ -659,17 +659,17 @@ const DonorDetails = ({ activeTab }) => {
     const fetchData = async () => {
       try {
         const guests = await fetchGuestDetails();
-        console.log("Fetched Guest Details:", guests.data);
+        // console.log("Fetched Guest Details:", guests.data);
 
         setGuestList(guests.data);
 
         // Fetch and log receipt details
         const receipts = await fetchReceiptDetails();
-        console.log("Fetched Receipt Details:", {
-          fullResponse: receipts,
-          totalReceipts: receipts.data?.length || 0,
-          sampleReceipt: receipts.data?.[0],
-        });
+        // console.log("Fetched Receipt Details:", {
+        //   fullResponse: receipts,
+        //   totalReceipts: receipts.data?.length || 0,
+        //   sampleReceipt: receipts.data?.[0],
+        // });
       } catch (error) {
         console.error("Error fetching data:", error);
       }

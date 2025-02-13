@@ -70,7 +70,7 @@ const Donation = () => {
     const getGuestDetails = async () => {
       try {
         const response = await fetchGuestDetails();
-        console.log("guest data", response.data);
+        // console.log("guest data", response.data);
 
         // Get tomorrow's date
         const tomorrow = new Date();
@@ -104,15 +104,15 @@ const Donation = () => {
             }`;
 
             // Log the complete guest object for debugging
-            console.log("Complete Guest Data:", {
-              originalData: guest,
-              attributes: guest.attributes,
-              room: guest.attributes.room?.data,
-              donations: guest.attributes.donations?.data,
-              address: guest.attributes.address,
-              contact: guest.attributes.contact,
-              email: guest.attributes.email,
-            });
+            // console.log("Complete Guest Data:", {
+            //   originalData: guest,
+            //   attributes: guest.attributes,
+            //   room: guest.attributes.room?.data,
+            //   donations: guest.attributes.donations?.data,
+            //   address: guest.attributes.address,
+            //   contact: guest.attributes.contact,
+            //   email: guest.attributes.email,
+            // });
 
             // Clean up address by removing empty segments
             const cleanAddress = (address) => {
@@ -148,7 +148,7 @@ const Donation = () => {
             };
           });
 
-        console.log("Tomorrow's Leaving Guest Data:", formattedData);
+        // console.log("Tomorrow's Leaving Guest Data:", formattedData);
 
         setGuestData(formattedData);
         setLeavingGuestsTotalPages(

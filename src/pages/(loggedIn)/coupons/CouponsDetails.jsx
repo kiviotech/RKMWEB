@@ -86,7 +86,7 @@ const CouponsDetails = () => {
           setPincodeError("Invalid pincode. Please check and try again.");
         }
       } catch (error) {
-        console.error("Error fetching address:", error);
+        // console.error("Error fetching address:", error);
         setFormData((prev) => ({
           ...prev,
           address: "",

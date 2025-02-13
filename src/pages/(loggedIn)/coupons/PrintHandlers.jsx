@@ -96,6 +96,6 @@ const printAndCleanup = async (printFrame, setRefreshTrigger) => {
 };
 
 const handlePrintError = (error) => {
-  console.error("Error saving coupon data:", error);
+  // console.error("Error saving coupon data:", error);
   toast.error("Error saving coupon data. Please try again.");
 };

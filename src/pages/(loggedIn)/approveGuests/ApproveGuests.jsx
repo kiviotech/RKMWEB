@@ -5,7 +5,10 @@ import CommonButton from "../../../components/ui/Button";
 import PopUpFlagGuest from "../../../components/ui/PopUpFlagGuest";
 import GuestDetailsPopup from "../../../components/ui/GuestDetailsPopup/GuestDetailsPopup";
 import { useNavigate } from "react-router-dom";
-import { getBookingRequestsByStatus, updateBookingRequest } from "../../../../services/src/api/repositories/bookingRequestRepository"; // Add updateBookingRequest
+import {
+  getBookingRequestsByStatus,
+  updateBookingRequest,
+} from "../../../../services/src/api/repositories/bookingRequestRepository"; // Add updateBookingRequest
 import { getToken } from "../../../../services/src/utils/storage";
 
 const ApproveGuests = ({ selectedDate }) => {
@@ -17,13 +20,13 @@ const ApproveGuests = ({ selectedDate }) => {
   const [selectedGuest, setSelectedGuest] = useState(null);
   const [isGuestDetailsPopupOpen, setIsGuestDetailsPopupOpen] = useState(false);
   const [requests, setRequests] = useState([]);
-  const [filteredRequests, setFilteredRequests] = useState([]); 
+  const [filteredRequests, setFilteredRequests] = useState([]);
 
   // Fetch the booking requests
   useEffect(() => {
     const fetchBookingRequests = async () => {
       try {
-        const data = await getBookingRequestsByStatus('awaiting');
+        const data = await getBookingRequestsByStatus("awaiting");
         const bookingData = data?.data?.data;
         if (bookingData) {
           const bookingRequests = bookingData.map((item) => ({
@@ -90,16 +93,19 @@ const ApproveGuests = ({ selectedDate }) => {
   // Filter requests based on selected date
   useEffect(() => {
     if (selectedDate) {
-        const filtered = requests
-            .filter((request) => new Date(request.createdAt).toDateString() === selectedDate.toDateString())
-            .sort((a, b) => a.createdAt - b.createdAt);
+      const filtered = requests
+        .filter(
+          (request) =>
+            new Date(request.createdAt).toDateString() ===
+            selectedDate.toDateString()
+        )
+        .sort((a, b) => a.createdAt - b.createdAt);
 
-        setFilteredRequests(filtered);
+      setFilteredRequests(filtered);
     } else {
-        setFilteredRequests(requests);
+      setFilteredRequests(requests);
     }
-}, [selectedDate, requests]);
-
+  }, [selectedDate, requests]);
 
   // Function to update booking request status
   const handleStatusChange = async (e, requestId, newStatus) => {
@@ -107,7 +113,7 @@ const ApproveGuests = ({ selectedDate }) => {
 
     const token = await getToken(); // Fetch token
     if (!token) {
-      console.error("No token available for API requests");
+      // console.error("No token available for API requests");
       return;
     }
 
@@ -119,10 +125,10 @@ const ApproveGuests = ({ selectedDate }) => {
         },
       };
       const response = await updateBookingRequest(requestId, updatedData);
-      console.log(
-        `Booking request updated to ${newStatus} successfully`,
-        response
-      );
+      // console.log(
+      //   `Booking request updated to ${newStatus} successfully`,
+      //   response
+      // );
 
       // Update local state to reflect the status change
       setRequests((prevRequests) =>
@@ -147,10 +153,10 @@ const ApproveGuests = ({ selectedDate }) => {
         )
       );
     } catch (error) {
-      console.error(
-        `Failed to update the booking request to ${newStatus}`,
-        error
-      );
+      // console.error(
+      //   `Failed to update the booking request to ${newStatus}`,
+      //   error
+      // );
       console.log("Error response data:", error.response?.data?.error);
     }
   };

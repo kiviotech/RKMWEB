@@ -45,7 +45,7 @@ const ReceiptDonating = () => {
     const loadGuests = async () => {
       try {
         const guestData = await fetchGuestDetails();
-        console.log("Fetched guests:", guestData);
+        // console.log("Fetched guests:", guestData);
         const guestsArray = Array.isArray(guestData.data)
           ? guestData.data
           : Array.isArray(guestData)
@@ -73,7 +73,7 @@ const ReceiptDonating = () => {
     setShowDropdown(true);
 
     if (!Array.isArray(guests)) {
-      console.error("Guests is not an array:", guests);
+      // console.error("Guests is not an array:", guests);
       return;
     }
 
@@ -189,7 +189,7 @@ const ReceiptDonating = () => {
   const handleOptionClick = (option) => {
     setSelectedOption(option);
     setIsDropdownOpen(false);
-    console.log(`Selected option: ${option}`); // Replace with desired action
+    // console.log(`Selected option: ${option}`); // Replace with desired action
   };
 
   return (

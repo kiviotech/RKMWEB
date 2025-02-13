@@ -114,7 +114,7 @@ const OnHoldRequest = ({ selectedDate, label }) => {
 
     const token = await getToken(); // Fetch token
     if (!token) {
-      console.error("No token available for API requests");
+      // console.error("No token available for API requests");
       return;
     }
 
@@ -126,10 +126,10 @@ const OnHoldRequest = ({ selectedDate, label }) => {
         },
       };
       const response = await updateBookingRequest(requestId, updatedData);
-      console.log(
-        `Booking request updated to ${newStatus} successfully`,
-        response
-      );
+      // console.log(
+      //   `Booking request updated to ${newStatus} successfully`,
+      //   response
+      // );
 
       // Update local state to reflect the status change
       setRequests((prevRequests) =>

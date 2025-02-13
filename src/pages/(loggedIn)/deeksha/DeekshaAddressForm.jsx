@@ -71,7 +71,7 @@ const DeekshaAddressForm = () => {
         setErrors((prev) => ({ ...prev, pincode: true })); // Set error for invalid pincode
       }
     } catch (error) {
-      console.error("Error fetching address data", error);
+      // console.error("Error fetching address data", error);
       setErrors((prev) => ({ ...prev, pincode: true })); // Set error for failed request
     } finally {
       setLoading(false);
@@ -112,10 +112,10 @@ const DeekshaAddressForm = () => {
   };
 
   // Add console.log to see store state
-  console.log(
-    "DeekshaAddressForm Store State:",
-    useDeekshaFormStore.getState()
-  );
+  // console.log(
+  //   "DeekshaAddressForm Store State:",
+  //   useDeekshaFormStore.getState()
+  // );
 
   // Update progress calculation to remove stored .trim()
   const calculateProgress = () => {

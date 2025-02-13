@@ -25,7 +25,7 @@ const DonationsHistory = ({ openPopup, openPopup1, limit }) => {
           setGuestDetails([]);
         }
       } catch (error) {
-        console.error("Error fetching guest details:", error);
+        // console.error("Error fetching guest details:", error);
         setGuestDetails([]);
       } finally {
         setLoading(false);
@@ -80,7 +80,7 @@ const DonationsHistory = ({ openPopup, openPopup1, limit }) => {
           </tr>
         </thead>
         <tbody>
-          {console.log('filtered',filteredGuests)}
+          {/* {console.log("filtered", filteredGuests)} */}
           {filteredGuests.length > 0 ? (
             filteredGuests.map((guest) => (
               <tr key={guest.id}>

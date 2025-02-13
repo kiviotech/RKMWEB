@@ -113,7 +113,7 @@ const CancelledRequests = ({ selectedDate, label }) => {
 
     const token = await getToken(); // Fetch token
     if (!token) {
-      console.error("No token available for API requests");
+      // console.error("No token available for API requests");
       return;
     }
 
@@ -125,10 +125,10 @@ const CancelledRequests = ({ selectedDate, label }) => {
         },
       };
       const response = await updateBookingRequest(requestId, updatedData);
-      console.log(
-        `Booking request updated to ${newStatus} successfully`,
-        response
-      );
+      // console.log(
+      //   `Booking request updated to ${newStatus} successfully`,
+      //   response
+      // );
 
       // Update local state to reflect the status change
       setRequests((prevRequests) =>
@@ -157,7 +157,7 @@ const CancelledRequests = ({ selectedDate, label }) => {
         `Failed to update the booking request to ${newStatus}`,
         error
       );
-      console.log("Error response data:", error.response?.data?.error);
+      // console.log("Error response data:", error.response?.data?.error);
     }
   };
 

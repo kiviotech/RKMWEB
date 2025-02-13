@@ -83,7 +83,7 @@ const CouponsSection = () => {
         special_coupon: newValue,
       }));
     } catch (error) {
-      console.error("Error updating special coupon:", error);
+      // console.error("Error updating special coupon:", error);
       // Revert the value if update fails
       setSpecialCouponValue(couponData.special_coupon);
     }

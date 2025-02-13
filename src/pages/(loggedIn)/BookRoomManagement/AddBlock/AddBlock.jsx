@@ -48,7 +48,7 @@ const AddBlock = ({ onClose, onBlockCreated }) => {
         onClose(); // Close the modal after successful creation
       } catch (error) {
         toast.error("Failed to create block and rooms. Please try again.");
-        console.error("Error creating block and rooms:", error);
+        // console.error("Error creating block and rooms:", error);
       }
     }
   };

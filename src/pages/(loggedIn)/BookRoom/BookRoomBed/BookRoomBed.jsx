@@ -20,12 +20,12 @@ const BookRoomBed = ({
   const [allocatedRoomNumber, setAllocatedRoomNumber] = useState(null);
   const [allocatedRooms, setAllocatedRooms] = useState([]);
 
-  useEffect(() => {
-    console.log("BookRoombed received dates:", {
-      arrivalDate,
-      departureDate,
-    });
-  }, []);
+  // useEffect(() => {
+  //   console.log("BookRoombed received dates:", {
+  //     arrivalDate,
+  //     departureDate,
+  //   });
+  // }, []);
 
   // Generate dates starting from arrival date
   useEffect(() => {
@@ -57,7 +57,7 @@ const BookRoomBed = ({
           setIsLoading(true);
           const blockData = await blockService.fetchBlockById(blockId);
           const roomsData = blockData.data.attributes.rooms.data;
-          console.log("Rooms Data:", roomsData);
+          // console.log("Rooms Data:", roomsData);
           setRooms(roomsData);
         } catch (error) {
           console.error("Error fetching block details:", error);
@@ -330,46 +330,46 @@ const BookRoomBed = ({
       const result = findFirstAvailableRoom();
 
       if (result && onRoomAllocation) {
-        console.log("All allocated rooms:", result);
+        // console.log("All allocated rooms:", result);
         setAllocatedRooms(result);
         onRoomAllocation(result); // Pass the array of all allocated rooms
       } else {
-        console.log("No suitable rooms found or onRoomAllocation not provided");
+        // console.log("No suitable rooms found or onRoomAllocation not provided");
         setAllocatedRooms([]);
       }
     }
   }, [selectedDateRange, numberOfBedsToAllocate, rooms]);
 
   const findFirstAvailableRoom = () => {
-    console.log("Finding room for dates:", selectedDateRange);
+    // console.log("Finding room for dates:", selectedDateRange);
 
     if (
       !selectedDateRange ||
       !selectedDateRange.arrivalDate ||
       !selectedDateRange.departureDate
     ) {
-      console.log("No date range selected");
+      // console.log("No date range selected");
       return null;
     }
 
-    console.log(
-      "Looking for room between:",
-      selectedDateRange.arrivalDate,
-      "and",
-      selectedDateRange.departureDate
-    );
+    // console.log(
+    //   "Looking for room between:",
+    //   selectedDateRange.arrivalDate,
+    //   "and",
+    //   selectedDateRange.departureDate
+    // );
 
     let remainingBedsNeeded = numberOfBedsToAllocate;
     let allocatedRoomsResult = [];
 
     for (let i = 0; i < rooms.length; i++) {
       const room = rooms[i];
-      console.log("\n----------------------------------------");
-      console.log("Checking room:", room.attributes.room_number);
+      // console.log("\n----------------------------------------");
+      // console.log("Checking room:", room.attributes.room_number);
 
       // First check if room has any allocations
       const existingAllocations = room.attributes.room_allocations?.data || [];
-      console.log("Room allocations found:", existingAllocations);
+      // console.log("Room allocations found:", existingAllocations);
 
       let hasConflict = false;
 
@@ -381,19 +381,19 @@ const BookRoomBed = ({
           const existingArrival = guests[0].attributes.arrival_date;
           const existingDeparture = guests[0].attributes.departure_date;
 
-          console.log("\nDate comparison:");
-          console.log(
-            "New booking period:",
-            selectedDateRange.arrivalDate,
-            "to",
-            selectedDateRange.departureDate
-          );
-          console.log(
-            "Existing booking period:",
-            existingArrival,
-            "to",
-            existingDeparture
-          );
+          // console.log("\nDate comparison:");
+          // console.log(
+          //   "New booking period:",
+          //   selectedDateRange.arrivalDate,
+          //   "to",
+          //   selectedDateRange.departureDate
+          // );
+          // console.log(
+          //   "Existing booking period:",
+          //   existingArrival,
+          //   "to",
+          //   existingDeparture
+          // );
 
           const hasOverlap =
             selectedDateRange.arrivalDate <= existingDeparture &&
@@ -406,7 +406,7 @@ const BookRoomBed = ({
         }
 
         if (hasConflict) {
-          console.log("❌ Skipping room due to date conflict");
+          // console.log("❌ Skipping room due to date conflict");
           continue;
         }
       }
@@ -423,15 +423,15 @@ const BookRoomBed = ({
       });
 
       if (isBlocked) {
-        console.log("❌ Room is blocked, skipping");
+        // console.log("❌ Room is blocked, skipping");
         continue;
       }
 
       // Check room capacity
       const availableBeds = room.attributes.no_of_beds;
-      console.log("\nRoom capacity check:");
-      console.log("Available beds:", availableBeds);
-      console.log("Remaining beds needed:", remainingBedsNeeded);
+      // console.log("\nRoom capacity check:");
+      // console.log("Available beds:", availableBeds);
+      // console.log("Remaining beds needed:", remainingBedsNeeded);
 
       if (availableBeds > 0) {
         const bedsToAllocate = Math.min(availableBeds, remainingBedsNeeded);
@@ -442,9 +442,9 @@ const BookRoomBed = ({
         });
 
         remainingBedsNeeded -= bedsToAllocate;
-        console.log(
-          `✅ Allocated ${bedsToAllocate} beds in room ${room.attributes.room_number}`
-        );
+        // console.log(
+        //   `✅ Allocated ${bedsToAllocate} beds in room ${room.attributes.room_number}`
+        // );
 
         if (remainingBedsNeeded <= 0) {
           break;
@@ -456,7 +456,7 @@ const BookRoomBed = ({
       return allocatedRoomsResult; // Return the array of all allocated rooms
     }
 
-    console.log("\n❌ No suitable rooms found");
+    // console.log("\n❌ No suitable rooms found");
     return null;
   };
 

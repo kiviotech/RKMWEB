@@ -75,7 +75,7 @@ const DeekshaBooksForm = () => {
       hearing,
     });
     // Console log entire store state
-    console.log("Current Deeksha Form State:", useDeekshaFormStore.getState());
+    // console.log("Current Deeksha Form State:", useDeekshaFormStore.getState());
   }, [bookList, japaMeditation, disability, hearing, updateBooks]);
 
   // Add another book

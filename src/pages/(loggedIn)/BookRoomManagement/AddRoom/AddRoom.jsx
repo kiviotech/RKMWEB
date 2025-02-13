@@ -54,12 +54,12 @@ const AddRoom = ({ onClose, selectedBlockId, onRoomAdded }) => {
       toast.success(
         `Successfully added ${rooms.length} room${rooms.length > 1 ? "s" : ""}`
       );
-      console.log("Rooms created and block updated successfully");
+      // console.log("Rooms created and block updated successfully");
       onRoomAdded?.();
       onClose();
     } catch (error) {
       toast.error("Failed to create rooms. Please try again.");
-      console.error("Error creating rooms:", error);
+      // console.error("Error creating rooms:", error);
     }
   };
 

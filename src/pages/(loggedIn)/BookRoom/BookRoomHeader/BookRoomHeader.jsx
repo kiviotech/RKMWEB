@@ -44,12 +44,12 @@ const BookRoomHeader = ({
     getBlocks();
   }, [refreshTrigger, onBlockSelect, activeBlock]);
 
-  useEffect(() => {
-    console.log("BookRoomHeader received dates:", {
-      arrivalDate,
-      departureDate,
-    });
-  }, [arrivalDate, departureDate]);
+  // useEffect(() => {
+  //   console.log("BookRoomHeader received dates:", {
+  //     arrivalDate,
+  //     departureDate,
+  //   });
+  // }, [arrivalDate, departureDate]);
 
   return (
     <div className="book-room-header">

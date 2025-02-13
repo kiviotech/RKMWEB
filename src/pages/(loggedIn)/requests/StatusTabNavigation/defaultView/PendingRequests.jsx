@@ -27,9 +27,9 @@ const PendingRequests = ({ selectedDate, searchQuery, label }) => {
     const fetchBookingRequests = async () => {
       try {
         const data = await getBookingRequestsByStatus("awaiting");
-        console.log("Raw API Response:", data);
+        // console.log("Raw API Response:", data);
         const bookingData = data?.data?.data;
-        console.log("Booking Data Array:", bookingData);
+        // console.log("Booking Data Array:", bookingData);
         if (bookingData) {
           const bookingRequests = bookingData.map((item) => ({
             id: item.id,
@@ -83,12 +83,12 @@ const PendingRequests = ({ selectedDate, searchQuery, label }) => {
             recommendation_letter: item.attributes.recommendation_letter,
           }));
 
-          console.log("Transformed Booking Requests:", bookingRequests);
+          // console.log("Transformed Booking Requests:", bookingRequests);
           setRequests(bookingRequests);
           setFilteredRequests(bookingRequests);
         }
       } catch (error) {
-        console.error("Error fetching booking requests:", error);
+        // console.error("Error fetching booking requests:", error);
         console.error("Error details:", {
           message: error.message,
           stack: error.stack,

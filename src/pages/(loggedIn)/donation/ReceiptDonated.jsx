@@ -6,7 +6,7 @@ import useGuestStore from "../../../../guestStore";
 
 const ReceiptDonating = () => {
   const guest = useGuestStore((state) => state.selectedGuest);
-  console.log(guest);
+  // console.log(guest);
   const [donorDetails, setDonorDetails] = useState({
     name: "John Doe",
     phone: "+91 9212341902",

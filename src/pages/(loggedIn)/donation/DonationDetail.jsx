@@ -26,7 +26,7 @@ const DonationDetails = () => {
           setGuestDetails([]);
         }
       } catch (error) {
-        console.error("Error fetching guest details:", error);
+        // console.error("Error fetching guest details:", error);
         setGuestDetails([]);
       } finally {
         setLoading(false);
@@ -36,7 +36,7 @@ const DonationDetails = () => {
     getGuests();
   }, []);
 
-  console.log(guestDetails);
+  // console.log(guestDetails);
 
   const openPopup = () => {
     setShowReceiptPopup(true);

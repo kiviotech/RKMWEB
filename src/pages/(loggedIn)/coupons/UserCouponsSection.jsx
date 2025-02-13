@@ -48,7 +48,7 @@ const UserCouponsSection = () => {
   const stats = [
     {
       title: "Total Coupons",
-      value: (couponData.total + couponData.special_coupon).toString(),
+      value: (couponData.running + couponData.special_coupon).toString(),
       color: "#1491e5",
       width: "medium",
     },

@@ -46,11 +46,11 @@ const AllDonation = ({
     const loadDonations = async () => {
       try {
         const response = await fetchDonations();
-        console.log("Raw API Response:", response);
-        console.log("Donations Data:", response.data);
+        // console.log("Raw API Response:", response);
+        // console.log("Donations Data:", response.data);
         setDonations(response.data || []);
       } catch (err) {
-        console.error("API Error:", err);
+        // console.error("API Error:", err);
         setError("Failed to load donations");
       } finally {
         setLoading(false);
@@ -110,25 +110,25 @@ const AllDonation = ({
   }, [filteredDonations, itemsPerPage, setTotalPages]);
 
   // Add logging for filtered donations
-  useEffect(() => {
-    console.log("Current Filters:", {
-      searchTerm,
-      dateRange,
-      selectedStatus,
-      donatedFor,
-      currentPage,
-      itemsPerPage,
-    });
-    console.log("Filtered Donations:", filteredDonations);
-  }, [
-    filteredDonations,
-    searchTerm,
-    dateRange,
-    selectedStatus,
-    donatedFor,
-    currentPage,
-    itemsPerPage,
-  ]);
+  // useEffect(() => {
+  //   console.log("Current Filters:", {
+  //     searchTerm,
+  //     dateRange,
+  //     selectedStatus,
+  //     donatedFor,
+  //     currentPage,
+  //     itemsPerPage,
+  //   });
+  //   console.log("Filtered Donations:", filteredDonations);
+  // }, [
+  //   filteredDonations,
+  //   searchTerm,
+  //   dateRange,
+  //   selectedStatus,
+  //   donatedFor,
+  //   currentPage,
+  //   itemsPerPage,
+  // ]);
 
   // Get current page data
   const getCurrentPageData = () => {
@@ -150,10 +150,10 @@ const AllDonation = ({
       const dateA = new Date(Math.max(aCreatedAt, aUpdatedAt, aDonationDate));
       const dateB = new Date(Math.max(bCreatedAt, bUpdatedAt, bDonationDate));
 
-      console.log("Comparing dates:", {
-        a: { id: a.id, date: dateA },
-        b: { id: b.id, date: dateB },
-      });
+      // console.log("Comparing dates:", {
+      //   a: { id: a.id, date: dateA },
+      //   b: { id: b.id, date: dateB },
+      // });
 
       return dateB - dateA;
     });
@@ -161,21 +161,21 @@ const AllDonation = ({
     const startIndex = (currentPage - 1) * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
     const currentData = sortedDonations.slice(startIndex, endIndex);
-    console.log(
-      "Sorted Donations:",
-      sortedDonations.map((d) => ({
-        id: d.id,
-        createdAt: d.attributes.createdAt,
-        updatedAt: d.attributes.updatedAt,
-        donationDate:
-          d.attributes.receipt_detail?.data?.attributes?.donation_date,
-      }))
-    );
+    // console.log(
+    //   "Sorted Donations:",
+    //   sortedDonations.map((d) => ({
+    //     id: d.id,
+    //     createdAt: d.attributes.createdAt,
+    //     updatedAt: d.attributes.updatedAt,
+    //     donationDate:
+    //       d.attributes.receipt_detail?.data?.attributes?.donation_date,
+    //   }))
+    // );
     return currentData;
   };
 
   const handleCancelClick = (donationId) => {
-    console.log("Cancelling donation with ID:", donationId);
+    // console.log("Cancelling donation with ID:", donationId);
     setSelectedDonationId(donationId);
     setShowPasswordModal(true);
     setPassword("");
@@ -225,13 +225,13 @@ const AllDonation = ({
         draggable: true,
       });
     } catch (error) {
-      console.error("Error:", error);
+      // console.error("Error:", error);
       setPasswordError("Invalid password");
     }
   };
 
   const handleSubmit = (donation) => {
-    console.log("AllDonation - Processing pending donation:", donation);
+    // console.log("AllDonation - Processing pending donation:", donation);
 
     // Extract guest data for easier access
     const guestData = donation.attributes.guest?.data?.attributes || {};
@@ -280,7 +280,7 @@ const AllDonation = ({
       donationId: donation.id,
     };
 
-    console.log("AllDonation - Prepared pending donation data:", donationData);
+    // console.log("AllDonation - Prepared pending donation data:", donationData);
 
     // Initialize the donation store with the data
     useDonationStore.getState().initializeFromDonationData(donationData);
@@ -291,7 +291,7 @@ const AllDonation = ({
   };
 
   const handleViewDonation = (donation) => {
-    console.log("AllDonation - Processing donation:", donation);
+    // console.log("AllDonation - Processing donation:", donation);
 
     // Extract guest data for easier access
     const guestData = donation.attributes.guest?.data?.attributes || {};
@@ -349,10 +349,10 @@ const AllDonation = ({
       donationId: donation.id,
     };
 
-    console.log(
-      "AllDonation - Prepared completed donation data:",
-      donationData
-    );
+    // console.log(
+    //   "AllDonation - Prepared completed donation data:",
+    //   donationData
+    // );
 
     // Initialize the donation store with the data
     useDonationStore.getState().initializeFromDonationData(donationData);

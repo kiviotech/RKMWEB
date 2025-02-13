@@ -31,12 +31,12 @@ const GuestDetailsPopup = ({
   onStatusChange,
   label,
 }) => {
-  console.log("GuestDetailsPopup Props:", {
-    isOpen,
-    guestDetails,
-    guests,
-    label,
-  });
+  // console.log("GuestDetailsPopup Props:", {
+  //   isOpen,
+  //   guestDetails,
+  //   guests,
+  //   label,
+  // });
 
   const [selectedRow, setSelectedRow] = useState(null);
   const [selectedVisitRow, setSelectedVisitRow] = useState(null);
@@ -62,7 +62,7 @@ const GuestDetailsPopup = ({
     const fetchCelebrations = async () => {
       try {
         const response = await getCelebrations();
-        console.log("Celebrations Response:", response?.data);
+        // console.log("Celebrations Response:", response?.data);
 
         // Convert arrival and departure dates to Date objects
         const arrivalDate = new Date(guestDetails?.userDetails?.arrivalDate);
@@ -81,7 +81,7 @@ const GuestDetailsPopup = ({
         });
 
         if (upcoming) {
-          console.log("Upcoming Celebration:", upcoming);
+          // console.log("Upcoming Celebration:", upcoming);
           setUpcomingCelebration(upcoming.attributes);
         }
       } catch (error) {
@@ -116,7 +116,7 @@ const GuestDetailsPopup = ({
     try {
       const token = await getToken();
       if (!token) {
-        console.error("No token available for API requests");
+        // console.error("No token available for API requests");
         toast.error("Authentication error. Please login again.");
         return;
       }
@@ -181,7 +181,7 @@ const GuestDetailsPopup = ({
   };
 
   const handleButtonClick = (request) => {
-    console.log("Request Data:", request);
+    // console.log("Request Data:", request);
     const guestData = {
       requestId: request.id,
       name: request.userDetails.name,
@@ -200,7 +200,7 @@ const GuestDetailsPopup = ({
         roomNo: guest.room?.data?.attributes?.room_number || "-",
       })),
     };
-    console.log("Formatted Guest Data:", guestData);
+    // console.log("Formatted Guest Data:", guestData);
 
     navigate("/book-room", {
       state: {

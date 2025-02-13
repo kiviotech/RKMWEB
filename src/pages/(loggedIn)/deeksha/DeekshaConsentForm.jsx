@@ -49,7 +49,7 @@ const DeekshaConsentForm = () => {
 
   // Update handlers
   const handleSpouseConsent = (value) => {
-    console.log("previous", spouseConsent);
+    // console.log("previous", spouseConsent);
     if (spouseConsent !== value) {
       setSpouseConsent(value); // Select the new value
       updateConsent({ spouseConsent: value });
@@ -57,7 +57,7 @@ const DeekshaConsentForm = () => {
       setSpouseConsent(""); // Deselect the value if clicked again
       updateConsent({ spouseConsent: "" });
     }
-    console.log("updated", spouseConsent);
+    // console.log("updated", spouseConsent);
   };
 
   const handlePreviousInitiation = (value) => {

@@ -51,13 +51,13 @@ const GridView = ({ tabLabels }) => {
   };
 
   const handleReject = () => {
-    console.log("Rejected guest:", selectedGuest);
+    // console.log("Rejected guest:", selectedGuest);
     // Add logic to reject the guest
     handlePopupClose();
   };
 
   const handleEditMail = () => {
-    console.log("Editing mail for:", selectedGuest);
+    // console.log("Editing mail for:", selectedGuest);
     setIsEmailPopupVisible(true);
     // Add logic to handle email editing
     handlePopupClose();
@@ -69,7 +69,7 @@ const GridView = ({ tabLabels }) => {
   };
 
   const sendEmail = () => {
-    console.log("Sending email with content:", emailContent);
+    // console.log("Sending email with content:", emailContent);
     setIsEmailPopupVisible(false);
   };
 

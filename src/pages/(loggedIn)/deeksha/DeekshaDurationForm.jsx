@@ -164,7 +164,7 @@ const DeekshaDurationForm = () => {
       }
     }
 
-    console.log("Updated data:", useDeekshaFormStore.getState()); // Log the updated store for debugging
+    // console.log("Updated data:", useDeekshaFormStore.getState()); // Log the updated store for debugging
   };
 
   // Back button functionality

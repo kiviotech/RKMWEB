@@ -79,8 +79,8 @@ const CouponsContent = () => {
         const filteredCoupon = couponsResponse.data.find(
           (coupon) => coupon.attributes.date === selectedDate
         );
-        console.log("All Coupons:", couponsResponse.data);
-        console.log("Filtered Coupon for selected date:", filteredCoupon);
+        // console.log("All Coupons:", couponsResponse.data);
+        // console.log("Filtered Coupon for selected date:", filteredCoupon);
       } catch (error) {
         console.error("Error fetching coupons:", error);
       }
@@ -203,7 +203,7 @@ const CouponsContent = () => {
         );
       }
     } catch (error) {
-      console.error("Error refreshing foods data:", error);
+      // console.error("Error refreshing foods data:", error);
       toast.error("Failed to update categories. Please try again.", {
         position: "top-right",
         autoClose: 3000,
@@ -260,7 +260,7 @@ const CouponsContent = () => {
         onClose: () => toast.dismiss(),
       });
     } catch (error) {
-      console.error("Error updating:", error);
+      // console.error("Error updating:", error);
       toast.error("Failed to update. Please try again.", {
         position: "top-right",
         autoClose: 3000,

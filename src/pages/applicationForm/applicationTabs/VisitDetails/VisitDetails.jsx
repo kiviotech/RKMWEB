@@ -228,10 +228,11 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
   };
 
   const handleFileUpload = async (file) => {
-    const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB in bytes
+    // Reduce max file size to 2MB to be safe
+    const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB in bytes
 
     if (file.size > MAX_FILE_SIZE) {
-      setErrors("file", "File size must be less than 5MB");
+      setErrors("file", "File size must be less than 2MB");
       return;
     }
 
@@ -247,20 +248,34 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
         body: formData,
         headers: {
           Authorization: `Bearer ${token}`,
+          // Remove Content-Type header to let browser set it with boundary
         },
         mode: "cors",
         credentials: "include",
       });
 
+      // Handle specific error cases
       if (!response.ok) {
-        throw new Error(
-          response.status === 413
-            ? "File is too large. Please upload a smaller file (max 5MB)."
-            : "Upload failed"
-        );
+        if (response.status === 413) {
+          throw new Error(
+            "File is too large. Please upload a smaller file (max 2MB)."
+          );
+        }
+        if (response.status === 401) {
+          throw new Error("Unauthorized. Please log in again.");
+        }
+        if (response.status === 403) {
+          throw new Error("Permission denied to upload file.");
+        }
+        throw new Error("Upload failed. Please try again.");
       }
 
       const data = await response.json();
+
+      if (!data || !data[0]) {
+        throw new Error("Invalid response from server");
+      }
+
       setFile({
         ...data[0],
         fileId: data[0].id,
@@ -271,6 +286,12 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
     } catch (error) {
       console.error("File Upload Error:", error);
       setErrors("file", error.message || "Failed to upload file");
+
+      // Clear the file input
+      const fileInput = document.getElementById("file-upload");
+      if (fileInput) {
+        fileInput.value = "";
+      }
     }
   };
 
@@ -627,7 +648,7 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
                 <label>
                   Recommendation Letter (If any)
                   <span className="upload-restrictions">
-                    (Max size: 5MB, Formats: JPEG, PNG, SVG)
+                    (Max size: 2MB, Formats: JPEG, PNG, SVG)
                   </span>
                 </label>
                 <div className="upload-container">

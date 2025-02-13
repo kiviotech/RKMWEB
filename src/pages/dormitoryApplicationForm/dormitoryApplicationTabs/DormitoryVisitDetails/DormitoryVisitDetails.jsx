@@ -4,12 +4,10 @@ import CommonButton from "../../../../components/ui/Button";
 import "./DormitoryVisitDetails.scss";
 
 const DormitoryVisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
-
-  
   const { formData, updateVisitDetails } = useDormitoryStore();
-  useEffect(() => {
-  console.log('Complete Form Data:', formData);
-}, [formData]);
+  //   useEffect(() => {
+  //   console.log('Complete Form Data:', formData);
+  // }, [formData]);
   const [errors, setErrors] = useState({});
   const [visited, setVisited] = useState(formData.visitDetails.visited);
 
@@ -18,7 +16,7 @@ const DormitoryVisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
       "visitDate",
       "visitTime",
       "departureDate",
-      "departureTime"
+      "departureTime",
     ];
     if (fieldsToValidate.includes(name) && !value) {
       return `${name.charAt(0).toUpperCase() + name.slice(1)} is required`;
@@ -37,12 +35,12 @@ const DormitoryVisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     updateVisitDetails({ [name]: value });
-    
+
     // Validate field on change
     const error = validateField(name, value);
-    setErrors(prev => ({
+    setErrors((prev) => ({
       ...prev,
-      [name]: error
+      [name]: error,
     }));
   };
 
@@ -50,19 +48,22 @@ const DormitoryVisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
     const { value } = e.target;
     setVisited(value);
     updateVisitDetails({ visited: value });
-    
+
     // Clear or set errors for conditional fields
     if (value === "yes") {
-      setErrors(prev => ({
+      setErrors((prev) => ({
         ...prev,
-        previousVisitDate: validateField("previousVisitDate", formData.visitDetails.previousVisitDate),
-        reason: validateField("reason", formData.visitDetails.reason)
+        previousVisitDate: validateField(
+          "previousVisitDate",
+          formData.visitDetails.previousVisitDate
+        ),
+        reason: validateField("reason", formData.visitDetails.reason),
       }));
     } else {
-      setErrors(prev => ({
+      setErrors((prev) => ({
         ...prev,
         previousVisitDate: "",
-        reason: ""
+        reason: "",
       }));
     }
   };
@@ -86,7 +87,7 @@ const DormitoryVisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
     "visitDate",
     "visitTime",
     "departureDate",
-    "departureTime"
+    "departureTime",
   ];
 
   const handleSubmit = (e) => {
@@ -104,9 +105,12 @@ const DormitoryVisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
     });
 
     if (visited === "yes") {
-      const previousVisitError = validateField("previousVisitDate", formData.visitDetails.previousVisitDate);
+      const previousVisitError = validateField(
+        "previousVisitDate",
+        formData.visitDetails.previousVisitDate
+      );
       const reasonError = validateField("reason", formData.visitDetails.reason);
-      
+
       if (previousVisitError) {
         newErrors.previousVisitDate = previousVisitError;
         hasErrors = true;
@@ -141,7 +145,9 @@ const DormitoryVisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
                   value={formData.visitDetails.visitDate}
                   onChange={handleInputChange}
                 />
-                {errors.visitDate && <span className="error">{errors.visitDate}</span>}
+                {errors.visitDate && (
+                  <span className="error">{errors.visitDate}</span>
+                )}
               </div>
 
               <div className="form-group">
@@ -154,7 +160,9 @@ const DormitoryVisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
                   value={formData.visitDetails.departureDate}
                   onChange={handleInputChange}
                 />
-                {errors.departureDate && <span className="error">{errors.departureDate}</span>}
+                {errors.departureDate && (
+                  <span className="error">{errors.departureDate}</span>
+                )}
               </div>
 
               <div className="form-group file-upload-section">
@@ -193,7 +201,9 @@ const DormitoryVisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
                   value={formData.visitDetails.visitTime}
                   onChange={handleInputChange}
                 />
-                {errors.visitTime && <span className="error">{errors.visitTime}</span>}
+                {errors.visitTime && (
+                  <span className="error">{errors.visitTime}</span>
+                )}
               </div>
 
               <div className="form-group">
@@ -206,7 +216,9 @@ const DormitoryVisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
                   value={formData.visitDetails.departureTime}
                   onChange={handleInputChange}
                 />
-                {errors.departureTime && <span className="error">{errors.departureTime}</span>}
+                {errors.departureTime && (
+                  <span className="error">{errors.departureTime}</span>
+                )}
               </div>
             </div>
           </div>
@@ -214,7 +226,7 @@ const DormitoryVisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
 
         <div className="previously-visited-section">
           <h2>Previously Visited Detail</h2>
-          
+
           <div className="form-group" style={{ paddingTop: "10px" }}>
             <label>Previously Visited?</label>
             <div style={{ display: "flex", gap: 40, paddingTop: "10px" }}>
@@ -268,7 +280,9 @@ const DormitoryVisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
                   onChange={handleInputChange}
                   placeholder="State reason for re-visit"
                 />
-                {errors.reason && <span className="error">{errors.reason}</span>}
+                {errors.reason && (
+                  <span className="error">{errors.reason}</span>
+                )}
               </div>
             </>
           )}

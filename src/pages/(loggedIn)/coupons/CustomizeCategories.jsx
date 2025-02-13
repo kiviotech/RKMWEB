@@ -182,7 +182,7 @@ const CustomizeCategories = ({ isOpen, onClose, onSave }) => {
       setEditingCategory(null);
       toast.success("Category updated successfully!");
     } catch (error) {
-      console.error("Error updating category:", error);
+      // console.error("Error updating category:", error);
       toast.error("Failed to update category");
     }
   };
@@ -231,7 +231,7 @@ const CustomizeCategories = ({ isOpen, onClose, onSave }) => {
 
         toast.success("Category deleted successfully!");
       } catch (error) {
-        console.error("Error deleting category:", error);
+        // console.error("Error deleting category:", error);
         toast.error("Failed to delete category");
       }
     }

@@ -23,7 +23,7 @@ const CheckInDetails = () => {
       try {
         const bookingResponse = await fetchBookingRequests();
         const bookingData = bookingResponse.data;
-        console.log("Booking Data:", bookingData);
+        // console.log("Booking Data:", bookingData);
 
         // Filter for tomorrow's bookings
         const tomorrow = dayjs().add(1, "day").startOf("day");

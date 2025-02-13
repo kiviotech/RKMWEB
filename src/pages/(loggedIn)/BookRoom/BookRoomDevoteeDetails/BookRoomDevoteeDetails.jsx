@@ -19,7 +19,7 @@ const BookRoomDevoteeDetails = ({
       try {
         if (requestId) {
           const response = await fetchBookingRequestById(requestId);
-          console.log("Booking Request Data:", response);
+          // console.log("Booking Request Data:", response);
           setGuestData(response.data);
           const allGuestIds =
             response.data?.attributes?.guests?.data?.map((guest) => guest.id) ||
@@ -34,9 +34,9 @@ const BookRoomDevoteeDetails = ({
     fetchRequestData();
   }, [requestId]);
 
-  useEffect(() => {
-    console.log("Room allocation updated:", allocatedRooms);
-  }, [allocatedRooms]);
+  // useEffect(() => {
+  //   console.log("Room allocation updated:", allocatedRooms);
+  // }, [allocatedRooms]);
 
   const handleGuestSelect = (guestId) => {
     setSelectedGuests((prev) =>
@@ -92,7 +92,7 @@ const BookRoomDevoteeDetails = ({
         roomId: allocatedRooms[0]?.id,
       })),
     };
-    console.log("Email Data:", emailData);
+    // console.log("Email Data:", emailData);
     setShowEmailModal(true);
   };
 

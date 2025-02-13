@@ -19,7 +19,7 @@ const BookRoom = () => {
   const [viewMode, setViewMode] = useState("dashboard");
 
   useEffect(() => {
-    console.log("BookRoom received dates:", { arrivalDate, departureDate });
+    // console.log("BookRoom received dates:", { arrivalDate, departureDate });
   }, [arrivalDate, departureDate]);
 
   const handleBlockSelect = (blockId) => {
@@ -27,7 +27,7 @@ const BookRoom = () => {
   };
 
   const handleAllocate = (arrivalDate, departureDate, guestCount) => {
-    console.log("Allocation dates:", arrivalDate, departureDate);
+    // console.log("Allocation dates:", arrivalDate, departureDate);
 
     // Use the date strings directly without creating Date objects
     setSelectedDateRange({
@@ -39,7 +39,7 @@ const BookRoom = () => {
   };
 
   const handleRoomAllocation = (roomAllocations) => {
-    console.log("Rooms allocated:", roomAllocations);
+    // console.log("Rooms allocated:", roomAllocations);
     setAllocatedRooms(roomAllocations);
   };
 

@@ -227,6 +227,14 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
   };
 
   const handleFileUpload = async (file) => {
+    // Add file size validation (e.g., 5MB limit)
+    const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB in bytes
+
+    if (file.size > MAX_FILE_SIZE) {
+      setErrors("file", "File size must be less than 5MB");
+      return;
+    }
+
     try {
       const formData = new FormData();
       formData.append("files", file);
@@ -235,12 +243,19 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
         method: "POST",
         body: formData,
         headers: {
-          Authorization: `Bearer dab72e1a44ce33db65569da89fdc1927935e21775c16a6d6f8f035533fb939552a712001461dd2cabfbffb50b81b3635d6ffb080a24c475f1b8246bbc399da4189dfd3fae5fed6998811fc81e9954d670b6b60e4859bda4634148a94f3ddfecf9c4364858523f5f447bbce967ffc679e35810f1f3c282a6a6f4ee877b58fb8ee`,
+          Authorization: `Bearer ${process.env.REACT_APP_API_TOKEN}`, // Move token to env variable
         },
+        // Add CORS mode
+        mode: "cors",
+        credentials: "include",
       });
 
       if (!response.ok) {
-        throw new Error("Upload failed");
+        throw new Error(
+          response.status === 413
+            ? "File is too large. Please upload a smaller file (max 5MB)."
+            : "Upload failed"
+        );
       }
 
       const data = await response.json();
@@ -249,18 +264,11 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
         fileId: data[0].id,
       });
 
-      // Show success popup
       setShowUploadSuccess(true);
-
-      // Hide popup after 3 seconds
-      setTimeout(() => {
-        setShowUploadSuccess(false);
-      }, 3000);
-
-      console.log("File Upload Success:", data[0]);
+      setTimeout(() => setShowUploadSuccess(false), 3000);
     } catch (error) {
       console.error("File Upload Error:", error);
-      setErrors("file", "Failed to upload file");
+      setErrors("file", error.message || "Failed to upload file");
     }
   };
 
@@ -268,13 +276,7 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
     const file = e.target.files[0];
     if (file) {
       handleFileUpload(file);
-      console.log("File Upload Initiated:", {
-        fileName: file?.name,
-        fileType: file?.type,
-        fileSize: file?.size,
-      });
     }
-    // Reset the input value after upload
     e.target.value = "";
   };
 
@@ -620,12 +622,17 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
               )} */}
 
               <div className="form-group file-upload-section">
-                <label>Recommendation Letter (If any)</label>
+                <label>
+                  Recommendation Letter (If any)
+                  <span className="upload-restrictions">
+                    (Max size: 5MB, Formats: JPEG, PNG, SVG)
+                  </span>
+                </label>
                 <div className="upload-container">
                   <input
                     id="file-upload"
                     type="file"
-                    accept=".jpeg, .png, .svg"
+                    accept=".jpg,.jpeg,.png,.svg,image/jpeg,image/png,image/svg+xml"
                     onChange={handleFileChange}
                     style={{ display: "none" }}
                     key={formData.file ? "file-present" : "no-file"}

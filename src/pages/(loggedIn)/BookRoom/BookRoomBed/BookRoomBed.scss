@@ -98,14 +98,14 @@
       cursor: pointer;
 
       &:has(.bed-count:not(:empty)) {
-        background: #f3f0ff;
-        border-color: #d4c6ff;
+        background: #fff;
+        border-color: #ffd7b5;
       }
 
       .bed-count {
         font-size: 24px;
         font-weight: 600;
-        color: #6941c6;
+        color: #000;
         margin-bottom: 4px;
       }
 

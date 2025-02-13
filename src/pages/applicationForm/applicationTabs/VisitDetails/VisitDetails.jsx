@@ -5,6 +5,7 @@ import useApplicationStore from "../../../../../useApplicationStore";
 import { BASE_URL, MEDIA_BASE_URL } from "../../../../../services/apiClient";
 import { useNavigate } from "react-router-dom";
 import { fetchCelebrations } from "../../../../../services/src/services/celebrationsService";
+import { useAuthStore } from "../../../../../store/authStore";
 
 const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
   const { formData, errors, setVisitFormData, setFile, setErrors } =
@@ -227,7 +228,6 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
   };
 
   const handleFileUpload = async (file) => {
-    // Add file size validation (e.g., 5MB limit)
     const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB in bytes
 
     if (file.size > MAX_FILE_SIZE) {
@@ -239,13 +239,15 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
       const formData = new FormData();
       formData.append("files", file);
 
+      // Get token from auth store
+      const token = useAuthStore.getState().token;
+
       const response = await fetch(`${BASE_URL}/upload`, {
         method: "POST",
         body: formData,
         headers: {
-          Authorization: `Bearer ${process.env.REACT_APP_API_TOKEN}`, // Move token to env variable
+          Authorization: `Bearer ${token}`,
         },
-        // Add CORS mode
         mode: "cors",
         credentials: "include",
       });

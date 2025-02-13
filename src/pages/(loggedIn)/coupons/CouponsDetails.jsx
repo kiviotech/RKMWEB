@@ -115,7 +115,27 @@ const CouponsDetails = () => {
     });
   };
 
+  const validateForm = () => {
+    const newErrors = {};
+    if (!formData.name.trim()) {
+      newErrors.name = "Name is required";
+    }
+    if (!formData.pincode.trim()) {
+      newErrors.pincode = "Pincode is required";
+    }
+    if (!formData.address.trim()) {
+      newErrors.address = "Address is required";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handlePrintSeparateClick = async () => {
+    if (!validateForm()) {
+      return;
+    }
+
     try {
       await handlePrintSeparate(
         formData,
@@ -123,13 +143,17 @@ const CouponsDetails = () => {
         setRefreshTrigger,
         clearForm
       );
-      clearForm(); // Clear form after successful operation
+      clearForm();
     } catch (error) {
       console.error("Error in print separate:", error);
     }
   };
 
   const handlePrintAllClick = async () => {
+    if (!validateForm()) {
+      return;
+    }
+
     try {
       await handlePrintAll(
         formData,
@@ -137,7 +161,7 @@ const CouponsDetails = () => {
         setRefreshTrigger,
         clearForm
       );
-      clearForm(); // Clear form after successful operation
+      clearForm();
     } catch (error) {
       console.error("Error in print all:", error);
     }

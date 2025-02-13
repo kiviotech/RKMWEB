@@ -68,6 +68,14 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
     });
   }, [formData, errors]);
 
+  // Add function to get max allowed arrival date (90 days from today)
+  const getMaxArrivalDate = () => {
+    const today = new Date();
+    const maxDate = new Date();
+    maxDate.setDate(today.getDate() + 90);
+    return maxDate.toISOString().split("T")[0];
+  };
+
   // Add function to get max allowed departure date
   const getMaxDepartureDate = (arrivalDate) => {
     if (!arrivalDate) return null;
@@ -505,6 +513,7 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
                   value={formData.arrivalDate || formData.visitDate || ""}
                   onChange={handleInputChange}
                   min={new Date().toISOString().split("T")[0]}
+                  max={getMaxArrivalDate()}
                 />
                 {errors.visitDate && (
                   <span className="error">{errors.visitDate}</span>

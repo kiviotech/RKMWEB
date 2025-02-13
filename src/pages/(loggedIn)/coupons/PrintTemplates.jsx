@@ -32,7 +32,7 @@ export const separateCouponsTemplate = (
             <span class="prasada-coupon__label">No. Of Devotees:</span>
           </div>
           <div class="prasada-coupon__number">
-            ${index + 1}
+            1
           </div>
           <div class="prasada-coupon__page-number">
             ${index + 1}/${selectedCoupons}

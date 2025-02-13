@@ -127,11 +127,18 @@ const ConfirmAllocationEmail = ({
             <p>
               We have received, the below email and noted the contents. You are
               welcome to stay at our Guest House during the mentioned period
-              i.e. arrival {guestData?.attributes?.arrival_date} and departure{" "}
-              {guestData?.attributes?.departure_date} after breakfast at 07:30
-              a.m. The accommodation will be kept reserved for{" "}
-              {allocatedGuests?.length} devotees in Room Numbers:{" "}
-              {formatRoomNumbers()}
+              i.e. arrival{" "}
+              {new Date(guestData?.attributes?.arrival_date)
+                .toLocaleDateString("en-GB")
+                .split("/")
+                .join("-")}{" "}
+              and departure{" "}
+              {new Date(guestData?.attributes?.departure_date)
+                .toLocaleDateString("en-GB")
+                .split("/")
+                .join("-")}{" "}
+              after breakfast at 07:30 a.m. The accommodation will be kept
+              reserved for {allocatedGuests?.length} devotees.
             </p>
 
             <p>
@@ -152,7 +159,6 @@ const ConfirmAllocationEmail = ({
             <p>Yours sincerely,</p>
             <p>Swami Lokottarananda</p>
             <p>Adhyaksha</p>
-            <p>RAMAKRISHNA MATH & RAMAKRISHNA MISSION, KAMARPUKUR</p>
           </div>
 
           <div className="allocation-modal-actions">

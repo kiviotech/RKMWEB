@@ -442,7 +442,7 @@ const Rooms = ({
       const currentDay = resetTimeToMidnight(new Date());
 
       if (arrivalDate < currentDay) {
-        console.log("Bed cannot be selected for past dates.");
+        // console.log("Bed cannot be selected for past dates.");
         return;
       }
 

@@ -196,3 +196,35 @@
 [data-tooltip="true"] {
   cursor: pointer;
 }
+
+.bed-count-layout {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  padding: 4px;
+
+  .bed-count-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    min-width: 60px;
+
+    .bed-number {
+      font-size: 24px;
+      font-weight: bold;
+      color: #000;
+      line-height: 1.2;
+    }
+
+    .bed-status {
+      font-size: 12px;
+      color: #000;
+      margin-top: 2px;
+    }
+  }
+}

@@ -328,7 +328,7 @@ const ConfirmedRequests = ({ selectedDate, searchQuery, label }) => {
                   cursor: "pointer",
                 }}
               >
-                Cancel
+                Cancel Booking
               </button>
             </div>
           </div>

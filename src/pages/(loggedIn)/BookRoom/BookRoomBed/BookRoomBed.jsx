@@ -254,7 +254,30 @@ const BookRoomBed = ({
       }
     };
 
-    if (numberOfBeds === 3) {
+    if (numberOfBeds > 4) {
+      beds.push(
+        <div
+          key="bed-count-layout"
+          className="bed-count-layout"
+          title={tooltipContent ? "" : undefined}
+          data-tooltip={tooltipContent ? "true" : undefined}
+        >
+          {tooltipContent && (
+            <div className="custom-tooltip">{tooltipContent}</div>
+          )}
+          <div className="bed-count-box">
+            <span className="bed-number">{numberOfBeds}</span>
+            <span className="bed-status">
+              {isBlocked
+                ? "Blocked"
+                : allocatedBedsCount > 0
+                ? "Occupied"
+                : "Available"}
+            </span>
+          </div>
+        </div>
+      );
+    } else if (numberOfBeds === 3) {
       beds.push(
         <div
           key="three-bed-layout"

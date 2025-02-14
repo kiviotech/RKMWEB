@@ -2,12 +2,14 @@ import React, { useEffect, useState, useRef } from "react";
 import "./BookRoomManagementBed.scss";
 import { icons } from "../../../../constants";
 import * as blockService from "../../../../../services/src/services/blockService";
+import { useNavigate } from "react-router-dom";
 
 const BookRoomManagementBed = ({ blockId, refreshTrigger }) => {
   const [rooms, setRooms] = useState([]);
   const [dates, setDates] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const scrollContainerRef = useRef(null);
+  const navigate = useNavigate();
 
   // Generate dates for the entire year
   useEffect(() => {
@@ -51,6 +53,27 @@ const BookRoomManagementBed = ({ blockId, refreshTrigger }) => {
     fetchBlockDetails();
   }, [blockId, refreshTrigger]);
 
+  const handleBedClick = (allocation) => {
+    if (allocation) {
+      // Get the booking request ID from the first guest's booking request
+      const bookingRequestId =
+        allocation.attributes.guests.data[0]?.attributes?.booking_request?.data
+          ?.id;
+      console.log("Booking Request ID:", allocation);
+      if (bookingRequestId) {
+        navigate("/requests", {
+          state: {
+            activeTab: "confirmed",
+            openGuestDetails: true,
+            requestId: bookingRequestId,
+          },
+        });
+      } else {
+        console.warn("No booking request ID found for this allocation");
+      }
+    }
+  };
+
   const renderBeds = (
     numberOfBeds,
     roomBlockings,
@@ -83,7 +106,11 @@ const BookRoomManagementBed = ({ blockId, refreshTrigger }) => {
       if (allocation) {
         const guests = allocation.attributes.guests.data;
         return (
-          <div className="tooltip-content">
+          <div
+            className="tooltip-content"
+            onClick={() => handleBedClick(allocation)}
+            style={{ cursor: "pointer" }}
+          >
             <h4>Room Allocation Details:</h4>
             {guests.map((guest, index) => (
               <div key={index} className="guest-details">

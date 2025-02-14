@@ -15,3 +15,8 @@ export const updateCelebration = (id, data) =>
 
 export const deleteCelebration = (id) =>
   apiClient.delete(celebrationsEndpoints.deleteCelebration(id));
+
+export const getCelebrationsByDateRange = (arrivalDate, departureDate) =>
+  apiClient.get(
+    celebrationsEndpoints.getCelebrationsByDateRange(arrivalDate, departureDate)
+  );

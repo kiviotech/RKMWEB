@@ -9,6 +9,7 @@ import { getCelebrations } from "../../../../services/src/api/repositories/celeb
 import { MEDIA_BASE_URL } from "../../../../services/apiClient";
 import { toast } from "react-toastify";
 import { fetchBookingRequestById } from "../../../../services/src/services/bookingRequestService";
+import { fetchCelebrationsByDateRange } from "../../../../services/src/services/celebrationsService";
 
 const icons = {
   Reminder: "https://api.iconify.design/mdi:bell-ring-outline.svg",
@@ -74,6 +75,37 @@ const GuestDetailsPopup = ({ isOpen, onClose, onStatusChange, requestId }) => {
 
     getBookingDetails();
   }, [requestId, onClose]);
+
+  useEffect(() => {
+    const fetchCelebrations = async () => {
+      try {
+        if (
+          bookingRequestDetails?.data?.attributes?.arrival_date &&
+          bookingRequestDetails?.data?.attributes?.departure_date
+        ) {
+          const arrivalDate =
+            bookingRequestDetails.data.attributes.arrival_date;
+          const departureDate =
+            bookingRequestDetails.data.attributes.departure_date;
+
+          const celebrations = await fetchCelebrationsByDateRange(
+            arrivalDate,
+            departureDate
+          );
+          console.log("Celebrations between dates:", celebrations);
+
+          // If you want to store the celebrations in state:
+          if (celebrations?.data?.length > 0) {
+            setUpcomingCelebration(celebrations.data[0].attributes);
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching celebrations:", error);
+      }
+    };
+
+    fetchCelebrations();
+  }, [bookingRequestDetails]);
 
   const handleRowClick = (guestId) => {
     setSelectedRow(guestId);
@@ -325,7 +357,7 @@ const GuestDetailsPopup = ({ isOpen, onClose, onStatusChange, requestId }) => {
               <button
                 className="close-btn"
                 onClick={onClose}
-                style={{ marginTop: "-10px" }}
+                style={{ marginTop: "-10px", zIndex: "10" }}
               >
                 <img src={icons.Close} alt="close" className="icon" />
               </button>

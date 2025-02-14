@@ -4,6 +4,7 @@ import {
   createCelebration,
   updateCelebration,
   deleteCelebration,
+  getCelebrationsByDateRange,
 } from "../api/repositories/celebrationsRepository";
 
 // Fetch all celebrations
@@ -50,6 +51,22 @@ export const updateCelebrationById = async (id, data) => {
 export const deleteCelebrationById = async (id) => {
   try {
     const response = await deleteCelebration(id);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+// Fetch celebrations within a date range
+export const fetchCelebrationsByDateRange = async (
+  arrivalDate,
+  departureDate
+) => {
+  try {
+    const response = await getCelebrationsByDateRange(
+      arrivalDate,
+      departureDate
+    );
     return response.data;
   } catch (error) {
     throw error;

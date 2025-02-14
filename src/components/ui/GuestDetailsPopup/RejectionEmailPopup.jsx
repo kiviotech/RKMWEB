@@ -7,15 +7,15 @@ const RejectionEmailPopup = ({ onClose, onSubmit, guestDetail }) => {
   const [emailContent, setEmailContent] = useState("");
 
   const reasons = [
-    "Please don’t get disheartened as it will not be possible for us to accommodate you during the period requested by you due to paucity of space.",
+    "Please don't get disheartened as it will not be possible for us to accommodate you during the period requested by you due to paucity of space.",
     "Reason 2",
     "Reason 3",
     "Reason 4",
     "Reason 5",
   ];
 
-  const arrivalDate = guestDetail.userDetails.arrivalDate;
-  const departureDate = guestDetail.userDetails.departureDate;
+  const arrivalDate = guestDetail?.data?.attributes?.arrival_date;
+  const departureDate = guestDetail?.data?.attributes?.departure_date;
 
   const handleCheckboxChange = (reason) => {
     setSelectedReasons((prev) =>
@@ -31,12 +31,19 @@ const RejectionEmailPopup = ({ onClose, onSubmit, guestDetail }) => {
       return;
     }
 
-    // Generate the email content based on the selected reasons
+    // Format dates for better display
+    const formattedArrivalDate = arrivalDate
+      ? new Date(arrivalDate).toLocaleDateString()
+      : "N/A";
+    const formattedDepartureDate = departureDate
+      ? new Date(departureDate).toLocaleDateString()
+      : "N/A";
+
     let content = `Dear Devotee,
 
 Namoskar,
 
-We have received the below email and noted the contents. You are welcome to stay at our Guest House during the mentioned period i.e arrival - ${arrivalDate} and departure - ${departureDate}
+We have received the below email and noted the contents. You are welcome to stay at our Guest House during the mentioned period i.e arrival - ${formattedArrivalDate} and departure - ${formattedDepartureDate}
 
 Please bring a hard copy of this letter for ready reference along with your ID Proof or copy of your ID Proof (Aadhaar/ PAN/ Voter Card/Passport). Also, try to reach the Math Office to do the registration formalities between 09.00 to 11.00 a.m. on the day of arrival.
 
@@ -88,12 +95,14 @@ Swami Lokahanananda`;
                 <div className="field">
                   <span>To:</span>
                   <div className="recipient-tags">
-                    {guestDetail?.guests?.map((guest, index) => (
-                      <div key={index} className="recipient-chip">
-                        <div className="avatar">A</div>
-                        <span className="name">{guest.name}</span>
-                      </div>
-                    ))}
+                    {guestDetail?.data?.attributes?.guests?.data?.map(
+                      (guest, index) => (
+                        <div key={index} className="recipient-chip">
+                          <div className="avatar">A</div>
+                          <span className="name">{guest.attributes.name}</span>
+                        </div>
+                      )
+                    )}
                   </div>
                 </div>
               </div>

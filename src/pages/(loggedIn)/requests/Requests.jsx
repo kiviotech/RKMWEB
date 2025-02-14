@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import "./Requests.scss";
 import CommonHeaderTitle from "../../../components/ui/CommonHeaderTitle";
 import SearchBar from "../../../components/ui/SearchBar";
@@ -21,6 +21,9 @@ import TabPendingGridView from "./StatusTabNavigation/gridView/TabPendingGridVie
 import TabRescheduledGridView from "./StatusTabNavigation/gridView/TabRescheduledGridView";
 import ConfirmedRequests from "./StatusTabNavigation/defaultView/ConfirmedRequests.jsx";
 import TabConfirmedGridView from "./StatusTabNavigation/gridView/TabConfirmedGridView.jsx";
+// import GuestDetailsPopup from "./StatusTabNavigation/defaultView/GuestDetailsPopup";
+import GuestDetailsPopup from "../../../components/ui/GuestDetailsPopup/GuestDetailsPopup";
+import { useLocation } from "react-router-dom";
 
 const Requests = () => {
   const [startDate, setStartDate] = useState(null);
@@ -28,6 +31,9 @@ const Requests = () => {
   const [activeToggler, setActiveToggler] = useState("dashboard");
   const [activeTab, setActiveTab] = useState("pending");
   const [searchQuery, setSearchQuery] = useState("");
+  const [showGuestDetails, setShowGuestDetails] = useState(false);
+  const [selectedRequestId, setSelectedRequestId] = useState(null);
+  const location = useLocation();
 
   // Common styles for togglers
   const commonStyle = {
@@ -77,6 +83,20 @@ const Requests = () => {
   const handleSearch = (query) => {
     setSearchQuery(query);
   };
+
+  // Add this useEffect to handle navigation state
+  useEffect(() => {
+    if (location.state) {
+      const { activeTab, openGuestDetails, requestId } = location.state;
+      if (activeTab) {
+        setActiveTab(activeTab);
+      }
+      if (openGuestDetails && requestId) {
+        setSelectedRequestId(requestId);
+        setShowGuestDetails(true);
+      }
+    }
+  }, [location]);
 
   // Function to render tab content based on active tab
   const renderTabContent = () => {
@@ -257,6 +277,14 @@ const Requests = () => {
           {renderTabContent()}
         </div>
       </div>
+
+      {showGuestDetails && selectedRequestId && (
+        <GuestDetailsPopup
+          isOpen={showGuestDetails}
+          onClose={() => setShowGuestDetails(false)}
+          requestId={selectedRequestId}
+        />
+      )}
     </>
   );
 };

@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import { icons } from "../../../../constants";
 import * as blockService from "../../../../../services/src/services/blockService";
+import { useNavigate } from "react-router-dom";
 import "./BookRoomBed.scss";
 
 const BookRoomBed = ({
@@ -19,6 +20,7 @@ const BookRoomBed = ({
   const scrollContainerRef = useRef(null);
   const [allocatedRoomNumber, setAllocatedRoomNumber] = useState(null);
   const [allocatedRooms, setAllocatedRooms] = useState([]);
+  const navigate = useNavigate();
 
   // useEffect(() => {
   //   console.log("BookRoombed received dates:", {
@@ -70,9 +72,30 @@ const BookRoomBed = ({
     fetchBlockDetails();
   }, [blockId, refreshTrigger]);
 
+  const handleBedClick = (allocation) => {
+    if (allocation) {
+      // Get the booking request ID from the first guest's booking request
+      const bookingRequestId =
+        allocation.attributes.guests.data[0]?.attributes?.booking_request?.data
+          ?.id;
+      console.log("Booking Request ID:", allocation);
+      if (bookingRequestId) {
+        navigate("/requests", {
+          state: {
+            activeTab: "confirmed",
+            openGuestDetails: true,
+            requestId: bookingRequestId,
+          },
+        });
+      } else {
+        console.warn("No booking request ID found for this allocation");
+      }
+    }
+  };
+
   const getTooltipContent = (roomBlockings, roomAllocations, currentDate) => {
-    // Check for allocations first
     const allocation = roomAllocations?.data?.find((allocation) => {
+      console.log("Allocation:", roomAllocations);
       const fromDate = new Date(
         allocation.attributes.guests.data[0].attributes.arrival_date
       );
@@ -93,7 +116,11 @@ const BookRoomBed = ({
     if (allocation) {
       const guests = allocation.attributes.guests.data;
       return (
-        <div className="tooltip-content">
+        <div
+          className="tooltip-content"
+          onClick={() => handleBedClick(allocation)}
+          style={{ cursor: "pointer" }}
+        >
           <h4>Room Allocation Details:</h4>
           {guests.map((guest, index) => (
             <div key={index} className="guest-details">

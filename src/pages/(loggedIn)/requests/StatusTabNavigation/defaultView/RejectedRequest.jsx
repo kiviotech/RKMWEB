@@ -252,9 +252,10 @@ const RejectedRequest = ({ selectedDate, label }) => {
         <GuestDetailsPopup
           isOpen={isGuestDetailsPopupOpen}
           onClose={closeModal}
-          guestDetails={selectedGuest}
-          guests={selectedGuest?.guests || []}
-          label={label}
+          // guestDetails={selectedGuest}
+          // guests={selectedGuest?.guests || []}
+          // label={label}
+          requestId={selectedGuest.id}
         />
       )}
     </div>

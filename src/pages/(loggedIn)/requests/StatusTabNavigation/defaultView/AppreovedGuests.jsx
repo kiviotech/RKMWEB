@@ -282,10 +282,8 @@ const ApprovedGuests = ({ selectedDate, label }) => {
         <GuestDetailsPopup
           isOpen={isGuestDetailsPopupOpen}
           onClose={closeModal}
-          guestDetails={selectedGuest}
-          guests={selectedGuest?.guests || []}
           onStatusChange={handleStatusChange}
-          label={label}
+          requestId={selectedGuest.id}
         />
       )}
     </div>

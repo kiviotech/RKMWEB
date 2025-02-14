@@ -16,11 +16,11 @@ apiClient.interceptors.request.use(
   async (config) => {
     try {
       const token = await getToken("token"); // Ensure the function call is correct
-      console.log("Fetched token:", token); // Debugging log
+      // console.log("Fetched token:", token); // Debugging log
 
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
-        console.log("Token set in headers"); // Debugging log
+        // console.log("Token set in headers"); // Debugging log
       } else {
         console.warn("No token available"); // Warn if no token is found
       }

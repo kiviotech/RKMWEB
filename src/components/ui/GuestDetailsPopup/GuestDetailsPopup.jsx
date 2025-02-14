@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 import { getCelebrations } from "../../../../services/src/api/repositories/celebrationsRepository";
 import { MEDIA_BASE_URL } from "../../../../services/apiClient";
 import { toast } from "react-toastify";
+import { fetchBookingRequestById } from "../../../../services/src/services/bookingRequestService";
 
 const icons = {
   Reminder: "https://api.iconify.design/mdi:bell-ring-outline.svg",
@@ -23,82 +24,67 @@ const icons = {
   Eye: "https://api.iconify.design/mdi:eye.svg",
 };
 
-const GuestDetailsPopup = ({
-  isOpen,
-  onClose,
-  guestDetails,
-  guests,
-  onStatusChange,
-  label,
-}) => {
-  // console.log("GuestDetailsPopup Props:", {
-  //   isOpen,
-  //   guestDetails,
-  //   guests,
-  //   label,
-  // });
-
+const GuestDetailsPopup = ({ isOpen, onClose, onStatusChange, requestId }) => {
   const [selectedRow, setSelectedRow] = useState(null);
   const [selectedVisitRow, setSelectedVisitRow] = useState(null);
-  const [selectedGuestName, setSelectedGuestName] = useState(
-    guestDetails?.userDetails?.name || ""
-  );
+  const [bookingRequestDetails, setBookingRequestDetails] = useState(null);
+  const [selectedGuestName, setSelectedGuestName] = useState("");
   const [showRejectionEmail, setShowRejectionEmail] = useState(false);
   const navigate = useNavigate();
   const [upcomingCelebration, setUpcomingCelebration] = useState(null);
   const [showPreviewModal, setShowPreviewModal] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (guestDetails?.guests?.length > 0) {
-      const firstGuest = guestDetails.guests[0];
+    if (bookingRequestDetails?.data?.attributes?.guests?.data?.length > 0) {
+      const firstGuest = bookingRequestDetails.data.attributes.guests.data[0];
       setSelectedRow(firstGuest.id);
       setSelectedGuestName(
-        firstGuest.name || guestDetails?.userDetails?.name || ""
+        firstGuest.attributes.name ||
+          bookingRequestDetails?.data?.attributes?.name ||
+          ""
       );
+    } else if (bookingRequestDetails?.data?.attributes?.name) {
+      setSelectedGuestName(bookingRequestDetails.data.attributes.name);
     }
-  }, [guestDetails]);
+  }, [bookingRequestDetails]);
 
   useEffect(() => {
-    const fetchCelebrations = async () => {
+    const getBookingDetails = async () => {
       try {
-        const response = await getCelebrations();
-        // console.log("Celebrations Response:", response?.data);
-
-        // Convert arrival and departure dates to Date objects
-        const arrivalDate = new Date(guestDetails?.userDetails?.arrivalDate);
-        const departureDate = new Date(
-          guestDetails?.userDetails?.departureDate
-        );
-
-        // Find celebrations that fall within the stay period
-        const upcoming = response?.data?.data?.find((celebration) => {
-          const celebrationDate = new Date(
-            celebration.attributes.gregorian_date
-          );
-          return (
-            celebrationDate >= arrivalDate && celebrationDate <= departureDate
-          );
-        });
-
-        if (upcoming) {
-          // console.log("Upcoming Celebration:", upcoming);
-          setUpcomingCelebration(upcoming.attributes);
+        if (requestId) {
+          setIsLoading(true);
+          const response = await fetchBookingRequestById(requestId);
+          if (response && response.data) {
+            setBookingRequestDetails(response);
+          } else {
+            console.error("No booking details found for ID:", requestId);
+            toast.error("Could not find booking details");
+            onClose(); // Close the popup if no details found
+          }
         }
       } catch (error) {
-        console.error("Error fetching celebrations:", error);
+        console.error("Error fetching booking request details:", error);
+        toast.error("Failed to load booking details");
+        onClose(); // Close the popup on error
+      } finally {
+        setIsLoading(false);
       }
     };
 
-    fetchCelebrations();
-  }, [guestDetails]);
+    getBookingDetails();
+  }, [requestId, onClose]);
 
   const handleRowClick = (guestId) => {
     setSelectedRow(guestId);
-    const selectedGuest = guestDetails?.guests?.find(
-      (guest) => guest.id === guestId
-    );
+    const selectedGuest =
+      bookingRequestDetails?.data?.attributes?.guests?.data?.find(
+        (guest) => guest.id === guestId
+      );
     setSelectedGuestName(
-      selectedGuest?.name || guestDetails?.userDetails?.name || ""
+      selectedGuest?.attributes?.name ||
+        bookingRequestDetails?.data?.attributes?.name ||
+        ""
     );
   };
 
@@ -106,11 +92,20 @@ const GuestDetailsPopup = ({
     setSelectedVisitRow(index);
   };
 
-  const arrivalDate = new Date(guestDetails?.userDetails?.arrivalDate);
-  const departureDate = new Date(guestDetails?.userDetails?.departureDate);
-  const stayDuration = Math.ceil(
-    (departureDate - arrivalDate) / (1000 * 60 * 60 * 24)
-  );
+  const calculateStayDuration = () => {
+    const arrivalDate = new Date(
+      bookingRequestDetails?.data?.attributes?.arrival_date
+    );
+    const departureDate = new Date(
+      bookingRequestDetails?.data?.attributes?.departure_date
+    );
+
+    if (isNaN(arrivalDate.getTime()) || isNaN(departureDate.getTime())) {
+      return "N/A";
+    }
+
+    return Math.ceil((departureDate - arrivalDate) / (1000 * 60 * 60 * 24));
+  };
 
   const handleStatusChange = async (requestId, newStatus) => {
     try {
@@ -164,7 +159,7 @@ const GuestDetailsPopup = ({
   };
 
   const handleRejectionEmailSubmit = (reasons) => {
-    handleStatusChange(guestDetails.id, "rejected");
+    handleStatusChange(bookingRequestDetails.data.id, "rejected");
     setShowRejectionEmail(false);
   };
 
@@ -180,33 +175,33 @@ const GuestDetailsPopup = ({
       .replace(/\//g, "-");
   };
 
-  const handleButtonClick = (request) => {
-    // console.log("Request Data:", request);
+  const handleButtonClick = () => {
     const guestData = {
-      requestId: request.id,
-      name: request.userDetails.name,
-      arrivalDate: request.userDetails.arrivalDate,
-      departureDate: request.userDetails.departureDate,
-      numberOfGuests: request.noOfGuest,
+      requestId: bookingRequestDetails.data.id,
+      name: bookingRequestDetails.data.attributes.name,
+      arrivalDate: bookingRequestDetails.data.attributes.arrival_date,
+      departureDate: bookingRequestDetails.data.attributes.departure_date,
+      numberOfGuests:
+        bookingRequestDetails.data.attributes.guests?.data?.length || 0,
       guestDetails: {
-        ...request.userDetails,
+        ...bookingRequestDetails.data.attributes,
       },
-      additionalGuests: request.guests.map((guest) => ({
-        id: guest.id,
-        name: guest.name,
-        age: guest.age,
-        gender: guest.gender,
-        relation: guest.relation,
-        roomNo: guest.room?.data?.attributes?.room_number || "-",
-      })),
+      additionalGuests:
+        bookingRequestDetails.data.attributes.guests?.data?.map((guest) => ({
+          id: guest.id,
+          name: guest.attributes.name,
+          age: guest.attributes.age,
+          gender: guest.attributes.gender,
+          relation: guest.attributes.relationship,
+          roomNo: guest.attributes.room?.data?.attributes?.room_number || "-",
+        })) || [],
     };
-    // console.log("Formatted Guest Data:", guestData);
 
     navigate("/book-room", {
       state: {
-        requestId: request.id,
-        arrivalDate: guestDetails?.userDetails?.arrivalDate,
-        departureDate: guestDetails?.userDetails?.departureDate,
+        requestId: bookingRequestDetails.data.id,
+        arrivalDate: bookingRequestDetails.data.attributes.arrival_date,
+        departureDate: bookingRequestDetails.data.attributes.departure_date,
       },
     });
     onClose();
@@ -221,29 +216,38 @@ const GuestDetailsPopup = ({
       <RejectionEmailPopup
         onClose={() => setShowRejectionEmail(false)}
         onSubmit={handleRejectionEmailSubmit}
-        guestDetail={guestDetails}
+        guestDetail={bookingRequestDetails}
       />
     );
   }
 
   if (!isOpen) return null;
+  console.log(bookingRequestDetails?.data?.attributes?.status);
 
   const renderActionButtons = () => {
     const status =
-      guestDetails?.status || guestDetails?.attributes?.status || "awaiting";
+      bookingRequestDetails?.data?.attributes?.status || "awaiting";
 
-    if (label === "pending" || label === "rescheduled") {
+    if (
+      status === "pending" ||
+      status === "rescheduled" ||
+      status === "awaiting"
+    ) {
       return (
         <div className="action-buttons">
           <button
             className="hold-btn"
-            onClick={() => handleStatusChange(guestDetails.id, "on_hold")}
+            onClick={() =>
+              handleStatusChange(bookingRequestDetails.data.id, "on_hold")
+            }
           >
             Put on hold
           </button>
           <button
             className="approve-btn"
-            onClick={() => handleStatusChange(guestDetails.id, "approved")}
+            onClick={() =>
+              handleStatusChange(bookingRequestDetails.data.id, "approved")
+            }
           >
             Approve
           </button>
@@ -252,12 +256,14 @@ const GuestDetailsPopup = ({
           </button>
         </div>
       );
-    } else if (label === "approved") {
+    } else if (bookingRequestDetails?.data?.attributes?.status === "approved") {
       return (
         <div className="action-buttons">
           <button
             className="hold-btn"
-            onClick={() => handleStatusChange(guestDetails.id, "on_hold")}
+            onClick={() =>
+              handleStatusChange(bookingRequestDetails.data.id, "on_hold")
+            }
           >
             Put on hold
           </button>
@@ -266,9 +272,11 @@ const GuestDetailsPopup = ({
           </button>
           <CommonButton
             buttonName={(() => {
-              const hasRoom = guestDetails.guests.some(
-                (guest) => guest.room?.data?.attributes?.room_number
-              );
+              const hasRoom =
+                bookingRequestDetails.data.attributes.guests?.data?.some(
+                  (guest) =>
+                    guest.attributes.room?.data?.attributes?.room_number
+                );
               return hasRoom ? "View" : "Allocate Rooms";
             })()}
             buttonWidth="220px"
@@ -280,16 +288,18 @@ const GuestDetailsPopup = ({
               borderRadius: "7px",
               borderWidth: 1,
             }}
-            onClick={() => handleButtonClick(guestDetails)}
+            onClick={handleButtonClick}
           />
         </div>
       );
-    } else if (label === "onHold") {
+    } else if (status === "on_hold") {
       return (
         <div className="action-buttons">
           <button
             className="approve-btn"
-            onClick={() => handleStatusChange(guestDetails.id, "approved")}
+            onClick={() =>
+              handleStatusChange(bookingRequestDetails.data.id, "approved")
+            }
           >
             Approve
           </button>
@@ -303,337 +313,368 @@ const GuestDetailsPopup = ({
   };
 
   return (
-    <>
-      <div className="popup-overlay">
-        <div className="popup-content">
-          <div className="header-section">
-            <button
-              className="close-btn"
-              onClick={onClose}
-              style={{ marginTop: "-10px" }}
-            >
-              <img src={icons.Close} alt="close" className="icon" />
-            </button>
+    <div className="popup-overlay">
+      <div className="popup-content">
+        {isLoading ? (
+          <div className="loader-container">
+            <div className="loader"></div>
+          </div>
+        ) : (
+          <>
+            <div className="header-section">
+              <button
+                className="close-btn"
+                onClick={onClose}
+                style={{ marginTop: "-10px" }}
+              >
+                <img src={icons.Close} alt="close" className="icon" />
+              </button>
 
-            {/* Main Info Section */}
-            <div className="main-info">
-              <div className="left-section">
-                {/* <div className="avatar">
-                  <img
-                    src={guestDetails?.userImage || icons.DefaultAvatar}
-                    alt="profile"
-                  />
-                </div> */}
-                <div className="user-details">
-                  <h2>{guestDetails?.userDetails?.name || "N/A"}</h2>
-                  <div className="info-grid">
-                    <div className="info-item">
-                      <span className="label">Age</span>
-                      <span className="value">
-                        <strong>
-                          {guestDetails?.userDetails?.age || "N/A"}
-                        </strong>
-                      </span>
-                    </div>
-                    <div className="info-item">
-                      <span className="label">Gender</span>
-                      <span className="value">
-                        <strong>
-                          {guestDetails?.userDetails?.gender || "N/A"}
-                        </strong>
-                      </span>
-                    </div>
-                    <div className="info-item">
-                      <img src={icons.Email} alt="email" className="icon" />
-                      <span className="value">
-                        <strong>
-                          {guestDetails?.userDetails?.email || "N/A"}
-                        </strong>
-                      </span>
-                    </div>
-                    <div className="info-item">
-                      <img src={icons.Contact} alt="phone" className="icon" />
-                      <span className="value">
-                        <strong>
-                          {guestDetails?.userDetails?.mobile || "N/A"}
-                        </strong>
-                      </span>
-                    </div>
-                  </div>
-                  <div className="info-grid">
-                    <div className="info-item">
-                      <span className="label">Occupation</span>
-                      <span className="value">
-                        <strong>
-                          {guestDetails?.userDetails?.occupation || "N/A"}
-                        </strong>
-                      </span>
-                    </div>
-                    <div className="info-item">
-                      <span className="label">Initiation by</span>
-                      <span className="value">
-                        <strong>
-                          {guestDetails?.userDetails?.deeksha || "N/A"}
-                        </strong>
-                      </span>
-                    </div>
-                    {guestDetails?.recommendation_letter?.data?.[0]?.attributes
-                      ?.url && (
+              {/* Main Info Section */}
+              <div className="main-info">
+                <div className="left-section">
+                  <div className="user-details">
+                    <h2>
+                      {bookingRequestDetails?.data?.attributes?.name || "N/A"}
+                    </h2>
+                    <div className="info-grid">
                       <div className="info-item">
-                        <span className="label">Recommendation Letter</span>
+                        <span className="label">Age</span>
                         <span className="value">
-                          <button
-                            onClick={handlePreviewClick}
-                            style={{
-                              border: "none",
-                              background: "none",
-                              cursor: "pointer",
-                              padding: 0,
-                              display: "inline-flex",
-                              alignItems: "center",
-                              gap: "5px",
-                              color: "#066bff",
-                              paddingTop: "5px",
-                            }}
-                          >
-                            <img
-                              src={icons.Eye}
-                              alt="preview"
-                              style={{ width: "16px", height: "16px" }}
-                            />
-                            <span style={{ fontSize: "14px" }}>Preview</span>
-                          </button>
+                          <strong>
+                            {bookingRequestDetails?.data?.attributes?.age ||
+                              "N/A"}
+                          </strong>
                         </span>
                       </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              <div className="right-section">
-                <div className="reminder-bar">
-                  <div className="reminder-content">
-                    <img
-                      src={icons.Reminder}
-                      alt="reminder"
-                      style={{
-                        filter:
-                          "invert(37%) sepia(74%) saturate(3383%) hue-rotate(206deg) brightness(101%) contrast(101%)",
-                      }}
-                    />
-                    <span
-                      style={{
-                        color: "#066bff",
-                        fontWeight: "500",
-                        fontSize: "14px",
-                      }}
-                    >
-                      {upcomingCelebration ? (
-                        <>
-                          Reminder:{" "}
-                          <span>
-                            {new Date(
-                              upcomingCelebration.gregorian_date
-                            ).getDate()}
-                            th{" "}
-                            {new Date(
-                              upcomingCelebration.gregorian_date
-                            ).toLocaleDateString("en-US", {
-                              month: "short",
-                            })}{" "}
-                            is {upcomingCelebration.event_name}
+                      <div className="info-item">
+                        <span className="label">Gender</span>
+                        <span className="value">
+                          <strong>
+                            {bookingRequestDetails?.data?.attributes?.gender ===
+                            "M"
+                              ? "Male"
+                              : bookingRequestDetails?.data?.attributes
+                                  ?.gender === "F"
+                              ? "Female"
+                              : "N/A"}
+                          </strong>
+                        </span>
+                      </div>
+                      <div className="info-item">
+                        <img src={icons.Email} alt="email" className="icon" />
+                        <span className="value">
+                          <strong>
+                            {bookingRequestDetails?.data?.attributes?.email ||
+                              "N/A"}
+                          </strong>
+                        </span>
+                      </div>
+                      <div className="info-item">
+                        <img src={icons.Contact} alt="phone" className="icon" />
+                        <span className="value">
+                          <strong>
+                            {bookingRequestDetails?.data?.attributes
+                              ?.phone_number || "N/A"}
+                          </strong>
+                        </span>
+                      </div>
+                    </div>
+                    <div className="info-grid">
+                      <div className="info-item">
+                        <span className="label">Occupation</span>
+                        <span className="value">
+                          <strong>
+                            {bookingRequestDetails?.data?.attributes
+                              ?.occupation || "N/A"}
+                          </strong>
+                        </span>
+                      </div>
+                      <div className="info-item">
+                        <span className="label">Initiation by</span>
+                        <span className="value">
+                          <strong>
+                            {bookingRequestDetails?.data?.attributes?.deeksha ||
+                              "N/A"}
+                          </strong>
+                        </span>
+                      </div>
+                      {bookingRequestDetails?.data?.attributes
+                        ?.recommendation_letter?.data?.[0]?.attributes?.url && (
+                        <div className="info-item">
+                          <span className="label">Recommendation Letter</span>
+                          <span className="value">
+                            <button
+                              onClick={handlePreviewClick}
+                              style={{
+                                border: "none",
+                                background: "none",
+                                cursor: "pointer",
+                                padding: 0,
+                                display: "inline-flex",
+                                alignItems: "center",
+                                gap: "5px",
+                                color: "#066bff",
+                                paddingTop: "5px",
+                              }}
+                            >
+                              <img
+                                src={icons.Eye}
+                                alt="preview"
+                                style={{ width: "16px", height: "16px" }}
+                              />
+                              <span style={{ fontSize: "14px" }}>Preview</span>
+                            </button>
                           </span>
-                        </>
-                      ) : (
-                        <span>No upcoming celebrations</span>
+                        </div>
                       )}
-                    </span>
+                    </div>
                   </div>
                 </div>
 
-                <div className="stay-info">
-                  <div className="duration">
-                    <span className="label">Stay Duration:- </span>
-                    <span className="value">
-                      <strong>{stayDuration || "N/A"} days</strong>
-                    </span>
-                  </div>
-                  <div className="dates">
-                    <div className="date-row">
-                      <img src={icons.Calendar} alt="calendar" />
-                      <span className="date-label">Arrival Date:</span>
-                      <span className="date-value">
-                        {formatDate(guestDetails?.userDetails?.arrivalDate)}
+                <div className="right-section">
+                  <div className="reminder-bar">
+                    <div className="reminder-content">
+                      <img
+                        src={icons.Reminder}
+                        alt="reminder"
+                        style={{
+                          filter:
+                            "invert(37%) sepia(74%) saturate(3383%) hue-rotate(206deg) brightness(101%) contrast(101%)",
+                        }}
+                      />
+                      <span
+                        style={{
+                          color: "#066bff",
+                          fontWeight: "500",
+                          fontSize: "14px",
+                        }}
+                      >
+                        {upcomingCelebration ? (
+                          <>
+                            Reminder:{" "}
+                            <span>
+                              {new Date(
+                                upcomingCelebration.gregorian_date
+                              ).getDate()}
+                              th{" "}
+                              {new Date(
+                                upcomingCelebration.gregorian_date
+                              ).toLocaleDateString("en-US", {
+                                month: "short",
+                              })}{" "}
+                              is {upcomingCelebration.event_name}
+                            </span>
+                          </>
+                        ) : (
+                          <span>No upcoming celebrations</span>
+                        )}
                       </span>
                     </div>
-                    <div className="date-row">
-                      <img src={icons.Calendar} alt="calendar" />
-                      <span className="date-label">Departure Date:</span>
-                      <span className="date-value">
-                        {formatDate(guestDetails?.userDetails?.departureDate)}
+                  </div>
+
+                  <div className="stay-info">
+                    <div className="duration">
+                      <span className="label">Stay Duration:- </span>
+                      <span className="value">
+                        <strong>
+                          {calculateStayDuration()}{" "}
+                          {calculateStayDuration() !== "N/A" ? "days" : ""}
+                        </strong>
                       </span>
+                    </div>
+                    <div className="dates">
+                      <div className="date-row">
+                        <img src={icons.Calendar} alt="calendar" />
+                        <span className="date-label">Arrival Date:</span>
+                        <span className="date-value">
+                          {formatDate(
+                            bookingRequestDetails?.data?.attributes
+                              ?.arrival_date
+                          )}
+                        </span>
+                      </div>
+                      <div className="date-row">
+                        <img src={icons.Calendar} alt="calendar" />
+                        <span className="date-label">Departure Date:</span>
+                        <span className="date-value">
+                          {formatDate(
+                            bookingRequestDetails?.data?.attributes
+                              ?.departure_date
+                          )}
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
 
-          {/* Visit History Section */}
-          <div className="visit-history">
-            <div className="history-header">
-              <div className="left-title">Guests</div>
-              <div className="center-title">
-                Visit History of {selectedGuestName}
-              </div>
-              {/* <div className="right-link">
+            {/* Visit History Section */}
+            <div className="visit-history">
+              <div className="history-header">
+                <div className="left-title">Guests</div>
+                <div className="center-title">
+                  Visit History of {selectedGuestName}
+                </div>
+                {/* <div className="right-link">
                                 <a href="#" className="check-availability">Check Availability</a>
                             </div> */}
-            </div>
+              </div>
 
-            <div className="history-tables">
-              {/* Guests Table */}
-              <div className="guests-table-container">
-                <div className="table-wrapper">
-                  <div className="table-scroll">
-                    <table className="guests-table">
-                      <thead>
-                        <tr>
-                          <th>Name</th>
-                          <th>Age</th>
-                          <th>Gender</th>
-                          <th>Relation</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {guestDetails?.guests?.map((guest) => (
-                          <tr
-                            key={guest.id}
-                            onClick={() => handleRowClick(guest.id)}
-                          >
-                            <td
-                              style={{
-                                backgroundColor:
-                                  selectedRow === guest.id
-                                    ? "#fff2ea"
-                                    : "transparent",
-                                color:
-                                  selectedRow === guest.id
-                                    ? "black"
-                                    : "#4b4b4b",
-                              }}
-                            >
-                              {guest.name || "N/A"}
-                            </td>
-                            <td
-                              style={{
-                                backgroundColor:
-                                  selectedRow === guest.id
-                                    ? "#fff2ea"
-                                    : "transparent",
-                                color:
-                                  selectedRow === guest.id
-                                    ? "black"
-                                    : "#4b4b4b",
-                              }}
-                            >
-                              {guest.age || "N/A"}
-                            </td>
-                            <td
-                              style={{
-                                backgroundColor:
-                                  selectedRow === guest.id
-                                    ? "#fff2ea"
-                                    : "transparent",
-                                color:
-                                  selectedRow === guest.id
-                                    ? "black"
-                                    : "#4b4b4b",
-                              }}
-                            >
-                              {guest.gender || "N/A"}
-                            </td>
-                            <td
-                              style={{
-                                backgroundColor:
-                                  selectedRow === guest.id
-                                    ? "#fff2ea"
-                                    : "transparent",
-                                color:
-                                  selectedRow === guest.id
-                                    ? "black"
-                                    : "#4b4b4b",
-                              }}
-                            >
-                              {guest.relation || "N/A"}
-                            </td>
+              <div className="history-tables">
+                {/* Guests Table */}
+                <div className="guests-table-container">
+                  <div className="table-wrapper">
+                    <div className="table-scroll">
+                      <table className="guests-table">
+                        <thead>
+                          <tr>
+                            <th>Name</th>
+                            <th>Age</th>
+                            <th>Gender</th>
+                            <th>Relation</th>
                           </tr>
-                        ))}
-                      </tbody>
-                    </table>
+                        </thead>
+                        <tbody>
+                          {bookingRequestDetails?.data?.attributes?.guests?.data?.map(
+                            (guest) => (
+                              <tr
+                                key={guest.id}
+                                onClick={() => handleRowClick(guest.id)}
+                              >
+                                <td
+                                  style={{
+                                    backgroundColor:
+                                      selectedRow === guest.id
+                                        ? "#fff2ea"
+                                        : "transparent",
+                                    color:
+                                      selectedRow === guest.id
+                                        ? "black"
+                                        : "#4b4b4b",
+                                  }}
+                                >
+                                  {guest.attributes.name || "N/A"}
+                                </td>
+                                <td
+                                  style={{
+                                    backgroundColor:
+                                      selectedRow === guest.id
+                                        ? "#fff2ea"
+                                        : "transparent",
+                                    color:
+                                      selectedRow === guest.id
+                                        ? "black"
+                                        : "#4b4b4b",
+                                  }}
+                                >
+                                  {guest.attributes.age || "N/A"}
+                                </td>
+                                <td
+                                  style={{
+                                    backgroundColor:
+                                      selectedRow === guest.id
+                                        ? "#fff2ea"
+                                        : "transparent",
+                                    color:
+                                      selectedRow === guest.id
+                                        ? "black"
+                                        : "#4b4b4b",
+                                  }}
+                                >
+                                  {guest.attributes.gender || "N/A"}
+                                </td>
+                                <td
+                                  style={{
+                                    backgroundColor:
+                                      selectedRow === guest.id
+                                        ? "#fff2ea"
+                                        : "transparent",
+                                    color:
+                                      selectedRow === guest.id
+                                        ? "black"
+                                        : "#4b4b4b",
+                                  }}
+                                >
+                                  {guest.attributes.relationship || "N/A"}
+                                </td>
+                              </tr>
+                            )
+                          )}
+                        </tbody>
+                      </table>
+                    </div>
                   </div>
+                </div>
+
+                {/* Visit Details Table */}
+                <div className="visit-details-table">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Last visited date</th>
+                        <th>Number of days</th>
+                        <th>Room Allocated</th>
+                        <th>Donations</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {bookingRequestDetails?.data?.attributes?.visitHistory
+                        ?.length > 0 ? (
+                        bookingRequestDetails.data.attributes.visitHistory.map(
+                          (visit, index) => {
+                            // Calculate the difference in months between the visit date and the present date
+                            const visitDate = new Date(visit.visitDate);
+                            const currentDate = new Date();
+                            const monthsDifference =
+                              (currentDate.getFullYear() -
+                                visitDate.getFullYear()) *
+                                12 +
+                              (currentDate.getMonth() - visitDate.getMonth());
+
+                            const isWithinSixMonths = monthsDifference < 6;
+
+                            return (
+                              <tr
+                                key={index}
+                                className={
+                                  isWithinSixMonths ? "highlighted" : ""
+                                }
+                                onClick={() => handleVisitRowClick(index)}
+                              >
+                                <td>{visit.visitDate || "N/A"}</td>
+                                <td>{visit.numberOfDays || "N/A"}</td>
+                                <td>{visit.roomAllocated || "N/A"}</td>
+                                <td>
+                                  ₹{visit.donations?.toFixed(2) || "0.00"}
+                                </td>
+                              </tr>
+                            );
+                          }
+                        )
+                      ) : (
+                        <tr>
+                          <td colSpan="4" className="no-data">
+                            No visit history available
+                          </td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
                 </div>
               </div>
 
-              {/* Visit Details Table */}
-              <div className="visit-details-table">
-                <table>
-                  <thead>
-                    <tr>
-                      <th>Last visited date</th>
-                      <th>Number of days</th>
-                      <th>Room Allocated</th>
-                      <th>Donations</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {guestDetails?.visitHistory?.length > 0 ? (
-                      guestDetails.visitHistory.map((visit, index) => {
-                        // Calculate the difference in months between the visit date and the present date
-                        const visitDate = new Date(visit.visitDate);
-                        const currentDate = new Date();
-                        const monthsDifference =
-                          (currentDate.getFullYear() -
-                            visitDate.getFullYear()) *
-                            12 +
-                          (currentDate.getMonth() - visitDate.getMonth());
-
-                        const isWithinSixMonths = monthsDifference < 6;
-
-                        return (
-                          <tr
-                            key={index}
-                            className={isWithinSixMonths ? "highlighted" : ""}
-                            onClick={() => handleVisitRowClick(index)}
-                          >
-                            <td>{visit.visitDate || "N/A"}</td>
-                            <td>{visit.numberOfDays || "N/A"}</td>
-                            <td>{visit.roomAllocated || "N/A"}</td>
-                            <td>₹{visit.donations?.toFixed(2) || "0.00"}</td>
-                          </tr>
-                        );
-                      })
-                    ) : (
-                      <tr>
-                        <td colSpan="4" className="no-data">
-                          No visit history available
-                        </td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
+              {/* Alert and Action Buttons */}
+              <div className="footer" style={{ background: "#fff" }}>
+                <div className="alert">
+                  {/* There is a Revisit within 6 months of Guest name */}
+                </div>
+                {renderActionButtons()}
               </div>
             </div>
-
-            {/* Alert and Action Buttons */}
-            <div className="footer" style={{ background: "#fff" }}>
-              <div className="alert">
-                {/* There is a Revisit within 6 months of Guest name */}
-              </div>
-              {renderActionButtons()}
-            </div>
-          </div>
-        </div>
+          </>
+        )}
       </div>
 
       {/* Preview Modal */}
@@ -658,7 +699,7 @@ const GuestDetailsPopup = ({
             </button>
             <div className="preview-image-container">
               <img
-                src={`${MEDIA_BASE_URL}${guestDetails?.recommendation_letter?.data?.[0]?.attributes?.url}`}
+                src={`${MEDIA_BASE_URL}${bookingRequestDetails?.data?.attributes?.recommendation_letter?.data?.[0]?.attributes?.url}`}
                 alt="Recommendation Letter"
                 style={{
                   maxWidth: "100%",
@@ -670,7 +711,7 @@ const GuestDetailsPopup = ({
           </div>
         </div>
       )}
-    </>
+    </div>
   );
 };
 

@@ -306,9 +306,10 @@ const OnHoldRequest = ({ selectedDate, label }) => {
         <GuestDetailsPopup
           isOpen={isGuestDetailsPopupOpen}
           onClose={closeModal}
-          guestDetails={selectedGuest}
-          guests={selectedGuest?.guests || []} // Pass guests data here
-          label={label}
+          // guestDetails={selectedGuest}
+          // guests={selectedGuest?.guests || []} // Pass guests data here
+          // label={label}
+          requestId={selectedGuest.id}
         />
       )}
     </div>

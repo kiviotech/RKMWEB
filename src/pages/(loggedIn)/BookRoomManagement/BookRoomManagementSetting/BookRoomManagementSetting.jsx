@@ -9,6 +9,7 @@ const BookRoomManagementSetting = ({
   onBlockCreated,
   selectedBlockId,
   onRoomAdded,
+  onRoomAllocated,
 }) => {
   const [activeTab, setActiveTab] = useState("block"); // "block" or "book"
   const [showAddBlock, setShowAddBlock] = useState(false);
@@ -79,7 +80,10 @@ const BookRoomManagementSetting = ({
             onRoomBlocked={onBlockCreated}
           />
         ) : (
-          <BookRoom />
+          <BookRoom
+            selectedBlockId={selectedBlockId}
+            onRoomAllocated={onRoomAllocated}
+          />
         )}
       </div>
     </div>

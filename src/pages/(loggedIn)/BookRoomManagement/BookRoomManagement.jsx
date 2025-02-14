@@ -7,6 +7,10 @@ const BookRoomManagement = () => {
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [selectedBlockId, setSelectedBlockId] = useState(null);
 
+  const handleRefresh = () => {
+    setRefreshTrigger((prev) => prev + 1);
+  };
+
   const handleBlockCreated = () => {
     setRefreshTrigger((prev) => prev + 1);
   };
@@ -34,9 +38,10 @@ const BookRoomManagement = () => {
         </div>
         <div style={{ width: "30%" }}>
           <BookRoomManagementSetting
-            onBlockCreated={handleBlockCreated}
+            onBlockCreated={handleRefresh}
             selectedBlockId={selectedBlockId}
-            onRoomAdded={handleRoomAdded}
+            onRoomAdded={handleRefresh}
+            onRoomAllocated={handleRefresh}
           />
         </div>
       </div>

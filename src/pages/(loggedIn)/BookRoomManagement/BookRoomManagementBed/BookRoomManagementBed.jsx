@@ -53,7 +53,7 @@ const BookRoomManagementBed = ({ blockId, refreshTrigger }) => {
     fetchBlockDetails();
   }, [blockId, refreshTrigger]);
 
-  const handleBedClick = (allocation) => {
+  const handleBedManagementClick = (allocation) => {
     if (allocation) {
       // Get the booking request ID from the first guest's booking request
       const bookingRequestId =
@@ -86,7 +86,8 @@ const BookRoomManagementBed = ({ blockId, refreshTrigger }) => {
     const tooltipContent = getTooltipContent(
       roomBlockings,
       roomAllocations,
-      currentDate
+      currentDate,
+      handleBedManagementClick
     );
 
     // Check both blockings and allocations
@@ -334,8 +335,13 @@ const BookRoomManagementBed = ({ blockId, refreshTrigger }) => {
   );
 };
 
-// Add this separate function to handle tooltip content
-const getTooltipContent = (roomBlockings, roomAllocations, currentDate) => {
+// Update the getTooltipContent function signature to accept the handler
+const getTooltipContent = (
+  roomBlockings,
+  roomAllocations,
+  currentDate,
+  onBedManagementClick
+) => {
   // Check for allocations first
   const allocation = roomAllocations?.data?.find((allocation) => {
     const fromDate = new Date(
@@ -360,7 +366,7 @@ const getTooltipContent = (roomBlockings, roomAllocations, currentDate) => {
     return (
       <div
         className="tooltip-content"
-        onClick={() => handleBedClick(allocation)}
+        onClick={() => onBedManagementClick(allocation)}
         style={{ cursor: "pointer" }}
       >
         <h4>Room Allocation Details:</h4>

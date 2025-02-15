@@ -214,6 +214,72 @@ const BookRoomManagementBed = ({ blockId, refreshTrigger }) => {
         return count;
       }, 0) || 0;
 
+    // Helper function to get bed icon based on allocation status and recommendation letter
+    const getBedIcon = (bedIndex) => {
+      if (isBlocked) {
+        // Check blocking status and return appropriate icon
+        const blocking = roomBlockings?.find((blocking) => {
+          const fromDate = new Date(blocking.attributes.from_date);
+          const toDate = new Date(blocking.attributes.to_date);
+          const checkDate = new Date(
+            currentDate.year,
+            new Date(Date.parse(`01 ${currentDate.month} 2000`)).getMonth(),
+            currentDate.day,
+            0,
+            0,
+            0
+          );
+          fromDate.setHours(0, 0, 0, 0);
+          toDate.setHours(0, 0, 0, 0);
+          return checkDate >= fromDate && checkDate <= toDate;
+        });
+
+        if (blocking) {
+          switch (blocking.attributes.room_block_status) {
+            case "blocked":
+              return icons.Group_4;
+            case "maintenance":
+              return icons.Group_7;
+            case "cleaning underway":
+              return icons.Group_3;
+            default:
+              return icons.filledBed;
+          }
+        }
+        return icons.filledBed;
+      }
+
+      const allocation = roomAllocations?.data?.find((allocation) => {
+        const fromDate = new Date(
+          allocation.attributes.guests.data[0].attributes.arrival_date
+        );
+        const toDate = new Date(
+          allocation.attributes.guests.data[0].attributes.departure_date
+        );
+        const checkDate = new Date(
+          currentDate.year,
+          new Date(Date.parse(`01 ${currentDate.month} 2000`)).getMonth(),
+          currentDate.day,
+          0,
+          0,
+          0
+        );
+        fromDate.setHours(0, 0, 0, 0);
+        toDate.setHours(0, 0, 0, 0);
+        return checkDate >= fromDate && checkDate <= toDate;
+      });
+
+      if (allocation && bedIndex < allocation.attributes.guests.data.length) {
+        const guest = allocation.attributes.guests.data[bedIndex];
+        const hasRecommendationLetter =
+          guest?.attributes?.booking_request?.data?.attributes
+            ?.recommendation_letter?.data;
+        return hasRecommendationLetter ? icons.Group_2 : icons.Group_1;
+      }
+
+      return icons.Group2;
+    };
+
     if (numberOfBeds > 4) {
       beds.push(
         <div
@@ -249,29 +315,11 @@ const BookRoomManagementBed = ({ blockId, refreshTrigger }) => {
             <div className="custom-tooltip">{tooltipContent}</div>
           )}
           <div className="top-row">
-            <img
-              src={
-                isBlocked || occupiedBeds >= 1 ? icons.filledBed : icons.Group2
-              }
-              alt="bed"
-              className="bed-icon"
-            />
-            <img
-              src={
-                isBlocked || occupiedBeds >= 2 ? icons.filledBed : icons.Group2
-              }
-              alt="bed"
-              className="bed-icon"
-            />
+            <img src={getBedIcon(0)} alt="bed" className="bed-icon" />
+            <img src={getBedIcon(1)} alt="bed" className="bed-icon" />
           </div>
           <div className="bottom-row">
-            <img
-              src={
-                isBlocked || occupiedBeds >= 3 ? icons.filledBed : icons.Group2
-              }
-              alt="bed"
-              className="bed-icon"
-            />
+            <img src={getBedIcon(2)} alt="bed" className="bed-icon" />
           </div>
         </div>
       );
@@ -282,24 +330,8 @@ const BookRoomManagementBed = ({ blockId, refreshTrigger }) => {
       for (let i = 0; i < fullGroups; i++) {
         beds.push(
           <div key={`group-${i}`} className="bed-group">
-            <img
-              src={
-                isBlocked || occupiedBeds > i * 2
-                  ? icons.filledBed
-                  : icons.Group2
-              }
-              alt="bed"
-              className="bed-icon"
-            />
-            <img
-              src={
-                isBlocked || occupiedBeds > i * 2 + 1
-                  ? icons.filledBed
-                  : icons.Group2
-              }
-              alt="bed"
-              className="bed-icon"
-            />
+            <img src={getBedIcon(i * 2)} alt="bed" className="bed-icon" />
+            <img src={getBedIcon(i * 2 + 1)} alt="bed" className="bed-icon" />
           </div>
         );
       }
@@ -308,11 +340,7 @@ const BookRoomManagementBed = ({ blockId, refreshTrigger }) => {
         beds.push(
           <div key="remaining" className="bed-group">
             <img
-              src={
-                isBlocked || occupiedBeds > fullGroups * 2
-                  ? icons.filledBed
-                  : icons.Group2
-              }
+              src={getBedIcon(fullGroups * 2)}
               alt="bed"
               className="bed-icon"
             />

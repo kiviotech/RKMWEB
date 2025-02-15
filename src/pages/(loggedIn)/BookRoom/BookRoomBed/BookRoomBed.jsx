@@ -59,7 +59,7 @@ const BookRoomBed = ({
           setIsLoading(true);
           const blockData = await blockService.fetchBlockById(blockId);
           const roomsData = blockData.data.attributes.rooms.data;
-          // console.log("Rooms Data:", roomsData);
+          console.log("Rooms Data:", roomsData);
           setRooms(roomsData);
         } catch (error) {
           console.error("Error fetching block details:", error);
@@ -260,22 +260,75 @@ const BookRoomBed = ({
     // Modify renderBedIcon to handle allocated beds count
     const renderBedIcon = (bedIndex) => {
       if (isSelected && isFirstAvailableRoom(room, currentDate)) {
-        // Find the allocated room info for this room
         const roomAllocation = allocatedRooms.find(
           (allocation) => allocation.roomNumber === room.attributes.room_number
         );
-
-        // Only show selected beds up to the number of beds allocated for this room
         if (roomAllocation && bedIndex < roomAllocation.bedsAllocated) {
           return icons.selectedImage;
         }
       }
 
       if (isBlocked) {
+        // Check blocking status and return appropriate icon
+        const blocking = roomBlockings?.find((blocking) => {
+          const fromDate = new Date(blocking.attributes.from_date);
+          const toDate = new Date(blocking.attributes.to_date);
+          const checkDate = new Date(
+            currentDate.year,
+            new Date(Date.parse(`01 ${currentDate.month} 2000`)).getMonth(),
+            currentDate.day,
+            0,
+            0,
+            0
+          );
+          fromDate.setHours(0, 0, 0, 0);
+          toDate.setHours(0, 0, 0, 0);
+          return checkDate >= fromDate && checkDate <= toDate;
+        });
+
+        if (blocking) {
+          switch (blocking.attributes.room_block_status) {
+            case "blocked":
+              return icons.Group_4;
+            case "maintenance":
+              return icons.Group_7;
+            case "cleaning":
+              return icons.Group_3;
+            default:
+              return icons.filledBed;
+          }
+        }
         return icons.filledBed;
       } else if (bedIndex < allocatedBedsCount) {
-        // Show filled bed for each guest
-        return icons.filledBed;
+        // Check if there's an allocation with recommendation letter
+        const allocation = roomAllocations?.data?.find((allocation) => {
+          const fromDate = new Date(
+            allocation.attributes.guests.data[0].attributes.arrival_date
+          );
+          const toDate = new Date(
+            allocation.attributes.guests.data[0].attributes.departure_date
+          );
+          const checkDate = new Date(
+            currentDate.year,
+            new Date(Date.parse(`01 ${currentDate.month} 2000`)).getMonth(),
+            currentDate.day,
+            0,
+            0,
+            0
+          );
+          fromDate.setHours(0, 0, 0, 0);
+          toDate.setHours(0, 0, 0, 0);
+          return checkDate >= fromDate && checkDate <= toDate;
+        });
+
+        if (allocation) {
+          const guest = allocation.attributes.guests.data[bedIndex];
+          const hasRecommendationLetter =
+            guest?.attributes?.booking_request?.data?.attributes
+              ?.recommendation_letter?.data;
+          return hasRecommendationLetter ? icons.Group_2 : icons.Group_1;
+        }
+        return icons.Group_1;
       } else {
         return icons.Group2;
       }

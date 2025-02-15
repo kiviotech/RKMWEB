@@ -51,6 +51,14 @@ import filter from "../assets/icons/filter.png";
 import sort from "../assets/icons/sort.png";
 import plus from "../assets/icons/plus.png";
 
+import Group_1 from "../assets/icons/Group-1.png";
+import Group_2 from "../assets/icons/Group-2.png";
+import Group_3 from "../assets/icons/Group-3.png";
+import Group_4 from "../assets/icons/Group-4.png";
+import Group_5 from "../assets/icons/Group-5.png";
+import Group_6 from "../assets/icons/Group-6.png";
+import Group_7 from "../assets/icons/Group-7.png";
+
 import RMK_Logo from "../assets/image/RMK_Logo.png";
 import missionLogo from "../assets/image/mission-logo.jpg";
 export default {
@@ -105,4 +113,11 @@ export default {
   Group2,
   filledBed,
   selectedImage,
+  Group_1,
+  Group_2,
+  Group_3,
+  Group_4,
+  Group_5,
+  Group_6,
+  Group_7,
 };

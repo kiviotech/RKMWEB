@@ -83,93 +83,11 @@ const BookRoomManagementBed = ({ blockId, refreshTrigger }) => {
     const beds = [];
 
     // Get tooltip content based on allocations and blockings
-    const getTooltipContent = () => {
-      // Check for allocations first
-      const allocation = roomAllocations?.data?.find((allocation) => {
-        const fromDate = new Date(
-          allocation.attributes.guests.data[0].attributes.arrival_date
-        );
-        const toDate = new Date(
-          allocation.attributes.guests.data[0].attributes.departure_date
-        );
-        const checkDate = new Date(
-          currentDate.year,
-          new Date(Date.parse(`01 ${currentDate.month} 2000`)).getMonth(),
-          currentDate.day
-        );
-        fromDate.setHours(0, 0, 0, 0);
-        toDate.setHours(0, 0, 0, 0);
-        checkDate.setHours(0, 0, 0, 0);
-        return checkDate >= fromDate && checkDate <= toDate;
-      });
-
-      if (allocation) {
-        const guests = allocation.attributes.guests.data;
-        return (
-          <div
-            className="tooltip-content"
-            onClick={() => handleBedClick(allocation)}
-            style={{ cursor: "pointer" }}
-          >
-            <h4>Room Allocation Details:</h4>
-            {guests.map((guest, index) => (
-              <div key={index} className="guest-details">
-                <p>
-                  <strong>Guest {index + 1}:</strong>
-                </p>
-                <p>Name: {guest.attributes.name}</p>
-                <p>From: {guest.attributes.arrival_date}</p>
-                <p>To: {guest.attributes.departure_date}</p>
-                <p>Phone: {guest.attributes.phone_number}</p>
-              </div>
-            ))}
-          </div>
-        );
-      }
-
-      // Check for blockings if no allocation
-      const blocking = roomBlockings?.find((blocking) => {
-        const fromDate = new Date(blocking.attributes.from_date);
-        const toDate = new Date(blocking.attributes.to_date);
-        const checkDate = new Date(
-          currentDate.year,
-          new Date(Date.parse(`01 ${currentDate.month} 2000`)).getMonth(),
-          currentDate.day
-        );
-        fromDate.setHours(0, 0, 0, 0);
-        toDate.setHours(0, 0, 0, 0);
-        checkDate.setHours(0, 0, 0, 0);
-        return checkDate >= fromDate && checkDate <= toDate;
-      });
-
-      if (blocking) {
-        return (
-          <div className="tooltip-content">
-            <h4>Room Blocking Details:</h4>
-            <p>
-              <strong>Status:</strong> {blocking.attributes.room_block_status}
-            </p>
-            <p>
-              <strong>From:</strong> {blocking.attributes.from_date}
-            </p>
-            <p>
-              <strong>To:</strong> {blocking.attributes.to_date}
-            </p>
-            <p>
-              <strong>Reason:</strong> {blocking.attributes.reason_for_blocking}
-            </p>
-            <p>
-              <strong>Last Updated:</strong>{" "}
-              {new Date(blocking.attributes.updatedAt).toLocaleString()}
-            </p>
-          </div>
-        );
-      }
-
-      return null;
-    };
-
-    const tooltipContent = getTooltipContent();
+    const tooltipContent = getTooltipContent(
+      roomBlockings,
+      roomAllocations,
+      currentDate
+    );
 
     // Check both blockings and allocations
     const isBlocked = roomBlockings?.some((blocking) => {
@@ -285,7 +203,6 @@ const BookRoomManagementBed = ({ blockId, refreshTrigger }) => {
         <div
           key="bed-count-layout"
           className="bed-count-layout"
-          title={tooltipContent ? "" : undefined}
           data-tooltip={tooltipContent ? "true" : undefined}
         >
           {tooltipContent && (
@@ -308,7 +225,6 @@ const BookRoomManagementBed = ({ blockId, refreshTrigger }) => {
         <div
           key="three-bed-layout"
           className="three-bed-layout"
-          title={tooltipContent ? "" : undefined}
           data-tooltip={tooltipContent ? "true" : undefined}
         >
           {tooltipContent && (
@@ -327,8 +243,9 @@ const BookRoomManagementBed = ({ blockId, refreshTrigger }) => {
       const fullGroups = Math.floor(numberOfBeds / 2);
       const remainingBeds = numberOfBeds % 2;
 
+      const bedGroups = [];
       for (let i = 0; i < fullGroups; i++) {
-        beds.push(
+        bedGroups.push(
           <div key={`group-${i}`} className="bed-group">
             <img src={getBedIcon(i * 2)} alt="bed" className="bed-icon" />
             <img src={getBedIcon(i * 2 + 1)} alt="bed" className="bed-icon" />
@@ -337,7 +254,7 @@ const BookRoomManagementBed = ({ blockId, refreshTrigger }) => {
       }
 
       if (remainingBeds > 0) {
-        beds.push(
+        bedGroups.push(
           <div key="remaining" className="bed-group">
             <img
               src={getBedIcon(fullGroups * 2)}
@@ -347,6 +264,19 @@ const BookRoomManagementBed = ({ blockId, refreshTrigger }) => {
           </div>
         );
       }
+
+      beds.push(
+        <div
+          key="bed-layout"
+          className="bed-layout"
+          data-tooltip={tooltipContent ? "true" : undefined}
+        >
+          {tooltipContent && (
+            <div className="custom-tooltip">{tooltipContent}</div>
+          )}
+          {bedGroups}
+        </div>
+      );
     }
 
     return beds;
@@ -402,6 +332,97 @@ const BookRoomManagementBed = ({ blockId, refreshTrigger }) => {
       )}
     </div>
   );
+};
+
+// Add this separate function to handle tooltip content
+const getTooltipContent = (roomBlockings, roomAllocations, currentDate) => {
+  // Check for allocations first
+  const allocation = roomAllocations?.data?.find((allocation) => {
+    const fromDate = new Date(
+      allocation.attributes.guests.data[0].attributes.arrival_date
+    );
+    const toDate = new Date(
+      allocation.attributes.guests.data[0].attributes.departure_date
+    );
+    const checkDate = new Date(
+      currentDate.year,
+      new Date(Date.parse(`01 ${currentDate.month} 2000`)).getMonth(),
+      currentDate.day
+    );
+    fromDate.setHours(0, 0, 0, 0);
+    toDate.setHours(0, 0, 0, 0);
+    checkDate.setHours(0, 0, 0, 0);
+    return checkDate >= fromDate && checkDate <= toDate;
+  });
+
+  if (allocation) {
+    const guests = allocation.attributes.guests.data;
+    return (
+      <div
+        className="tooltip-content"
+        onClick={() => handleBedClick(allocation)}
+        style={{ cursor: "pointer" }}
+      >
+        <h4>Room Allocation Details:</h4>
+        {guests.map((guest, index) => (
+          <div key={index} className="guest-details">
+            <p>
+              <strong>Guest {index + 1}:</strong>
+            </p>
+            <p>Name: {guest.attributes.name}</p>
+            <p>From: {guest.attributes.arrival_date}</p>
+            <p>To: {guest.attributes.departure_date}</p>
+            <p>Phone: {guest.attributes.phone_number}</p>
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  // Check for blockings if no allocation
+  const blocking = roomBlockings?.find((blocking) => {
+    const fromDate = new Date(blocking.attributes.from_date);
+    const toDate = new Date(blocking.attributes.to_date);
+    const checkDate = new Date(
+      currentDate.year,
+      new Date(Date.parse(`01 ${currentDate.month} 2000`)).getMonth(),
+      currentDate.day
+    );
+    fromDate.setHours(0, 0, 0, 0);
+    toDate.setHours(0, 0, 0, 0);
+    checkDate.setHours(0, 0, 0, 0);
+    return checkDate >= fromDate && checkDate <= toDate;
+  });
+
+  if (blocking) {
+    return (
+      <div className="tooltip-content">
+        <h4>Room Blocking Details:</h4>
+        <p>
+          <strong>Status:</strong> {blocking.attributes.room_block_status}
+        </p>
+        <p>
+          <strong>From:</strong> {blocking.attributes.from_date}
+        </p>
+        <p>
+          <strong>To:</strong> {blocking.attributes.to_date}
+        </p>
+        <p>
+          <strong>Reason:</strong> {blocking.attributes.reason_for_blocking}
+        </p>
+        <p>
+          <strong>Created:</strong>{" "}
+          {new Date(blocking.attributes.createdAt).toLocaleString()}
+        </p>
+        <p>
+          <strong>Last Updated:</strong>{" "}
+          {new Date(blocking.attributes.updatedAt).toLocaleString()}
+        </p>
+      </div>
+    );
+  }
+
+  return null;
 };
 
 export default BookRoomManagementBed;

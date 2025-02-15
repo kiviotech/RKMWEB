@@ -883,77 +883,102 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
       )}
 
       {showCelebrationWarning && celebrationWarnings.length > 0 && (
-        <div className="celebration-warnings">
-          {celebrationWarnings.map((celebration, index) => (
-            <div
-              key={`${celebration.event}-${celebration.date}-${index}`}
+        <div
+          className="modal-overlay"
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: "rgba(0, 0, 0, 0.5)",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            zIndex: 9999,
+          }}
+        >
+          <div
+            className="modal-content"
+            style={{
+              backgroundColor: "white",
+              borderRadius: "8px",
+              padding: "20px",
+              maxWidth: "600px",
+              width: "90%",
+              maxHeight: "80vh",
+              overflowY: "auto",
+              position: "relative",
+            }}
+          >
+            <h3
               style={{
-                position: "fixed",
-                top: `${20 + index * 140}px`,
-                right: "20px",
-                backgroundColor: "#f39c12",
-                color: "white",
-                padding: "15px 25px",
-                borderRadius: "5px",
-                boxShadow: "0 2px 5px rgba(0,0,0,0.2)",
-                zIndex: 9999,
-                maxWidth: "600px",
-                width: "600px",
-                fontSize: "16px",
-                animation: "fadeIn 0.3s ease-in",
-                marginBottom: "15px",
+                color: "#f39c12",
+                marginBottom: "20px",
+                borderBottom: "2px solid #f39c12",
+                paddingBottom: "10px",
               }}
             >
-              <svg
-                onClick={() => {
-                  const newWarnings = celebrationWarnings.filter(
-                    (_, i) => i !== index
-                  );
-                  setCelebrationWarnings(newWarnings);
-                  if (newWarnings.length === 0) {
-                    setShowCelebrationWarning(false);
-                  }
-                }}
+              High Occupancy Alert!
+            </h3>
+
+            {celebrationWarnings.map((celebration, index) => (
+              <div
+                key={`${celebration.event}-${celebration.date}-${index}`}
                 style={{
-                  position: "absolute",
-                  top: "10px",
-                  right: "10px",
-                  cursor: "pointer",
-                  width: "16px",
-                  height: "16px",
+                  marginBottom: "15px",
+                  padding: "10px",
+                  borderBottom:
+                    index !== celebrationWarnings.length - 1
+                      ? "1px solid #eee"
+                      : "none",
                 }}
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
               >
-                <line x1="18" y1="6" x2="6" y2="18" />
-                <line x1="6" y1="6" x2="18" y2="18" />
-              </svg>
-              <strong>High Occupancy Alert!</strong>
-              <p>
-                {celebration.event} ({celebration.type}) celebration is
-                scheduled on{" "}
-                {new Date(celebration.date)
-                  .toLocaleDateString("en-GB", {
-                    day: "2-digit",
-                    month: "2-digit",
-                    year: "numeric",
-                  })
-                  .split("/")
-                  .join("-")}
-                {celebration.isArrival
-                  ? " (your arrival date)"
-                  : celebration.isDeparture
-                  ? " (your departure date)"
-                  : ""}{" "}
-                . Expect higher than usual occupancy. Please consider alternate
-                dates or submit special requests if needed.
-              </p>
-            </div>
-          ))}
+                <p style={{ marginBottom: "10px" }}>
+                  <strong>{celebration.event}</strong> ({celebration.type})
+                  celebration is scheduled on{" "}
+                  {new Date(celebration.date)
+                    .toLocaleDateString("en-GB", {
+                      day: "2-digit",
+                      month: "2-digit",
+                      year: "numeric",
+                    })
+                    .split("/")
+                    .join("-")}
+                  {celebration.isArrival
+                    ? " (your arrival date)"
+                    : celebration.isDeparture
+                    ? " (your departure date)"
+                    : ""}
+                  .
+                </p>
+                <p style={{ color: "#666" }}>
+                  Expect higher than usual occupancy. Please consider alternate
+                  dates or submit special requests if needed.
+                </p>
+              </div>
+            ))}
+
+            <button
+              onClick={() => {
+                setShowCelebrationWarning(false);
+                setCelebrationWarnings([]);
+              }}
+              style={{
+                backgroundColor: "#EA7704",
+                color: "white",
+                border: "none",
+                borderRadius: "5px",
+                padding: "10px 30px",
+                marginTop: "20px",
+                cursor: "pointer",
+                width: "100%",
+                fontSize: "16px",
+              }}
+            >
+              Okay
+            </button>
+          </div>
         </div>
       )}
     </div>

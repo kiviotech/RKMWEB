@@ -4,12 +4,23 @@ import {
   createRoomAllocation,
   updateRoomAllocation,
   deleteRoomAllocation,
+  getRoomAllocationForCheckin,
 } from "../api/repositories/roomAllocationRepository";
 
 // Fetch all room allocations
 export const fetchRoomAllocations = async () => {
   try {
     const response = await getRoomAllocations();
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching room allocations:", error);
+    throw error;
+  }
+};
+
+export const fetchRoomAllocationsForCheckin = async (todayDate) => {
+  try {
+    const response = await getRoomAllocationForCheckin(todayDate);
     return response.data;
   } catch (error) {
     console.error("Error fetching room allocations:", error);

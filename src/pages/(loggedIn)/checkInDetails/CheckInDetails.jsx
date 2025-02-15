@@ -7,6 +7,10 @@ import CommonHeaderTitle from "../../../components/ui/CommonHeaderTitle";
 import GuestDetails from "../GuestDetails";
 import { fetchBookingRequests } from "../../../../services/src/services/bookingRequestService";
 import dayjs from "dayjs";
+import {
+  fetchRoomAllocationsForCheckin,
+  updateRoomAllocationById,
+} from "../../../../services/src/services/roomAllocationService";
 
 const CheckInDetails = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -17,37 +21,72 @@ const CheckInDetails = () => {
   const [isQRcodeScanned, setIsQRcodeScanned] = useState(false);
   const [totalRequests, setTotalRequests] = useState(0);
   const [checkIns, setCheckIns] = useState(0);
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  const [processingAllocation, setProcessingAllocation] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
+      const today = new Date();
+      const todayFormatted = today.toISOString().split("T")[0];
+
       try {
-        const bookingResponse = await fetchBookingRequests();
+        const bookingResponse = await fetchRoomAllocationsForCheckin(
+          todayFormatted
+        );
         const bookingData = bookingResponse.data;
-        // console.log("Booking Data:", bookingData);
-
-        // Filter for tomorrow's bookings
-        const tomorrow = dayjs().add(1, "day").startOf("day");
-        const tomorrowsBookings = bookingData.filter((booking) => {
-          const arrivalDate = dayjs(booking.attributes.arrival_date).startOf(
-            "day"
-          );
-          return arrivalDate.isSame(tomorrow);
-        });
-
-        setAllAllocations(tomorrowsBookings);
-        setFilteredAllocations(tomorrowsBookings);
-        setTotalRequests(tomorrowsBookings.length);
-
-        if (tomorrowsBookings.length > 0) {
-          setSelectedUser(tomorrowsBookings[0]);
+        setAllAllocations(bookingData);
+        setFilteredAllocations(bookingData);
+        setTotalRequests(bookingData.length);
+        if (bookingData.length > 0) {
+          setSelectedUser(bookingData[0]);
         }
       } catch (error) {
         console.error("Error fetching data: ", error);
       }
     };
-
     fetchData();
   }, []);
+
+  const handleCheckInClick = (booking, e) => {
+    e.stopPropagation();
+    setProcessingAllocation(booking);
+    setIsConfirmModalOpen(true);
+  };
+
+  const handleConfirmCheckIn = async () => {
+    try {
+      const payload = {
+        data: {
+          room_status: "occupied",
+        },
+      };
+      const response = await updateRoomAllocationById(selectedUser.id, payload);
+
+      if (response.ok) {
+        const updatedAllocations = allAllocations.map((allocation) => {
+          if (allocation.id === processingAllocation.id) {
+            return {
+              ...allocation,
+              attributes: {
+                ...allocation.attributes,
+                room_status: "occupied",
+              },
+            };
+          }
+          return allocation;
+        });
+
+        setAllAllocations(updatedAllocations);
+        setFilteredAllocations(updatedAllocations);
+        setCheckIns((prev) => prev + 1);
+      }
+    } catch (error) {
+      console.error("Error updating check-in status:", error);
+    } finally {
+      setIsConfirmModalOpen(false);
+      setProcessingAllocation(null);
+    }
+  };
 
   const closeModal = () => {
     setIsModalOpen(false);
@@ -119,10 +158,29 @@ const CheckInDetails = () => {
                       selectedUser?.id === booking.id ? "selected-row" : ""
                     }
                   >
-                    <td>Mr. {booking.attributes.name}</td>
+                    <td>
+                      {
+                        booking?.attributes?.booking_request?.data?.attributes
+                          ?.name
+                      }
+                    </td>
                     <td style={{ textAlign: "center" }}>{booking.id}</td>
                     <td>
-                      <button className="check-in-button">Check in</button>
+                      <button
+                        className={`check-in-button ${
+                          booking?.attributes?.room_status === "occupied"
+                            ? "checked-in"
+                            : ""
+                        }`}
+                        onClick={(e) => handleCheckInClick(booking, e)}
+                        disabled={
+                          booking?.attributes?.room_status === "occupied"
+                        }
+                      >
+                        {booking?.attributes?.room_status === "occupied"
+                          ? "Checked In"
+                          : "Check in"}
+                      </button>
                     </td>
                   </tr>
                 ))
@@ -131,19 +189,36 @@ const CheckInDetails = () => {
           </table>
         </div>
       </div>
+
+      <Modal
+        isOpen={isConfirmModalOpen}
+        onRequestClose={() => setIsConfirmModalOpen(false)}
+        className="check-in-modal"
+        overlayClassName="modal-overlay"
+      >
+        <div className="modal-content">
+          <h2>Confirm Check-in</h2>
+          <p>
+            Are you sure you want to check in{" "}
+            {selectedUser?.attributes?.booking_request?.data?.attributes?.name}?
+          </p>
+          <div className="modal-buttons">
+            <button
+              className="cancel-button"
+              onClick={() => setIsConfirmModalOpen(false)}
+            >
+              Cancel
+            </button>
+            <button className="confirm-button" onClick={handleConfirmCheckIn}>
+              Confirm
+            </button>
+          </div>
+        </div>
+      </Modal>
+
       {selectedUser && (
         <GuestDetails
-          selectedUser={{
-            id: selectedUser.id,
-            attributes: {
-              booking_request: {
-                data: {
-                  id: selectedUser.id,
-                  attributes: selectedUser.attributes,
-                },
-              },
-            },
-          }}
+          userId={selectedUser?.attributes?.guests?.data?.[0]?.id}
           showQRSection={true}
           checkout={false}
         />

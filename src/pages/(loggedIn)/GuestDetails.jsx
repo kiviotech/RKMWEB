@@ -1,15 +1,75 @@
 import React, { useState, useEffect } from "react";
 import { icons } from "../../constants";
+import { fetchGuestDetailsById } from "../../../services/src/services/guestDetailsService";
 
-const GuestDetails = ({ selectedUser, showQRSection, checkout }) => {
-  const { attributes } = selectedUser;
-  const guests = attributes.booking_request.data.attributes.guests?.data || [];
+const GuestDetails = ({ userId, showQRSection, checkout }) => {
+  const [guestData, setGuestData] = useState(null);
   const [checkIns, setCheckIns] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
-    window.scrollTo(0, 0);
-  }, []);
+    const fetchData = async () => {
+      try {
+        const response = await fetchGuestDetailsById(userId);
+        setGuestData(response.data);
+      } catch (error) {
+        console.error("Error fetching guest details:", error);
+      }
+    };
+
+    if (userId) {
+      fetchData();
+    }
+  }, [userId]);
+
+  const renderGuests = () => {
+    const bookingGuests =
+      guestData?.attributes?.booking_request?.data?.attributes?.guests?.data ||
+      [];
+
+    return (
+      <div className="guests-list">
+        <h5>Guests</h5>
+        <div className="guest-table">
+          <table style={{ width: "100%", borderCollapse: "collapse" }}>
+            <thead>
+              <tr style={{ backgroundColor: "#f5f5f5" }}>
+                <th style={{ padding: "10px", textAlign: "left" }}>Name</th>
+                <th style={{ padding: "10px", textAlign: "left" }}>Age</th>
+                <th style={{ padding: "10px", textAlign: "left" }}>Gender</th>
+                <th style={{ padding: "10px", textAlign: "left" }}>Relation</th>
+                <th style={{ padding: "10px", textAlign: "left" }}>Room No.</th>
+              </tr>
+            </thead>
+            <tbody>
+              {bookingGuests.map((guest, index) => (
+                <tr key={index} style={{ borderBottom: "1px solid #eee" }}>
+                  <td style={{ padding: "10px" }}>{guest.attributes.name}</td>
+                  <td style={{ padding: "10px" }}>
+                    {guest.attributes.age || "N/A"}
+                  </td>
+                  <td style={{ padding: "10px" }}>
+                    {guest.attributes.gender || "N/A"}
+                  </td>
+                  <td style={{ padding: "10px" }}>
+                    {guest.attributes.relationship}
+                  </td>
+                  <td style={{ padding: "10px" }}>
+                    {
+                      guestData?.attributes?.room_allocations?.data[0]
+                        ?.attributes?.room?.data?.attributes?.room_number
+                    }
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    );
+  };
+
+  if (!guestData) return <div>Loading...</div>;
 
   const openModal = () => {
     setIsModalOpen(true);
@@ -67,78 +127,34 @@ const GuestDetails = ({ selectedUser, showQRSection, checkout }) => {
           <div className="details">
             <div className="detail">
               <span style={{ fontWeight: 600 }}>Name :</span>
-              <span>{attributes.booking_request.data.attributes.name}</span>
+              <span>{guestData.attributes.name}</span>
             </div>
             <div className="detail">
               <span style={{ fontWeight: 600 }}>Mobile no. :</span>
-              <span>
-                {attributes.booking_request.data.attributes.phone_number}
-              </span>
+              <span>{guestData.attributes.phone_number}</span>
             </div>
             <div className="detail">
               <span>Deeksha :</span>
-              <span>{attributes.booking_request.data.attributes.deeksha}</span>
-            </div>
-            <div className="detail">
-              <span>Arrival Date:</span>
-              <span>
-                {attributes.booking_request.data.attributes.arrival_date}
-              </span>
+              <span>{guestData.attributes.deeksha || "N/A"}</span>
             </div>
             <div className="detail">
               <span>Departure Date:</span>
-              <span>
-                {attributes.booking_request.data.attributes.departure_date}
-              </span>
+              <span>{guestData.attributes.departure_date}</span>
             </div>
           </div>
         </div>
         <div className="guests-section">
-          <h5>Guests</h5>
-          <div className="tableCont">
-            <div className="tableContHeader">
-              <div className="tableheader"></div>
-              <div className="tableheader">Name</div>
-              <div className="tableheader">Age</div>
-              <div className="tableheader">Gender</div>
-              <div className="tableheader">Relation</div>
-              <div className="tableheader">Room no.</div>
-              <div className="tableheader">ID</div>
-            </div>
-            <div className="tableContBody">
-              {guests.length > 0 ? (
-                guests.map((guest) => (
-                  <div className="tableContBodyEachRow" key={guest.id}>
-                    <div className="tbalebody">
-                      <img src={icons.dummyUser} alt="user-image" />
-                    </div>
-                    <div className="tbalebody">{guest.attributes.name}</div>
-                    <div className="tbalebody">{guest.attributes.age}</div>
-                    <div className="tbalebody">{guest.attributes.gender}</div>
-                    <div className="tbalebody">
-                      {guest.attributes.relationship}
-                    </div>
-                    <div className="tbalebody">N/A</div>
-                    <div className="tbalebody">
-                      <button className="validate-button">
-                        <img src={icons.eyeHalf} alt="eye-icon" />
-                      </button>
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <div>No guests available for this user.</div>
-              )}
-            </div>
-          </div>
+          {renderGuests()}
+          {/* {renderRoomAllocation()} */}
+
           {checkout ? (
             <button className="checkout-guest-button" onClick={checkOutGuests}>
               Check out
-            </button> // Check-out button
+            </button>
           ) : (
             <button className="validate-guest-button" onClick={validateGuest}>
               Validate Guest
-            </button> // Validate guest button
+            </button>
           )}
         </div>
       </div>

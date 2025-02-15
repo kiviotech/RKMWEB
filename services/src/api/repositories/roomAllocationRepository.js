@@ -5,6 +5,9 @@ import roomAllocationEndpoints from "../endpoints/roomAllocationEndpoints";
 export const getRoomAllocations = () =>
   apiClient.get(roomAllocationEndpoints.getRoomAllocations);
 
+export const getRoomAllocationForCheckin = (todayDate) =>
+  apiClient.get(roomAllocationEndpoints.getRoomAllocationForCheckin(todayDate));
+
 // Fetch a specific room allocation by ID
 export const getRoomAllocationById = (id) =>
   apiClient.get(roomAllocationEndpoints.getRoomAllocationById(id));

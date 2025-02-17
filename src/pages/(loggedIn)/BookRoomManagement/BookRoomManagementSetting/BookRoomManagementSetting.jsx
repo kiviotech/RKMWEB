@@ -47,7 +47,7 @@ const BookRoomManagementSetting = ({
 
       <div className="action-buttons">
         <button className="add-block-btn" onClick={handleAddBlockClick}>
-          Add Block
+          Add New Building
         </button>
         <button className="add-room-btn" onClick={() => setShowAddRoom(true)}>
           Add Room

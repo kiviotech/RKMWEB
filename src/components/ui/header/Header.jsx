@@ -162,6 +162,35 @@ const Header = ({ hideElements }) => {
               </NavLink>
             </li>
           </>
+        ) : location.pathname.startsWith("/book-room-management") ||
+          location.pathname === "/calendar" ? (
+          // Settings section navigation items
+          <>
+            <li>
+              <NavLink
+                to="/"
+                className={({ isActive }) => (isActive ? "active" : "")}
+              >
+                Profile
+              </NavLink>
+            </li>
+            <li>
+              <NavLink
+                to="/book-room-management"
+                className={({ isActive }) => (isActive ? "active" : "")}
+              >
+                Rooms
+              </NavLink>
+            </li>
+            <li>
+              <NavLink
+                to="/calendar"
+                className={({ isActive }) => (isActive ? "active" : "")}
+              >
+                Calendar
+              </NavLink>
+            </li>
+          </>
         ) : location.pathname === "/coupons" ? (
           // Coupons navigation item
           <li>

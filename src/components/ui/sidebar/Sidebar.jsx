@@ -51,7 +51,11 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
           <img src={icons.Frame} alt="welcome" />
           <span className="label">Meals</span>
         </NavLink>
-        <NavLink className="settings" onClick={handleLogout}>
+        <NavLink
+          to="/book-room-management"
+          className="settings"
+          activeclassname="active"
+        >
           <img src={icons.settings} alt="settings" />
           <span className="label">Settings</span>
         </NavLink>

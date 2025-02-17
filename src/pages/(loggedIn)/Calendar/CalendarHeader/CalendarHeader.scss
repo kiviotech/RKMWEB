@@ -1,0 +1,83 @@
+.calendar-header-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+
+  .calendar-navigation-section {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+
+    button {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 5px;
+      background: white;
+      border: 1px solid #e0e0e0;
+      cursor: pointer;
+      transition: all 0.2s ease;
+
+      // Specific styles for the Today button
+      &:nth-child(2) {
+        background: #ffdbc9;
+        color: #ea7704;
+        border: none;
+        padding: 12px 24px;
+      }
+    }
+
+    .calendar-nav-button {
+      font-size: 18px;
+      padding: 8px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  }
+
+  .calendar-event-legend {
+    display: flex;
+    gap: 2rem;
+
+    .calendar-legend-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.8rem;
+
+      .calendar-legend-dot {
+        width: 20px;
+        height: 20px;
+        border-radius: 5px;
+        display: inline-block;
+      }
+
+      .calendar-legend-birthdays {
+        background-color: #8df1c7;
+      }
+
+      .calendar-legend-celebrations {
+        background-color: #fcdd81;
+      }
+
+      .calendar-legend-flagged {
+        background-color: #07d2ff;
+      }
+    }
+  }
+
+  .calendar-add-event-button {
+    background-color: #ea7704;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+
+    &:hover {
+      background-color: darken(#ff8a00, 5%);
+    }
+  }
+}

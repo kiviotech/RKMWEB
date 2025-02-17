@@ -1,63 +1,65 @@
-.calendar {
+.custom-calendar {
   width: 100%;
+  height: 800px;
+  border: 1px solid #eaeaea;
   background: white;
-  border: 1px solid #e0e0e0;
 
   .calendar-header {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
-    border-bottom: 1px solid #e0e0e0;
+    background-color: #ffffff;
+    border-bottom: 1px solid #eaeaea;
 
-    &-cell {
-      padding: 12px;
+    .weekday {
+      padding: 15px 10px;
       text-align: center;
-      color: #666;
       font-weight: 500;
+      font-size: 14px;
+      color: #333;
     }
   }
 
   .calendar-grid {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
-    grid-auto-rows: minmax(120px, auto);
-  }
+    height: calc(100% - 50px);
 
-  .calendar-cell {
-    border: 1px solid #e0e0e0;
-    padding: 8px;
-    min-height: 120px;
-    position: relative;
+    .calendar-day {
+      border: 1px solid #eaeaea;
+      padding: 8px;
+      min-height: 120px;
+      background-color: #fff;
 
-    .date {
-      display: block;
-      margin-bottom: 8px;
-      color: #333;
-    }
-
-    .events-container {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-
-    .event-item {
-      padding: 4px 8px;
-      border-radius: 4px;
-      font-size: 12px;
-      word-wrap: break-word;
-
-      &.religious {
-        background-color: #98f5e1;
+      &.empty {
+        background-color: #f4f4f4;
       }
 
-      &.cultural {
-        background-color: #ffe69c;
+      .day-number {
+        font-weight: 500;
+        margin-bottom: 8px;
+        color: #333;
+        font-size: 14px;
       }
 
-      &.ekadashi {
-        background-color: #00d4ff;
-        color: white;
-        text-transform: uppercase;
+      .events-container {
+        .event {
+          transition: transform 0.2s ease;
+          cursor: pointer;
+
+          &:hover {
+            transform: translateY(-1px);
+          }
+
+          .event-title {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+          }
+
+          .hindu-date {
+            color: #000;
+          }
+        }
       }
     }
   }

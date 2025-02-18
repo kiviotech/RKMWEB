@@ -14,6 +14,7 @@ const Calendar = () => {
     const end = new Date(date.getFullYear(), date.getMonth() + 1, 0);
     return { start, end };
   };
+  //
 
   const { start: startDate, end: endDate } = getMonthRange(currentDate);
 

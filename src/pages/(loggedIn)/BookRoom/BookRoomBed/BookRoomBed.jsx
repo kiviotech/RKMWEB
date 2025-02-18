@@ -633,15 +633,22 @@ const BookRoomBed = ({
     const allocations = room.attributes.room_allocations?.data || [];
     const blockings = room.attributes.room_blockings?.data || [];
 
+    // Create a proper Date object for comparison
+    const checkDate = new Date(
+      date.year,
+      new Date(Date.parse(`01 ${date.month} 2000`)).getMonth(),
+      date.day,
+      0,
+      0,
+      0
+    );
+
     // Check if room is blocked
     const isBlocked = blockings.some((blocking) => {
       const fromDate = new Date(blocking.attributes.from_date);
       const toDate = new Date(blocking.attributes.to_date);
-      const checkDate = new Date(
-        date.year,
-        new Date(Date.parse(`01 ${date.month} 2000`)).getMonth(),
-        date.day
-      );
+      fromDate.setHours(0, 0, 0, 0);
+      toDate.setHours(0, 0, 0, 0);
       return checkDate >= fromDate && checkDate <= toDate;
     });
 
@@ -654,11 +661,8 @@ const BookRoomBed = ({
 
       const fromDate = new Date(guests[0].attributes.arrival_date);
       const toDate = new Date(guests[0].attributes.departure_date);
-      const checkDate = new Date(
-        date.year,
-        new Date(Date.parse(`01 ${date.month} 2000`)).getMonth(),
-        date.day
-      );
+      fromDate.setHours(0, 0, 0, 0);
+      toDate.setHours(0, 0, 0, 0);
 
       if (checkDate >= fromDate && checkDate <= toDate) {
         return count + guests.length;

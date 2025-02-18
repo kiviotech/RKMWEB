@@ -5,6 +5,7 @@ import { fetchCelebrationsByDateRange } from "../../../../../services/src/servic
 const CalendarMainSection = ({ currentDate, startDate, endDate }) => {
   const [celebrations, setCelebrations] = useState([]);
   const [selectedDate, setSelectedDate] = useState(new Date());
+  const [isLoading, setIsLoading] = useState(false);
 
   // Get calendar data
   const getDaysInMonth = (date) => {
@@ -123,6 +124,7 @@ const CalendarMainSection = ({ currentDate, startDate, endDate }) => {
   // Fetch celebrations when date range changes
   useEffect(() => {
     const fetchCelebrations = async () => {
+      setIsLoading(true);
       try {
         const startDateStr = startDate?.toISOString().split("T")[0];
         const endDateStr = endDate?.toISOString().split("T")[0];
@@ -135,6 +137,8 @@ const CalendarMainSection = ({ currentDate, startDate, endDate }) => {
         }
       } catch (error) {
         console.error("Error fetching celebrations:", error);
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -159,7 +163,13 @@ const CalendarMainSection = ({ currentDate, startDate, endDate }) => {
         <div className="weekday">Fri</div>
         <div className="weekday">Sat</div>
       </div>
-      <div className="calendar-grid">{generateCalendarDays()}</div>
+      {isLoading ? (
+        <div className="loader-container">
+          <div className="loader"></div>
+        </div>
+      ) : (
+        <div className="calendar-grid">{generateCalendarDays()}</div>
+      )}
     </div>
   );
 };

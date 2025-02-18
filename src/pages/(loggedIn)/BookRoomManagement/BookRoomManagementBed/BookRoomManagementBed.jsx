@@ -4,7 +4,7 @@ import { icons } from "../../../../constants";
 import * as blockService from "../../../../../services/src/services/blockService";
 import { useNavigate } from "react-router-dom";
 
-const BookRoomManagementBed = ({ blockId, refreshTrigger }) => {
+const BookRoomManagementBed = ({ blockId, refreshTrigger, viewMode }) => {
   const [rooms, setRooms] = useState([]);
   const [dates, setDates] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -283,12 +283,112 @@ const BookRoomManagementBed = ({ blockId, refreshTrigger }) => {
     return beds;
   };
 
+  // Helper function to add ordinal suffix to dates
+  const getOrdinalSuffix = (day) => {
+    const suffixes = ["th", "st", "nd", "rd"];
+    const v = day % 100;
+    return suffixes[(v - 20) % 10] || suffixes[v] || suffixes[0];
+  };
+
+  // Add helper function to calculate available beds
+  const getAvailableBedsForDate = (room, date) => {
+    const totalBeds = room.attributes.no_of_beds;
+    const allocations = room.attributes.room_allocations?.data || [];
+    const blockings = room.attributes.room_blockings?.data || [];
+
+    // Check if room is blocked
+    const isBlocked = blockings.some((blocking) => {
+      const fromDate = new Date(blocking.attributes.from_date);
+      const toDate = new Date(blocking.attributes.to_date);
+      const checkDate = new Date(
+        date.year,
+        new Date(Date.parse(`01 ${date.month} 2000`)).getMonth(),
+        date.day
+      );
+      return checkDate >= fromDate && checkDate <= toDate;
+    });
+
+    if (isBlocked) return 0;
+
+    // Calculate occupied beds from allocations
+    const occupiedBeds = allocations.reduce((count, allocation) => {
+      const guests = allocation.attributes.guests.data;
+      if (!guests || guests.length === 0) return count;
+
+      const fromDate = new Date(guests[0].attributes.arrival_date);
+      const toDate = new Date(guests[0].attributes.departure_date);
+      const checkDate = new Date(
+        date.year,
+        new Date(Date.parse(`01 ${date.month} 2000`)).getMonth(),
+        date.day
+      );
+
+      if (checkDate >= fromDate && checkDate <= toDate) {
+        return count + guests.length;
+      }
+      return count;
+    }, 0);
+
+    return totalBeds - occupiedBeds;
+  };
+
+  const renderListView = () => {
+    return (
+      <div className="list-view-container">
+        <div className="list-header">
+          <div className="room-column">Room No.</div>
+          {dates.slice(0, 5).map((date, index) => (
+            <div key={index} className="date-column">
+              {`${date.day}${getOrdinalSuffix(date.day)} ${date.month}`}
+            </div>
+          ))}
+        </div>
+
+        {rooms.map((room) => (
+          <div key={room.id} className="list-row">
+            <div className="room-info">
+              <div className="room-number">
+                {room.attributes.room_number}
+                <span className="capacity">({room.attributes.no_of_beds})</span>
+              </div>
+            </div>
+
+            {dates.slice(0, 5).map((date, index) => {
+              const availableBeds = getAvailableBedsForDate(room, date);
+              const tooltipContent = getTooltipContent(
+                room.attributes.room_blockings?.data,
+                room.attributes.room_allocations,
+                date
+              );
+
+              return (
+                <div
+                  key={index}
+                  className="availability-box"
+                  data-tooltip={tooltipContent ? "true" : undefined}
+                >
+                  <div className="bed-count">{availableBeds}</div>
+                  <div className="availability-label">Available</div>
+                  {tooltipContent && (
+                    <div className="custom-tooltip">{tooltipContent}</div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        ))}
+      </div>
+    );
+  };
+
   return (
     <div className="bed-management-container">
       {isLoading ? (
         <div className="loader-container">
           <div className="loader"></div>
         </div>
+      ) : viewMode === "dashboard" ? (
+        renderListView()
       ) : (
         <div className="bed-grid">
           <div className="room-numbers-column">

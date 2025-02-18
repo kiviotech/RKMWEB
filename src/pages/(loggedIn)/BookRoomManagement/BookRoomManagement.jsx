@@ -6,6 +6,7 @@ import BookRoomManagementSetting from "./BookRoomManagementSetting/BookRoomManag
 const BookRoomManagement = () => {
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [selectedBlockId, setSelectedBlockId] = useState(null);
+  const [viewMode, setViewMode] = useState("dashboard");
 
   const handleRefresh = () => {
     setRefreshTrigger((prev) => prev + 1);
@@ -23,17 +24,23 @@ const BookRoomManagement = () => {
     setSelectedBlockId(blockId);
   };
 
+  const handleViewChange = (view) => {
+    setViewMode(view);
+  };
+
   return (
     <div>
       <BookRoomManagementHeader
         refreshTrigger={refreshTrigger}
         onBlockSelect={handleBlockSelect}
+        onViewChange={handleViewChange}
       />
       <div style={{ display: "flex" }}>
         <div style={{ width: "70%" }}>
           <BookRoomManagementBed
             blockId={selectedBlockId}
             refreshTrigger={refreshTrigger}
+            viewMode={viewMode}
           />
         </div>
         <div style={{ width: "30%" }}>

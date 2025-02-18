@@ -1,10 +1,16 @@
 import React, { useEffect, useState } from "react";
 import "./BookRoomManagementHeader.scss";
 import * as blockService from "../../../../../services/src/services/blockService";
+import icons from "../../../../constants/icons";
 
-const BookRoomManagementHeader = ({ refreshTrigger, onBlockSelect }) => {
+const BookRoomManagementHeader = ({
+  refreshTrigger,
+  onBlockSelect,
+  onViewChange,
+}) => {
   const [blocks, setBlocks] = useState([]);
   const [activeBlock, setActiveBlock] = useState("");
+  const [activeToggler, setActiveToggler] = useState("dashboard");
 
   useEffect(() => {
     const getBlocks = async () => {
@@ -25,6 +31,17 @@ const BookRoomManagementHeader = ({ refreshTrigger, onBlockSelect }) => {
     getBlocks();
   }, [refreshTrigger, onBlockSelect, activeBlock]);
 
+  const getStyle = (view) => ({
+    cursor: "pointer",
+    borderRadius: "5px",
+    background: activeToggler === view ? "var(--primary-color)" : "transparent",
+  });
+
+  const handleTogglerClick = (view) => {
+    setActiveToggler(view);
+    onViewChange(view);
+  };
+
   return (
     <div className="book-room-header">
       <div className="filter-options">
@@ -42,6 +59,35 @@ const BookRoomManagementHeader = ({ refreshTrigger, onBlockSelect }) => {
         ))}
       </div>
       <div className="sort-section">
+        <div
+          className="toggleGridView"
+          style={{
+            background: "#DEE4ED",
+            borderRadius: "5px",
+            display: "flex",
+          }}
+        >
+          <img
+            src={
+              activeToggler === "dashboard"
+                ? icons.toggglerDashboardWite
+                : icons.toggglerDashboard
+            }
+            alt="Dashboard"
+            onClick={() => handleTogglerClick("dashboard")}
+            style={getStyle("dashboard")}
+          />
+          <img
+            src={
+              activeToggler === "gridView"
+                ? icons.togglerGridViewWhite
+                : icons.togglerGridView
+            }
+            alt="Grid View"
+            onClick={() => handleTogglerClick("gridView")}
+            style={getStyle("gridView")}
+          />
+        </div>
         <div className="sort-by">
           <span>Sort by</span>
           <select className="sort-select">

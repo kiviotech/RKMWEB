@@ -44,7 +44,7 @@ import Coupons from "../pages/(loggedIn)/coupons/Coupons";
 import ConsentLetter from "../pages/(loggedIn)/donation/ConsentLetter";
 import UserCoupons from "../pages/(loggedIn)/coupons/UserCoupons";
 import BookRoomManagement from "../pages/(loggedIn)/BookRoomManagement/BookRoomManagement";
-import Calendar from "../pages/(loggedIn)/calendar/Calendar";
+import Calendar from "../pages/(loggedIn)/Calendar/Calendar";
 
 const AppRoutes = () => {
   return (

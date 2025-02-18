@@ -22,21 +22,12 @@ const BookRoomBed = ({
   const [allocatedRooms, setAllocatedRooms] = useState([]);
   const navigate = useNavigate();
 
-  // useEffect(() => {
-  //   console.log("BookRoombed received dates:", {
-  //     arrivalDate,
-  //     departureDate,
-  //   });
-  // }, []);
-
-  // Generate dates starting from arrival date
   useEffect(() => {
     const generateDates = () => {
       const datesArray = [];
       if (!arrivalDate) return;
 
       const startDate = new Date(arrivalDate);
-      // Generate dates for next 365 days starting from arrival date
       for (let i = 0; i < 365; i++) {
         const date = new Date(startDate);
         date.setDate(startDate.getDate() + i);
@@ -433,46 +424,31 @@ const BookRoomBed = ({
       const result = findFirstAvailableRoom();
 
       if (result && onRoomAllocation) {
-        // console.log("All allocated rooms:", result);
         setAllocatedRooms(result);
         onRoomAllocation(result); // Pass the array of all allocated rooms
       } else {
-        // console.log("No suitable rooms found or onRoomAllocation not provided");
         setAllocatedRooms([]);
       }
     }
   }, [selectedDateRange, numberOfBedsToAllocate, rooms]);
 
   const findFirstAvailableRoom = () => {
-    // console.log("Finding room for dates:", selectedDateRange);
-
     if (
       !selectedDateRange ||
       !selectedDateRange.arrivalDate ||
       !selectedDateRange.departureDate
     ) {
-      // console.log("No date range selected");
       return null;
     }
-
-    // console.log(
-    //   "Looking for room between:",
-    //   selectedDateRange.arrivalDate,
-    //   "and",
-    //   selectedDateRange.departureDate
-    // );
 
     let remainingBedsNeeded = numberOfBedsToAllocate;
     let allocatedRoomsResult = [];
 
     for (let i = 0; i < rooms.length; i++) {
       const room = rooms[i];
-      // console.log("\n----------------------------------------");
-      // console.log("Checking room:", room.attributes.room_number);
 
       // First check if room has any allocations
       const existingAllocations = room.attributes.room_allocations?.data || [];
-      // console.log("Room allocations found:", existingAllocations);
 
       let hasConflict = false;
 
@@ -483,20 +459,6 @@ const BookRoomBed = ({
 
           const existingArrival = guests[0].attributes.arrival_date;
           const existingDeparture = guests[0].attributes.departure_date;
-
-          // console.log("\nDate comparison:");
-          // console.log(
-          //   "New booking period:",
-          //   selectedDateRange.arrivalDate,
-          //   "to",
-          //   selectedDateRange.departureDate
-          // );
-          // console.log(
-          //   "Existing booking period:",
-          //   existingArrival,
-          //   "to",
-          //   existingDeparture
-          // );
 
           const hasOverlap =
             selectedDateRange.arrivalDate <= existingDeparture &&
@@ -509,7 +471,6 @@ const BookRoomBed = ({
         }
 
         if (hasConflict) {
-          // console.log("❌ Skipping room due to date conflict");
           continue;
         }
       }
@@ -526,15 +487,11 @@ const BookRoomBed = ({
       });
 
       if (isBlocked) {
-        // console.log("❌ Room is blocked, skipping");
         continue;
       }
 
       // Check room capacity
       const availableBeds = room.attributes.no_of_beds;
-      // console.log("\nRoom capacity check:");
-      // console.log("Available beds:", availableBeds);
-      // console.log("Remaining beds needed:", remainingBedsNeeded);
 
       if (availableBeds > 0) {
         const bedsToAllocate = Math.min(availableBeds, remainingBedsNeeded);
@@ -545,9 +502,6 @@ const BookRoomBed = ({
         });
 
         remainingBedsNeeded -= bedsToAllocate;
-        // console.log(
-        //   `✅ Allocated ${bedsToAllocate} beds in room ${room.attributes.room_number}`
-        // );
 
         if (remainingBedsNeeded <= 0) {
           break;
@@ -559,7 +513,6 @@ const BookRoomBed = ({
       return allocatedRoomsResult; // Return the array of all allocated rooms
     }
 
-    // console.log("\n❌ No suitable rooms found");
     return null;
   };
 

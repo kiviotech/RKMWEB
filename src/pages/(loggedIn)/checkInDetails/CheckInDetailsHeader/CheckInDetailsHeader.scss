@@ -2,17 +2,17 @@
   display: flex;
   gap: 1rem;
   align-items: center;
-  padding: 1rem;
+  padding: 2rem 1.2rem;
 
   .tab-button {
     padding: 0.5rem 1rem;
     border-radius: 4px;
     border: none;
     cursor: pointer;
-    font-size: 0.9rem;
+    font-size: 16px;
 
     &.active {
-      background-color: #f77f00;
+      background-color: #ff6b00;
       color: white;
     }
 
@@ -39,7 +39,7 @@
       position: relative;
 
       .print-button {
-        background-color: #f77f00;
+        background-color: #ff6b00;
         color: white;
         padding: 0.5rem 1rem;
         border-radius: 4px;
@@ -48,6 +48,7 @@
         display: flex;
         align-items: center;
         gap: 0.5rem;
+        font-size: 16px;
       }
 
       .print-dropdown {

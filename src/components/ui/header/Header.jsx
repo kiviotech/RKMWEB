@@ -220,7 +220,15 @@ const Header = ({ hideElements }) => {
                     to="/check-in"
                     className={({ isActive }) => (isActive ? "active" : "")}
                   >
-                    Reports
+                    Check-in Details
+                  </NavLink>
+                </li>
+                <li>
+                  <NavLink
+                    to="/check-out"
+                    className={({ isActive }) => (isActive ? "active" : "")}
+                  >
+                    Check-out Details
                   </NavLink>
                 </li>
                 <li>

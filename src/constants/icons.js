@@ -61,6 +61,13 @@ import Group_7 from "../assets/icons/Group-7.png";
 
 import RMK_Logo from "../assets/image/RMK_Logo.png";
 import missionLogo from "../assets/image/mission-logo.jpg";
+
+import call from "../assets/icons/call.png";
+import mail from "../assets/icons/mail.png";
+import message from "../assets/icons/message.png";
+import notification2 from "../assets/icons/notification2.png";
+import whatsapp2 from "../assets/icons/whatsapp2.png";
+
 export default {
   googleIcon,
   facebookIcon,
@@ -120,4 +127,9 @@ export default {
   Group_5,
   Group_6,
   Group_7,
+  call,
+  mail,
+  message,
+  notification2,
+  whatsapp2,
 };

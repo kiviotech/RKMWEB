@@ -2,7 +2,7 @@ import React from "react";
 import { Route, Routes } from "react-router-dom";
 import Login from "../pages/(auth)/login/Login";
 import Signup from "../pages/(auth)/signup/Signup";
-import CheckInDetails from "../pages/(loggedIn)/checkInDetails/CheckInDetails";
+import CheckInDetails from "../pages/(loggedIn)/CheckInDetails/CheckInDetails";
 import CheckOutDetails from "../pages/(loggedIn)/checkOutDetails/CheckOutDetails";
 import Layout from "../components/layout/Layout";
 import Dashboard from "../pages/(loggedIn)/dashboard/Dashboard";

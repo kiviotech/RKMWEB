@@ -360,77 +360,30 @@ const Dashboard = () => {
           <div className="room-status-main-section">
             <div className="graph-section-room-status">
               <div className="graph">
-                <div>
-                  {blocks[0] && (
-                    <div className="graph-one">
-                      <Graph
-                        series={[
-                          blockRoomStats[0]?.available || 0,
-                          blockRoomStats[0]?.occupied || 0,
-                          blockRoomStats[0]?.blocked || 0,
-                          blockRoomStats[0]?.cleaning || 0,
-                        ]}
-                        colors={roomStatusColors}
-                        width="180"
-                        height="180"
-                      />
-                      <span>{blocks[0].attributes.block_name}</span>
-                    </div>
-                  )}
-                  {blocks[2] && (
-                    <div className="graph-two" style={{ marginTop: "20px" }}>
-                      <Graph
-                        series={[
-                          blockRoomStats[2]?.available || 0,
-                          blockRoomStats[2]?.occupied || 0,
-                          blockRoomStats[2]?.blocked || 0,
-                          blockRoomStats[2]?.cleaning || 0,
-                        ]}
-                        colors={roomStatusColors}
-                        width="180"
-                        height="180"
-                      />
-                      <span>{blocks[2].attributes.block_name}</span>
-                    </div>
-                  )}
-                </div>
-
-                <div>
-                  {blocks[1] && (
-                    <div className="graph-three" style={{ marginLeft: "20px" }}>
-                      <Graph
-                        series={[
-                          blockRoomStats[1]?.available || 0,
-                          blockRoomStats[1]?.occupied || 0,
-                          blockRoomStats[1]?.blocked || 0,
-                          blockRoomStats[1]?.cleaning || 0,
-                        ]}
-                        colors={roomStatusColors}
-                        width="180"
-                        height="180"
-                      />
-                      <span>{blocks[1].attributes.block_name}</span>
-                    </div>
-                  )}
-                  {blocks[3] && (
+                <div className="graphs-container">
+                  {blocks.map((block, index) => (
                     <div
-                      className="graph-four"
-                      style={{ marginTop: "20px", marginLeft: "20px" }}
+                      key={block.id}
+                      className={`graph-item`}
+                      style={{
+                        marginLeft: index % 2 === 1 ? "20px" : "0",
+                        marginTop: index >= 2 ? "20px" : "0",
+                      }}
                     >
                       <Graph
                         series={[
-                          blockRoomStats[3]?.available || 0,
-                          blockRoomStats[3]?.occupied || 0,
-                          blockRoomStats[3]?.blocked || 0,
-                          blockRoomStats[3]?.cleaning || 0,
+                          blockRoomStats[index]?.available || 0,
+                          blockRoomStats[index]?.occupied || 0,
+                          blockRoomStats[index]?.blocked || 0,
+                          blockRoomStats[index]?.cleaning || 0,
                         ]}
                         colors={roomStatusColors}
                         width="180"
                         height="180"
                       />
-                      <span>{blocks[3].attributes.block_name}</span>
+                      <span>{block.attributes.block_name}</span>
                     </div>
-                  )}
+                  ))}
                 </div>
               </div>
             </div>

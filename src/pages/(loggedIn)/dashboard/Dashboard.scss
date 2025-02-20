@@ -131,16 +131,23 @@
 
         .graph-section-room-status {
           .graph {
-            display: flex;
-            justify-content: space-between;
-            margin-left: -20px;
-            text-align: center;
+            .graphs-container {
+              display: flex;
+              flex-wrap: wrap;
+              max-width: 380px;
+            }
 
-            span {
-              color: #000000;
-              font-size: 15px;
-              font-weight: 400;
-              line-height: 25px;
+            .graph-item {
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+
+              span {
+                color: #000000;
+                font-size: 15px;
+                font-weight: 400;
+                line-height: 25px;
+              }
             }
           }
         }

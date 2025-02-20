@@ -27,6 +27,7 @@ const Dashboard = () => {
   const [checkOuts, setCheckOuts] = useState(0);
   const [blocks, setBlocks] = useState([]);
   const [blockRoomStats, setBlockRoomStats] = useState([]);
+  const [showDropdown, setShowDropdown] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -127,12 +128,12 @@ const Dashboard = () => {
     statuses.rescheduled,
   ];
   const colors = ["#FFD439", "#FB8951", "#FC5275", "#A3D65C", "#A463C7"];
-  const roomStatusColors = ["#A463C7", "#F7BC4C", "#FC5275", "#A3D65C"];
+  const roomStatusColors = ["#FB8951", "#F7BC4C", "#FC5275", "#A3D65C"];
 
   const isAllZero = series.every((value) => value === 0);
 
   const roomStatus = [
-    { color: "#A463C7", text: "Available rooms" },
+    { color: "#FB8951", text: "Available rooms" },
     { color: "#F7BC4C", text: "Occupied rooms" },
     { color: "#FC5275", text: "Blocked rooms" },
     { color: "#A3D65C", text: "Cleaning underway" },
@@ -352,6 +353,48 @@ const Dashboard = () => {
                 />
               ))}
             </div>
+          </div>
+
+          <div className="room-stats-buttons">
+            <div className="dropdown-container">
+              <button
+                className="dropdown-button"
+                onClick={() => setShowDropdown(!showDropdown)}
+              >
+                Applications
+                <svg
+                  width="12"
+                  height="12"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M6 9L12 15L18 9"
+                    stroke="white"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </button>
+              {showDropdown && (
+                <div className="dropdown-menu">
+                  <button onClick={() => navigateToPage("/guest-house")}>
+                    Guest House
+                  </button>
+                  <button onClick={() => navigateToPage("/dormitory")}>
+                    Dormitory
+                  </button>
+                </div>
+              )}
+            </div>
+            <button
+              className="standard-button"
+              onClick={() => navigateToPage("/room-availability")}
+            >
+              Room availability
+            </button>
           </div>
         </div>
       </div>

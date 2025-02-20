@@ -93,7 +93,7 @@ const BookRoom = ({ selectedBlockId, onRoomAllocated }) => {
         phone_number: formData.phoneNumber,
         arrival_date: formData.fromDate,
         departure_date: formData.toDate,
-        status: "pending",
+        status: "Not Arrived",
         relationship: "applicant",
         booking_request: bookingResponse.data.id,
       };

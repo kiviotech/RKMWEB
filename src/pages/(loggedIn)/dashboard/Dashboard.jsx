@@ -12,6 +12,7 @@ import {
   fetchBlocksWithRooms,
 } from "../../../../services/src/services/blockService";
 import { fetchAllGuestDetails } from "../../../../services/src/services/guestDetailsService";
+import { fetchRoomAllocationsForCheckin } from "../../../../services/src/services/roomAllocationService";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -26,6 +27,8 @@ const Dashboard = () => {
   });
   const [checkIns, setCheckIns] = useState(0);
   const [checkOuts, setCheckOuts] = useState(0);
+  const [totalCheckIns, setTotalCheckIns] = useState(0);
+  const [totalCheckOuts, setTotalCheckOuts] = useState(0);
   const [blocks, setBlocks] = useState([]);
   const [blockRoomStats, setBlockRoomStats] = useState([]);
   const [showDropdown, setShowDropdown] = useState(false);
@@ -39,10 +42,10 @@ const Dashboard = () => {
         console.log("Guest Details:", guestDetailsResponse);
 
         // Calculate current guest count from guest details
-        const arrivedGuests = guestDetailsResponse.data.filter(
+        const arriveddGuests = guestDetailsResponse.data.filter(
           (guest) => guest.attributes.status === "Arrived"
         ).length;
-        setCurrentGuestCount(arrivedGuests);
+        setCurrentGuestCount(arriveddGuests);
 
         // Fetch and log blocks data with rooms
         const blocksWithRoomsResponse = await fetchBlocksWithRooms();
@@ -84,15 +87,59 @@ const Dashboard = () => {
 
         setBlockRoomStats(blockStats);
 
-        // Existing booking requests fetch
+        // Get current date in YYYY-MM-DD format
+        const today = new Date().toISOString().split("T")[0];
+
+        // Fetch room allocations for check-ins
+        const checkInAllocations = await fetchRoomAllocationsForCheckin(
+          "arrival_date",
+          today
+        );
+
+        // Fetch room allocations for check-outs
+        const checkOutAllocations = await fetchRoomAllocationsForCheckin(
+          "departure_date",
+          today
+        );
+        console.log(checkOutAllocations);
+
+        // Calculate check-ins
+        let totalCheckInGuests = 0;
+        let arrivedGuests = 0;
+
+        checkInAllocations.data.forEach((allocation) => {
+          const guests = allocation.attributes.guests.data;
+          totalCheckInGuests += guests.length;
+          arrivedGuests += guests.filter(
+            (guest) => guest.attributes.status === "Arrived"
+          ).length;
+        });
+
+        // Calculate check-outs
+        let totalCheckOutGuests = 0;
+        let departedGuests = 0;
+
+        checkOutAllocations.data.forEach((allocation) => {
+          const guests = allocation.attributes.guests.data;
+          totalCheckOutGuests += guests.length;
+          departedGuests += guests.filter(
+            (guest) => guest.attributes.status === "Arrived"
+          ).length;
+        });
+
+        setCheckIns(arrivedGuests);
+        setCheckOuts(departedGuests);
+        setTotalCheckIns(totalCheckInGuests);
+        setTotalCheckOuts(totalCheckOutGuests);
+        setTotalApplications(Math.max(totalCheckInGuests, totalCheckOutGuests));
+
+        // Existing booking requests fetch and processing
         const response = await fetchBookingRequests();
         if (!response?.data) {
-          // console.error("No data received from API");
           return;
         }
 
         const bookingData = response.data;
-
         const statusCount = {
           awaiting: 0,
           approved: 0,
@@ -102,27 +149,16 @@ const Dashboard = () => {
         };
 
         let guestCount = 0;
-        let checkInCount = 0;
-        let checkOutCount = 0;
 
         bookingData.forEach((booking) => {
           const status = booking.attributes?.status;
           if (status && status in statusCount) {
             statusCount[status]++;
           }
-
           guestCount += booking.attributes?.number_of_guest_members || 0;
-
-          if (status === "approved") {
-            checkInCount++;
-          }
-          // Removed duplicate check for approved status
         });
 
         setStatuses(statusCount);
-        setTotalApplications(bookingData.length);
-        setCheckIns(checkInCount);
-        setCheckOuts(checkOutCount);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -346,9 +382,10 @@ const Dashboard = () => {
             <ProgressBar
               title="Check-ins"
               completed={checkIns}
-              total={statuses.approved || 1}
+              total={totalCheckIns}
               color={"#A3D65C"}
               backgroundColor={"#E4F5E3"}
+              label="Checked-in"
             />
           </div>
           <div
@@ -358,9 +395,10 @@ const Dashboard = () => {
             <ProgressBar
               title="Check-outs"
               completed={checkOuts}
-              total={statuses.approved || 1}
+              total={totalCheckOuts}
               color={"#FC5275"}
               backgroundColor={"#F9C7C7"}
+              label="Checked-out"
             />
           </div>
         </div>

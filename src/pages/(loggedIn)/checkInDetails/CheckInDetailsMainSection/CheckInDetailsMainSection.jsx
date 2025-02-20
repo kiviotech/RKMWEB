@@ -62,7 +62,20 @@ const CheckInDetailsMainSection = ({ selectedDate }) => {
               ...allocation,
               attributes: {
                 ...allocation.attributes,
-                status: newStatus,
+                guests: {
+                  ...allocation.attributes.guests,
+                  data: allocation.attributes.guests.data.map((guest, index) =>
+                    index === 0
+                      ? {
+                          ...guest,
+                          attributes: {
+                            ...guest.attributes,
+                            status: newStatus,
+                          },
+                        }
+                      : guest
+                  ),
+                },
               },
             };
           }
@@ -155,12 +168,14 @@ const CheckInDetailsMainSection = ({ selectedDate }) => {
                   <td>
                     <span
                       className={`status ${(
-                        allocation.attributes.status || "pending"
+                        allocation.attributes.guests.data[0]?.attributes
+                          ?.status || "pending"
                       )
                         .toLowerCase()
                         .replace(/\s+/g, "-")}`}
                     >
-                      {allocation.attributes.status}
+                      {allocation.attributes.guests.data[0]?.attributes
+                        ?.status || "Pending"}
                     </span>
                   </td>
                   <td className="actions">
@@ -187,7 +202,7 @@ const CheckInDetailsMainSection = ({ selectedDate }) => {
                         ⋮
                       </button>
                       {activeDropdown === index && (
-                        <div className="dropdown-menu">
+                        <div className="dropdown-menus">
                           <button
                             className="dropdown-item arrived"
                             onClick={() =>

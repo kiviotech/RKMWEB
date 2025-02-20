@@ -161,7 +161,7 @@ const CheckOutDetailsMainSection = ({ selectedDate }) => {
                         ⋮
                       </button>
                       {activeDropdown === index && (
-                        <div className="dropdown-menu">
+                        <div className="dropdown-menus">
                           <button className="dropdown-item">
                             <img src={icons.notification2} alt="" />
                             Send all notifications

@@ -14,44 +14,77 @@ const CalendarHeader = ({
 }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formData, setFormData] = useState({
-    gregorian_date: "",
+    gregorian_date_from: "",
+    gregorian_date_to: "",
     event_type: "",
     event_name: "",
-    hindu_date: "",
   });
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    setFormData((prev) => {
+      if (name === "gregorian_date_from") {
+        return {
+          ...prev,
+          [name]: value,
+          gregorian_date_to: value,
+        };
+      }
+      return {
+        ...prev,
+        [name]: value,
+      };
+    });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const data = {
-        gregorian_date: formData.gregorian_date,
-        event_type: formData.event_type,
-        event_name: formData.event_name,
-        hindu_date: formData.hindu_date,
-      };
+      const fromDate = new Date(formData.gregorian_date_from);
+      const toDate = new Date(formData.gregorian_date_to);
 
-      await createNewCelebration({ data });
+      // Split event_name if it contains "-"
+      const [eventName, hinduDate] = formData.event_name.includes("-")
+        ? formData.event_name.split("-").map((str) => str.trim())
+        : [formData.event_name, null];
+
+      // If dates are the same, create single celebration
+      if (fromDate.getTime() === toDate.getTime()) {
+        const data = {
+          gregorian_date: formData.gregorian_date_from,
+          event_type: formData.event_type,
+          event_name: eventName,
+          hindu_date: hinduDate, // Add hindu_date if it exists
+        };
+        await createNewCelebration({ data });
+      } else {
+        // Create celebrations for each day in the range
+        const currentDate = new Date(fromDate);
+        while (currentDate <= toDate) {
+          const data = {
+            gregorian_date: currentDate.toISOString().split("T")[0],
+            event_type: formData.event_type,
+            event_name: eventName,
+            hindu_date: hinduDate, // Add hindu_date if it exists
+          };
+          await createNewCelebration({ data });
+          currentDate.setDate(currentDate.getDate() + 1);
+        }
+      }
+
       setIsModalOpen(false);
       setFormData({
-        gregorian_date: "",
+        gregorian_date_from: "",
+        gregorian_date_to: "",
         event_type: "",
         event_name: "",
-        hindu_date: "",
       });
 
       if (onEventAdded) {
         onEventAdded();
       }
 
-      toast.success("Celebration created successfully!", {
+      toast.success("Celebration(s) created successfully!", {
         position: "top-right",
         autoClose: 3000,
         hideProgressBar: false,
@@ -142,11 +175,21 @@ const CalendarHeader = ({
             </div>
             <form onSubmit={handleSubmit} className="athithi-modal__body">
               <div className="athithi-form-group">
-                <label>Gregorian Date</label>
+                <label>From Date</label>
                 <input
                   type="date"
-                  name="gregorian_date"
-                  value={formData.gregorian_date}
+                  name="gregorian_date_from"
+                  value={formData.gregorian_date_from}
+                  onChange={handleInputChange}
+                  required
+                />
+              </div>
+              <div className="athithi-form-group">
+                <label>To Date</label>
+                <input
+                  type="date"
+                  name="gregorian_date_to"
+                  value={formData.gregorian_date_to}
                   onChange={handleInputChange}
                   required
                 />
@@ -173,17 +216,6 @@ const CalendarHeader = ({
                   value={formData.event_name}
                   onChange={handleInputChange}
                   placeholder="Enter the event name"
-                  required
-                />
-              </div>
-              <div className="athithi-form-group">
-                <label>Hindu Date</label>
-                <input
-                  type="text"
-                  name="hindu_date"
-                  value={formData.hindu_date}
-                  onChange={handleInputChange}
-                  placeholder="Enter Hindu date"
                   required
                 />
               </div>

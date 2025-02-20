@@ -1,6 +1,4 @@
 import React, { useState } from "react";
-import { ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import CalendarHeader from "./CalendarHeader/CalendarHeader";
 import CalendarMainSection from "./CalendarMainSection/CalendarMainSection";
 
@@ -43,8 +41,7 @@ const Calendar = () => {
   };
 
   return (
-    <>
-      <ToastContainer />
+    <div>
       <CalendarHeader
         currentDate={currentDate}
         startDate={startDate}
@@ -60,7 +57,7 @@ const Calendar = () => {
         endDate={endDate}
         key={refreshTrigger}
       />
-    </>
+    </div>
   );
 };
 

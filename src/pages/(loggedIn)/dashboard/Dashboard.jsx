@@ -28,6 +28,7 @@ const Dashboard = () => {
   const [blocks, setBlocks] = useState([]);
   const [blockRoomStats, setBlockRoomStats] = useState([]);
   const [showDropdown, setShowDropdown] = useState(false);
+  const [selectedDate, setSelectedDate] = useState("");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -127,7 +128,7 @@ const Dashboard = () => {
     statuses.rejected,
     statuses.rescheduled,
   ];
-  const colors = ["#FFD439", "#FB8951", "#FC5275", "#A3D65C", "#A463C7"];
+  const colors = ["#FF8F6B", "#FFB572", "#FFD439", "#FC5275", "#A3D65C"];
   const roomStatusColors = ["#FB8951", "#F7BC4C", "#FC5275", "#A3D65C"];
 
   const isAllZero = series.every((value) => value === 0);
@@ -146,21 +147,13 @@ const Dashboard = () => {
   return (
     <div className="dashboard-main-container">
       <div className="left-main-container">
+        <div className="current-guest-count cards">
+          <h4 className="title">Current Guest Count</h4>
+          <div className="count">9</div>
+        </div>
+
         <div className="application-details cards">
           <h4 className="title">Application Details</h4>
-          <div className="count">
-            <div className="current-guest-count">
-              {/* <strong>{currentGuestCount}</strong> */}
-              <br />
-              <label>Current Guest Count</label>
-            </div>
-            <div className="total-application-count">
-              <strong>{totalApplications}</strong>
-              <br />
-              <label>Total Applications</label>
-            </div>
-          </div>
-
           <div className="graph-section">
             <div className="graph">
               {isAllZero ? (
@@ -172,9 +165,9 @@ const Dashboard = () => {
                 />
               ) : (
                 <>
-                  <span>
+                  <div className="total-ratio">
                     {statuses.approved}/{totalApplications}
-                  </span>
+                  </div>
                   <Graph
                     series={series}
                     colors={colors}
@@ -186,46 +179,150 @@ const Dashboard = () => {
             </div>
 
             <div className="status-list">
-              {Object.entries(statuses).map(([status, count], index) => (
-                <StatusItem
-                  key={index}
-                  color={colors[index]}
-                  text={status}
-                  number={count}
-                  paddingLeft={40}
-                />
-              ))}
+              <StatusItem
+                color={colors[0]}
+                text="Awaiting"
+                number={statuses.awaiting}
+              />
+              <StatusItem
+                color={colors[1]}
+                text="Approved"
+                number={statuses.approved}
+              />
+              <StatusItem
+                color={colors[2]}
+                text="On hold"
+                number={statuses.on_hold}
+              />
+              <StatusItem
+                color={colors[3]}
+                text="Rejected"
+                number={statuses.rejected}
+              />
+              <StatusItem
+                color={colors[4]}
+                text="Confirmed"
+                number={statuses.rescheduled}
+              />
             </div>
           </div>
         </div>
 
-        <div
-          className="Request cards"
-          onClick={() => navigateToPage("/Requests")}
-        >
-          <h4 className="title">Requests</h4>
-          <div className="request-status">
-            <strong>{statuses.awaiting} pending requests</strong>
+        <div className="available-rooms cards">
+          <div className="section-header">
+            <h4>Available Rooms</h4>
+            <div className="date-input-container">
+              <input
+                type="date"
+                value={selectedDate}
+                onChange={(e) => setSelectedDate(e.target.value)}
+                className="date-filter"
+                placeholder="dd-mm-yyyy"
+              />
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M8 2V5"
+                  stroke="#666"
+                  strokeWidth="1.5"
+                  strokeMiterlimit="10"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+                <path
+                  d="M16 2V5"
+                  stroke="#666"
+                  strokeWidth="1.5"
+                  strokeMiterlimit="10"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+                <path
+                  d="M3.5 9.09H20.5"
+                  stroke="#666"
+                  strokeWidth="1.5"
+                  strokeMiterlimit="10"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+                <path
+                  d="M21 8.5V17C21 20 19.5 22 16 22H8C4.5 22 3 20 3 17V8.5C3 5.5 4.5 3.5 8 3.5H16C19.5 3.5 21 5.5 21 8.5Z"
+                  stroke="#666"
+                  strokeWidth="1.5"
+                  strokeMiterlimit="10"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+                <path
+                  d="M15.6947 13.7H15.7037"
+                  stroke="#666"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+                <path
+                  d="M15.6947 16.7H15.7037"
+                  stroke="#666"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+                <path
+                  d="M11.9955 13.7H12.0045"
+                  stroke="#666"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+                <path
+                  d="M11.9955 16.7H12.0045"
+                  stroke="#666"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+                <path
+                  d="M8.29431 13.7H8.30329"
+                  stroke="#666"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+                <path
+                  d="M8.29431 16.7H8.30329"
+                  stroke="#666"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </div>
           </div>
-          <div className="view-all-btn">
-            <span>
-              View all <img src={icons.angleRight} alt="angle" loading="lazy" />
-            </span>
-          </div>
-        </div>
 
-        <div
-          className="allocate-rooms cards"
-          onClick={() => navigateToPage("/allocate-rooms")}
-        >
-          <h4 className="title">Allocate Rooms</h4>
-          <div className="request-status">
-            <strong>{statuses.approved} Approved requests</strong>
-          </div>
-          <div className="view-all-btn">
-            <span>
-              View all <img src={icons.angleRight} alt="angle" loading="lazy" />
-            </span>
+          <div className="rooms-list">
+            {blocks.map((block) => {
+              const availableCount =
+                blockRoomStats[blocks.indexOf(block)]?.available || 0;
+
+              return (
+                <div key={block.id} className="room-item">
+                  <span className="room-name">
+                    {block.attributes.block_name}
+                  </span>
+                  <div className="count-container">
+                    <span className="dash">-</span>
+                    <span className="room-count">
+                      {availableCount.toString().padStart(2, "0")}
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
       </div>

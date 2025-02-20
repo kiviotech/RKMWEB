@@ -335,48 +335,57 @@ const BookRoomManagementBed = ({ blockId, refreshTrigger, viewMode }) => {
   const renderListView = () => {
     return (
       <div className="list-view-container">
-        <div className="list-header">
-          <div className="room-column">Room No.</div>
-          {dates.slice(0, 5).map((date, index) => (
-            <div key={index} className="date-column">
-              {`${date.day}${getOrdinalSuffix(date.day)} ${date.month}`}
-            </div>
-          ))}
-        </div>
-
-        {rooms.map((room) => (
-          <div key={room.id} className="list-row">
-            <div className="room-info">
+        <div className="room-numbers-column">
+          <div className="list-header fixed-column">Room No.</div>
+          {rooms.map((room) => (
+            <div key={room.id} className="room-info">
               <div className="room-number">
                 {room.attributes.room_number}
                 <span className="capacity">({room.attributes.no_of_beds})</span>
               </div>
             </div>
+          ))}
+        </div>
 
-            {dates.slice(0, 5).map((date, index) => {
-              const availableBeds = getAvailableBedsForDate(room, date);
-              const tooltipContent = getTooltipContent(
-                room.attributes.room_blockings?.data,
-                room.attributes.room_allocations,
-                date
-              );
-
-              return (
-                <div
-                  key={index}
-                  className="availability-box"
-                  data-tooltip={tooltipContent ? "true" : undefined}
-                >
-                  <div className="bed-count">{availableBeds}</div>
-                  <div className="availability-label">Available</div>
-                  {tooltipContent && (
-                    <div className="custom-tooltip">{tooltipContent}</div>
-                  )}
+        <div className="scrollable-content" ref={scrollContainerRef}>
+          <div className="header-row">
+            <div className="scrollable-dates">
+              {dates.map((date, index) => (
+                <div key={index} className="date-column">
+                  <div className="year">{date.year}</div>
+                  <div>{`${date.day} ${date.month}`}</div>
                 </div>
-              );
-            })}
+              ))}
+            </div>
           </div>
-        ))}
+
+          {rooms.map((room) => (
+            <div key={room.id} className="list-row">
+              {dates.map((date, index) => {
+                const availableBeds = getAvailableBedsForDate(room, date);
+                const tooltipContent = getTooltipContent(
+                  room.attributes.room_blockings?.data,
+                  room.attributes.room_allocations,
+                  date
+                );
+
+                return (
+                  <div
+                    key={index}
+                    className="availability-box"
+                    data-tooltip={tooltipContent ? "true" : undefined}
+                  >
+                    <div className="bed-count">{availableBeds}</div>
+                    <div className="availability-label">Available</div>
+                    {tooltipContent && (
+                      <div className="custom-tooltip">{tooltipContent}</div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          ))}
+        </div>
       </div>
     );
   };

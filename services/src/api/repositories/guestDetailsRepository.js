@@ -7,6 +7,9 @@ export const getGuestDetails = () =>
 export const getGuestDetailsById = (id) =>
   apiClient.get(guestDetailsEndpoints.getGuestDetailsById(id));
 
+export const getAllGuestDetails = () =>
+  apiClient.get(guestDetailsEndpoints.getAllGuestDetails);
+
 export const createGuestDetails = (data) =>
   apiClient.post(guestDetailsEndpoints.createGuestDetails, { data });
 

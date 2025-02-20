@@ -11,6 +11,7 @@ import {
   fetchBlocks,
   fetchBlocksWithRooms,
 } from "../../../../services/src/services/blockService";
+import { fetchAllGuestDetails } from "../../../../services/src/services/guestDetailsService";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -33,6 +34,16 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        // Fetch guest details and calculate arrived guests count
+        const guestDetailsResponse = await fetchAllGuestDetails();
+        console.log("Guest Details:", guestDetailsResponse);
+
+        // Calculate current guest count from guest details
+        const arrivedGuests = guestDetailsResponse.data.filter(
+          (guest) => guest.attributes.status === "Arrived"
+        ).length;
+        setCurrentGuestCount(arrivedGuests);
+
         // Fetch and log blocks data with rooms
         const blocksWithRoomsResponse = await fetchBlocksWithRooms();
         console.log("Blocks with rooms data:", blocksWithRoomsResponse);
@@ -110,7 +121,6 @@ const Dashboard = () => {
 
         setStatuses(statusCount);
         setTotalApplications(bookingData.length);
-        setCurrentGuestCount(guestCount);
         setCheckIns(checkInCount);
         setCheckOuts(checkOutCount);
       } catch (error) {
@@ -149,7 +159,7 @@ const Dashboard = () => {
       <div className="left-main-container">
         <div className="current-guest-count cards">
           <h4 className="title">Current Guest Count</h4>
-          <div className="count">9</div>
+          <div className="count">{currentGuestCount}</div>
         </div>
 
         <div className="application-details cards">

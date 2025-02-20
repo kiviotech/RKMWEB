@@ -7,6 +7,7 @@ import {
   getGuestDetailsByUserAndStatus,
   getGuestDetailsByUser,
   getGuestUniqueNo,
+  getAllGuestDetails,
 } from "../api/repositories/guestDetailsRepository";
 
 // Fetch all guest details
@@ -96,6 +97,17 @@ export const fetchGuestUniqueNo = async () => {
     return response.data;
   } catch (error) {
     console.error("Error fetching guest unique numbers:", error);
+    throw error;
+  }
+};
+
+// Fetch all guest details without any population
+export const fetchAllGuestDetails = async () => {
+  try {
+    const response = await getAllGuestDetails();
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching all guest details:", error);
     throw error;
   }
 };

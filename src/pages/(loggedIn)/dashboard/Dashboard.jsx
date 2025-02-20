@@ -478,10 +478,14 @@ const Dashboard = () => {
               </button>
               {showDropdown && (
                 <div className="dropdown-menu">
-                  <button onClick={() => navigateToPage("/guest-house")}>
+                  <button
+                    onClick={() => navigateToPage("/book-room-management")}
+                  >
                     Guest House
                   </button>
-                  <button onClick={() => navigateToPage("/dormitory")}>
+                  <button
+                    onClick={() => navigateToPage("/book-room-management")}
+                  >
                     Dormitory
                   </button>
                 </div>
@@ -489,7 +493,7 @@ const Dashboard = () => {
             </div>
             <button
               className="standard-button"
-              onClick={() => navigateToPage("/room-availability")}
+              onClick={() => navigateToPage("/book-room-management")}
             >
               Room availability
             </button>

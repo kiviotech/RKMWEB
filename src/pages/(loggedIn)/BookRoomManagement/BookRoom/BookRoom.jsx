@@ -11,7 +11,6 @@ const BookRoom = ({ selectedBlockId, onRoomAllocated }) => {
     guestName: "",
     phoneNumber: "",
     roomId: "",
-    bookingType: "",
     fromDate: "",
     toDate: "",
   });
@@ -50,6 +49,30 @@ const BookRoom = ({ selectedBlockId, onRoomAllocated }) => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
+
+    // Add validation for guest name
+    if (name === "guestName") {
+      // Only allow letters and spaces
+      if (/^[A-Za-z\s]*$/.test(value)) {
+        setFormData({
+          ...formData,
+          [name]: value,
+        });
+      }
+      return;
+    }
+
+    // Add validation for phone number
+    if (name === "phoneNumber") {
+      // Only allow numbers and limit to 10 digits
+      if (/^\d{0,10}$/.test(value)) {
+        setFormData({
+          ...formData,
+          [name]: value,
+        });
+      }
+      return;
+    }
 
     // Special handling for fromDate changes
     if (name === "fromDate") {
@@ -117,7 +140,6 @@ const BookRoom = ({ selectedBlockId, onRoomAllocated }) => {
         guestName: "",
         phoneNumber: "",
         roomId: "",
-        bookingType: "",
         fromDate: "",
         toDate: "",
       });
@@ -193,15 +215,6 @@ const BookRoom = ({ selectedBlockId, onRoomAllocated }) => {
               {room.attributes.room_number}
             </option>
           ))}
-        </select>
-      </div>
-
-      <div className="booking-input-group">
-        <label>Booking type</label>
-        <select defaultValue="">
-          <option value="" disabled>
-            Select the booking type
-          </option>
         </select>
       </div>
 

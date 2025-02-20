@@ -17,7 +17,7 @@ const BookRoomHeader = ({
   const getStyle = (view) => ({
     cursor: "pointer",
     borderRadius: "5px",
-    background: activeToggler === view ? "var(--primary-color)" : "transparent",
+    background: activeToggler === view ? "#ff6b00" : "transparent",
   });
 
   const handleTogglerClick = (view) => {

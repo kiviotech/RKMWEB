@@ -288,7 +288,45 @@ const GuestDetailsPopup = ({ isOpen, onClose, onStatusChange, requestId }) => {
           </button>
         </div>
       );
-    } else if (bookingRequestDetails?.data?.attributes?.status === "approved") {
+    } else if (status === "confirmed") {
+      return (
+        <div className="action-buttons">
+          <button
+            className="reschedule-btn"
+            style={{
+              padding: "8px 16px",
+              backgroundColor: "#FFA500",
+              color: "white",
+              border: "none",
+              borderRadius: "4px",
+              cursor: "pointer",
+            }}
+            onClick={() => {
+              // Add reschedule logic here
+              console.log("Reschedule clicked");
+            }}
+          >
+            Reschedule
+          </button>
+          <button
+            className="cancel-btn"
+            style={{
+              padding: "8px 16px",
+              backgroundColor: "#FF4444",
+              color: "white",
+              border: "none",
+              borderRadius: "4px",
+              cursor: "pointer",
+            }}
+            onClick={() =>
+              handleStatusChange(bookingRequestDetails.data.id, "canceled")
+            }
+          >
+            Cancel Booking
+          </button>
+        </div>
+      );
+    } else if (status === "approved") {
       return (
         <div className="action-buttons">
           <button
@@ -422,6 +460,32 @@ const GuestDetailsPopup = ({ isOpen, onClose, onStatusChange, requestId }) => {
                           </strong>
                         </span>
                       </div>
+                      {bookingRequestDetails?.data?.attributes?.status ===
+                        "confirmed" && (
+                        <div className="info-item">
+                          <span className="label">Assigned Room</span>
+                          <span className="value">
+                            <strong>
+                              {bookingRequestDetails?.data?.attributes?.room_allocations?.data?.map(
+                                (room, index) => (
+                                  <span key={index}>
+                                    {
+                                      room?.attributes?.room?.data?.attributes
+                                        ?.room_number
+                                    }
+                                    {index <
+                                    bookingRequestDetails.data.attributes
+                                      .room_allocations.data.length -
+                                      1
+                                      ? ", "
+                                      : ""}
+                                  </span>
+                                )
+                              ) || "N/A"}
+                            </strong>
+                          </span>
+                        </div>
+                      )}
                       <div className="info-item">
                         <span className="label">Initiation by</span>
                         <span className="value">

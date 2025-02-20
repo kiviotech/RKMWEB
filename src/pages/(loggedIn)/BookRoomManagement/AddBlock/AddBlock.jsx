@@ -74,7 +74,7 @@ const AddBlock = ({ onClose, onBlockCreated }) => {
         }`}
       >
         <div className="add-block-header">
-          <h2>{currentStep === 1 ? "Add Block" : "Room Details"}</h2>
+          <h2>{currentStep === 1 ? "Add New Building" : "Room Details"}</h2>
           <button className="add-block-close-button" onClick={onClose}>
             ×
           </button>

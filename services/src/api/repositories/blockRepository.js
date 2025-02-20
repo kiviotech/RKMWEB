@@ -19,3 +19,7 @@ export const updateBlock = (id, data) =>
 // Delete a block by ID
 export const deleteBlock = (id) =>
   apiClient.delete(blockEndpoints.deleteBlock(id));
+
+// Fetch all blocks with populated rooms
+export const getBlocksWithRooms = () =>
+  apiClient.get(blockEndpoints.getBlocksWithRooms);

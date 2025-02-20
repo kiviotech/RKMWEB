@@ -7,6 +7,10 @@ import ProgressBar from "../../../components/ui/progressBar/ProgressBar";
 import CommonButton from "../../../components/ui/Button";
 import { useNavigate } from "react-router-dom";
 import { fetchBookingRequests } from "../../../../services/src/services/bookingRequestService";
+import {
+  fetchBlocks,
+  fetchBlocksWithRooms,
+} from "../../../../services/src/services/blockService";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -21,10 +25,53 @@ const Dashboard = () => {
   });
   const [checkIns, setCheckIns] = useState(0);
   const [checkOuts, setCheckOuts] = useState(0);
+  const [blocks, setBlocks] = useState([]);
+  const [blockRoomStats, setBlockRoomStats] = useState([]);
 
   useEffect(() => {
-    const fetchApplicationData = async () => {
+    const fetchData = async () => {
       try {
+        // Fetch and log blocks data with rooms
+        const blocksWithRoomsResponse = await fetchBlocksWithRooms();
+        console.log("Blocks with rooms data:", blocksWithRoomsResponse);
+        setBlocks(blocksWithRoomsResponse.data || []);
+
+        // Calculate room statistics for each block
+        const blockStats = blocksWithRoomsResponse.data.map((block) => {
+          const stats = {
+            available: 0,
+            occupied: 0,
+            blocked: 0,
+            cleaning: 0,
+          };
+
+          block.attributes.rooms.data.forEach((room) => {
+            // Check room blockings
+            const hasActiveBlocking = room.attributes.room_blockings.data.some(
+              (blocking) => blocking.attributes.room_block_status === "blocked"
+            );
+
+            // Check room allocations
+            const roomAllocations = room.attributes.room_allocations.data;
+            const isOccupied = roomAllocations.some(
+              (allocation) => allocation.attributes.room_status === "allocated"
+            );
+
+            if (hasActiveBlocking) {
+              stats.blocked++;
+            } else if (isOccupied) {
+              stats.occupied++;
+            } else {
+              stats.available++;
+            }
+          });
+
+          return stats;
+        });
+
+        setBlockRoomStats(blockStats);
+
+        // Existing booking requests fetch
         const response = await fetchBookingRequests();
         if (!response?.data) {
           // console.error("No data received from API");
@@ -65,11 +112,11 @@ const Dashboard = () => {
         setCheckIns(checkInCount);
         setCheckOuts(checkOutCount);
       } catch (error) {
-        console.error("Error fetching application data:", error);
+        console.error("Error fetching data:", error);
       }
     };
 
-    fetchApplicationData();
+    fetchData();
   }, []);
 
   const series = [
@@ -81,7 +128,6 @@ const Dashboard = () => {
   ];
   const colors = ["#FFD439", "#FB8951", "#FC5275", "#A3D65C", "#A463C7"];
   const roomStatusColors = ["#A463C7", "#F7BC4C", "#FC5275", "#A3D65C"];
-  const roomStatusSeries = [10, 20, 30, 40];
 
   const isAllZero = series.every((value) => value === 0);
 
@@ -217,48 +263,76 @@ const Dashboard = () => {
             <div className="graph-section-room-status">
               <div className="graph">
                 <div>
-                  <div className="graph-one">
-                    <Graph
-                      series={roomStatusSeries}
-                      colors={roomStatusColors}
-                      width="180"
-                      height="180"
-                    />
-                    <span>Guest House 1</span>
-                  </div>
-                  <div className="graph-two" style={{ marginTop: "20px" }}>
-                    <Graph
-                      series={roomStatusSeries}
-                      colors={roomStatusColors}
-                      width="180"
-                      height="180"
-                    />
-                    <span>Guest House 3</span>
-                  </div>
+                  {blocks[0] && (
+                    <div className="graph-one">
+                      <Graph
+                        series={[
+                          blockRoomStats[0]?.available || 0,
+                          blockRoomStats[0]?.occupied || 0,
+                          blockRoomStats[0]?.blocked || 0,
+                          blockRoomStats[0]?.cleaning || 0,
+                        ]}
+                        colors={roomStatusColors}
+                        width="180"
+                        height="180"
+                      />
+                      <span>{blocks[0].attributes.block_name}</span>
+                    </div>
+                  )}
+                  {blocks[2] && (
+                    <div className="graph-two" style={{ marginTop: "20px" }}>
+                      <Graph
+                        series={[
+                          blockRoomStats[2]?.available || 0,
+                          blockRoomStats[2]?.occupied || 0,
+                          blockRoomStats[2]?.blocked || 0,
+                          blockRoomStats[2]?.cleaning || 0,
+                        ]}
+                        colors={roomStatusColors}
+                        width="180"
+                        height="180"
+                      />
+                      <span>{blocks[2].attributes.block_name}</span>
+                    </div>
+                  )}
                 </div>
 
                 <div>
-                  <div className="graph-three" style={{ marginLeft: "20px" }}>
-                    <Graph
-                      series={roomStatusSeries}
-                      colors={roomStatusColors}
-                      width="180"
-                      height="180"
-                    />
-                    <span>Guest House 2</span>
-                  </div>
-                  <div
-                    className="graph-four"
-                    style={{ marginTop: "20px", marginLeft: "20px" }}
-                  >
-                    <Graph
-                      series={roomStatusSeries}
-                      colors={roomStatusColors}
-                      width="180"
-                      height="180"
-                    />
-                    <span>Guest House 4</span>
-                  </div>
+                  {blocks[1] && (
+                    <div className="graph-three" style={{ marginLeft: "20px" }}>
+                      <Graph
+                        series={[
+                          blockRoomStats[1]?.available || 0,
+                          blockRoomStats[1]?.occupied || 0,
+                          blockRoomStats[1]?.blocked || 0,
+                          blockRoomStats[1]?.cleaning || 0,
+                        ]}
+                        colors={roomStatusColors}
+                        width="180"
+                        height="180"
+                      />
+                      <span>{blocks[1].attributes.block_name}</span>
+                    </div>
+                  )}
+                  {blocks[3] && (
+                    <div
+                      className="graph-four"
+                      style={{ marginTop: "20px", marginLeft: "20px" }}
+                    >
+                      <Graph
+                        series={[
+                          blockRoomStats[3]?.available || 0,
+                          blockRoomStats[3]?.occupied || 0,
+                          blockRoomStats[3]?.blocked || 0,
+                          blockRoomStats[3]?.cleaning || 0,
+                        ]}
+                        colors={roomStatusColors}
+                        width="180"
+                        height="180"
+                      />
+                      <span>{blocks[3].attributes.block_name}</span>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -269,6 +343,11 @@ const Dashboard = () => {
                   key={index}
                   color={item.color}
                   text={item.text}
+                  number={blockRoomStats.reduce(
+                    (total, stats) =>
+                      total + (Object.values(stats)[index] || 0),
+                    0
+                  )}
                   paddingLeft={40}
                 />
               ))}

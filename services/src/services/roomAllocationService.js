@@ -18,9 +18,9 @@ export const fetchRoomAllocations = async () => {
   }
 };
 
-export const fetchRoomAllocationsForCheckin = async (todayDate) => {
+export const fetchRoomAllocationsForCheckin = async (date, todayDate) => {
   try {
-    const response = await getRoomAllocationForCheckin(todayDate);
+    const response = await getRoomAllocationForCheckin(date, todayDate);
     return response.data;
   } catch (error) {
     console.error("Error fetching room allocations:", error);
@@ -68,6 +68,22 @@ export const deleteRoomAllocationById = async (id) => {
     return response.data;
   } catch (error) {
     console.error(`Error deleting room allocation with ID ${id}:`, error);
+    throw error;
+  }
+};
+
+// Update room allocation status
+export const updateRoomAllocationStatus = async (id, status) => {
+  try {
+    const response = await updateRoomAllocation(id, {
+      data: { status: status },
+    });
+    return response.data;
+  } catch (error) {
+    console.error(
+      `Error updating room allocation status with ID ${id}:`,
+      error
+    );
     throw error;
   }
 };

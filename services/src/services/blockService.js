@@ -1,5 +1,6 @@
 import {
   getBlocks,
+  getBlocksWithRooms,
   getBlockById,
   createBlock,
   updateBlock,
@@ -14,6 +15,17 @@ export const fetchBlocks = async () => {
   } catch (error) {
     console.error("Error fetching blocks:", error);
     throw error; // Re-throw to propagate the error to the caller
+  }
+};
+
+// Fetch all blocks with populated rooms
+export const fetchBlocksWithRooms = async () => {
+  try {
+    const response = await getBlocksWithRooms();
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching blocks with rooms:", error);
+    throw error;
   }
 };
 

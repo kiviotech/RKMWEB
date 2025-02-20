@@ -7,6 +7,9 @@ export const getRooms = () => apiClient.get(roomEndpoints.getRooms);
 // Fetch a specific room by ID
 export const getRoomById = (id) => apiClient.get(roomEndpoints.getRoomById(id));
 
+export const getRoomAllocationForCheckin = (todayDate) =>
+  apiClient.get(roomAllocationEndpoints.getRoomAllocationForCheckin(todayDate));
+
 // Create a new room
 export const createRoom = (data) =>
   apiClient.post(roomEndpoints.createRoom, { data });

@@ -1,5 +1,5 @@
 .check-in-details {
-  padding: 20px;
+  padding: 20px 20px 300px;
 
   .check-in-table {
     width: 100%;
@@ -160,4 +160,37 @@
 .not-arrived {
   color: #000;
   font-weight: 600;
+}
+
+.not-arrived-status {
+  background-color: #ffe5e5;
+  color: #ff0000;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.loader-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 200px;
+}
+
+.loader {
+  border: 4px solid #f3f3f3;
+  border-radius: 50%;
+  border-top: 4px solid #3498db;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }

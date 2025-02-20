@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 
-const CheckOutDetailsHeader = () => {
+const CheckOutDetailsHeader = ({ onTabChange }) => {
   const [activeTab, setActiveTab] = useState("today");
   const [showDropdown, setShowDropdown] = useState(false);
   const dropdownRef = useRef(null);
@@ -18,13 +18,18 @@ const CheckOutDetailsHeader = () => {
     };
   }, []);
 
+  const handleTabChange = (tab) => {
+    setActiveTab(tab);
+    onTabChange(tab);
+  };
+
   return (
     <div className="check-in-details-header">
       <button
         className={`tab-button ${
           activeTab === "today" ? "active" : "inactive"
         }`}
-        onClick={() => setActiveTab("today")}
+        onClick={() => handleTabChange("today")}
       >
         Today's Leaving Guest
       </button>
@@ -32,7 +37,7 @@ const CheckOutDetailsHeader = () => {
         className={`tab-button ${
           activeTab === "tomorrow" ? "active" : "inactive"
         }`}
-        onClick={() => setActiveTab("tomorrow")}
+        onClick={() => handleTabChange("tomorrow")}
       >
         Tomorrow's Leaving Guest
       </button>

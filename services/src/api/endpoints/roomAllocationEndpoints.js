@@ -1,7 +1,7 @@
 const roomAllocationEndpoints = {
   getRoomAllocations: "/room-allocations?populate=*",
-  getRoomAllocationForCheckin: (todayDate) =>
-    `/room-allocations?populate=*&filters[guests][arrival_date][$eq]=${todayDate}`,
+  getRoomAllocationForCheckin: (date, todayDate) =>
+    `/room-allocations?populate=*&filters[guests][${date}][$eq]=${todayDate}`,
   getRoomAllocationById: (id) => `/room-allocations/${id}?populate=*`,
   createRoomAllocation: "/room-allocations",
   updateRoomAllocation: (id) => `/room-allocations/${id}`,

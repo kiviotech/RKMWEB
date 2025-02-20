@@ -47,6 +47,15 @@ const BookRoom = () => {
     setViewMode(view);
   };
 
+  const handleAllocatedGuestSelect = (guest) => {
+    // Update the number of beds to allocate
+    const updatedGuestCount = selectedGuestCount - 1;
+    setSelectedGuestCount(updatedGuestCount);
+
+    // Update the allocation with the new guest count
+    handleAllocate(arrivalDate, departureDate, updatedGuestCount);
+  };
+
   return (
     <div>
       <BookRoomHeader
@@ -64,9 +73,7 @@ const BookRoom = () => {
             selectedDateRange={
               selectedBlockId === allocationBlockId ? selectedDateRange : null
             }
-            numberOfBedsToAllocate={
-              selectedBlockId === allocationBlockId ? selectedGuestCount : 0
-            }
+            numberOfBedsToAllocate={selectedGuestCount}
             onRoomAllocation={handleRoomAllocation}
             viewMode={viewMode}
           />
@@ -76,6 +83,7 @@ const BookRoom = () => {
             requestId={requestId}
             onAllocate={handleAllocate}
             allocatedRooms={allocatedRooms}
+            onGuestUncheck={handleAllocatedGuestSelect}
           />
         </div>
       </div>

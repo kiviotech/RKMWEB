@@ -7,6 +7,7 @@ const BookRoomDevoteeDetails = ({
   requestId,
   onAllocate,
   allocatedRooms = [],
+  onGuestUncheck,
 }) => {
   const [guestData, setGuestData] = useState(null);
   const [selectedGuests, setSelectedGuests] = useState([]);
@@ -120,6 +121,29 @@ const BookRoomDevoteeDetails = ({
     return null;
   };
 
+  const handleAllocatedGuestSelect = (guest) => {
+    // Move guest back to non-allocated section
+    setGuestData((prevData) => ({
+      ...prevData,
+      attributes: {
+        ...prevData.attributes,
+        guests: {
+          ...prevData.attributes.guests,
+          data: [...prevData.attributes.guests.data, guest],
+        },
+      },
+    }));
+
+    // Remove from allocated guests
+    setAllocatedGuests((prev) => prev.filter((g) => g.id !== guest.id));
+
+    // Update total allocated count
+    setTotalAllocatedCount((prev) => prev - 1);
+
+    // Notify parent component to update bed allocation
+    onGuestUncheck(guest);
+  };
+
   return (
     <div className="devotee-details">
       {allocatedGuests.length > 0 && (
@@ -141,7 +165,18 @@ const BookRoomDevoteeDetails = ({
                   const room = findRoomForGuest(index);
                   return (
                     <tr key={guest.id}>
-                      <td>{guest.attributes.name}</td>
+                      <td>
+                        <div className="guest-name-cell">
+                          <input
+                            type="checkbox"
+                            checked={true}
+                            onChange={() => handleAllocatedGuestSelect(guest)}
+                          />
+                          <span className="guest-name">
+                            {guest.attributes.name}
+                          </span>
+                        </div>
+                      </td>
                       <td>{guest.attributes.age}</td>
                       <td>{guest.attributes.gender}</td>
                       <td>{guest.attributes.relationship}</td>

@@ -254,7 +254,11 @@ const BookRoomBed = ({
         const roomAllocation = allocatedRooms.find(
           (allocation) => allocation.roomNumber === room.attributes.room_number
         );
-        if (roomAllocation && bedIndex < roomAllocation.bedsAllocated) {
+        if (
+          roomAllocation &&
+          bedIndex < roomAllocation.bedsAllocated &&
+          numberOfBedsToAllocate > 0
+        ) {
           return icons.selectedImage;
         }
       }
@@ -420,14 +424,19 @@ const BookRoomBed = ({
 
   // Update findFirstAvailableRoom to handle multiple room allocations
   useEffect(() => {
-    if (selectedDateRange && numberOfBedsToAllocate > 0) {
+    if (selectedDateRange && numberOfBedsToAllocate >= 0) {
       const result = findFirstAvailableRoom();
 
-      if (result && onRoomAllocation) {
+      if (numberOfBedsToAllocate === 0) {
+        // Clear all allocations when no beds are needed
+        setAllocatedRooms([]);
+        onRoomAllocation([]);
+      } else if (result) {
         setAllocatedRooms(result);
-        onRoomAllocation(result); // Pass the array of all allocated rooms
+        onRoomAllocation(result);
       } else {
         setAllocatedRooms([]);
+        onRoomAllocation([]);
       }
     }
   }, [selectedDateRange, numberOfBedsToAllocate, rooms]);
@@ -518,7 +527,12 @@ const BookRoomBed = ({
 
   // Update isFirstAvailableRoom to check against all allocated rooms
   const isFirstAvailableRoom = (room, date) => {
-    if (!selectedDateRange || !allocatedRooms.length) return false;
+    if (
+      !selectedDateRange ||
+      !allocatedRooms.length ||
+      numberOfBedsToAllocate === 0
+    )
+      return false;
     return allocatedRooms.some(
       (allocated) => allocated.roomNumber === room.attributes.room_number
     );

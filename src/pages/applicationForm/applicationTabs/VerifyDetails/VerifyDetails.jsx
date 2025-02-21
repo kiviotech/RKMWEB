@@ -103,7 +103,7 @@ const VerifyDetails = () => {
             address: `${guest.guestAddress.houseNumber}, ${guest.guestAddress.streetName}, ${guest.guestAddress.postOffice}, ${guest.guestAddress.district}, ${guest.guestAddress.state}, ${guest.guestAddress.pinCode}`,
             age: parseInt(guest.guestAge),
             gender: guest.guestGender,
-            status: "pending",
+            status: "Not Arrived",
             deeksha: guest.guestDeeksha,
             email:
               guest.guestEmail ||

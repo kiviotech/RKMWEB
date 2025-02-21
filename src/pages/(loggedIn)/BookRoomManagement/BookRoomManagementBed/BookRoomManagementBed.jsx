@@ -158,9 +158,9 @@ const BookRoomManagementBed = ({ blockId, refreshTrigger, viewMode }) => {
             case "blocked":
               return icons.Group_4;
             case "maintenance":
-              return icons.Group_7;
-            case "cleaning underway":
               return icons.Group_3;
+            case "reserved":
+              return icons.Group_5;
             default:
               return icons.filledBed;
           }
@@ -303,8 +303,13 @@ const BookRoomManagementBed = ({ blockId, refreshTrigger, viewMode }) => {
       const checkDate = new Date(
         date.year,
         new Date(Date.parse(`01 ${date.month} 2000`)).getMonth(),
-        date.day
+        date.day,
+        0,
+        0,
+        0
       );
+      fromDate.setHours(0, 0, 0, 0);
+      toDate.setHours(0, 0, 0, 0);
       return checkDate >= fromDate && checkDate <= toDate;
     });
 
@@ -320,16 +325,23 @@ const BookRoomManagementBed = ({ blockId, refreshTrigger, viewMode }) => {
       const checkDate = new Date(
         date.year,
         new Date(Date.parse(`01 ${date.month} 2000`)).getMonth(),
-        date.day
+        date.day,
+        0,
+        0,
+        0
       );
 
+      fromDate.setHours(0, 0, 0, 0);
+      toDate.setHours(0, 0, 0, 0);
+
       if (checkDate >= fromDate && checkDate <= toDate) {
-        return count + guests.length;
+        return count + guests.length; // Count all guests in the allocation
       }
       return count;
     }, 0);
 
-    return totalBeds - occupiedBeds;
+    const availableBeds = totalBeds - occupiedBeds;
+    return Math.max(0, availableBeds); // Ensure we don't return negative numbers
   };
 
   const renderListView = () => {
@@ -369,11 +381,84 @@ const BookRoomManagementBed = ({ blockId, refreshTrigger, viewMode }) => {
                   date
                 );
 
+                // Check for room blocking status
+                const blocking = room.attributes.room_blockings?.data?.find(
+                  (blocking) => {
+                    const fromDate = new Date(blocking.attributes.from_date);
+                    const toDate = new Date(blocking.attributes.to_date);
+                    const checkDate = new Date(
+                      date.year,
+                      new Date(Date.parse(`01 ${date.month} 2000`)).getMonth(),
+                      date.day,
+                      0,
+                      0,
+                      0
+                    );
+
+                    fromDate.setHours(0, 0, 0, 0);
+                    toDate.setHours(0, 0, 0, 0);
+
+                    return checkDate >= fromDate && checkDate <= toDate;
+                  }
+                );
+
+                // Check for guest allocation and recommendation letter
+                const allocation = room.attributes.room_allocations?.data?.find(
+                  (allocation) => {
+                    const fromDate = new Date(
+                      allocation.attributes.guests.data[0].attributes.arrival_date
+                    );
+                    const toDate = new Date(
+                      allocation.attributes.guests.data[0].attributes.departure_date
+                    );
+                    const checkDate = new Date(
+                      date.year,
+                      new Date(Date.parse(`01 ${date.month} 2000`)).getMonth(),
+                      date.day,
+                      0,
+                      0,
+                      0
+                    );
+
+                    fromDate.setHours(0, 0, 0, 0);
+                    toDate.setHours(0, 0, 0, 0);
+
+                    return checkDate >= fromDate && checkDate <= toDate;
+                  }
+                );
+
+                const hasRecommendationLetter =
+                  allocation?.attributes.guests.data[0]?.attributes
+                    ?.booking_request?.data?.attributes?.recommendation_letter
+                    ?.data;
+
+                // Determine background color based on conditions
+                let backgroundColor = "inherit";
+
+                if (blocking) {
+                  switch (blocking.attributes.room_block_status) {
+                    case "maintenance":
+                      backgroundColor = "#666666";
+                      break;
+                    case "blocked":
+                      backgroundColor = "#FFFF00";
+                      break;
+                    case "reserved":
+                      backgroundColor = "#00b050";
+                      break;
+                  }
+                } else if (allocation) {
+                  backgroundColor = hasRecommendationLetter
+                    ? "#FF6D01"
+                    : "#F28E86";
+                }
+
                 return (
                   <div
                     key={index}
                     className="availability-box"
                     data-tooltip={tooltipContent ? "true" : undefined}
+                    style={{ backgroundColor }}
                   >
                     <div className="bed-count">{availableBeds}</div>
                     <div className="availability-label">Available</div>

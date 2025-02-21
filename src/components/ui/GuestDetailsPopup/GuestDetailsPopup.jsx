@@ -466,16 +466,17 @@ const GuestDetailsPopup = ({ isOpen, onClose, onStatusChange, requestId }) => {
                           <span className="label">Assigned Room</span>
                           <span className="value">
                             <strong>
-                              {bookingRequestDetails?.data?.attributes?.room_allocations?.data?.map(
+                              {bookingRequestDetails?.data?.attributes?.guests?.data.map(
                                 (room, index) => (
                                   <span key={index}>
                                     {
-                                      room?.attributes?.room?.data?.attributes
-                                        ?.room_number
+                                      room?.attributes?.room_allocations
+                                        ?.data?.[0]?.attributes?.room?.data
+                                        ?.attributes?.room_number
                                     }
                                     {index <
-                                    bookingRequestDetails.data.attributes
-                                      .room_allocations.data.length -
+                                    bookingRequestDetails.data.attributes.guests
+                                      .data.length -
                                       1
                                       ? ", "
                                       : ""}

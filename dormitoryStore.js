@@ -1,4 +1,4 @@
-import { create } from 'zustand';
+import { create } from "zustand";
 
 const initialFormData = {
   title: "",
@@ -21,21 +21,22 @@ const initialFormData = {
     streetName: "",
   },
   accommodation: {
-    totalPeople: '',
-    maleDevotees: '',
-    femaleDevotees: '',
-    specialRequests: ''
+    totalPeople: "",
+    maleDevotees: "",
+    femaleDevotees: "",
+    specialRequests: "",
   },
   visitDetails: {
-    visitDate: '',
-    visitTime: '',
-    departureDate: '',
-    departureTime: '',
-    visited: '',
-    previousVisitDate: '',
-    reason: '',
-    file: null
-  }
+    visitDate: "",
+    visitTime: "",
+    departureDate: "",
+    departureTime: "",
+    visited: "",
+    previousVisitDate: "",
+    reason: "",
+    file: null,
+  },
+  errors: {},
 };
 
 const useDormitoryStore = create((set) => ({
@@ -57,6 +58,23 @@ const useDormitoryStore = create((set) => ({
       formData: {
         ...state.formData,
         visitDetails: { ...state.formData.visitDetails, ...newVisitDetails },
+      },
+    })),
+  setErrors: (fieldName, error) =>
+    set((state) => ({
+      formData: {
+        ...state.formData,
+        errors: {
+          ...state.formData.errors,
+          [fieldName]: error,
+        },
+      },
+    })),
+  clearErrors: () =>
+    set((state) => ({
+      formData: {
+        ...state.formData,
+        errors: {},
       },
     })),
 }));

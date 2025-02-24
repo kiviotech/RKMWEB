@@ -23,16 +23,6 @@ const ApplicationDetails = ({ goToNextStep, tabName }) => {
   const [showCustomDeeksha, setShowCustomDeeksha] = useState(false);
   const [customDeeksha, setCustomDeeksha] = useState("");
 
-  const filteredCountryCodes = countryCodes.filter(
-    (country) =>
-      country.code.includes(searchQuery) ||
-      country.name?.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
-  const dropdownRef = useRef(null);
-  const searchInputRef = useRef(null);
-  const deekshaDropdownRef = useRef(null);
-
   const deekshaOptions = [
     "Srimat Swami Atmasthanandaji Maharaj",
     "Srimat Swami Bhuteshanandaji Maharaj",
@@ -60,6 +50,20 @@ const ApplicationDetails = ({ goToNextStep, tabName }) => {
     "Others",
     "none",
   ];
+
+  const filteredDeekshaOptions = deekshaOptions.filter((option) =>
+    option.toLowerCase().includes(deekshaSearchQuery.toLowerCase())
+  );
+
+  const dropdownRef = useRef(null);
+  const searchInputRef = useRef(null);
+  const deekshaDropdownRef = useRef(null);
+
+  const filteredCountryCodes = countryCodes.filter(
+    (country) =>
+      country.code.includes(searchQuery) ||
+      country.name?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -589,51 +593,30 @@ const ApplicationDetails = ({ goToNextStep, tabName }) => {
                 )}
               </div>
 
+              {/* Deeksha Field */}
               <div className="form-group">
-                <label>Initiation / Mantra Diksha from</label>
-                <div
-                  className="custom-dropdown"
-                  style={{ position: "relative" }}
-                  ref={deekshaDropdownRef}
-                >
+                <label>Initiation / Mantra Diksha from </label>
+                <div className="custom-select" ref={deekshaDropdownRef}>
                   <div
-                    className="dropdown-header"
-                    onClick={() => {
-                      setIsDeekshaDropdownOpen(!isDeekshaDropdownOpen);
-                      setTimeout(() => {
-                        if (searchInputRef.current) {
-                          searchInputRef.current.focus();
-                        }
-                      }, 100);
-                    }}
-                    style={{
-                      padding: "10px",
-                      border: "1px solid #ccc",
-                      borderRadius: "4px",
-                      cursor: "pointer",
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                      backgroundColor: "#FFF",
-                    }}
+                    className="selected-deeksha"
+                    onClick={() =>
+                      setIsDeekshaDropdownOpen(!isDeekshaDropdownOpen)
+                    }
                   >
                     <span>{formData.deeksha || "Select Deeksha"}</span>
                     <svg
-                      width="16"
-                      height="16"
-                      viewBox="0 0 16 16"
+                      className={`dropdown-icon ${
+                        isDeekshaDropdownOpen ? "open" : ""
+                      }`}
+                      width="14"
+                      height="8"
+                      viewBox="0 0 14 8"
                       fill="none"
                       xmlns="http://www.w3.org/2000/svg"
-                      style={{
-                        transform: isDeekshaDropdownOpen
-                          ? "rotate(180deg)"
-                          : "rotate(0deg)",
-                        transition: "transform 0.2s ease",
-                      }}
                     >
                       <path
-                        d="M4 6L8 10L12 6"
-                        stroke="#6B7280"
+                        d="M1 1L7 7L13 1"
+                        stroke="currentColor"
                         strokeWidth="2"
                         strokeLinecap="round"
                         strokeLinejoin="round"
@@ -641,92 +624,34 @@ const ApplicationDetails = ({ goToNextStep, tabName }) => {
                     </svg>
                   </div>
                   {isDeekshaDropdownOpen && (
-                    <div
-                      className="dropdown-options"
-                      style={{
-                        position: "absolute",
-                        top: "100%",
-                        left: 0,
-                        right: 0,
-                        maxHeight: "200px",
-                        overflowY: "auto",
-                        backgroundColor: "white",
-                        border: "1px solid #ccc",
-                        borderRadius: "4px",
-                        zIndex: 1000,
-                        boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
-                      }}
-                    >
+                    <div className="deeksha-dropdown">
                       <input
-                        ref={searchInputRef}
                         type="text"
                         placeholder="Search..."
                         value={deekshaSearchQuery}
                         onChange={(e) => setDeekshaSearchQuery(e.target.value)}
-                        style={{
-                          width: "100%",
-                          padding: "8px",
-                          border: "none",
-                          borderBottom: "1px solid #ccc",
-                          outline: "none",
-                        }}
                         onClick={(e) => e.stopPropagation()}
-                        autoFocus
                       />
-                      {deekshaOptions
-                        .filter((option) =>
-                          option
-                            .toLowerCase()
-                            .includes(deekshaSearchQuery.toLowerCase())
-                        )
-                        .map((option) => (
+                      <div className="deeksha-list">
+                        {filteredDeekshaOptions.map((option) => (
                           <div
                             key={option}
+                            className="deeksha-option"
                             onClick={() => {
-                              if (option === "Others") {
-                                setShowCustomDeeksha(true);
-                                setCustomDeeksha("");
-                                handleInputChange({
-                                  target: { name: "deeksha", value: "" },
-                                });
-                              } else {
-                                setShowCustomDeeksha(false);
-                                handleInputChange({
-                                  target: { name: "deeksha", value: option },
-                                });
-                              }
+                              handleInputChange({
+                                target: { name: "deeksha", value: option },
+                              });
                               setIsDeekshaDropdownOpen(false);
                               setDeekshaSearchQuery("");
-                            }}
-                            style={{
-                              padding: "10px",
-                              cursor: "pointer",
-                              ":hover": {
-                                backgroundColor: "#f5f5f5",
-                              },
                             }}
                           >
                             {option}
                           </div>
                         ))}
+                      </div>
                     </div>
                   )}
                 </div>
-                {showCustomDeeksha && (
-                  <input
-                    type="text"
-                    placeholder="Please specify your Mantra Diksha"
-                    value={customDeeksha}
-                    onChange={(e) => {
-                      const value = e.target.value;
-                      setCustomDeeksha(value);
-                      handleInputChange({
-                        target: { name: "deeksha", value: value },
-                      });
-                    }}
-                    style={{ marginTop: "10px" }}
-                  />
-                )}
                 {errors.deeksha && (
                   <span className="error">{errors.deeksha}</span>
                 )}

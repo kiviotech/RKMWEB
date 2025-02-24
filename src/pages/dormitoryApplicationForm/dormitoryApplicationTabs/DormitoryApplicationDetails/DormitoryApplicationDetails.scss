@@ -85,6 +85,11 @@
     display: flex;
     flex-direction: row;
     gap: 30px;
+
+    @media (max-width: 768px) {
+      flex-direction: column;
+      gap: 20px;
+    }
   }
 
   .tabs {
@@ -103,6 +108,10 @@
 .form-left-section,
 .form-right-section {
   width: 50%;
+
+  @media (max-width: 768px) {
+    width: 100%;
+  }
 }
 
 .address-section {
@@ -174,6 +183,19 @@
     gap: 10px;
     width: 100%;
 
+    @media (max-width: 480px) {
+      flex-direction: column;
+      gap: 15px;
+
+      .custom-select {
+        width: 100%;
+
+        .selected-flag {
+          width: 100%;
+        }
+      }
+    }
+
     .custom-select {
       position: relative;
 
@@ -233,6 +255,10 @@
     border-radius: 4px;
     z-index: 1000;
     box-shadow: 0px 3px 10px 0px rgba(0, 0, 0, 0.123);
+
+    @media (max-width: 480px) {
+      width: 100%;
+    }
 
     .search-container {
       padding: 8px;
@@ -305,7 +331,7 @@
       align-items: stretch;
       background: white;
       border-radius: 20px;
-      border: 1px solid #E0E0E0;
+      border: 1px solid #e0e0e0;
       overflow: hidden;
       height: 32px;
 
@@ -313,7 +339,7 @@
         width: 36px;
         border: none;
         background: transparent;
-        color: #9867E9;
+        color: #9867e9;
         cursor: pointer;
         font-size: 16px;
         padding: 0;
@@ -323,18 +349,18 @@
         transition: background-color 0.2s;
 
         &:first-child {
-          border-right: 1px solid #E0E0E0;
+          border-right: 1px solid #e0e0e0;
         }
 
         &:last-child {
-          border-left: 1px solid #E0E0E0;
-          background: #EA7704;
+          border-left: 1px solid #e0e0e0;
+          background: #ea7704;
           color: white;
         }
 
         &:hover {
           background-color: #f8f8f8;
-          
+
           &:last-child {
             background: #8656d8;
           }
@@ -358,6 +384,15 @@
   display: flex;
   gap: 10px;
 
+  @media (max-width: 480px) {
+    flex-direction: column;
+    gap: 15px;
+
+    .custom-select {
+      width: 100%;
+    }
+  }
+
   .custom-select {
     position: relative;
     min-width: 120px;
@@ -366,8 +401,8 @@
       display: flex;
       align-items: center;
       gap: 8px;
-      padding: 8px 12px;
-      border: 1px solid #ccc;
+      padding: 0.7rem 12px;
+      border: 1px solid #515151;
       border-radius: 4px;
       cursor: pointer;
       background: white;
@@ -389,7 +424,7 @@
       border: 1px solid #ccc;
       border-radius: 4px;
       z-index: 1000;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 
       input {
         width: 100%;

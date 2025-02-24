@@ -490,13 +490,13 @@ const Dashboard = () => {
                   </button>
                   {showDropdown && (
                     <div className="dropdown-menu">
-                      <button
-                        onClick={() => navigateToPage("/book-room-management")}
-                      >
+                      <button onClick={() => navigateToPage("/welcome")}>
                         Guest House
                       </button>
                       <button
-                        onClick={() => navigateToPage("/book-room-management")}
+                        onClick={() =>
+                          navigateToPage("/dormitory-application-form")
+                        }
                       >
                         Dormitory
                       </button>

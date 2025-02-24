@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import "./DormitoryApplicationDetails.scss";
 import CommonButton from "../../../../components/ui/Button";
-import useDormitoryStore from "../../../../../dormitoryStore"
+import useDormitoryStore from "../../../../../dormitoryStore";
 
 const DormitoryApplicationDetails = ({ goToNextStep, tabName }) => {
   const { formData, updateFormData, updateAddress } = useDormitoryStore();
@@ -10,6 +10,10 @@ const DormitoryApplicationDetails = ({ goToNextStep, tabName }) => {
   const [countryCodes, setCountryCodes] = useState([]);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+
+  const [isDeekshaDropdownOpen, setIsDeekshaDropdownOpen] = useState(false);
+  const [deekshaSearchQuery, setDeekshaSearchQuery] = useState("");
+  const deekshaDropdownRef = useRef(null);
 
   // Add logging effect for formData changes
   useEffect(() => {
@@ -68,16 +72,16 @@ const DormitoryApplicationDetails = ({ goToNextStep, tabName }) => {
     updateFormData({ [name]: value });
   };
 
-  // Add logging to address changes  
+  // Add logging to address changes
   const handleAddressChange = (name, value) => {
     console.log("Updating address:", { field: name, value });
     updateAddress({ [name]: value });
   };
 
   const handleSetError = (name, error) => {
-    setErrors(prev => ({
+    setErrors((prev) => ({
       ...prev,
-      [name]: error
+      [name]: error,
     }));
   };
 
@@ -91,7 +95,10 @@ const DormitoryApplicationDetails = ({ goToNextStep, tabName }) => {
         if (!value) {
           handleSetError(name, "Institution name is required");
         } else if (value.length < 2) {
-          handleSetError(name, "Institution name must be at least 2 characters long");
+          handleSetError(
+            name,
+            "Institution name must be at least 2 characters long"
+          );
         } else {
           handleSetError(name, "");
         }
@@ -101,7 +108,10 @@ const DormitoryApplicationDetails = ({ goToNextStep, tabName }) => {
         if (!value) {
           handleSetError(name, "Contact person name is required");
         } else if (value.length < 2) {
-          handleSetError(name, "Contact person name must be at least 2 characters long");
+          handleSetError(
+            name,
+            "Contact person name must be at least 2 characters long"
+          );
         } else {
           handleSetError(name, "");
         }
@@ -228,8 +238,20 @@ const DormitoryApplicationDetails = ({ goToNextStep, tabName }) => {
         break;
 
       case "streetName":
+        handleSetError(name, "");
+        break;
+
+      case "houseNumber":
         if (!value) {
-          handleSetError(name, "Street Name is required");
+          handleSetError(name, "Flat / House / Apartment No is required");
+        } else {
+          handleSetError(name, "");
+        }
+        break;
+
+      case "postOffice":
+        if (!value) {
+          handleSetError(name, "Post Office is required");
         } else {
           handleSetError(name, "");
         }
@@ -262,14 +284,16 @@ const DormitoryApplicationDetails = ({ goToNextStep, tabName }) => {
           const postOffice = data[0].PostOffice[0];
           updateAddress({
             state: postOffice.State,
-            district: postOffice.District
+            district: postOffice.District,
+            postOffice: postOffice.Name,
           });
         }
       } catch (error) {
         console.error("Error fetching address details:", error);
         updateAddress({
           state: "",
-          district: ""
+          district: "",
+          postOffice: "",
         });
       }
     }
@@ -281,14 +305,14 @@ const DormitoryApplicationDetails = ({ goToNextStep, tabName }) => {
     console.log("Form Submission - Complete Form Data:", {
       formData,
       address: formData.address,
-      errors
+      errors,
     });
 
     let hasErrors = false;
 
     // Update the required fields list to match your actual requirements
     const fieldsToValidate = [
-      "institutionName", 
+      "institutionName",
       "contactPersonName",
       "institutionType",
       "phoneNumber",
@@ -297,23 +321,26 @@ const DormitoryApplicationDetails = ({ goToNextStep, tabName }) => {
     // Check if any required field is empty
     fieldsToValidate.forEach((field) => {
       if (!formData[field]) {
-        handleSetError(field, `${field.charAt(0).toUpperCase() + field.slice(1)} is required`);
+        handleSetError(
+          field,
+          `${field.charAt(0).toUpperCase() + field.slice(1)} is required`
+        );
         hasErrors = true;
       } else {
         validateField(field, formData[field]);
       }
     });
 
-    // Update required address fields
-    const addressFieldsToValidate = [
-      "pinCode",
-      "streetName",
-    ];
+    // Update required address fields - remove streetName
+    const addressFieldsToValidate = ["pinCode"]; // removed streetName from here
 
     // Check if any required address field is empty
     addressFieldsToValidate.forEach((field) => {
       if (!formData.address[field]) {
-        handleSetError(field, `${field.charAt(0).toUpperCase() + field.slice(1)} is required`);
+        handleSetError(
+          field,
+          `${field.charAt(0).toUpperCase() + field.slice(1)} is required`
+        );
         hasErrors = true;
       } else {
         validateAddressField(field, formData.address[field]);
@@ -321,7 +348,7 @@ const DormitoryApplicationDetails = ({ goToNextStep, tabName }) => {
     });
 
     // Check for any validation errors
-    if (Object.values(errors).some(error => error)) {
+    if (Object.values(errors).some((error) => error)) {
       hasErrors = true;
     }
 
@@ -335,6 +362,58 @@ const DormitoryApplicationDetails = ({ goToNextStep, tabName }) => {
 
   // Add searchInputRef
   const searchInputRef = useRef(null);
+
+  // Add this array of deeksha options
+  const deekshaOptions = [
+    "Srimat Swami Atmasthanandaji Maharaj",
+    "Srimat Swami Bhuteshanandaji Maharaj",
+    "Srimat Swami Divyanandaji Maharaj",
+    "Srimat Swami Gahananandaji Maharaj",
+    "Srimat Swami Gambhiranandaji Maharaj",
+    "Srimat Swami Gautamanandaji Maharaj",
+    "Srimat Swami Girishanandaji Maharaj",
+    "Srimat Swami Gitanandaji Maharaj",
+    "Srimat Swami Kailashanandaji Maharaj",
+    "Srimat Swami Madhavanandaji Maharaj",
+    "Srimat Swami Nirvananandaji Maharaj",
+    "Srimat Swami Omkaranandaji Maharaj",
+    "Srimat Swami Prabhanandaji Maharaj",
+    "Srimat Swami Prameyanandaji Maharaj",
+    "Srimat Swami Ranganathanandaji Maharaj",
+    "Srimat Swami Shivamayanandaji Maharaj",
+    "Srimat Swami Smarananandaji Maharaj",
+    "Srimat Swami Suhitanandaji Maharaj",
+    "Srimat Swami Tapasyanandaji Maharaj",
+    "Srimat Swami Vagishanandaji Maharaj",
+    "Srimat Swami Vimalatmanandaji Maharaj",
+    "Srimat Swami Vireshwaranandaji Maharaj",
+    "Srimat Swami Yatiswaranandaji Maharaj",
+    "Others",
+    "none",
+  ];
+
+  // Add this filtered options constant
+  const filteredDeekshaOptions = deekshaOptions.filter((option) =>
+    option.toLowerCase().includes(deekshaSearchQuery.toLowerCase())
+  );
+
+  // Add this effect for handling clicks outside the deeksha dropdown
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        deekshaDropdownRef.current &&
+        !deekshaDropdownRef.current.contains(event.target)
+      ) {
+        setIsDeekshaDropdownOpen(false);
+        setDeekshaSearchQuery("");
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   return (
     <div className="application-form">
@@ -420,7 +499,9 @@ const DormitoryApplicationDetails = ({ goToNextStep, tabName }) => {
                     <option value="F">Female</option>
                     <option value="O">Other</option>
                   </select>
-                  {errors.gender && <span className="error">{errors.gender}</span>}
+                  {errors.gender && (
+                    <span className="error">{errors.gender}</span>
+                  )}
                 </div>
               </div>
 
@@ -429,8 +510,8 @@ const DormitoryApplicationDetails = ({ goToNextStep, tabName }) => {
                 <label>Phone number</label>
                 <div className="unified-input">
                   <div className="custom-select" ref={dropdownRef}>
-                    <div 
-                      className="selected-country" 
+                    <div
+                      className="selected-country"
                       onClick={() => {
                         setIsDropdownOpen(!isDropdownOpen);
                         setTimeout(() => {
@@ -442,10 +523,14 @@ const DormitoryApplicationDetails = ({ goToNextStep, tabName }) => {
                     >
                       {formData.countryCode && (
                         <>
-                          <img 
-                            src={countryCodes.find(c => c.code === formData.countryCode)?.flagUrl} 
-                            alt="" 
-                            className="flag-icon" 
+                          <img
+                            src={
+                              countryCodes.find(
+                                (c) => c.code === formData.countryCode
+                              )?.flagUrl
+                            }
+                            alt=""
+                            className="flag-icon"
                           />
                           +{formData.countryCode}
                         </>
@@ -472,9 +557,15 @@ const DormitoryApplicationDetails = ({ goToNextStep, tabName }) => {
                                 setSearchQuery("");
                               }}
                             >
-                              <img src={country.flagUrl} alt="" className="flag-icon" />
+                              <img
+                                src={country.flagUrl}
+                                alt=""
+                                className="flag-icon"
+                              />
                               <span>+{country.code}</span>
-                              <span className="country-name">{country.name}</span>
+                              <span className="country-name">
+                                {country.name}
+                              </span>
                             </div>
                           ))}
                         </div>
@@ -541,26 +632,62 @@ const DormitoryApplicationDetails = ({ goToNextStep, tabName }) => {
               {/* Deeksha Field */}
               <div className="form-group">
                 <label>Initiation / Mantra Diksha from </label>
-                <select
-                  name="deeksha"
-                  value={formData.deeksha}
-                  onChange={handleInputChange}
-                >
-                  <option value="">Select Deeksha</option>
-                  <option value="Sri Ramakrishna – Life and Teachings">
-                    Sri Ramakrishna – Life and Teachings
-                  </option>
-                  <option value="Sri Sarada Devi – Life and Teachings">
-                    Sri Sarada Devi - Life and Teachings
-                  </option>
-                  <option value="Swami Vivekananda – His Life and Legacy">
-                    Swami Vivekananda – His Life and Legacy
-                  </option>
-                  <option value="The Gospel of Sri Ramakrishna">
-                    The Gospel of Sri Ramakrishna
-                  </option>
-                  <option value="none">None</option>
-                </select>
+                <div className="custom-select" ref={deekshaDropdownRef}>
+                  <div
+                    className="selected-deeksha"
+                    onClick={() =>
+                      setIsDeekshaDropdownOpen(!isDeekshaDropdownOpen)
+                    }
+                  >
+                    <span>{formData.deeksha || "Select Deeksha"}</span>
+                    <svg
+                      className={`dropdown-icon ${
+                        isDeekshaDropdownOpen ? "open" : ""
+                      }`}
+                      width="14"
+                      height="8"
+                      viewBox="0 0 14 8"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M1 1L7 7L13 1"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  </div>
+                  {isDeekshaDropdownOpen && (
+                    <div className="deeksha-dropdown">
+                      <input
+                        type="text"
+                        placeholder="Search..."
+                        value={deekshaSearchQuery}
+                        onChange={(e) => setDeekshaSearchQuery(e.target.value)}
+                        onClick={(e) => e.stopPropagation()}
+                      />
+                      <div className="deeksha-list">
+                        {filteredDeekshaOptions.map((option) => (
+                          <div
+                            key={option}
+                            className="deeksha-option"
+                            onClick={() => {
+                              handleInputChange({
+                                target: { name: "deeksha", value: option },
+                              });
+                              setIsDeekshaDropdownOpen(false);
+                              setDeekshaSearchQuery("");
+                            }}
+                          >
+                            {option}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
                 {errors.deeksha && (
                   <span className="error">{errors.deeksha}</span>
                 )}
@@ -602,13 +729,13 @@ const DormitoryApplicationDetails = ({ goToNextStep, tabName }) => {
                   )}
                 </div>
                 <div className="form-group">
-                  <label>House Number</label>
+                  <label>Flat / House / Apartment No</label>
                   <input
                     type="text"
                     name="houseNumber"
                     value={formData.address.houseNumber}
                     onChange={handleAddressInputChange}
-                    placeholder="Your house number"
+                    placeholder="Your flat/house/apartment number"
                   />
                   {errors.houseNumber && (
                     <span className="error">{errors.houseNumber}</span>
@@ -632,13 +759,13 @@ const DormitoryApplicationDetails = ({ goToNextStep, tabName }) => {
                   )}
                 </div>
                 <div className="form-group">
-                  <label>Street Name</label>
+                  <label>Street Name / Landmark</label>
                   <input
                     type="text"
                     name="streetName"
                     value={formData.address.streetName}
                     onChange={handleAddressInputChange}
-                    placeholder="Street name"
+                    placeholder="Street name or landmark"
                   />
                   {errors.streetName && (
                     <span className="error">{errors.streetName}</span>
@@ -659,6 +786,19 @@ const DormitoryApplicationDetails = ({ goToNextStep, tabName }) => {
                   />
                   {errors.district && (
                     <span className="error">{errors.district}</span>
+                  )}
+                </div>
+                <div className="form-group">
+                  <label>Post Office</label>
+                  <input
+                    type="text"
+                    name="postOffice"
+                    value={formData.address.postOffice}
+                    onChange={handleAddressInputChange}
+                    placeholder="Enter post office"
+                  />
+                  {errors.postOffice && (
+                    <span className="error">{errors.postOffice}</span>
                   )}
                 </div>
               </div>

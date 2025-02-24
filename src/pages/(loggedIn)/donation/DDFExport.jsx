@@ -293,7 +293,7 @@ const DDFExport = () => {
         <button className="ddf-button">Export Report</button>
         {showDropdown && (
           <div className="ddf-dropdown">
-            <div className="dropdown-item">
+            <div className="dropdownn-item">
               <span>DDF - 80G</span>
               <div className="nested-dropdown">
                 <button
@@ -322,7 +322,7 @@ const DDFExport = () => {
                 </button>
               </div>
             </div>
-            <div className="dropdown-item">
+            <div className="dropdownn-item">
               <span>DDF - Non-80G</span>
               <div className="nested-dropdown">
                 <button

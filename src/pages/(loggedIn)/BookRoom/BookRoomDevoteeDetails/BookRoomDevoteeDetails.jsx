@@ -356,19 +356,21 @@ const BookRoomDevoteeDetails = ({
                 })}
               </tbody>
             </table>
-            {!guestData?.attributes?.guests?.data?.length && (
-              <button
-                className="confirm-allocation-button"
-                onClick={handleConfirmAllocation}
-              >
-                Confirm Allocation
-              </button>
-            )}
+            <button
+              className="confirm-allocation-button"
+              onClick={handleConfirmAllocation}
+            >
+              Confirm Allocation
+            </button>
           </div>
         </div>
       )}
 
-      {guestData?.attributes?.number_of_guest_members > 0 ? (
+      {/* First section: Name/Gender/Count */}
+      {guestData?.attributes?.number_of_guest_members > 0 &&
+      allocatedDevotees.length === 0 &&
+      (guestData?.attributes?.number_of_male_devotees > 0 ||
+        guestData?.attributes?.number_of_female_devotees > 0) ? (
         <div className="non-allocated-guests-section">
           <div className="section-content">
             <h2>Non-Allocated Guests</h2>
@@ -381,26 +383,30 @@ const BookRoomDevoteeDetails = ({
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <td>
-                    <div className="guest-name-cell">
-                      <input type="checkbox" defaultChecked={true} />
-                      <span className="guest-name">Devotees</span>
-                    </div>
-                  </td>
-                  <td>Male</td>
-                  <td>{guestData?.attributes?.number_of_female_devotees}</td>
-                </tr>
-                <tr>
-                  <td>
-                    <div className="guest-name-cell">
-                      <input type="checkbox" defaultChecked={true} />
-                      <span className="guest-name">Devotees</span>
-                    </div>
-                  </td>
-                  <td>Female</td>
-                  <td>{guestData?.attributes?.number_of_female_devotees}</td>
-                </tr>
+                {guestData?.attributes?.number_of_male_devotees > 0 && (
+                  <tr>
+                    <td>
+                      <div className="guest-name-cell">
+                        <input type="checkbox" defaultChecked={true} />
+                        <span className="guest-name">Devotees</span>
+                      </div>
+                    </td>
+                    <td>Male</td>
+                    <td>{guestData?.attributes?.number_of_male_devotees}</td>
+                  </tr>
+                )}
+                {guestData?.attributes?.number_of_female_devotees > 0 && (
+                  <tr>
+                    <td>
+                      <div className="guest-name-cell">
+                        <input type="checkbox" defaultChecked={true} />
+                        <span className="guest-name">Devotees</span>
+                      </div>
+                    </td>
+                    <td>Female</td>
+                    <td>{guestData?.attributes?.number_of_female_devotees}</td>
+                  </tr>
+                )}
               </tbody>
             </table>
             <button className="allocate-button" onClick={handleDevoteeAllocate}>
@@ -408,7 +414,14 @@ const BookRoomDevoteeDetails = ({
             </button>
           </div>
         </div>
-      ) : (
+      ) : null}
+
+      {/* Second section: Name/Age/Gender/Relation */}
+      {guestData?.attributes?.guests?.data?.length > 0 &&
+      !(
+        guestData?.attributes?.number_of_male_devotees > 0 ||
+        guestData?.attributes?.number_of_female_devotees > 0
+      ) ? (
         <div className="non-allocated-guests-section">
           <div className="section-content">
             <h2>Non-Allocated Guests</h2>
@@ -451,7 +464,7 @@ const BookRoomDevoteeDetails = ({
             </button>
           </div>
         </div>
-      )}
+      ) : null}
 
       {showEmailModal && (
         <ConfirmAllocationEmail

@@ -36,6 +36,7 @@ const ConfirmDormitoryEmail = ({
           },
           booking_request: [requestId],
           room: [room.roomId],
+          occupancy: room.bedsCount,
         };
 
         // console.log(`Creating allocation for room ${room.roomNumber}:`, {

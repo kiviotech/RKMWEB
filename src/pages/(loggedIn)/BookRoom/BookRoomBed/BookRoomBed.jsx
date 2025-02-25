@@ -51,6 +51,12 @@ const BookRoomBed = ({
           const blockData = await blockService.fetchBlockById(blockId);
           const roomsData = blockData.data.attributes.rooms.data;
           setRooms(roomsData);
+
+          // Log all room allocation data
+          console.log("=== All Rooms Data ===");
+          roomsData.forEach((room) => {
+            console.log("room", room);
+          });
         } catch (error) {
           console.error("Error fetching block details:", error);
         } finally {
@@ -89,64 +95,93 @@ const BookRoomBed = ({
 
     // Find allocation with additional safety checks
     const allocation = roomAllocations.data.find((allocation) => {
-      // Check if allocation and its nested properties exist
-      if (!allocation?.attributes?.guests?.data?.[0]) return false;
+      // Check for allocations with guests
+      if (allocation?.attributes?.guests?.data?.length > 0) {
+        try {
+          const fromDate = new Date(
+            allocation.attributes.guests.data[0].attributes.arrival_date
+          );
+          const toDate = new Date(
+            allocation.attributes.guests.data[0].attributes.departure_date
+          );
+          const checkDate = new Date(
+            currentDate.year,
+            new Date(Date.parse(`01 ${currentDate.month} 2000`)).getMonth(),
+            currentDate.day
+          );
 
-      try {
-        const fromDate = new Date(
-          allocation.attributes.guests.data[0].attributes.arrival_date
-        );
-        const toDate = new Date(
-          allocation.attributes.guests.data[0].attributes.departure_date
-        );
-        const checkDate = new Date(
-          currentDate.year,
-          new Date(Date.parse(`01 ${currentDate.month} 2000`)).getMonth(),
-          currentDate.day
-        );
+          // Validate dates
+          if (
+            isNaN(fromDate.getTime()) ||
+            isNaN(toDate.getTime()) ||
+            isNaN(checkDate.getTime())
+          ) {
+            return false;
+          }
 
-        // Validate dates
-        if (
-          isNaN(fromDate.getTime()) ||
-          isNaN(toDate.getTime()) ||
-          isNaN(checkDate.getTime())
-        ) {
+          fromDate.setHours(0, 0, 0, 0);
+          toDate.setHours(0, 0, 0, 0);
+          checkDate.setHours(0, 0, 0, 0);
+
+          return checkDate >= fromDate && checkDate <= toDate;
+        } catch (error) {
+          console.error("Error processing dates:", error);
           return false;
         }
-
-        fromDate.setHours(0, 0, 0, 0);
-        toDate.setHours(0, 0, 0, 0);
-        checkDate.setHours(0, 0, 0, 0);
-
-        return checkDate >= fromDate && checkDate <= toDate;
-      } catch (error) {
-        console.error("Error processing dates:", error);
-        return false;
       }
+      // Check for allocations without guests but with occupancy
+      else if (allocation.attributes.room_status === "allocated") {
+        return true; // Show tooltip for allocated rooms even without guests
+      }
+      return false;
     });
 
     if (allocation) {
-      const guests = allocation.attributes.guests.data;
-      return (
-        <div
-          className="tooltip-content"
-          onClick={() => handleBedClick(allocation)}
-          style={{ cursor: "pointer" }}
-        >
-          <h4>Room Allocation Details:</h4>
-          {guests.map((guest, index) => (
-            <div key={index} className="guest-details">
-              <p>
-                <strong>Guest {index + 1}:</strong>
-              </p>
-              <p>Name: {guest.attributes.name}</p>
-              <p>From: {guest.attributes.arrival_date}</p>
-              <p>To: {guest.attributes.departure_date}</p>
-              <p>Phone: {guest.attributes.phone_number}</p>
-            </div>
-          ))}
-        </div>
-      );
+      if (allocation.attributes.guests?.data?.length > 0) {
+        // Existing guest tooltip content
+        const guests = allocation.attributes.guests.data;
+        return (
+          <div
+            className="tooltip-content"
+            onClick={() => handleBedClick(allocation)}
+            style={{ cursor: "pointer" }}
+          >
+            <h4>Room Allocation Details:</h4>
+            {guests.map((guest, index) => (
+              <div key={index} className="guest-details">
+                <p>
+                  <strong>Guest {index + 1}:</strong>
+                </p>
+                <p>Name: {guest.attributes.name}</p>
+                <p>From: {guest.attributes.arrival_date}</p>
+                <p>To: {guest.attributes.departure_date}</p>
+                <p>Phone: {guest.attributes.phone_number}</p>
+              </div>
+            ))}
+          </div>
+        );
+      } else {
+        // New tooltip content for rooms with occupancy but no guests
+        return (
+          <div className="tooltip-content">
+            <h4>Room Allocation Details:</h4>
+            <p>
+              <strong>Status:</strong> Allocated
+            </p>
+            <p>
+              <strong>Occupied Beds:</strong> {allocation.attributes.occupancy}
+            </p>
+            <p>
+              <strong>Created:</strong>{" "}
+              {new Date(allocation.attributes.createdAt).toLocaleString()}
+            </p>
+            <p>
+              <strong>Last Updated:</strong>{" "}
+              {new Date(allocation.attributes.updatedAt).toLocaleString()}
+            </p>
+          </div>
+        );
+      }
     }
 
     // Check for blockings if no allocation
@@ -316,38 +351,50 @@ const BookRoomBed = ({
           }
         }
         return icons.filledBed;
-      } else if (bedIndex < allocatedBedsCount) {
-        // Check if there's an allocation with recommendation letter
+      } else {
+        // Check for allocations without guests
         const allocation = roomAllocations?.data?.find((allocation) => {
-          const fromDate = new Date(
-            allocation.attributes.guests.data[0].attributes.arrival_date
-          );
-          const toDate = new Date(
-            allocation.attributes.guests.data[0].attributes.departure_date
-          );
-          const checkDate = new Date(
-            currentDate.year,
-            new Date(Date.parse(`01 ${currentDate.month} 2000`)).getMonth(),
-            currentDate.day,
-            0,
-            0,
-            0
-          );
-          fromDate.setHours(0, 0, 0, 0);
-          toDate.setHours(0, 0, 0, 0);
-          return checkDate >= fromDate && checkDate <= toDate;
+          if (allocation.attributes.guests?.data?.length > 0) {
+            const fromDate = new Date(
+              allocation.attributes.guests.data[0].attributes.arrival_date
+            );
+            const toDate = new Date(
+              allocation.attributes.guests.data[0].attributes.departure_date
+            );
+            const checkDate = new Date(
+              currentDate.year,
+              new Date(Date.parse(`01 ${currentDate.month} 2000`)).getMonth(),
+              currentDate.day,
+              0,
+              0,
+              0
+            );
+            fromDate.setHours(0, 0, 0, 0);
+            toDate.setHours(0, 0, 0, 0);
+            return checkDate >= fromDate && checkDate <= toDate;
+          } else {
+            // If no guests but room is allocated, check occupancy
+            return (
+              allocation.attributes.room_status === "allocated" &&
+              bedIndex < allocation.attributes.occupancy
+            );
+          }
         });
 
         if (allocation) {
-          const guest = allocation.attributes.guests.data[bedIndex];
-          const hasRecommendationLetter =
-            guest?.attributes?.booking_request?.data?.attributes
-              ?.recommendation_letter?.data;
-          return hasRecommendationLetter ? icons.Group_2 : icons.Group_1;
+          // If there are guests, use existing logic for recommendation letter
+          if (allocation.attributes.guests?.data?.length > 0) {
+            const hasRecommendationLetter =
+              allocation.attributes.guests.data[bedIndex]?.attributes
+                ?.booking_request?.data?.attributes?.recommendation_letter
+                ?.data;
+            return hasRecommendationLetter ? icons.Group_2 : icons.Group_1;
+          } else {
+            // If no guests but room is allocated, show as occupied
+            return icons.Group_1;
+          }
         }
-        return icons.Group_1;
-      } else {
-        return icons.Group2;
+        return icons.Group2; // Available bed
       }
     };
 
@@ -486,6 +533,10 @@ const BookRoomBed = ({
   }, [selectedDateRange, numberOfBedsToAllocate, rooms]);
 
   const findFirstAvailableRoom = () => {
+    console.log("=== Finding Available Rooms ===");
+    console.log("Selected Date Range:", selectedDateRange);
+    console.log("Beds Needed:", numberOfBedsToAllocate);
+
     if (
       !selectedDateRange ||
       !selectedDateRange.arrivalDate ||
@@ -504,6 +555,23 @@ const BookRoomBed = ({
     );
 
     for (const room of sortedRooms) {
+      console.log(`\nChecking Room ${room.attributes.room_number}:`, {
+        totalBeds: room.attributes.no_of_beds,
+        existingAllocations: room.attributes.room_allocations?.data?.map(
+          (a) => ({
+            guests: a.attributes.guests.data.map((g) => ({
+              arrival: g.attributes.arrival_date,
+              departure: g.attributes.departure_date,
+            })),
+          })
+        ),
+        blockings: room.attributes.room_blockings?.data?.map((b) => ({
+          status: b.attributes.room_block_status,
+          from: b.attributes.from_date,
+          to: b.attributes.to_date,
+        })),
+      });
+
       // Skip if no more beds needed
       if (remainingBedsNeeded <= 0) break;
 
@@ -563,15 +631,18 @@ const BookRoomBed = ({
         }); // Debug log
 
         remainingBedsNeeded -= bedsToAllocate;
+
+        console.log(`Room ${room.attributes.room_number} is available:`, {
+          availableBeds,
+          bedsToAllocate: Math.min(availableBeds, remainingBedsNeeded),
+        });
       }
     }
 
-    // Only return results if we can accommodate all beds needed
-    if (remainingBedsNeeded <= 0) {
-      return allocatedRoomsResult;
-    }
+    // Log final allocation result
+    console.log("\nFinal Allocation Result:", allocatedRoomsResult);
 
-    return null; // Return null if we can't accommodate all beds
+    return allocatedRoomsResult;
   };
 
   // Update isFirstAvailableRoom to check against all allocated rooms
@@ -792,16 +863,21 @@ const BookRoomBed = ({
 
     // Calculate occupied beds from allocations
     const occupiedBeds = allocations.reduce((count, allocation) => {
-      const guests = allocation.attributes.guests.data;
-      if (!guests || guests.length === 0) return count;
+      // If there are guests, count them
+      if (allocation.attributes.guests?.data?.length > 0) {
+        const guests = allocation.attributes.guests.data;
+        const fromDate = new Date(guests[0].attributes.arrival_date);
+        const toDate = new Date(guests[0].attributes.departure_date);
+        fromDate.setHours(0, 0, 0, 0);
+        toDate.setHours(0, 0, 0, 0);
 
-      const fromDate = new Date(guests[0].attributes.arrival_date);
-      const toDate = new Date(guests[0].attributes.departure_date);
-      fromDate.setHours(0, 0, 0, 0);
-      toDate.setHours(0, 0, 0, 0);
-
-      if (checkDate >= fromDate && checkDate <= toDate) {
-        return count + guests.length;
+        if (checkDate >= fromDate && checkDate <= toDate) {
+          return count + guests.length;
+        }
+      }
+      // If no guests but room is allocated, use the occupancy value
+      else if (allocation.attributes.room_status === "allocated") {
+        return count + (allocation.attributes.occupancy || 0);
       }
       return count;
     }, 0);

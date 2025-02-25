@@ -514,7 +514,10 @@ const BookRoomDevoteeDetails = ({
           guestData={guestData}
           requestId={requestId}
           allocatedGuests={allocatedGuests}
-          allocatedRooms={allocatedRooms}
+          allocatedRooms={allocatedRooms.map((room) => ({
+            ...room,
+            bedsCount: room.bedsAllocated,
+          }))}
         />
       )}
 

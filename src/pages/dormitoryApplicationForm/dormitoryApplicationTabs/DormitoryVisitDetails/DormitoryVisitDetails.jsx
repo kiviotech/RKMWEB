@@ -45,8 +45,10 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
   }, []); // Empty dependency array means this runs once when component mounts
 
   const handleNext = () => {
+    console.log("Navigating to address details...");
     navigate("/dormitory-application-form", {
-      state: { activeTab: "3" },
+      state: { activeTab: 2 }, // Application Details tab index
+      replace: true,
     });
   };
 

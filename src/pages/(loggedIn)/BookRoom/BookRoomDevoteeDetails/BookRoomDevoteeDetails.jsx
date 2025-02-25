@@ -12,6 +12,7 @@ const BookRoomDevoteeDetails = ({
   const [guestData, setGuestData] = useState(null);
   const [selectedGuests, setSelectedGuests] = useState([]);
   const [allocatedGuests, setAllocatedGuests] = useState([]);
+  const [allocatedDevotees, setAllocatedDevotees] = useState([]);
   const [totalAllocatedCount, setTotalAllocatedCount] = useState(0);
   const [showEmailModal, setShowEmailModal] = useState(false);
 
@@ -83,6 +84,50 @@ const BookRoomDevoteeDetails = ({
     }
   };
 
+  const handleDevoteeAllocate = () => {
+    if (
+      guestData?.attributes?.arrival_date &&
+      guestData?.attributes?.departure_date
+    ) {
+      const maleDevotees = {
+        gender: "Male",
+        count: parseInt(
+          guestData?.attributes?.number_of_male_devotees || 0,
+          10
+        ),
+      };
+      const femaleDevotees = {
+        gender: "Female",
+        count: parseInt(
+          guestData?.attributes?.number_of_female_devotees || 0,
+          10
+        ),
+      };
+
+      const newDevotees = [maleDevotees, femaleDevotees].filter(
+        (d) => d.count > 0
+      );
+      setAllocatedDevotees(newDevotees);
+
+      const totalCount = newDevotees.reduce((sum, dev) => sum + dev.count, 0);
+      setTotalAllocatedCount((prevCount) => prevCount + totalCount);
+
+      // Call onAllocate with the total count and gender information
+      onAllocate(
+        guestData.attributes.arrival_date,
+        guestData.attributes.departure_date,
+        totalCount,
+        { male: maleDevotees.count, female: femaleDevotees.count }
+      );
+
+      console.log("Devotee allocation:", {
+        devotees: newDevotees,
+        totalCount,
+        availableRooms: allocatedRooms,
+      });
+    }
+  };
+
   const handleConfirmAllocation = () => {
     const emailData = {
       requestId: requestId,
@@ -106,19 +151,43 @@ const BookRoomDevoteeDetails = ({
     setShowEmailModal(false);
   };
 
-  const findRoomForGuest = (guestIndex) => {
+  const findRoomForGuest = (guestIndex, devoteeCount = 1) => {
+    console.log("Finding room with params:", {
+      guestIndex,
+      devoteeCount,
+      allocatedRooms,
+    });
+
     if (!Array.isArray(allocatedRooms) || allocatedRooms.length === 0) {
+      console.log("No allocated rooms available");
       return null;
     }
 
-    let bedsCount = 0;
+    // For devotees, just return the first available room that can accommodate them
+    if (devoteeCount > 1) {
+      const suitableRoom = allocatedRooms.find(
+        (room) => room.bedsAllocated >= devoteeCount
+      );
+      console.log("Suitable room found for devotees:", suitableRoom);
+      return suitableRoom || allocatedRooms[0];
+    }
+
+    // For individual guests
+    let currentBedCount = 0;
     for (const room of allocatedRooms) {
-      bedsCount += room.bedsAllocated;
-      if (guestIndex < bedsCount) {
+      if (
+        guestIndex >= currentBedCount &&
+        guestIndex < currentBedCount + room.bedsAllocated
+      ) {
+        console.log("Found room for guest:", room);
         return room;
       }
+      currentBedCount += room.bedsAllocated;
     }
-    return null;
+
+    // If no specific room found, return the first room
+    console.log("Defaulting to first room:", allocatedRooms[0]);
+    return allocatedRooms[0];
   };
 
   const handleAllocatedGuestSelect = (guest) => {
@@ -142,6 +211,45 @@ const BookRoomDevoteeDetails = ({
 
     // Notify parent component to update bed allocation
     onGuestUncheck(guest);
+  };
+
+  // Add this useEffect to monitor room allocations
+  useEffect(() => {
+    console.log("Current allocated rooms:", allocatedRooms);
+    console.log("Current allocated devotees:", allocatedDevotees);
+  }, [allocatedRooms, allocatedDevotees]);
+
+  const findRoomsForDevotees = (devotee, startIndex = 0) => {
+    if (!Array.isArray(allocatedRooms) || allocatedRooms.length === 0) {
+      return [];
+    }
+
+    let remainingCount = devotee.count;
+    let assignedRooms = [];
+
+    // Calculate starting room based on gender
+    const availableRooms = [...allocatedRooms];
+    const startRoom =
+      devotee.gender === "Male" ? 0 : Math.floor(availableRooms.length / 2);
+    const endRoom =
+      devotee.gender === "Male"
+        ? Math.floor(availableRooms.length / 2)
+        : availableRooms.length;
+
+    // Only use rooms in the gender-specific range
+    for (let i = startRoom; i < endRoom && remainingCount > 0; i++) {
+      const room = availableRooms[i];
+      if (!room) continue;
+
+      const bedsInThisRoom = Math.min(room.bedsAllocated, remainingCount);
+      assignedRooms.push({
+        ...room,
+        bedsUsed: bedsInThisRoom,
+      });
+      remainingCount -= bedsInThisRoom;
+    }
+
+    return assignedRooms;
   };
 
   return (
@@ -198,7 +306,109 @@ const BookRoomDevoteeDetails = ({
         </div>
       )}
 
-      {guestData?.attributes?.guests?.data?.length > 0 && (
+      {allocatedDevotees.length > 0 && (
+        <div className="allocated-guests-section">
+          <div className="section-content">
+            <h2>Allocated Devotees</h2>
+            <table>
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Gender</th>
+                  <th>Count</th>
+                  <th>Room No.</th>
+                </tr>
+              </thead>
+              <tbody>
+                {allocatedDevotees.map((devotee, index) => {
+                  const assignedRooms = findRoomsForDevotees(devotee, index);
+
+                  return (
+                    <tr key={devotee.gender}>
+                      <td>
+                        <div className="guest-name-cell">
+                          <input
+                            type="checkbox"
+                            checked={true}
+                            onChange={() => handleAllocatedGuestSelect(devotee)}
+                          />
+                          <span className="guest-name">Devotees</span>
+                        </div>
+                      </td>
+                      <td>{devotee.gender}</td>
+                      <td>{devotee.count}</td>
+                      <td>
+                        {assignedRooms.length > 0 ? (
+                          <div className="room-allocation-list">
+                            {assignedRooms.map((room, idx) => (
+                              <div key={idx}>
+                                {`${room.roomNumber} (${room.bedsUsed} beds)`}
+                                {idx < assignedRooms.length - 1 ? ", " : ""}
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          "Pending"
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+            {!guestData?.attributes?.guests?.data?.length && (
+              <button
+                className="confirm-allocation-button"
+                onClick={handleConfirmAllocation}
+              >
+                Confirm Allocation
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+
+      {guestData?.attributes?.number_of_guest_members > 0 ? (
+        <div className="non-allocated-guests-section">
+          <div className="section-content">
+            <h2>Non-Allocated Guests</h2>
+            <table>
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Gender</th>
+                  <th>Count</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>
+                    <div className="guest-name-cell">
+                      <input type="checkbox" defaultChecked={true} />
+                      <span className="guest-name">Devotees</span>
+                    </div>
+                  </td>
+                  <td>Male</td>
+                  <td>{guestData?.attributes?.number_of_female_devotees}</td>
+                </tr>
+                <tr>
+                  <td>
+                    <div className="guest-name-cell">
+                      <input type="checkbox" defaultChecked={true} />
+                      <span className="guest-name">Devotees</span>
+                    </div>
+                  </td>
+                  <td>Female</td>
+                  <td>{guestData?.attributes?.number_of_female_devotees}</td>
+                </tr>
+              </tbody>
+            </table>
+            <button className="allocate-button" onClick={handleDevoteeAllocate}>
+              Allocate
+            </button>
+          </div>
+        </div>
+      ) : (
         <div className="non-allocated-guests-section">
           <div className="section-content">
             <h2>Non-Allocated Guests</h2>
@@ -253,6 +463,18 @@ const BookRoomDevoteeDetails = ({
           allocatedRooms={allocatedRooms}
         />
       )}
+
+      <style jsx>{`
+        .room-allocation-list {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 4px;
+        }
+
+        .room-allocation-list > div {
+          white-space: nowrap;
+        }
+      `}</style>
     </div>
   );
 };

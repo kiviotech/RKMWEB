@@ -26,21 +26,37 @@ const BookRoom = () => {
     setSelectedBlockId(blockId);
   };
 
-  const handleAllocate = (arrivalDate, departureDate, guestCount) => {
-    // console.log("Allocation dates:", arrivalDate, departureDate);
-
-    // Use the date strings directly without creating Date objects
+  const handleAllocate = (
+    arrivalDate,
+    departureDate,
+    guestCount,
+    genderCounts = null
+  ) => {
+    console.log("Allocation request:", {
+      arrivalDate,
+      departureDate,
+      guestCount,
+      genderCounts,
+    });
     setSelectedDateRange({
       arrivalDate: arrivalDate,
       departureDate: departureDate,
     });
     setAllocationBlockId(selectedBlockId);
-    setSelectedGuestCount(guestCount);
+    setSelectedGuestCount(parseInt(guestCount, 10));
   };
 
   const handleRoomAllocation = (roomAllocations) => {
-    // console.log("Rooms allocated:", roomAllocations);
-    setAllocatedRooms(roomAllocations);
+    console.log("Room allocations in BookRoom:", roomAllocations);
+    if (Array.isArray(roomAllocations) && roomAllocations.length > 0) {
+      const formattedRooms = roomAllocations.map((room) => ({
+        id: room.id,
+        roomNumber: room.roomNumber,
+        bedsAllocated: room.bedsSelected || room.bedsAllocated || 0,
+        totalBeds: room.totalBeds || 0,
+      }));
+      setAllocatedRooms(formattedRooms);
+    }
   };
 
   const handleViewChange = (view) => {

@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { fetchGuestUniqueNo } from "./services/src/services/guestDetailsService";
 
 const initialFormData = {
   title: "",
@@ -41,6 +42,8 @@ const initialFormData = {
 
 const useDormitoryStore = create((set) => ({
   formData: initialFormData,
+  nextUniqueNumber: 1,
+  uniqueNo: "",
   updateFormData: (newData) =>
     set((state) => ({
       formData: { ...state.formData, ...newData },
@@ -77,6 +80,25 @@ const useDormitoryStore = create((set) => ({
         errors: {},
       },
     })),
+  fetchLatestUniqueNumber: async () => {
+    try {
+      const guestDetails = await fetchGuestUniqueNo();
+
+      const uniqueNumbers = guestDetails.data
+        .filter((item) => item.attributes.unique_no)
+        .map((item) => parseInt(item.attributes.unique_no.substring(1)));
+
+      const highestUniqueNo =
+        uniqueNumbers.length > 0 ? Math.max(...uniqueNumbers) + 1 : 1;
+
+      set((state) => ({
+        nextUniqueNumber: highestUniqueNo,
+        uniqueNo: `C${highestUniqueNo}`,
+      }));
+    } catch (error) {
+      console.error("Failed to fetch unique number:", error);
+    }
+  },
 }));
 
 export default useDormitoryStore;

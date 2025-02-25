@@ -5,9 +5,11 @@ import DormitoryAccommodationDetails from "./dormitoryApplicationTabs/DormitoryA
 import DormitoryApplicationDetails from "./dormitoryApplicationTabs/DormitoryApplicationDetails/DormitoryApplicationDetails";
 import DormitoryVerifyDetails from "./dormitoryApplicationTabs/DormitoryVerifyDetails/DormitoryVerifyDetails";
 import DormitoryVisitDetails from "./dormitoryApplicationTabs/DormitoryVisitDetails/DormitoryVisitDetails";
+import { useLocation } from "react-router-dom";
 
 const DormitoryApplicationForm = () => {
   const { formData } = useDormitoryStore();
+  const location = useLocation();
   const tabs = [
     {
       id: 1,
@@ -30,6 +32,19 @@ const DormitoryApplicationForm = () => {
   const [activeTab, setActiveTab] = useState("Guest 1");
   const [guestTabs, setGuestTabs] = useState(["Guest 1"]);
   const [progress, setProgress] = useState(0);
+
+  // Initialize activeFormTab with the passed state or default to 0
+  const [activeFormTab, setActiveFormTab] = useState(() => {
+    // Use a function to initialize state to ensure it only runs once
+    return location.state?.activeTab ?? 0; // Use nullish coalescing
+  });
+
+  useEffect(() => {
+    // Update activeFormTab when location state changes
+    if (location.state?.activeTab !== undefined) {
+      setActiveFormTab(location.state.activeTab);
+    }
+  }, [location.state]);
 
   // Calculate progress based on filled fields
   const calculateProgress = () => {
@@ -55,21 +70,37 @@ const DormitoryApplicationForm = () => {
     });
 
     // Address Fields
-    const addressFields = ["state", "district", "streetName", "pinCode", "houseNumber"];
+    const addressFields = [
+      "state",
+      "district",
+      "streetName",
+      "pinCode",
+      "houseNumber",
+    ];
     totalFields += addressFields.length;
     addressFields.forEach((field) => {
       if (formData.address?.[field]) filledFields++;
     });
 
     // Accommodation Details
-    const accommodationFields = ["totalPeople", "maleDevotees", "femaleDevotees"];
+    const accommodationFields = [
+      "totalPeople",
+      "maleDevotees",
+      "femaleDevotees",
+    ];
     totalFields += accommodationFields.length;
     accommodationFields.forEach((field) => {
       if (formData.accommodation?.[field]) filledFields++;
     });
 
     // Visit Details
-    const visitFields = ["visitDate", "visitTime", "departureDate", "departureTime", "visited"];
+    const visitFields = [
+      "visitDate",
+      "visitTime",
+      "departureDate",
+      "departureTime",
+      "visited",
+    ];
     totalFields += visitFields.length;
     visitFields.forEach((field) => {
       if (formData.visitDetails?.[field]) filledFields++;
@@ -89,8 +120,6 @@ const DormitoryApplicationForm = () => {
   useEffect(() => {
     calculateProgress();
   }, [formData]);
-
-  const [activeFormTab, setActiveFormTab] = useState(0);
 
   const handleFormTabClick = (index) => {
     setActiveFormTab(index);
@@ -211,7 +240,9 @@ const DormitoryApplicationForm = () => {
         />
       )}
 
-      {activeFormTab === 3 && <DormitoryVerifyDetails tabName={"Verify Details"} />}
+      {activeFormTab === 3 && (
+        <DormitoryVerifyDetails tabName={"Verify Details"} />
+      )}
     </div>
   );
 };

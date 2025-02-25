@@ -3,9 +3,13 @@ import { icons } from "../../../../constants";
 import useDormitoryStore from "../../../../../dormitoryStore";
 import "./DormitoryVerifyDetails.scss";
 import { createNewBookingRequest } from "../../../../../services/src/services/bookingRequestService";
+import { useNavigate } from "react-router-dom";
+import { createNewGuestDetails } from "../../../../../services/src/services/guestDetailsService";
+import { toast } from "react-toastify";
 
 const DormitoryVerifyDetails = () => {
-  const { formData } = useDormitoryStore();
+  const { formData, uniqueNo, fetchLatestUniqueNumber } = useDormitoryStore();
+  const navigate = useNavigate();
 
   // Format date and time
   const formatDateTime = (date, time) => {
@@ -46,12 +50,30 @@ const DormitoryVerifyDetails = () => {
 
   const handleSubmit = async () => {
     try {
-      // Calculate total number of guests from male and female devotees
-      const totalGuests = (
-        parseInt(formData.accommodation?.maleDevotees || 0) +
-        parseInt(formData.accommodation?.femaleDevotees || 0)
-      ).toString();
+      // Create main applicant guest details
+      const applicantData = {
+        name: `${formData.title} ${formData.contactPersonName}`.trim(),
+        unique_no: uniqueNo,
+        phone_number: `+${formData.countryCode}${formData.phoneNumber}`,
+        identity_proof: "Aadhaar",
+        identity_number: formData.aadhaar,
+        occupation: formData.occupation || "",
+        address: `${formData.address?.houseNumber}, ${formData.address?.streetName}, ${formData.address?.district}, ${formData.address?.state}, ${formData.address?.pinCode}`,
+        age: parseInt(formData.age),
+        gender: formData.gender,
+        status: "Not Arrived",
+        deeksha: formData.deeksha,
+        email: formData.email,
+        relationship: "applicant",
+        arrival_date: formData.visitDetails?.visitDate,
+        departure_date: formData.visitDetails?.departureDate,
+      };
 
+      // Create main applicant guest record
+      const mainGuestResponse = await createNewGuestDetails(applicantData);
+      const mainGuestId = mainGuestResponse.data.id;
+
+      // Create booking request with the guest ID
       const bookingData = {
         status: "awaiting",
         admin_comment: "",
@@ -62,14 +84,17 @@ const DormitoryVerifyDetails = () => {
         phone_number: `+${formData.countryCode}${formData.phoneNumber}`,
         occupation: formData.occupation || "",
         aadhaar_number: formData.aadhaar,
-        number_of_guest_members: totalGuests, // Using calculated total guests
+        number_of_guest_members: (
+          parseInt(formData.accommodation?.maleDevotees || 0) +
+          parseInt(formData.accommodation?.femaleDevotees || 0)
+        ).toString(),
         recommendation_letter: formData.visitDetails?.file
           ? [formData.visitDetails.file]
           : [],
         reason_for_revisit: formData.visitDetails?.reason || "",
         address: `${formData.address?.houseNumber}, ${formData.address?.streetName}, ${formData.address?.district}, ${formData.address?.state}, ${formData.address?.pinCode}`,
         notifications: [],
-        guests: [],
+        guests: [mainGuestId], // Only include the main guest ID
         arrival_date: formData.visitDetails?.visitDate,
         departure_date: formData.visitDetails?.departureDate,
         deeksha: formData.deeksha,
@@ -84,12 +109,31 @@ const DormitoryVerifyDetails = () => {
       const response = await createNewBookingRequest(bookingData);
 
       if (response) {
-        alert("Application submitted successfully!");
+        toast.success("Application submitted successfully!", {
+          onClose: () => navigate("/thank-you"),
+          autoClose: 2000, // Will show for 2 seconds before redirecting
+        });
       }
     } catch (error) {
-      // console.error("Error submitting application:", error);
-      alert("Failed to submit application. Please try again.");
+      console.error("Error submitting application:", error);
+      toast.error("Failed to submit application. Please try again.");
     }
+  };
+
+  const handleAccommodationEdit = () => {
+    console.log("Navigating to accommodation details..."); // Debug log
+    navigate("/dormitory-application-form", {
+      state: { activeTab: 1 },
+      replace: true, // Add replace to ensure clean navigation
+    });
+  };
+
+  const handleAddressEdit = () => {
+    console.log("Navigating to address details...");
+    navigate("/dormitory-application-form", {
+      state: { activeTab: 0 }, // Application Details tab index
+      replace: true,
+    });
   };
 
   return (
@@ -203,7 +247,13 @@ const DormitoryVerifyDetails = () => {
 
       <div className="section-header">
         <h2>Address Details</h2>
-        <button className="edit-button">Edit</button>
+        <button
+          type="button"
+          className="edit-button"
+          onClick={() => handleAddressEdit()}
+        >
+          Edit
+        </button>
       </div>
 
       <div className="address-section">
@@ -231,7 +281,13 @@ const DormitoryVerifyDetails = () => {
 
       <div className="section-header">
         <h2>Accommodation Details</h2>
-        <button className="edit-button">Edit</button>
+        <button
+          type="button" // Explicitly set button type
+          className="edit-button"
+          onClick={() => handleAccommodationEdit()} // Use arrow function to ensure proper binding
+        >
+          Edit
+        </button>
       </div>
 
       <div className="accommodation-section">

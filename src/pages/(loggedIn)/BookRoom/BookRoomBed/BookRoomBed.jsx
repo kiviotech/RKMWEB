@@ -50,7 +50,6 @@ const BookRoomBed = ({
           setIsLoading(true);
           const blockData = await blockService.fetchBlockById(blockId);
           const roomsData = blockData.data.attributes.rooms.data;
-          console.log("Rooms Data:", roomsData);
           setRooms(roomsData);
         } catch (error) {
           console.error("Error fetching block details:", error);
@@ -86,7 +85,6 @@ const BookRoomBed = ({
 
   const getTooltipContent = (roomBlockings, roomAllocations, currentDate) => {
     const allocation = roomAllocations?.data?.find((allocation) => {
-      console.log("Allocation:", roomAllocations);
       const fromDate = new Date(
         allocation.attributes.guests.data[0].attributes.arrival_date
       );
@@ -249,16 +247,12 @@ const BookRoomBed = ({
     );
 
     // Modify renderBedIcon to handle allocated beds count
-    const renderBedIcon = (bedIndex) => {
+    const renderBedIcon = (bedIndex, room, currentDate) => {
       if (isSelected && isFirstAvailableRoom(room, currentDate)) {
         const roomAllocation = allocatedRooms.find(
           (allocation) => allocation.roomNumber === room.attributes.room_number
         );
-        if (
-          roomAllocation &&
-          bedIndex < roomAllocation.bedsAllocated &&
-          numberOfBedsToAllocate > 0
-        ) {
+        if (roomAllocation && bedIndex < roomAllocation.bedsAllocated) {
           return icons.selectedImage;
         }
       }
@@ -345,6 +339,12 @@ const BookRoomBed = ({
             <span className="bed-status">
               {isBlocked
                 ? "Blocked"
+                : isFirstAvailableRoom(room, currentDate)
+                ? `Selected (${
+                    allocatedRooms.find(
+                      (r) => r.roomNumber === room.attributes.room_number
+                    )?.bedsAllocated || 0
+                  }/${numberOfBeds})`
                 : allocatedBedsCount > 0
                 ? "Occupied"
                 : "Available"}
@@ -364,11 +364,23 @@ const BookRoomBed = ({
             <div className="custom-tooltip">{tooltipContent}</div>
           )}
           <div className="top-row">
-            <img src={renderBedIcon(0)} alt="bed" className="bed-icon" />
-            <img src={renderBedIcon(1)} alt="bed" className="bed-icon" />
+            <img
+              src={renderBedIcon(0, room, currentDate)}
+              alt="bed"
+              className="bed-icon"
+            />
+            <img
+              src={renderBedIcon(1, room, currentDate)}
+              alt="bed"
+              className="bed-icon"
+            />
           </div>
           <div className="bottom-row">
-            <img src={renderBedIcon(2)} alt="bed" className="bed-icon" />
+            <img
+              src={renderBedIcon(2, room, currentDate)}
+              alt="bed"
+              className="bed-icon"
+            />
           </div>
         </div>
       );
@@ -383,12 +395,12 @@ const BookRoomBed = ({
         bedGroups.push(
           <div key={`group-${i}`} className="bed-group">
             <img
-              src={renderBedIcon(bedCount++)}
+              src={renderBedIcon(bedCount++, room, currentDate)}
               alt="bed"
               className="bed-icon"
             />
             <img
-              src={renderBedIcon(bedCount++)}
+              src={renderBedIcon(bedCount++, room, currentDate)}
               alt="bed"
               className="bed-icon"
             />
@@ -399,7 +411,11 @@ const BookRoomBed = ({
       if (remainingBeds > 0) {
         bedGroups.push(
           <div key="remaining" className="bed-group">
-            <img src={renderBedIcon(bedCount)} alt="bed" className="bed-icon" />
+            <img
+              src={renderBedIcon(bedCount, room, currentDate)}
+              alt="bed"
+              className="bed-icon"
+            />
           </div>
         );
       }
@@ -445,7 +461,8 @@ const BookRoomBed = ({
     if (
       !selectedDateRange ||
       !selectedDateRange.arrivalDate ||
-      !selectedDateRange.departureDate
+      !selectedDateRange.departureDate ||
+      numberOfBedsToAllocate <= 0
     ) {
       return null;
     }
@@ -453,36 +470,37 @@ const BookRoomBed = ({
     let remainingBedsNeeded = numberOfBedsToAllocate;
     let allocatedRoomsResult = [];
 
-    for (let i = 0; i < rooms.length; i++) {
-      const room = rooms[i];
+    // Sort rooms by capacity (descending) to allocate larger rooms first
+    const sortedRooms = [...rooms].sort(
+      (a, b) => b.attributes.no_of_beds - a.attributes.no_of_beds
+    );
 
-      // First check if room has any allocations
+    for (const room of sortedRooms) {
+      // Skip if no more beds needed
+      if (remainingBedsNeeded <= 0) break;
+
+      // Check for existing allocations
       const existingAllocations = room.attributes.room_allocations?.data || [];
-
       let hasConflict = false;
 
-      if (existingAllocations.length > 0) {
-        for (const allocation of existingAllocations) {
-          const guests = allocation.attributes.guests.data;
-          if (!guests || guests.length === 0) continue;
+      for (const allocation of existingAllocations) {
+        const guests = allocation.attributes.guests.data;
+        if (!guests || guests.length === 0) continue;
 
-          const existingArrival = guests[0].attributes.arrival_date;
-          const existingDeparture = guests[0].attributes.departure_date;
+        const existingArrival = guests[0].attributes.arrival_date;
+        const existingDeparture = guests[0].attributes.departure_date;
 
-          const hasOverlap =
-            selectedDateRange.arrivalDate <= existingDeparture &&
-            selectedDateRange.departureDate >= existingArrival;
+        const hasOverlap =
+          selectedDateRange.arrivalDate <= existingDeparture &&
+          selectedDateRange.departureDate >= existingArrival;
 
-          if (hasOverlap) {
-            hasConflict = true;
-            break;
-          }
-        }
-
-        if (hasConflict) {
-          continue;
+        if (hasOverlap) {
+          hasConflict = true;
+          break;
         }
       }
+
+      if (hasConflict) continue;
 
       // Check for room blockings
       const roomBlockings = room.attributes.room_blockings?.data || [];
@@ -495,34 +513,31 @@ const BookRoomBed = ({
         );
       });
 
-      if (isBlocked) {
-        continue;
-      }
+      if (isBlocked) continue;
 
-      // Check room capacity
+      // Calculate available beds
       const availableBeds = room.attributes.no_of_beds;
 
       if (availableBeds > 0) {
         const bedsToAllocate = Math.min(availableBeds, remainingBedsNeeded);
+
         allocatedRoomsResult.push({
           roomNumber: room.attributes.room_number,
           roomId: room.id,
           bedsAllocated: bedsToAllocate,
+          totalBeds: availableBeds,
         });
 
         remainingBedsNeeded -= bedsToAllocate;
-
-        if (remainingBedsNeeded <= 0) {
-          break;
-        }
       }
     }
 
-    if (allocatedRoomsResult.length > 0) {
-      return allocatedRoomsResult; // Return the array of all allocated rooms
+    // Only return results if we can accommodate all beds needed
+    if (remainingBedsNeeded <= 0) {
+      return allocatedRoomsResult;
     }
 
-    return null;
+    return null; // Return null if we can't accommodate all beds
   };
 
   // Update isFirstAvailableRoom to check against all allocated rooms
@@ -574,11 +589,80 @@ const BookRoomBed = ({
                   date
                 );
 
+                // Add blocking check
+                const blocking = room.attributes.room_blockings?.data?.find(
+                  (blocking) => {
+                    const fromDate = new Date(blocking.attributes.from_date);
+                    const toDate = new Date(blocking.attributes.to_date);
+                    const checkDate = new Date(
+                      date.year,
+                      new Date(Date.parse(`01 ${date.month} 2000`)).getMonth(),
+                      date.day,
+                      0,
+                      0,
+                      0
+                    );
+                    fromDate.setHours(0, 0, 0, 0);
+                    toDate.setHours(0, 0, 0, 0);
+                    return checkDate >= fromDate && checkDate <= toDate;
+                  }
+                );
+
+                // Add allocation check
+                const allocation = room.attributes.room_allocations?.data?.find(
+                  (allocation) => {
+                    const fromDate = new Date(
+                      allocation.attributes.guests.data[0].attributes.arrival_date
+                    );
+                    const toDate = new Date(
+                      allocation.attributes.guests.data[0].attributes.departure_date
+                    );
+                    const checkDate = new Date(
+                      date.year,
+                      new Date(Date.parse(`01 ${date.month} 2000`)).getMonth(),
+                      date.day,
+                      0,
+                      0,
+                      0
+                    );
+                    fromDate.setHours(0, 0, 0, 0);
+                    toDate.setHours(0, 0, 0, 0);
+                    return checkDate >= fromDate && checkDate <= toDate;
+                  }
+                );
+
+                // Check for recommendation letter
+                const hasRecommendationLetter =
+                  allocation?.attributes.guests.data[0]?.attributes
+                    ?.booking_request?.data?.attributes?.recommendation_letter
+                    ?.data;
+
+                // Determine background color
+                let backgroundColor = "inherit";
+                if (blocking) {
+                  switch (blocking.attributes.room_block_status) {
+                    case "maintenance":
+                      backgroundColor = "#666666";
+                      break;
+                    case "blocked":
+                      backgroundColor = "#FFFF00";
+                      break;
+                    case "reserved":
+                      backgroundColor = "#00b050";
+                      break;
+                  }
+                } else if (allocation) {
+                  backgroundColor = hasRecommendationLetter
+                    ? "#FF6D01"
+                    : "#F28E86";
+                }
+
                 return (
                   <div
                     key={index}
                     className="availability-box"
                     data-tooltip={tooltipContent ? "true" : undefined}
+                    style={{ backgroundColor }}
                   >
                     <div className="bed-count">{availableBeds}</div>
                     <div className="availability-label">Available</div>

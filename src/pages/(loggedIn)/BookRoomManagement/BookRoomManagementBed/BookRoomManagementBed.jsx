@@ -39,8 +39,6 @@ const BookRoomManagementBed = ({ blockId, refreshTrigger, viewMode }) => {
           setIsLoading(true);
           const blockData = await blockService.fetchBlockById(blockId);
           const roomsData = blockData.data.attributes.rooms.data;
-          // console.log("Block Data:", blockData);
-          // console.log("Rooms Data:", roomsData);
           setRooms(roomsData);
         } catch (error) {
           console.error("Error fetching block details:", error);

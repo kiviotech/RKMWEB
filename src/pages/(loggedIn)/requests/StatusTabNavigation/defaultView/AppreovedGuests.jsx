@@ -218,7 +218,12 @@ const ApprovedGuests = ({ selectedDate, label }) => {
                   <p style={{ color: getCardBorderColor(request.icons) }}>
                     {request.reason}
                   </p>
-                  <p>Number of guest members: {request.guests.length}</p>
+                  <p>
+                    Number of guest members:{" "}
+                    {request.noOfGuest > 0
+                      ? request.noOfGuest
+                      : request.guests.length}
+                  </p>
                   <p>
                     Arrival Date:{" "}
                     {new Date(request.userDetails.arrivalDate)

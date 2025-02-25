@@ -76,7 +76,7 @@ const VerifyDetails = () => {
         address: `${formData.address.houseNumber}, ${formData.address.streetName}, ${formData.address.postOffice}, ${formData.address.district}, ${formData.address.state}, ${formData.address.pinCode}`,
         age: parseInt(formData.age),
         gender: formData.gender,
-        status: "pending",
+        status: "Not Arrived",
         deeksha: formData.deeksha,
         email:
           formData.email ||
@@ -129,7 +129,7 @@ const VerifyDetails = () => {
         phone_number: `+${formData.countryCode}${formData.phoneNumber}`,
         occupation: formData.occupation,
         aadhaar_number: formData.aadhaar,
-        number_of_guest_members: formData.guests.length.toString(),
+        // number_of_guest_members: formData.guests.length.toString(),
         reason_for_revisit: formData.reason || "",
         address: `${formData.address.houseNumber}, ${formData.address.district}, ${formData.address.state}, ${formData.address.pinCode}`,
         arrival_date: formData.visitDate,

@@ -549,12 +549,18 @@ const BookRoomBed = ({
       if (availableBeds > 0) {
         const bedsToAllocate = Math.min(availableBeds, remainingBedsNeeded);
 
+        // Make sure we're including the room ID
         allocatedRoomsResult.push({
           roomNumber: room.attributes.room_number,
-          roomId: room.id,
+          roomId: room.id, // Ensure this is the correct property name
           bedsAllocated: bedsToAllocate,
           totalBeds: availableBeds,
         });
+        console.log("Adding room to allocation:", {
+          roomNumber: room.attributes.room_number,
+          roomId: room.id,
+          bedsAllocated: bedsToAllocate,
+        }); // Debug log
 
         remainingBedsNeeded -= bedsToAllocate;
       }

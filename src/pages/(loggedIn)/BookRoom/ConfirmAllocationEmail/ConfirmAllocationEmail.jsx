@@ -21,6 +21,8 @@ const ConfirmAllocationEmail = ({
 
       // Create separate allocations for each room
       for (const room of allocatedRooms) {
+        console.log("Room:", room); // Debug log to see room object structure
+
         // Get the specific guests for this room
         const guestsForRoom = allocatedGuests.slice(
           guestIndex,
@@ -36,7 +38,7 @@ const ConfirmAllocationEmail = ({
             connect: guestsForRoom.map((guest) => guest.id),
           },
           booking_request: [requestId],
-          room: [room.roomId],
+          room: [room.id], // Changed from room.roomId to room.id
         };
 
         // console.log(`Creating allocation for room ${room.roomNumber}:`, {

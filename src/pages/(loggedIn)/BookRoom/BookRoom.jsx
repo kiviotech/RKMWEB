@@ -50,11 +50,13 @@ const BookRoom = () => {
     console.log("Room allocations in BookRoom:", roomAllocations);
     if (Array.isArray(roomAllocations) && roomAllocations.length > 0) {
       const formattedRooms = roomAllocations.map((room) => ({
-        id: room.id,
+        roomId: room.roomId,
+        id: room.roomId,
         roomNumber: room.roomNumber,
         bedsAllocated: room.bedsSelected || room.bedsAllocated || 0,
         totalBeds: room.totalBeds || 0,
       }));
+      console.log("Formatted rooms:", formattedRooms);
       setAllocatedRooms(formattedRooms);
     }
   };

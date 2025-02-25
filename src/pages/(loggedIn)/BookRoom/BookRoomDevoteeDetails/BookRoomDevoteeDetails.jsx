@@ -63,10 +63,15 @@ const BookRoomDevoteeDetails = ({
       const newTotalCount = totalAllocatedCount + selectedGuests.length;
       setTotalAllocatedCount(newTotalCount);
 
+      // Pass the room ID along with other room data
       onAllocate(
         guestData.attributes.arrival_date,
         guestData.attributes.departure_date,
-        newTotalCount
+        newTotalCount,
+        allocatedRooms.map((room) => ({
+          ...room,
+          id: room.roomId, // Make sure roomId is included
+        }))
       );
 
       const updatedGuestData = {
@@ -114,19 +119,20 @@ const BookRoomDevoteeDetails = ({
       const totalCount = newDevotees.reduce((sum, dev) => sum + dev.count, 0);
       setTotalAllocatedCount((prevCount) => prevCount + totalCount);
 
-      // Call onAllocate with the total count and gender information
+      // Pass the room ID along with other room data
       onAllocate(
         guestData.attributes.arrival_date,
         guestData.attributes.departure_date,
         totalCount,
-        { male: maleDevotees.count, female: femaleDevotees.count }
+        {
+          male: maleDevotees.count,
+          female: femaleDevotees.count,
+          rooms: allocatedRooms.map((room) => ({
+            ...room,
+            id: room.roomId, // Make sure roomId is included
+          })),
+        }
       );
-
-      console.log("Devotee allocation:", {
-        devotees: newDevotees,
-        totalCount,
-        availableRooms: allocatedRooms,
-      });
     }
   };
 
@@ -138,11 +144,14 @@ const BookRoomDevoteeDetails = ({
     const emailData = {
       requestId: requestId,
       guestEmail: guestData?.attributes?.email,
-      allocatedGuests: allocatedGuests.map((guest) => ({
-        ...guest,
-        roomNumber: allocatedRooms[0]?.roomNumber,
-        roomId: allocatedRooms[0]?.id,
-      })),
+      allocatedGuests: allocatedGuests.map((guest, index) => {
+        const room = findRoomForGuest(index);
+        return {
+          ...guest,
+          roomNumber: room?.roomNumber,
+          roomId: room?.id,
+        };
+      }),
     };
     setShowDormitoryEmailModal(true);
   };
@@ -151,13 +160,15 @@ const BookRoomDevoteeDetails = ({
     const emailData = {
       requestId: requestId,
       guestEmail: guestData?.attributes?.email,
-      allocatedGuests: allocatedGuests.map((guest) => ({
-        ...guest,
-        roomNumber: allocatedRooms[0]?.roomNumber,
-        roomId: allocatedRooms[0]?.id,
-      })),
+      allocatedGuests: allocatedGuests.map((guest, index) => {
+        const room = findRoomForGuest(index);
+        return {
+          ...guest,
+          roomNumber: room?.roomNumber,
+          roomId: room?.id,
+        };
+      }),
     };
-    // console.log("Email Data:", emailData);
     setShowEmailModal(true);
   };
 

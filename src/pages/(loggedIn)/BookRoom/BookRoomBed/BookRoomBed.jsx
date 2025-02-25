@@ -620,11 +620,118 @@ const BookRoomBed = ({
                     )
                   : null;
 
+                // Check for room blocking status with null checks
+                const blocking = room?.attributes?.room_blockings?.data?.find(
+                  (blocking) => {
+                    if (
+                      !blocking?.attributes?.from_date ||
+                      !blocking?.attributes?.to_date
+                    ) {
+                      return false;
+                    }
+
+                    try {
+                      const fromDate = new Date(blocking.attributes.from_date);
+                      const toDate = new Date(blocking.attributes.to_date);
+                      const checkDate = new Date(
+                        date.year,
+                        new Date(
+                          Date.parse(`01 ${date.month} 2000`)
+                        ).getMonth(),
+                        date.day,
+                        0,
+                        0,
+                        0
+                      );
+
+                      fromDate.setHours(0, 0, 0, 0);
+                      toDate.setHours(0, 0, 0, 0);
+
+                      return checkDate >= fromDate && checkDate <= toDate;
+                    } catch (error) {
+                      console.error("Error processing blocking dates:", error);
+                      return false;
+                    }
+                  }
+                );
+
+                // Check for guest allocation with null checks
+                const allocation =
+                  room?.attributes?.room_allocations?.data?.find(
+                    (allocation) => {
+                      if (
+                        !allocation?.attributes?.guests?.data?.[0]?.attributes
+                          ?.arrival_date ||
+                        !allocation?.attributes?.guests?.data?.[0]?.attributes
+                          ?.departure_date
+                      ) {
+                        return false;
+                      }
+
+                      try {
+                        const fromDate = new Date(
+                          allocation.attributes.guests.data[0].attributes.arrival_date
+                        );
+                        const toDate = new Date(
+                          allocation.attributes.guests.data[0].attributes.departure_date
+                        );
+                        const checkDate = new Date(
+                          date.year,
+                          new Date(
+                            Date.parse(`01 ${date.month} 2000`)
+                          ).getMonth(),
+                          date.day,
+                          0,
+                          0,
+                          0
+                        );
+
+                        fromDate.setHours(0, 0, 0, 0);
+                        toDate.setHours(0, 0, 0, 0);
+
+                        return checkDate >= fromDate && checkDate <= toDate;
+                      } catch (error) {
+                        console.error(
+                          "Error processing allocation dates:",
+                          error
+                        );
+                        return false;
+                      }
+                    }
+                  );
+
+                const hasRecommendationLetter =
+                  allocation?.attributes?.guests?.data?.[0]?.attributes
+                    ?.booking_request?.data?.attributes?.recommendation_letter
+                    ?.data;
+
+                // Determine background color based on conditions
+                let backgroundColor = "inherit";
+
+                if (blocking?.attributes?.room_block_status) {
+                  switch (blocking.attributes.room_block_status) {
+                    case "maintenance":
+                      backgroundColor = "#666666";
+                      break;
+                    case "blocked":
+                      backgroundColor = "#FFFF00";
+                      break;
+                    case "reserved":
+                      backgroundColor = "#00b050";
+                      break;
+                  }
+                } else if (allocation) {
+                  backgroundColor = hasRecommendationLetter
+                    ? "#FF6D01"
+                    : "#F28E86";
+                }
+
                 return (
                   <div
                     key={index}
                     className="availability-box"
                     data-tooltip={!!tooltipContent}
+                    style={{ backgroundColor }}
                   >
                     <div className="bed-count">
                       {getAvailableBedsForDate(room, date)}

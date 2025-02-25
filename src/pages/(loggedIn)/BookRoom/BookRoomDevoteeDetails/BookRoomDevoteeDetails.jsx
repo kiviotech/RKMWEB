@@ -130,6 +130,10 @@ const BookRoomDevoteeDetails = ({
     }
   };
 
+  const handleCloseDormitoryEmailModal = () => {
+    setShowDormitoryEmailModal(false);
+  };
+
   const handleDormitoryConfirmAllocation = () => {
     const emailData = {
       requestId: requestId,
@@ -140,7 +144,6 @@ const BookRoomDevoteeDetails = ({
         roomId: allocatedRooms[0]?.id,
       })),
     };
-    // console.log("Email Data:", emailData);
     setShowDormitoryEmailModal(true);
   };
 
@@ -495,7 +498,7 @@ const BookRoomDevoteeDetails = ({
 
       {showDormitoryEmailModal && (
         <ConfirmDormitoryEmail
-          onClose={handleCloseEmailModal}
+          onClose={handleCloseDormitoryEmailModal}
           onSend={handleSendEmail}
           guestData={guestData}
           requestId={requestId}

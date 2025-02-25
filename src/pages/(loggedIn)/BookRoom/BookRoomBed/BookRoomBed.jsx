@@ -224,12 +224,17 @@ const BookRoomBed = ({
     // Get number of allocated beds for current date
     const allocatedBedsCount =
       roomAllocations?.data?.reduce((count, allocation) => {
-        const fromDate = new Date(
-          allocation.attributes.guests.data[0].attributes.arrival_date
-        );
-        const toDate = new Date(
-          allocation.attributes.guests.data[0].attributes.departure_date
-        );
+        // Add null checks for nested properties
+        const firstGuest = allocation?.attributes?.guests?.data?.[0];
+        if (
+          !firstGuest?.attributes?.arrival_date ||
+          !firstGuest?.attributes?.departure_date
+        ) {
+          return count;
+        }
+
+        const fromDate = new Date(firstGuest.attributes.arrival_date);
+        const toDate = new Date(firstGuest.attributes.departure_date);
         const checkDate = new Date(
           currentDate.year,
           new Date(Date.parse(`01 ${currentDate.month} 2000`)).getMonth(),
@@ -242,8 +247,8 @@ const BookRoomBed = ({
         toDate.setHours(0, 0, 0, 0);
 
         if (checkDate >= fromDate && checkDate <= toDate) {
-          // Count the number of guests in this allocation
-          return count + allocation.attributes.guests.data.length;
+          // Safely count guests with null check
+          return count + (allocation?.attributes?.guests?.data?.length || 0);
         }
         return count;
       }, 0) || 0;

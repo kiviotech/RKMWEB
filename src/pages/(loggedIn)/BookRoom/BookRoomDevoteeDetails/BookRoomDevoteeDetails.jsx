@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { fetchBookingRequestById } from "../../../../../services/src/services/bookingRequestService";
 import "./BookRoomDevoteeDetails.scss";
 import ConfirmAllocationEmail from "../ConfirmAllocationEmail/ConfirmAllocationEmail";
+import ConfirmDormitoryEmail from "../ConfirmDormitoryEmail/ConfirmDormitoryEmail";
 
 const BookRoomDevoteeDetails = ({
   requestId,
@@ -15,6 +16,7 @@ const BookRoomDevoteeDetails = ({
   const [allocatedDevotees, setAllocatedDevotees] = useState([]);
   const [totalAllocatedCount, setTotalAllocatedCount] = useState(0);
   const [showEmailModal, setShowEmailModal] = useState(false);
+  const [showDormitoryEmailModal, setShowDormitoryEmailModal] = useState(false);
 
   useEffect(() => {
     const fetchRequestData = async () => {
@@ -126,6 +128,20 @@ const BookRoomDevoteeDetails = ({
         availableRooms: allocatedRooms,
       });
     }
+  };
+
+  const handleDormitoryConfirmAllocation = () => {
+    const emailData = {
+      requestId: requestId,
+      guestEmail: guestData?.attributes?.email,
+      allocatedGuests: allocatedGuests.map((guest) => ({
+        ...guest,
+        roomNumber: allocatedRooms[0]?.roomNumber,
+        roomId: allocatedRooms[0]?.id,
+      })),
+    };
+    // console.log("Email Data:", emailData);
+    setShowDormitoryEmailModal(true);
   };
 
   const handleConfirmAllocation = () => {
@@ -358,7 +374,7 @@ const BookRoomDevoteeDetails = ({
             </table>
             <button
               className="confirm-allocation-button"
-              onClick={handleConfirmAllocation}
+              onClick={handleDormitoryConfirmAllocation}
             >
               Confirm Allocation
             </button>
@@ -468,6 +484,17 @@ const BookRoomDevoteeDetails = ({
 
       {showEmailModal && (
         <ConfirmAllocationEmail
+          onClose={handleCloseEmailModal}
+          onSend={handleSendEmail}
+          guestData={guestData}
+          requestId={requestId}
+          allocatedGuests={allocatedGuests}
+          allocatedRooms={allocatedRooms}
+        />
+      )}
+
+      {showDormitoryEmailModal && (
+        <ConfirmDormitoryEmail
           onClose={handleCloseEmailModal}
           onSend={handleSendEmail}
           guestData={guestData}

@@ -17,6 +17,7 @@ const BookRoom = () => {
   const arrivalDate = location.state?.arrivalDate;
   const departureDate = location.state?.departureDate;
   const [viewMode, setViewMode] = useState("dashboard");
+  const [selectedBedForGuest, setSelectedBedForGuest] = useState(null);
 
   useEffect(() => {
     // console.log("BookRoom received dates:", { arrivalDate, departureDate });
@@ -32,12 +33,12 @@ const BookRoom = () => {
     guestCount,
     genderCounts = null
   ) => {
-    console.log("Allocation request:", {
-      arrivalDate,
-      departureDate,
-      guestCount,
-      genderCounts,
-    });
+    // console.log("Allocation request:", {
+    //   arrivalDate,
+    //   departureDate,
+    //   guestCount,
+    //   genderCounts,
+    // });
     // Ensure dates are in YYYY-MM-DD format
     setSelectedDateRange({
       arrivalDate: new Date(arrivalDate).toISOString().split("T")[0],
@@ -48,7 +49,7 @@ const BookRoom = () => {
   };
 
   const handleRoomAllocation = (roomAllocations) => {
-    console.log("Room allocations in BookRoom:", roomAllocations);
+    // console.log("Room allocations in BookRoom:", roomAllocations);
     if (Array.isArray(roomAllocations) && roomAllocations.length > 0) {
       const formattedRooms = roomAllocations.map((room) => ({
         roomId: room.roomId,
@@ -57,7 +58,7 @@ const BookRoom = () => {
         bedsAllocated: room.bedsSelected || room.bedsAllocated || 0,
         totalBeds: room.totalBeds || 0,
       }));
-      console.log("Formatted rooms:", formattedRooms);
+      // console.log("Formatted rooms:", formattedRooms);
       setAllocatedRooms(formattedRooms);
     }
   };
@@ -75,6 +76,10 @@ const BookRoom = () => {
     handleAllocate(arrivalDate, departureDate, updatedGuestCount);
   };
 
+  const handleBedSelection = (bedInfo) => {
+    setSelectedBedForGuest(bedInfo);
+  };
+
   return (
     <div>
       <BookRoomHeader
@@ -90,13 +95,13 @@ const BookRoom = () => {
             arrivalDate={arrivalDate}
             departureDate={departureDate}
             selectedDateRange={{
-              // Ensure we always pass a valid date range
               arrivalDate: arrivalDate || "",
               departureDate: departureDate || "",
             }}
             numberOfBedsToAllocate={selectedGuestCount}
             onRoomAllocation={handleRoomAllocation}
             viewMode={viewMode}
+            onBedSelect={handleBedSelection}
           />
         </div>
         <div style={{ width: "30%" }}>
@@ -105,6 +110,7 @@ const BookRoom = () => {
             onAllocate={handleAllocate}
             allocatedRooms={allocatedRooms}
             onGuestUncheck={handleAllocatedGuestSelect}
+            selectedBedForGuest={selectedBedForGuest}
           />
         </div>
       </div>

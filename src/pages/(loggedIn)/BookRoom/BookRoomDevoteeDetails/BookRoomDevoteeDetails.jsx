@@ -9,6 +9,7 @@ const BookRoomDevoteeDetails = ({
   onAllocate,
   allocatedRooms = [],
   onGuestUncheck,
+  selectedBedForGuest,
 }) => {
   const [guestData, setGuestData] = useState(null);
   const [selectedGuests, setSelectedGuests] = useState([]);
@@ -17,6 +18,7 @@ const BookRoomDevoteeDetails = ({
   const [totalAllocatedCount, setTotalAllocatedCount] = useState(0);
   const [showEmailModal, setShowEmailModal] = useState(false);
   const [showDormitoryEmailModal, setShowDormitoryEmailModal] = useState(false);
+  const [guestBedAssignments, setGuestBedAssignments] = useState({});
 
   useEffect(() => {
     const fetchRequestData = async () => {
@@ -249,6 +251,49 @@ const BookRoomDevoteeDetails = ({
     console.log("Current allocated devotees:", allocatedDevotees);
   }, [allocatedRooms, allocatedDevotees]);
 
+  // Add effect to handle bed selection and move guest to allocated
+  useEffect(() => {
+    if (selectedBedForGuest) {
+      // Find the guest from non-allocated guests
+      const guestToAllocate = guestData?.attributes?.guests?.data?.find(
+        (guest) =>
+          !allocatedGuests.some((allocated) => allocated.id === guest.id)
+      );
+
+      if (guestToAllocate) {
+        // Add guest to allocated guests
+        setAllocatedGuests((prev) => [...prev, guestToAllocate]);
+
+        // Remove guest from non-allocated guests
+        setGuestData((prevData) => ({
+          ...prevData,
+          attributes: {
+            ...prevData.attributes,
+            guests: {
+              ...prevData.attributes.guests,
+              data: prevData.attributes.guests.data.filter(
+                (guest) => guest.id !== guestToAllocate.id
+              ),
+            },
+          },
+        }));
+
+        // Update bed assignments
+        setGuestBedAssignments((prev) => ({
+          ...prev,
+          [guestToAllocate.id]: {
+            roomNumber: selectedBedForGuest.roomNumber,
+            bedIndex: selectedBedForGuest.bedIndex,
+            date: selectedBedForGuest.date,
+          },
+        }));
+
+        // Update total allocated count
+        setTotalAllocatedCount((prev) => prev + 1);
+      }
+    }
+  }, [selectedBedForGuest]);
+
   const findRoomsForDevotees = (devotee, startIndex = 0) => {
     if (!Array.isArray(allocatedRooms) || allocatedRooms.length === 0) {
       return [];
@@ -296,13 +341,25 @@ const BookRoomDevoteeDetails = ({
                   <th>Gender</th>
                   <th>Relation</th>
                   <th>Room No.</th>
+                  <th>Bed No.</th>
                 </tr>
               </thead>
               <tbody>
                 {allocatedGuests.map((guest, index) => {
-                  const room = findRoomForGuest(index);
+                  const bedAssignment = guestBedAssignments[guest.id];
+                  const room = bedAssignment
+                    ? { roomNumber: bedAssignment.roomNumber }
+                    : findRoomForGuest(index);
+
                   return (
-                    <tr key={guest.id}>
+                    <tr
+                      key={guest.id}
+                      className={
+                        selectedBedForGuest?.guestId === guest.id
+                          ? "selected-for-bed"
+                          : ""
+                      }
+                    >
                       <td>
                         <div className="guest-name-cell">
                           <input
@@ -319,6 +376,11 @@ const BookRoomDevoteeDetails = ({
                       <td>{guest.attributes.gender}</td>
                       <td>{guest.attributes.relationship}</td>
                       <td>{room ? room.roomNumber : "Pending"}</td>
+                      <td>
+                        {bedAssignment
+                          ? `Bed ${bedAssignment.bedIndex + 1}`
+                          : "Click bed to assign"}
+                      </td>
                     </tr>
                   );
                 })}

@@ -21,6 +21,7 @@ const BookRoomBed = ({
   const [allocatedRoomNumber, setAllocatedRoomNumber] = useState(null);
   const [allocatedRooms, setAllocatedRooms] = useState([]);
   const navigate = useNavigate();
+  const [selectedBeds, setSelectedBeds] = useState({});
 
   useEffect(() => {
     const generateDates = () => {
@@ -67,6 +68,13 @@ const BookRoomBed = ({
 
     fetchBlockDetails();
   }, [blockId, refreshTrigger]);
+
+  // Add logging to debug date range
+  useEffect(() => {
+    console.log("Selected Date Range:", selectedDateRange);
+    console.log("Arrival Date:", arrivalDate);
+    console.log("Departure Date:", departureDate);
+  }, [selectedDateRange, arrivalDate, departureDate]);
 
   const handleBedClick = (allocation) => {
     if (allocation) {
@@ -230,6 +238,235 @@ const BookRoomBed = ({
     return null;
   };
 
+  const handleBedIconClick = (room, bedIndex, currentDate) => {
+    // Validate date range
+    if (!selectedDateRange?.arrivalDate || !selectedDateRange?.departureDate) {
+      console.log("Missing date range:", selectedDateRange);
+      // Use arrivalDate and departureDate props as fallback
+      if (!arrivalDate || !departureDate) {
+        console.log("No date range selected");
+        return;
+      }
+      selectedDateRange = {
+        arrivalDate: arrivalDate,
+        departureDate: departureDate,
+      };
+    }
+
+    // Create a new object to store updates
+    const bedUpdates = {};
+
+    // Convert the clicked date to YYYY-MM-DD format
+    const clickedDate = `${currentDate.year}-${String(
+      new Date(Date.parse(`01 ${currentDate.month} 2000`)).getMonth() + 1
+    ).padStart(2, "0")}-${String(currentDate.day).padStart(2, "0")}`;
+
+    // Get all dates between arrival and departure
+    const start = new Date(selectedDateRange.arrivalDate);
+    const end = new Date(selectedDateRange.departureDate);
+
+    // Iterate through all dates in the range
+    for (
+      let date = new Date(start);
+      date <= end;
+      date.setDate(date.getDate() + 1)
+    ) {
+      const year = date.getFullYear();
+      const month = date.toLocaleString("default", { month: "short" });
+      const day = date.getDate();
+
+      const bedKey = `${room.attributes.room_number}-${bedIndex}-${year}-${month}-${day}`;
+
+      // Toggle the selection state based on the clicked date's current state
+      const isCurrentlySelected =
+        selectedBeds[
+          `${room.attributes.room_number}-${bedIndex}-${currentDate.year}-${currentDate.month}-${currentDate.day}`
+        ];
+      bedUpdates[bedKey] = !isCurrentlySelected;
+    }
+
+    // Update all affected dates at once
+    setSelectedBeds((prev) => ({
+      ...prev,
+      ...bedUpdates,
+    }));
+
+    // Count selected beds for this room
+    const selectedBedsCount =
+      Object.entries(bedUpdates).filter(([_, isSelected]) => isSelected)
+        .length /
+      ((new Date(selectedDateRange.departureDate) -
+        new Date(selectedDateRange.arrivalDate)) /
+        (1000 * 60 * 60 * 24) +
+        1);
+
+    // Update allocated rooms
+    const updatedRoom = {
+      roomId: room.id,
+      roomNumber: room.attributes.room_number,
+      bedsSelected: selectedBedsCount,
+      totalBeds: room.attributes.no_of_beds,
+    };
+
+    onRoomAllocation([updatedRoom]);
+  };
+
+  const renderBedIcon = (bedIndex, room, currentDate) => {
+    const bedKey = `${room.attributes.room_number}-${bedIndex}-${currentDate.year}-${currentDate.month}-${currentDate.day}`;
+
+    if (selectedBeds[bedKey]) {
+      return icons.selectedImage;
+    }
+
+    // Check blockings
+    const isBlocked = room.attributes.room_blockings?.some((blocking) => {
+      const fromDate = new Date(blocking.attributes.from_date);
+      const toDate = new Date(blocking.attributes.to_date);
+      const checkDate = new Date(
+        currentDate.year,
+        new Date(Date.parse(`01 ${currentDate.month} 2000`)).getMonth(),
+        currentDate.day,
+        0,
+        0,
+        0
+      );
+      fromDate.setHours(0, 0, 0, 0);
+      toDate.setHours(0, 0, 0, 0);
+      return checkDate >= fromDate && checkDate <= toDate;
+    });
+
+    // Get number of allocated beds for current date
+    const allocatedBedsCount =
+      room.attributes.room_allocations?.data?.reduce((count, allocation) => {
+        // Add null checks for nested properties
+        const firstGuest = allocation?.attributes?.guests?.data?.[0];
+        if (
+          !firstGuest?.attributes?.arrival_date ||
+          !firstGuest?.attributes?.departure_date
+        ) {
+          return count;
+        }
+
+        const fromDate = new Date(firstGuest.attributes.arrival_date);
+        const toDate = new Date(firstGuest.attributes.departure_date);
+        const checkDate = new Date(
+          currentDate.year,
+          new Date(Date.parse(`01 ${currentDate.month} 2000`)).getMonth(),
+          currentDate.day,
+          0,
+          0,
+          0
+        );
+        fromDate.setHours(0, 0, 0, 0);
+        toDate.setHours(0, 0, 0, 0);
+
+        if (checkDate >= fromDate && checkDate <= toDate) {
+          // Safely count guests with null check
+          return count + (allocation?.attributes?.guests?.data?.length || 0);
+        }
+        return count;
+      }, 0) || 0;
+
+    const isSelected =
+      selectedDateRange &&
+      (() => {
+        // Create date strings for comparison
+        const checkDateStr = `${currentDate.year}-${String(
+          new Date(Date.parse(`01 ${currentDate.month} 2000`)).getMonth() + 1
+        ).padStart(2, "0")}-${String(currentDate.day).padStart(2, "0")}`;
+
+        // Use the exact date strings from selectedDateRange
+        return (
+          checkDateStr >= selectedDateRange.arrivalDate &&
+          checkDateStr <= selectedDateRange.departureDate
+        );
+      })();
+
+    const tooltipContent = getTooltipContent(
+      room.attributes.room_blockings?.data,
+      room.attributes.room_allocations,
+      currentDate
+    );
+
+    if (isBlocked) {
+      // Check blocking status and return appropriate icon
+      const blocking = room.attributes.room_blockings?.find((blocking) => {
+        const fromDate = new Date(blocking.attributes.from_date);
+        const toDate = new Date(blocking.attributes.to_date);
+        const checkDate = new Date(
+          currentDate.year,
+          new Date(Date.parse(`01 ${currentDate.month} 2000`)).getMonth(),
+          currentDate.day,
+          0,
+          0,
+          0
+        );
+        fromDate.setHours(0, 0, 0, 0);
+        toDate.setHours(0, 0, 0, 0);
+        return checkDate >= fromDate && checkDate <= toDate;
+      });
+
+      if (blocking) {
+        switch (blocking.attributes.room_block_status) {
+          case "blocked":
+            return icons.Group_4;
+          case "maintenance":
+            return icons.Group_7;
+          case "cleaning":
+            return icons.Group_3;
+          default:
+            return icons.filledBed;
+        }
+      }
+      return icons.filledBed;
+    } else {
+      // Check for allocations without guests
+      const allocation = room.attributes.room_allocations?.data?.find(
+        (allocation) => {
+          if (allocation.attributes.guests?.data?.length > 0) {
+            const fromDate = new Date(
+              allocation.attributes.guests.data[0].attributes.arrival_date
+            );
+            const toDate = new Date(
+              allocation.attributes.guests.data[0].attributes.departure_date
+            );
+            const checkDate = new Date(
+              currentDate.year,
+              new Date(Date.parse(`01 ${currentDate.month} 2000`)).getMonth(),
+              currentDate.day,
+              0,
+              0,
+              0
+            );
+            fromDate.setHours(0, 0, 0, 0);
+            toDate.setHours(0, 0, 0, 0);
+            return checkDate >= fromDate && checkDate <= toDate;
+          } else {
+            // If no guests but room is allocated, check occupancy
+            return (
+              allocation.attributes.room_status === "allocated" &&
+              bedIndex < allocation.attributes.occupancy
+            );
+          }
+        }
+      );
+
+      if (allocation) {
+        // If there are guests, use existing logic for recommendation letter
+        if (allocation.attributes.guests?.data?.length > 0) {
+          const hasRecommendationLetter =
+            allocation.attributes.guests.data[bedIndex]?.attributes
+              ?.booking_request?.data?.attributes?.recommendation_letter?.data;
+          return hasRecommendationLetter ? icons.Group_2 : icons.Group_1;
+        } else {
+          // If no guests but room is allocated, show as occupied
+          return icons.Group_1;
+        }
+      }
+      return icons.Group2; // Available bed
+    }
+  };
+
   const renderBeds = (
     numberOfBeds,
     roomBlockings,
@@ -309,15 +546,12 @@ const BookRoomBed = ({
       currentDate
     );
 
-    // Modify renderBedIcon to handle allocated beds count
+    // Modify renderBedIcon to handle selected state
     const renderBedIcon = (bedIndex, room, currentDate) => {
-      if (isSelected && isFirstAvailableRoom(room, currentDate)) {
-        const roomAllocation = allocatedRooms.find(
-          (allocation) => allocation.roomNumber === room.attributes.room_number
-        );
-        if (roomAllocation && bedIndex < roomAllocation.bedsAllocated) {
-          return icons.selectedImage;
-        }
+      const bedKey = `${room.attributes.room_number}-${bedIndex}-${currentDate.year}-${currentDate.month}-${currentDate.day}`;
+
+      if (selectedBeds[bedKey]) {
+        return icons.selectedImage;
       }
 
       if (isBlocked) {
@@ -398,6 +632,31 @@ const BookRoomBed = ({
       }
     };
 
+    // Modify the img tag rendering to include onClick
+    const renderBedImage = (bedIndex) => (
+      <img
+        src={renderBedIcon(bedIndex, room, currentDate)}
+        alt="bed"
+        className="bed-icon"
+        onClick={() => {
+          // Allow clicking on both Group2 and selectedImage
+          if (
+            renderBedIcon(bedIndex, room, currentDate) === icons.Group2 ||
+            renderBedIcon(bedIndex, room, currentDate) === icons.selectedImage
+          ) {
+            handleBedIconClick(room, bedIndex, currentDate);
+          }
+        }}
+        style={{
+          cursor:
+            renderBedIcon(bedIndex, room, currentDate) === icons.Group2 ||
+            renderBedIcon(bedIndex, room, currentDate) === icons.selectedImage
+              ? "pointer"
+              : "default",
+        }}
+      />
+    );
+
     if (numberOfBeds > 4) {
       beds.push(
         <div
@@ -439,24 +698,10 @@ const BookRoomBed = ({
             <div className="custom-tooltip">{tooltipContent}</div>
           )}
           <div className="top-row">
-            <img
-              src={renderBedIcon(0, room, currentDate)}
-              alt="bed"
-              className="bed-icon"
-            />
-            <img
-              src={renderBedIcon(1, room, currentDate)}
-              alt="bed"
-              className="bed-icon"
-            />
+            {renderBedImage(0)}
+            {renderBedImage(1)}
           </div>
-          <div className="bottom-row">
-            <img
-              src={renderBedIcon(2, room, currentDate)}
-              alt="bed"
-              className="bed-icon"
-            />
-          </div>
+          <div className="bottom-row">{renderBedImage(2)}</div>
         </div>
       );
     } else {
@@ -469,16 +714,8 @@ const BookRoomBed = ({
       for (let i = 0; i < fullGroups; i++) {
         bedGroups.push(
           <div key={`group-${i}`} className="bed-group">
-            <img
-              src={renderBedIcon(bedCount++, room, currentDate)}
-              alt="bed"
-              className="bed-icon"
-            />
-            <img
-              src={renderBedIcon(bedCount++, room, currentDate)}
-              alt="bed"
-              className="bed-icon"
-            />
+            {renderBedImage(bedCount++)}
+            {renderBedImage(bedCount++)}
           </div>
         );
       }
@@ -486,11 +723,7 @@ const BookRoomBed = ({
       if (remainingBeds > 0) {
         bedGroups.push(
           <div key="remaining" className="bed-group">
-            <img
-              src={renderBedIcon(bedCount, room, currentDate)}
-              alt="bed"
-              className="bed-icon"
-            />
+            {renderBedImage(bedCount)}
           </div>
         );
       }

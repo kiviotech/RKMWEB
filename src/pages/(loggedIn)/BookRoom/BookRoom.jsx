@@ -38,9 +38,10 @@ const BookRoom = () => {
       guestCount,
       genderCounts,
     });
+    // Ensure dates are in YYYY-MM-DD format
     setSelectedDateRange({
-      arrivalDate: arrivalDate,
-      departureDate: departureDate,
+      arrivalDate: new Date(arrivalDate).toISOString().split("T")[0],
+      departureDate: new Date(departureDate).toISOString().split("T")[0],
     });
     setAllocationBlockId(selectedBlockId);
     setSelectedGuestCount(parseInt(guestCount, 10));
@@ -88,9 +89,11 @@ const BookRoom = () => {
             blockId={selectedBlockId}
             arrivalDate={arrivalDate}
             departureDate={departureDate}
-            selectedDateRange={
-              selectedBlockId === allocationBlockId ? selectedDateRange : null
-            }
+            selectedDateRange={{
+              // Ensure we always pass a valid date range
+              arrivalDate: arrivalDate || "",
+              departureDate: departureDate || "",
+            }}
             numberOfBedsToAllocate={selectedGuestCount}
             onRoomAllocation={handleRoomAllocation}
             viewMode={viewMode}

@@ -374,14 +374,16 @@ const BookRoomManagementBed = ({ blockId, refreshTrigger, viewMode }) => {
               {dates.map((date, index) => {
                 const availableBeds = getAvailableBedsForDate(room, date);
                 const tooltipContent = getTooltipContent(
-                  room.attributes.room_blockings?.data,
-                  room.attributes.room_allocations,
+                  room.attributes?.room_blockings?.data,
+                  room.attributes?.room_allocations,
                   date
                 );
 
                 // Check for room blocking status
-                const blocking = room.attributes.room_blockings?.data?.find(
+                const blocking = room.attributes?.room_blockings?.data?.find(
                   (blocking) => {
+                    if (!blocking?.attributes) return false;
+
                     const fromDate = new Date(blocking.attributes.from_date);
                     const toDate = new Date(blocking.attributes.to_date);
                     const checkDate = new Date(
@@ -401,39 +403,47 @@ const BookRoomManagementBed = ({ blockId, refreshTrigger, viewMode }) => {
                 );
 
                 // Check for guest allocation and recommendation letter
-                const allocation = room.attributes.room_allocations?.data?.find(
-                  (allocation) => {
-                    const fromDate = new Date(
-                      allocation.attributes.guests.data[0].attributes.arrival_date
-                    );
-                    const toDate = new Date(
-                      allocation.attributes.guests.data[0].attributes.departure_date
-                    );
-                    const checkDate = new Date(
-                      date.year,
-                      new Date(Date.parse(`01 ${date.month} 2000`)).getMonth(),
-                      date.day,
-                      0,
-                      0,
-                      0
-                    );
+                const allocation =
+                  room.attributes?.room_allocations?.data?.find(
+                    (allocation) => {
+                      if (
+                        !allocation?.attributes?.guests?.data?.[0]?.attributes
+                      )
+                        return false;
 
-                    fromDate.setHours(0, 0, 0, 0);
-                    toDate.setHours(0, 0, 0, 0);
+                      const fromDate = new Date(
+                        allocation.attributes.guests.data[0].attributes.arrival_date
+                      );
+                      const toDate = new Date(
+                        allocation.attributes.guests.data[0].attributes.departure_date
+                      );
+                      const checkDate = new Date(
+                        date.year,
+                        new Date(
+                          Date.parse(`01 ${date.month} 2000`)
+                        ).getMonth(),
+                        date.day,
+                        0,
+                        0,
+                        0
+                      );
 
-                    return checkDate >= fromDate && checkDate <= toDate;
-                  }
-                );
+                      fromDate.setHours(0, 0, 0, 0);
+                      toDate.setHours(0, 0, 0, 0);
+
+                      return checkDate >= fromDate && checkDate <= toDate;
+                    }
+                  );
 
                 const hasRecommendationLetter =
-                  allocation?.attributes.guests.data[0]?.attributes
+                  allocation?.attributes?.guests?.data?.[0]?.attributes
                     ?.booking_request?.data?.attributes?.recommendation_letter
                     ?.data;
 
                 // Determine background color based on conditions
                 let backgroundColor = "inherit";
 
-                if (blocking) {
+                if (blocking?.attributes) {
                   switch (blocking.attributes.room_block_status) {
                     case "maintenance":
                       backgroundColor = "#666666";
@@ -536,6 +546,9 @@ const getTooltipContent = (
 ) => {
   // Check for allocations first
   const allocation = roomAllocations?.data?.find((allocation) => {
+    // Ensure guests data exists and has at least one guest
+    if (!allocation?.attributes?.guests?.data?.[0]) return false;
+
     const fromDate = new Date(
       allocation.attributes.guests.data[0].attributes.arrival_date
     );
@@ -553,12 +566,12 @@ const getTooltipContent = (
     return checkDate >= fromDate && checkDate <= toDate;
   });
 
-  if (allocation) {
+  if (allocation?.attributes?.guests?.data) {
     const guests = allocation.attributes.guests.data;
     return (
       <div
         className="tooltip-content"
-        onClick={() => onBedManagementClick(allocation)}
+        onClick={() => onBedManagementClick?.(allocation)}
         style={{ cursor: "pointer" }}
       >
         <h4>Room Allocation Details:</h4>
@@ -567,10 +580,10 @@ const getTooltipContent = (
             <p>
               <strong>Guest {index + 1}:</strong>
             </p>
-            <p>Name: {guest.attributes.name}</p>
-            <p>From: {guest.attributes.arrival_date}</p>
-            <p>To: {guest.attributes.departure_date}</p>
-            <p>Phone: {guest.attributes.phone_number}</p>
+            <p>Name: {guest.attributes?.name}</p>
+            <p>From: {guest.attributes?.arrival_date}</p>
+            <p>To: {guest.attributes?.departure_date}</p>
+            <p>Phone: {guest.attributes?.phone_number}</p>
           </div>
         ))}
       </div>
@@ -579,6 +592,8 @@ const getTooltipContent = (
 
   // Check for blockings if no allocation
   const blocking = roomBlockings?.find((blocking) => {
+    if (!blocking?.attributes) return false;
+
     const fromDate = new Date(blocking.attributes.from_date);
     const toDate = new Date(blocking.attributes.to_date);
     const checkDate = new Date(
@@ -592,7 +607,7 @@ const getTooltipContent = (
     return checkDate >= fromDate && checkDate <= toDate;
   });
 
-  if (blocking) {
+  if (blocking?.attributes) {
     return (
       <div className="tooltip-content">
         <h4>Room Blocking Details:</h4>

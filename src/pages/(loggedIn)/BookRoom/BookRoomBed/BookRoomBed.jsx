@@ -1035,59 +1035,41 @@ const BookRoomBed = ({
                   }
                 );
 
-                // Check for guest allocation with null checks
-                const allocation =
-                  room?.attributes?.room_allocations?.data?.find(
-                    (allocation) => {
-                      if (
-                        !allocation?.attributes?.guests?.data?.[0]?.attributes
-                          ?.arrival_date ||
-                        !allocation?.attributes?.guests?.data?.[0]?.attributes
-                          ?.departure_date
-                      ) {
-                        return false;
-                      }
+                // Get available beds for this date
+                const availableBeds = getAvailableBedsForDate(room, date);
 
-                      try {
-                        const fromDate = new Date(
-                          allocation.attributes.guests.data[0].attributes.arrival_date
-                        );
-                        const toDate = new Date(
-                          allocation.attributes.guests.data[0].attributes.departure_date
-                        );
-                        const checkDate = new Date(
-                          date.year,
-                          new Date(
-                            Date.parse(`01 ${date.month} 2000`)
-                          ).getMonth(),
-                          date.day,
-                          0,
-                          0,
-                          0
-                        );
+                // Get selected beds for this date/room combination
+                const dateStr = `${date.year}-${date.month}-${date.day}`;
+                const selectedBedsForDate = Object.keys(selectedBeds).filter(
+                  (key) => {
+                    const [roomNumber, _, year, month, day] = key.split("-");
+                    const keyDateStr = `${year}-${month}-${day}`;
+                    return (
+                      roomNumber === room.attributes.room_number &&
+                      keyDateStr === dateStr
+                    );
+                  }
+                ).length;
 
-                        fromDate.setHours(0, 0, 0, 0);
-                        toDate.setHours(0, 0, 0, 0);
+                // Calculate display count - only show ratio if beds are selected
+                const displayCount =
+                  selectedBedsForDate > 0
+                    ? `${selectedBedsForDate}/${availableBeds}`
+                    : availableBeds;
 
-                        return checkDate >= fromDate && checkDate <= toDate;
-                      } catch (error) {
-                        console.error(
-                          "Error processing allocation dates:",
-                          error
-                        );
-                        return false;
-                      }
-                    }
-                  );
+                // Handle click on availability box
+                const handleAvailabilityClick = () => {
+                  if (blocking || availableBeds === 0) return; // Don't allow clicks on blocked or full rooms
 
-                const hasRecommendationLetter =
-                  allocation?.attributes?.guests?.data?.[0]?.attributes
-                    ?.booking_request?.data?.attributes?.recommendation_letter
-                    ?.data;
+                  // Find the next available bed index
+                  const nextBedIndex = selectedBedsForDate;
+                  if (nextBedIndex < availableBeds) {
+                    handleBedIconClick(room, nextBedIndex, date);
+                  }
+                };
 
                 // Determine background color based on conditions
                 let backgroundColor = "inherit";
-
                 if (blocking?.attributes?.room_block_status) {
                   switch (blocking.attributes.room_block_status) {
                     case "maintenance":
@@ -1100,10 +1082,8 @@ const BookRoomBed = ({
                       backgroundColor = "#00b050";
                       break;
                   }
-                } else if (allocation) {
-                  backgroundColor = hasRecommendationLetter
-                    ? "#FF6D01"
-                    : "#F28E86";
+                } else if (selectedBedsForDate > 0) {
+                  backgroundColor = "#9866e9"; // Color for selected beds
                 }
 
                 return (
@@ -1111,11 +1091,14 @@ const BookRoomBed = ({
                     key={index}
                     className="availability-box"
                     data-tooltip={!!tooltipContent}
-                    style={{ backgroundColor }}
+                    style={{
+                      backgroundColor,
+                      cursor:
+                        blocking || availableBeds === 0 ? "default" : "pointer",
+                    }}
+                    onClick={handleAvailabilityClick}
                   >
-                    <div className="bed-count">
-                      {getAvailableBedsForDate(room, date)}
-                    </div>
+                    <div className="bed-count">{displayCount}</div>
                     <div className="availability-label">Available</div>
                     {tooltipContent && (
                       <div className="custom-tooltip">{tooltipContent}</div>

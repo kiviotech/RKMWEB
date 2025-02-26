@@ -253,12 +253,6 @@ const BookRoomDevoteeDetails = ({
     onGuestUncheck(guest);
   };
 
-  // Add this useEffect to monitor room allocations
-  useEffect(() => {
-    console.log("Current allocated rooms:", allocatedRooms);
-    console.log("Current allocated devotees:", allocatedDevotees);
-  }, [allocatedRooms, allocatedDevotees]);
-
   // Update effect to handle bed selection and deselection
   useEffect(() => {
     if (selectedBedForGuest) {

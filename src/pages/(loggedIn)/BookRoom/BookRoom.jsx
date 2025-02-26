@@ -35,13 +35,6 @@ const BookRoom = () => {
     guestCount,
     genderCounts = null
   ) => {
-    console.log("Allocation request:", {
-      arrivalDate,
-      departureDate,
-      guestCount,
-      genderCounts,
-    });
-
     // Ensure dates are in YYYY-MM-DD format
     setSelectedDateRange({
       arrivalDate: new Date(arrivalDate).toISOString().split("T")[0],
@@ -53,7 +46,6 @@ const BookRoom = () => {
     const newGuestCount = genderCounts
       ? genderCounts.male + genderCounts.female
       : parseInt(guestCount, 10);
-    console.log("Setting new guest count:", newGuestCount);
     setSelectedGuestCount(newGuestCount);
   };
 

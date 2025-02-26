@@ -77,6 +77,14 @@ const BookRoomBed = ({
     // console.log("Departure Date:", departureDate);
   }, [selectedDateRange, arrivalDate, departureDate]);
 
+  // Add useEffect to reset selectedBeds when numberOfBedsToAllocate becomes 0
+  useEffect(() => {
+    if (numberOfBedsToAllocate === 0) {
+      setSelectedBeds({}); // Clear all selected beds
+      onRoomAllocation([]); // Clear room allocations
+    }
+  }, [numberOfBedsToAllocate, onRoomAllocation]);
+
   const handleBedClick = (allocation) => {
     if (allocation) {
       // Get the booking request ID from the first guest's booking request
@@ -373,7 +381,9 @@ const BookRoomBed = ({
   const renderBedIcon = (bedIndex, room, currentDate) => {
     const bedKey = `${room.attributes.room_number}-${bedIndex}-${currentDate.year}-${currentDate.month}-${currentDate.day}`;
 
-    if (selectedBeds[bedKey]) {
+    // First check if bed is selected
+    if (selectedBeds[bedKey] && numberOfBedsToAllocate > 0) {
+      // Add numberOfBedsToAllocate check
       return icons.selectedImage;
     }
 

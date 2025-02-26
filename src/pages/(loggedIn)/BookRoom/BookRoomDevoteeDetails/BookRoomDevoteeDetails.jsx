@@ -406,11 +406,6 @@ const BookRoomDevoteeDetails = ({
                     >
                       <td>
                         <div className="guest-name-cell">
-                          <input
-                            type="checkbox"
-                            checked={true}
-                            onChange={() => handleAllocatedGuestSelect(guest)}
-                          />
                           <span className="guest-name">
                             {guest.attributes.name}
                           </span>
@@ -431,12 +426,43 @@ const BookRoomDevoteeDetails = ({
               </tbody>
             </table>
             {!guestData?.attributes?.guests?.data?.length && (
-              <button
-                className="confirm-allocation-button"
-                onClick={handleConfirmAllocation}
-              >
-                Confirm Allocation
-              </button>
+              <div className="button-group">
+                <button
+                  className="confirm-allocation-button"
+                  onClick={handleConfirmAllocation}
+                >
+                  Confirm Allocation
+                </button>
+                <button
+                  className="clear-allocation-button"
+                  onClick={() => {
+                    // Move all allocated guests back to non-allocated section
+                    setGuestData((prevData) => ({
+                      ...prevData,
+                      attributes: {
+                        ...prevData.attributes,
+                        guests: {
+                          ...prevData.attributes.guests,
+                          data: [
+                            ...(prevData.attributes.guests?.data || []),
+                            ...allocatedGuests,
+                          ],
+                        },
+                      },
+                    }));
+
+                    // Clear allocated guests
+                    setAllocatedGuests([]);
+                    setTotalAllocatedCount(0);
+                    setGuestBedAssignments({});
+
+                    // Notify parent to reset bed selections
+                    onGuestUncheck(null, true); // Pass true to indicate clearing all
+                  }}
+                >
+                  Clear
+                </button>
+              </div>
             )}
           </div>
         </div>
@@ -636,6 +662,27 @@ const BookRoomDevoteeDetails = ({
 
         .room-allocation-list > div {
           white-space: nowrap;
+        }
+
+        .button-group {
+          display: flex;
+          gap: 10px;
+          justify-content: flex-start;
+        }
+
+        .clear-allocation-button {
+          margin-top: 18px;
+          height: 40px;
+          width: 100px;
+          background-color: #dc3545;
+          color: white;
+          border: none;
+          border-radius: 4px;
+          cursor: pointer;
+        }
+
+        .clear-allocation-button:hover {
+          background-color: #c82333;
         }
       `}</style>
     </div>

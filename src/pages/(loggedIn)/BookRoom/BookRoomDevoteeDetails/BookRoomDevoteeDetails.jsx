@@ -251,45 +251,81 @@ const BookRoomDevoteeDetails = ({
     console.log("Current allocated devotees:", allocatedDevotees);
   }, [allocatedRooms, allocatedDevotees]);
 
-  // Add effect to handle bed selection and move guest to allocated
+  // Update effect to handle bed selection and deselection
   useEffect(() => {
     if (selectedBedForGuest) {
-      // Find the guest from non-allocated guests
-      const guestToAllocate = guestData?.attributes?.guests?.data?.find(
-        (guest) =>
-          !allocatedGuests.some((allocated) => allocated.id === guest.id)
-      );
+      if (selectedBedForGuest.isDeselecting) {
+        // Find the guest with matching room and bed assignment
+        const guestToUnallocate = allocatedGuests.find((guest) => {
+          const bedAssignment = guestBedAssignments[guest.id];
+          return (
+            bedAssignment &&
+            bedAssignment.roomNumber === selectedBedForGuest.roomNumber &&
+            bedAssignment.bedIndex === selectedBedForGuest.bedIndex
+          );
+        });
 
-      if (guestToAllocate) {
-        // Add guest to allocated guests
-        setAllocatedGuests((prev) => [...prev, guestToAllocate]);
-
-        // Remove guest from non-allocated guests
-        setGuestData((prevData) => ({
-          ...prevData,
-          attributes: {
-            ...prevData.attributes,
-            guests: {
-              ...prevData.attributes.guests,
-              data: prevData.attributes.guests.data.filter(
-                (guest) => guest.id !== guestToAllocate.id
-              ),
+        if (guestToUnallocate) {
+          // Move guest back to non-allocated section
+          setGuestData((prevData) => ({
+            ...prevData,
+            attributes: {
+              ...prevData.attributes,
+              guests: {
+                ...prevData.attributes.guests,
+                data: [...prevData.attributes.guests.data, guestToUnallocate],
+              },
             },
-          },
-        }));
+          }));
 
-        // Update bed assignments
-        setGuestBedAssignments((prev) => ({
-          ...prev,
-          [guestToAllocate.id]: {
-            roomNumber: selectedBedForGuest.roomNumber,
-            bedIndex: selectedBedForGuest.bedIndex,
-            date: selectedBedForGuest.date,
-          },
-        }));
+          // Remove from allocated guests
+          setAllocatedGuests((prev) =>
+            prev.filter((g) => g.id !== guestToUnallocate.id)
+          );
 
-        // Update total allocated count
-        setTotalAllocatedCount((prev) => prev + 1);
+          // Remove bed assignment
+          setGuestBedAssignments((prev) => {
+            const newAssignments = { ...prev };
+            delete newAssignments[guestToUnallocate.id];
+            return newAssignments;
+          });
+
+          // Update total allocated count
+          setTotalAllocatedCount((prev) => prev - 1);
+        }
+      } else {
+        // Existing allocation logic
+        const guestToAllocate = guestData?.attributes?.guests?.data?.find(
+          (guest) =>
+            !allocatedGuests.some((allocated) => allocated.id === guest.id)
+        );
+
+        if (guestToAllocate) {
+          setAllocatedGuests((prev) => [...prev, guestToAllocate]);
+          setGuestData((prevData) => ({
+            ...prevData,
+            attributes: {
+              ...prevData.attributes,
+              guests: {
+                ...prevData.attributes.guests,
+                data: prevData.attributes.guests.data.filter(
+                  (guest) => guest.id !== guestToAllocate.id
+                ),
+              },
+            },
+          }));
+
+          setGuestBedAssignments((prev) => ({
+            ...prev,
+            [guestToAllocate.id]: {
+              roomNumber: selectedBedForGuest.roomNumber,
+              bedIndex: selectedBedForGuest.bedIndex,
+              date: selectedBedForGuest.date,
+            },
+          }));
+
+          setTotalAllocatedCount((prev) => prev + 1);
+        }
       }
     }
   }, [selectedBedForGuest]);

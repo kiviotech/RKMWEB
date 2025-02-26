@@ -240,20 +240,53 @@ const BookRoomBed = ({
   };
 
   const handleBedIconClick = (room, bedIndex, currentDate) => {
-    // Call the parent component's handler with bed information
-    onBedSelect({
-      roomNumber: room.attributes.room_number,
-      roomId: room.id,
-      bedIndex: bedIndex,
-      date: currentDate,
-    });
+    // Check if bed is already selected
+    const bedKey = `${room.attributes.room_number}-${bedIndex}-${currentDate.year}-${currentDate.month}-${currentDate.day}`;
+    const isCurrentlySelected = selectedBeds[bedKey];
+
+    if (isCurrentlySelected) {
+      // Deselect all beds in the date range
+      const start = new Date(selectedDateRange.arrivalDate);
+      const end = new Date(selectedDateRange.departureDate);
+      const bedUpdates = {};
+
+      // Iterate through all dates in the range and deselect them
+      for (
+        let date = new Date(start);
+        date <= end;
+        date.setDate(date.getDate() + 1)
+      ) {
+        const year = date.getFullYear();
+        const month = date.toLocaleString("default", { month: "short" });
+        const day = date.getDate();
+        const rangeBedKey = `${room.attributes.room_number}-${bedIndex}-${year}-${month}-${day}`;
+        bedUpdates[rangeBedKey] = false;
+      }
+
+      // Update all affected dates at once
+      setSelectedBeds((prev) => {
+        const newSelectedBeds = { ...prev };
+        Object.keys(bedUpdates).forEach((key) => {
+          delete newSelectedBeds[key];
+        });
+        return newSelectedBeds;
+      });
+
+      // Notify parent about deselection
+      onBedSelect({
+        roomNumber: room.attributes.room_number,
+        roomId: room.id,
+        bedIndex: bedIndex,
+        date: currentDate,
+        isDeselecting: true,
+      });
+
+      return;
+    }
 
     // Validate date range
     if (!selectedDateRange?.arrivalDate || !selectedDateRange?.departureDate) {
-      // console.log("Missing date range:", selectedDateRange);
-      // Use arrivalDate and departureDate props as fallback
       if (!arrivalDate || !departureDate) {
-        // console.log("No date range selected");
         return;
       }
       selectedDateRange = {
@@ -262,13 +295,8 @@ const BookRoomBed = ({
       };
     }
 
-    // Create a new object to store updates
+    // Create a new object to store updates for selection
     const bedUpdates = {};
-
-    // Convert the clicked date to YYYY-MM-DD format
-    const clickedDate = `${currentDate.year}-${String(
-      new Date(Date.parse(`01 ${currentDate.month} 2000`)).getMonth() + 1
-    ).padStart(2, "0")}-${String(currentDate.day).padStart(2, "0")}`;
 
     // Get all dates between arrival and departure
     const start = new Date(selectedDateRange.arrivalDate);
@@ -284,14 +312,8 @@ const BookRoomBed = ({
       const month = date.toLocaleString("default", { month: "short" });
       const day = date.getDate();
 
-      const bedKey = `${room.attributes.room_number}-${bedIndex}-${year}-${month}-${day}`;
-
-      // Toggle the selection state based on the clicked date's current state
-      const isCurrentlySelected =
-        selectedBeds[
-          `${room.attributes.room_number}-${bedIndex}-${currentDate.year}-${currentDate.month}-${currentDate.day}`
-        ];
-      bedUpdates[bedKey] = !isCurrentlySelected;
+      const rangeBedKey = `${room.attributes.room_number}-${bedIndex}-${year}-${month}-${day}`;
+      bedUpdates[rangeBedKey] = true;
     }
 
     // Update all affected dates at once
@@ -299,6 +321,15 @@ const BookRoomBed = ({
       ...prev,
       ...bedUpdates,
     }));
+
+    // Notify parent about selection
+    onBedSelect({
+      roomNumber: room.attributes.room_number,
+      roomId: room.id,
+      bedIndex: bedIndex,
+      date: currentDate,
+      isDeselecting: false,
+    });
 
     // Count selected beds for this room
     const selectedBedsCount =

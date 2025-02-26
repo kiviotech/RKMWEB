@@ -552,52 +552,28 @@ const BookRoomBed = ({
       return checkDate >= fromDate && checkDate <= toDate;
     });
 
-    // Get number of allocated beds for current date
-    const allocatedBedsCount =
-      roomAllocations?.data?.reduce((count, allocation) => {
-        // Add null checks for nested properties
-        const firstGuest = allocation?.attributes?.guests?.data?.[0];
-        if (
-          !firstGuest?.attributes?.arrival_date ||
-          !firstGuest?.attributes?.departure_date
-        ) {
-          return count;
-        }
+    // Get available beds for this date
+    const availableBeds = getAvailableBedsForDate(room, currentDate);
 
-        const fromDate = new Date(firstGuest.attributes.arrival_date);
-        const toDate = new Date(firstGuest.attributes.departure_date);
-        const checkDate = new Date(
-          currentDate.year,
-          new Date(Date.parse(`01 ${currentDate.month} 2000`)).getMonth(),
-          currentDate.day,
-          0,
-          0,
-          0
-        );
-        fromDate.setHours(0, 0, 0, 0);
-        toDate.setHours(0, 0, 0, 0);
+    // Get selected beds for this date/room combination
+    const dateStr = `${currentDate.year}-${currentDate.month}-${currentDate.day}`;
+    const selectedBedsForDate = Object.keys(selectedBeds).filter((key) => {
+      const [roomNumber, _, year, month, day] = key.split("-");
+      const keyDateStr = `${year}-${month}-${day}`;
+      return (
+        roomNumber === room.attributes.room_number && keyDateStr === dateStr
+      );
+    }).length;
 
-        if (checkDate >= fromDate && checkDate <= toDate) {
-          // Safely count guests with null check
-          return count + (allocation?.attributes?.guests?.data?.length || 0);
-        }
-        return count;
-      }, 0) || 0;
+    const handleGridCellClick = () => {
+      if (isBlocked || availableBeds === 0) return;
 
-    const isSelected =
-      selectedDateRange &&
-      (() => {
-        // Create date strings for comparison
-        const checkDateStr = `${currentDate.year}-${String(
-          new Date(Date.parse(`01 ${currentDate.month} 2000`)).getMonth() + 1
-        ).padStart(2, "0")}-${String(currentDate.day).padStart(2, "0")}`;
-
-        // Use the exact date strings from selectedDateRange
-        return (
-          checkDateStr >= selectedDateRange.arrivalDate &&
-          checkDateStr <= selectedDateRange.departureDate
-        );
-      })();
+      // Find the next available bed index
+      const nextBedIndex = selectedBedsForDate;
+      if (nextBedIndex < availableBeds) {
+        handleBedIconClick(room, nextBedIndex, currentDate);
+      }
+    };
 
     const tooltipContent = getTooltipContent(
       roomBlockings,
@@ -717,27 +693,16 @@ const BookRoomBed = ({
     );
 
     if (numberOfBeds > 4) {
-      const selectedBedsForRoom = Object.keys(selectedBeds).filter((key) => {
-        const [roomNumber] = key.split("-");
-        return roomNumber === room.attributes.room_number;
-      }).length;
-
-      // Calculate the actual number of selected beds for this date
-      const dateStr = `${currentDate.year}-${currentDate.month}-${currentDate.day}`;
-      const selectedBedsForDate = Object.keys(selectedBeds).filter((key) => {
-        const [roomNumber, _, year, month, day] = key.split("-");
-        const keyDateStr = `${year}-${month}-${day}`;
-        return (
-          roomNumber === room.attributes.room_number && keyDateStr === dateStr
-        );
-      }).length;
-
       beds.push(
         <div
           key="bed-count-layout"
           className="bed-count-layout"
           title={tooltipContent ? "" : undefined}
           data-tooltip={tooltipContent ? "true" : undefined}
+          onClick={handleGridCellClick}
+          style={{
+            cursor: isBlocked || availableBeds === 0 ? "default" : "pointer",
+          }}
         >
           {tooltipContent && (
             <div className="custom-tooltip">{tooltipContent}</div>
@@ -749,9 +714,9 @@ const BookRoomBed = ({
                 ? "Blocked"
                 : selectedBedsForDate > 0
                 ? `Selected (${selectedBedsForDate}/${numberOfBeds})`
-                : allocatedBedsCount > 0
-                ? "Occupied"
-                : "Available"}
+                : availableBeds > 0
+                ? "Available"
+                : "Occupied"}
             </span>
           </div>
         </div>
@@ -763,6 +728,10 @@ const BookRoomBed = ({
           className="three-bed-layout"
           title={tooltipContent ? "" : undefined}
           data-tooltip={tooltipContent ? "true" : undefined}
+          onClick={handleGridCellClick}
+          style={{
+            cursor: isBlocked || availableBeds === 0 ? "default" : "pointer",
+          }}
         >
           {tooltipContent && (
             <div className="custom-tooltip">{tooltipContent}</div>
@@ -804,6 +773,10 @@ const BookRoomBed = ({
           className="bed-layout"
           title={tooltipContent ? "" : undefined}
           data-tooltip={tooltipContent ? "true" : undefined}
+          onClick={handleGridCellClick}
+          style={{
+            cursor: isBlocked || availableBeds === 0 ? "default" : "pointer",
+          }}
         >
           {tooltipContent && (
             <div className="custom-tooltip">{tooltipContent}</div>

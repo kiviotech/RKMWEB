@@ -266,122 +266,50 @@ const Dashboard = () => {
               </div>
             </div>
 
-            <div className="available-rooms cards">
-              <div className="section-header">
-                <h4>Available Rooms</h4>
-                <div className="date-input-container">
-                  <input
-                    type="date"
-                    value={selectedDate}
-                    onChange={(e) => setSelectedDate(e.target.value)}
-                    className="date-filter"
-                    placeholder="dd-mm-yyyy"
-                  />
+            <div className="room-stats-buttons">
+              <div className="dropdown-container">
+                <button
+                  className="dropdown-button"
+                  onClick={() => setShowDropdown(!showDropdown)}
+                >
+                  Applications
                   <svg
-                    width="20"
-                    height="20"
+                    width="12"
+                    height="12"
                     viewBox="0 0 24 24"
                     fill="none"
                     xmlns="http://www.w3.org/2000/svg"
                   >
                     <path
-                      d="M8 2V5"
-                      stroke="#666"
-                      strokeWidth="1.5"
-                      strokeMiterlimit="10"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                    <path
-                      d="M16 2V5"
-                      stroke="#666"
-                      strokeWidth="1.5"
-                      strokeMiterlimit="10"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                    <path
-                      d="M3.5 9.09H20.5"
-                      stroke="#666"
-                      strokeWidth="1.5"
-                      strokeMiterlimit="10"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                    <path
-                      d="M21 8.5V17C21 20 19.5 22 16 22H8C4.5 22 3 20 3 17V8.5C3 5.5 4.5 3.5 8 3.5H16C19.5 3.5 21 5.5 21 8.5Z"
-                      stroke="#666"
-                      strokeWidth="1.5"
-                      strokeMiterlimit="10"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                    <path
-                      d="M15.6947 13.7H15.7037"
-                      stroke="#666"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                    <path
-                      d="M15.6947 16.7H15.7037"
-                      stroke="#666"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                    <path
-                      d="M11.9955 13.7H12.0045"
-                      stroke="#666"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                    <path
-                      d="M11.9955 16.7H12.0045"
-                      stroke="#666"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                    <path
-                      d="M8.29431 13.7H8.30329"
-                      stroke="#666"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                    <path
-                      d="M8.29431 16.7H8.30329"
-                      stroke="#666"
+                      d="M6 9L12 15L18 9"
+                      stroke="white"
                       strokeWidth="2"
                       strokeLinecap="round"
                       strokeLinejoin="round"
                     />
                   </svg>
-                </div>
+                </button>
+                {showDropdown && (
+                  <div className="dropdown-menu">
+                    <button onClick={() => navigateToPage("/welcome")}>
+                      Guest House
+                    </button>
+                    <button
+                      onClick={() =>
+                        navigateToPage("/dormitory-application-form")
+                      }
+                    >
+                      Dormitory
+                    </button>
+                  </div>
+                )}
               </div>
-
-              <div className="rooms-list">
-                {blocks.map((block) => {
-                  const availableCount =
-                    blockRoomStats[blocks.indexOf(block)]?.available || 0;
-
-                  return (
-                    <div key={block.id} className="room-item">
-                      <span className="room-name">
-                        {block.attributes.block_name}
-                      </span>
-                      <div className="count-container">
-                        <span className="dash">-</span>
-                        <span className="room-count">
-                          {availableCount.toString().padStart(2, "0")}
-                        </span>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
+              <button
+                className="standard-button"
+                onClick={() => navigateToPage("/book-room-management")}
+              >
+                Room availability
+              </button>
             </div>
           </div>
 
@@ -448,7 +376,10 @@ const Dashboard = () => {
                   </div>
                 </div>
 
-                <div className="status-list-room-status">
+                <div
+                  className="status-list-room-status"
+                  style={{ width: "40%" }}
+                >
                   {roomStatus.map((item, index) => (
                     <StatusItem
                       key={index}
@@ -462,53 +393,41 @@ const Dashboard = () => {
                       paddingLeft={40}
                     />
                   ))}
-                </div>
-              </div>
 
-              <div className="room-stats-buttons">
-                <div className="dropdown-container">
-                  <button
-                    className="dropdown-button"
-                    onClick={() => setShowDropdown(!showDropdown)}
-                  >
-                    Applications
-                    <svg
-                      width="12"
-                      height="12"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        d="M6 9L12 15L18 9"
-                        stroke="white"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                    </svg>
-                  </button>
-                  {showDropdown && (
-                    <div className="dropdown-menu">
-                      <button onClick={() => navigateToPage("/welcome")}>
-                        Guest House
-                      </button>
-                      <button
-                        onClick={() =>
-                          navigateToPage("/dormitory-application-form")
-                        }
-                      >
-                        Dormitory
-                      </button>
+                  <div className="available-rooms-stats">
+                    <div className="stats-header">
+                      <h4 className="stats-title">Available Rooms</h4>
+                      <div className="date-filter-container">
+                        <input
+                          type="date"
+                          value={selectedDate}
+                          onChange={(e) => setSelectedDate(e.target.value)}
+                          className="stats-date-filter"
+                        />
+                      </div>
                     </div>
-                  )}
+                    <div className="rooms-stats-list">
+                      {blocks.map((block) => {
+                        const availableCount =
+                          blockRoomStats[blocks.indexOf(block)]?.available || 0;
+
+                        return (
+                          <div key={block.id} className="room-stats-item">
+                            <span className="room-stats-name">
+                              {block.attributes.block_name}
+                            </span>
+                            <div className="stats-count-container">
+                              <span className="stats-dash">-</span>
+                              <span className="stats-room-count">
+                                {availableCount.toString().padStart(2, "0")}
+                              </span>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
                 </div>
-                <button
-                  className="standard-button"
-                  onClick={() => navigateToPage("/book-room-management")}
-                >
-                  Room availability
-                </button>
               </div>
             </div>
           </div>

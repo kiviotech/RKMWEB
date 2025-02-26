@@ -383,3 +383,90 @@
     transform: rotate(360deg);
   }
 }
+
+.available-rooms-stats {
+  margin-top: 30px;
+  border-radius: 8px;
+  background-color: white;
+
+  .stats-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+  }
+
+  .stats-title {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 600;
+  }
+
+  .date-filter-container {
+    position: relative;
+    width: 130px;
+
+    .stats-date-filter {
+      width: 100%;
+      padding: 6px 30px 6px 8px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 14px;
+      color: #333;
+      background-color: white;
+      cursor: pointer;
+
+      &::-webkit-calendar-picker-indicator {
+        opacity: 0;
+        cursor: pointer;
+        position: absolute;
+        right: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+      }
+    }
+
+    .calendar-icon {
+      position: absolute;
+      right: 8px;
+      top: 50%;
+      transform: translateY(-50%);
+      pointer-events: none;
+    }
+  }
+
+  .rooms-stats-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .room-stats-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+  }
+
+  .room-stats-name {
+    font-size: 16px;
+    color: #333;
+  }
+
+  .stats-count-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .stats-dash {
+    color: #666;
+  }
+
+  .stats-room-count {
+    font-size: 16px;
+    font-weight: 500;
+    color: #fb8951;
+  }
+}

@@ -42,7 +42,7 @@ const BookRoomHeader = ({
     };
 
     getBlocks();
-  }, [refreshTrigger, onBlockSelect, activeBlock]);
+  }, [refreshTrigger]);
 
   // useEffect(() => {
   //   console.log("BookRoomHeader received dates:", {

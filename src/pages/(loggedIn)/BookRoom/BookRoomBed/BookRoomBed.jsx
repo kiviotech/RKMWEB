@@ -717,6 +717,21 @@ const BookRoomBed = ({
     );
 
     if (numberOfBeds > 4) {
+      const selectedBedsForRoom = Object.keys(selectedBeds).filter((key) => {
+        const [roomNumber] = key.split("-");
+        return roomNumber === room.attributes.room_number;
+      }).length;
+
+      // Calculate the actual number of selected beds for this date
+      const dateStr = `${currentDate.year}-${currentDate.month}-${currentDate.day}`;
+      const selectedBedsForDate = Object.keys(selectedBeds).filter((key) => {
+        const [roomNumber, _, year, month, day] = key.split("-");
+        const keyDateStr = `${year}-${month}-${day}`;
+        return (
+          roomNumber === room.attributes.room_number && keyDateStr === dateStr
+        );
+      }).length;
+
       beds.push(
         <div
           key="bed-count-layout"
@@ -732,12 +747,8 @@ const BookRoomBed = ({
             <span className="bed-status">
               {isBlocked
                 ? "Blocked"
-                : isFirstAvailableRoom(room, currentDate)
-                ? `Selected (${
-                    allocatedRooms.find(
-                      (r) => r.roomNumber === room.attributes.room_number
-                    )?.bedsAllocated || 0
-                  }/${numberOfBeds})`
+                : selectedBedsForDate > 0
+                ? `Selected (${selectedBedsForDate}/${numberOfBeds})`
                 : allocatedBedsCount > 0
                 ? "Occupied"
                 : "Available"}

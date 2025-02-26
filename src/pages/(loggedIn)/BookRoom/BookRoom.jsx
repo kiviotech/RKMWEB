@@ -35,6 +35,13 @@ const BookRoom = () => {
     guestCount,
     genderCounts = null
   ) => {
+    console.log("Allocation request:", {
+      arrivalDate,
+      departureDate,
+      guestCount,
+      genderCounts,
+    });
+
     // Ensure dates are in YYYY-MM-DD format
     setSelectedDateRange({
       arrivalDate: new Date(arrivalDate).toISOString().split("T")[0],
@@ -46,6 +53,7 @@ const BookRoom = () => {
     const newGuestCount = genderCounts
       ? genderCounts.male + genderCounts.female
       : parseInt(guestCount, 10);
+    console.log("Setting new guest count:", newGuestCount);
     setSelectedGuestCount(newGuestCount);
   };
 
@@ -68,23 +76,13 @@ const BookRoom = () => {
     setViewMode(view);
   };
 
-  const handleAllocatedGuestSelect = (guest, clearAll = false) => {
-    if (clearAll) {
-      // Reset all bed selections
-      setSelectedGuestCount(0);
-      setSelectedBedForGuest(null);
-      // Reset date range to trigger bed icon refresh
-      const currentDateRange = {
-        arrivalDate: arrivalDate,
-        departureDate: departureDate,
-      };
-      handleAllocate(arrivalDate, departureDate, 0);
-    } else {
-      // Existing single guest uncheck logic
-      const updatedGuestCount = selectedGuestCount - 1;
-      setSelectedGuestCount(updatedGuestCount);
-      handleAllocate(arrivalDate, departureDate, updatedGuestCount);
-    }
+  const handleAllocatedGuestSelect = (guest) => {
+    // Update the number of beds to allocate
+    const updatedGuestCount = selectedGuestCount - 1;
+    setSelectedGuestCount(updatedGuestCount);
+
+    // Update the allocation with the new guest count
+    handleAllocate(arrivalDate, departureDate, updatedGuestCount);
   };
 
   const handleBedSelection = (bedInfo) => {

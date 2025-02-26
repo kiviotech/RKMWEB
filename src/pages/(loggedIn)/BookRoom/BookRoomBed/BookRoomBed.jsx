@@ -77,14 +77,6 @@ const BookRoomBed = ({
     // console.log("Departure Date:", departureDate);
   }, [selectedDateRange, arrivalDate, departureDate]);
 
-  // Add useEffect to reset selectedBeds when numberOfBedsToAllocate becomes 0
-  useEffect(() => {
-    if (numberOfBedsToAllocate === 0) {
-      setSelectedBeds({}); // Clear all selected beds
-      onRoomAllocation([]); // Clear room allocations
-    }
-  }, [numberOfBedsToAllocate, onRoomAllocation]);
-
   const handleBedClick = (allocation) => {
     if (allocation) {
       // Get the booking request ID from the first guest's booking request
@@ -381,9 +373,7 @@ const BookRoomBed = ({
   const renderBedIcon = (bedIndex, room, currentDate) => {
     const bedKey = `${room.attributes.room_number}-${bedIndex}-${currentDate.year}-${currentDate.month}-${currentDate.day}`;
 
-    // First check if bed is selected
-    if (selectedBeds[bedKey] && numberOfBedsToAllocate > 0) {
-      // Add numberOfBedsToAllocate check
+    if (selectedBeds[bedKey]) {
       return icons.selectedImage;
     }
 
@@ -742,44 +732,12 @@ const BookRoomBed = ({
         );
       }).length;
 
-      // Check if the room is blocked or fully allocated
-      const isBlocked = roomBlockings?.some((blocking) => {
-        const fromDate = new Date(blocking.attributes.from_date);
-        const toDate = new Date(blocking.attributes.to_date);
-        const checkDate = new Date(
-          currentDate.year,
-          new Date(Date.parse(`01 ${currentDate.month} 2000`)).getMonth(),
-          currentDate.day,
-          0,
-          0,
-          0
-        );
-        fromDate.setHours(0, 0, 0, 0);
-        toDate.setHours(0, 0, 0, 0);
-        return checkDate >= fromDate && checkDate <= toDate;
-      });
-
-      // Handle click on bed count layout
-      const handleBedCountClick = () => {
-        if (isBlocked) return; // Don't allow clicks on blocked rooms
-
-        // Find the next available bed index
-        const nextBedIndex = selectedBedsForDate;
-        if (nextBedIndex < numberOfBeds) {
-          handleBedIconClick(room, nextBedIndex, currentDate);
-        }
-      };
-
       beds.push(
         <div
           key="bed-count-layout"
           className="bed-count-layout"
           title={tooltipContent ? "" : undefined}
           data-tooltip={tooltipContent ? "true" : undefined}
-          onClick={handleBedCountClick}
-          style={{
-            cursor: isBlocked ? "default" : "pointer",
-          }}
         >
           {tooltipContent && (
             <div className="custom-tooltip">{tooltipContent}</div>

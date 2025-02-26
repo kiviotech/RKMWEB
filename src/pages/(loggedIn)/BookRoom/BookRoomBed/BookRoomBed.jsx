@@ -742,12 +742,44 @@ const BookRoomBed = ({
         );
       }).length;
 
+      // Check if the room is blocked or fully allocated
+      const isBlocked = roomBlockings?.some((blocking) => {
+        const fromDate = new Date(blocking.attributes.from_date);
+        const toDate = new Date(blocking.attributes.to_date);
+        const checkDate = new Date(
+          currentDate.year,
+          new Date(Date.parse(`01 ${currentDate.month} 2000`)).getMonth(),
+          currentDate.day,
+          0,
+          0,
+          0
+        );
+        fromDate.setHours(0, 0, 0, 0);
+        toDate.setHours(0, 0, 0, 0);
+        return checkDate >= fromDate && checkDate <= toDate;
+      });
+
+      // Handle click on bed count layout
+      const handleBedCountClick = () => {
+        if (isBlocked) return; // Don't allow clicks on blocked rooms
+
+        // Find the next available bed index
+        const nextBedIndex = selectedBedsForDate;
+        if (nextBedIndex < numberOfBeds) {
+          handleBedIconClick(room, nextBedIndex, currentDate);
+        }
+      };
+
       beds.push(
         <div
           key="bed-count-layout"
           className="bed-count-layout"
           title={tooltipContent ? "" : undefined}
           data-tooltip={tooltipContent ? "true" : undefined}
+          onClick={handleBedCountClick}
+          style={{
+            cursor: isBlocked ? "default" : "pointer",
+          }}
         >
           {tooltipContent && (
             <div className="custom-tooltip">{tooltipContent}</div>

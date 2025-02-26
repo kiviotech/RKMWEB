@@ -20,8 +20,10 @@ const BookRoom = () => {
   const [selectedBedForGuest, setSelectedBedForGuest] = useState(null);
 
   useEffect(() => {
-    // console.log("BookRoom received dates:", { arrivalDate, departureDate });
-  }, [arrivalDate, departureDate]);
+    if (requestId) {
+      setSelectedGuestCount(location.state?.guestCount || 0);
+    }
+  }, [requestId, location.state]);
 
   const handleBlockSelect = (blockId) => {
     setSelectedBlockId(blockId);
@@ -33,19 +35,26 @@ const BookRoom = () => {
     guestCount,
     genderCounts = null
   ) => {
-    // console.log("Allocation request:", {
-    //   arrivalDate,
-    //   departureDate,
-    //   guestCount,
-    //   genderCounts,
-    // });
+    console.log("Allocation request:", {
+      arrivalDate,
+      departureDate,
+      guestCount,
+      genderCounts,
+    });
+
     // Ensure dates are in YYYY-MM-DD format
     setSelectedDateRange({
       arrivalDate: new Date(arrivalDate).toISOString().split("T")[0],
       departureDate: new Date(departureDate).toISOString().split("T")[0],
     });
     setAllocationBlockId(selectedBlockId);
-    setSelectedGuestCount(parseInt(guestCount, 10));
+
+    // Update the guest count
+    const newGuestCount = genderCounts
+      ? genderCounts.male + genderCounts.female
+      : parseInt(guestCount, 10);
+    console.log("Setting new guest count:", newGuestCount);
+    setSelectedGuestCount(newGuestCount);
   };
 
   const handleRoomAllocation = (roomAllocations) => {

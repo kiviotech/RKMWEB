@@ -240,17 +240,35 @@ const BookRoomBed = ({
   };
 
   const handleBedIconClick = (room, bedIndex, currentDate) => {
+    // Add debug logging
+    console.log("Current state:", {
+      numberOfBedsToAllocate,
+      selectedBeds,
+      dateRange: selectedDateRange,
+    });
+
+    // Guard against invalid numberOfBedsToAllocate
+    if (
+      typeof numberOfBedsToAllocate !== "number" ||
+      numberOfBedsToAllocate <= 0
+    ) {
+      console.log(
+        "Invalid or zero numberOfBedsToAllocate:",
+        numberOfBedsToAllocate
+      );
+      return;
+    }
+
     // Check if bed is already selected
     const bedKey = `${room.attributes.room_number}-${bedIndex}-${currentDate.year}-${currentDate.month}-${currentDate.day}`;
     const isCurrentlySelected = selectedBeds[bedKey];
 
     if (isCurrentlySelected) {
-      // Deselect all beds in the date range
+      // Deselect logic remains the same...
       const start = new Date(selectedDateRange.arrivalDate);
       const end = new Date(selectedDateRange.departureDate);
       const bedUpdates = {};
 
-      // Iterate through all dates in the range and deselect them
       for (
         let date = new Date(start);
         date <= end;
@@ -263,7 +281,6 @@ const BookRoomBed = ({
         bedUpdates[rangeBedKey] = false;
       }
 
-      // Update all affected dates at once
       setSelectedBeds((prev) => {
         const newSelectedBeds = { ...prev };
         Object.keys(bedUpdates).forEach((key) => {
@@ -272,7 +289,6 @@ const BookRoomBed = ({
         return newSelectedBeds;
       });
 
-      // Notify parent about deselection
       onBedSelect({
         roomNumber: room.attributes.room_number,
         roomId: room.id,
@@ -284,25 +300,31 @@ const BookRoomBed = ({
       return;
     }
 
-    // Validate date range
-    if (!selectedDateRange?.arrivalDate || !selectedDateRange?.departureDate) {
-      if (!arrivalDate || !departureDate) {
-        return;
-      }
-      selectedDateRange = {
-        arrivalDate: arrivalDate,
-        departureDate: departureDate,
-      };
-    }
-
-    // Create a new object to store updates for selection
-    const bedUpdates = {};
-
-    // Get all dates between arrival and departure
+    // Calculate number of days in date range
     const start = new Date(selectedDateRange.arrivalDate);
     const end = new Date(selectedDateRange.departureDate);
+    const daysInRange = (end - start) / (1000 * 60 * 60 * 24) + 1;
 
-    // Iterate through all dates in the range
+    // Count currently selected unique beds
+    const selectedBedKeys = Object.keys(selectedBeds);
+    const uniqueBedsSelected = new Set(
+      selectedBedKeys.map((key) => key.split("-").slice(0, 2).join("-"))
+    ).size;
+
+    console.log("Selection check:", {
+      uniqueBedsSelected,
+      numberOfBedsToAllocate,
+      daysInRange,
+    });
+
+    // Check if we've reached the limit
+    if (uniqueBedsSelected >= numberOfBedsToAllocate) {
+      console.log("Cannot select more beds - allocation limit reached");
+      return;
+    }
+
+    // Proceed with selection
+    const bedUpdates = {};
     for (
       let date = new Date(start);
       date <= end;
@@ -311,18 +333,15 @@ const BookRoomBed = ({
       const year = date.getFullYear();
       const month = date.toLocaleString("default", { month: "short" });
       const day = date.getDate();
-
       const rangeBedKey = `${room.attributes.room_number}-${bedIndex}-${year}-${month}-${day}`;
       bedUpdates[rangeBedKey] = true;
     }
 
-    // Update all affected dates at once
     setSelectedBeds((prev) => ({
       ...prev,
       ...bedUpdates,
     }));
 
-    // Notify parent about selection
     onBedSelect({
       roomNumber: room.attributes.room_number,
       roomId: room.id,

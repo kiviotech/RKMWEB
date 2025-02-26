@@ -31,6 +31,14 @@ const BookRoomDevoteeDetails = ({
             response.data?.attributes?.guests?.data?.map((guest) => guest.id) ||
             [];
           setSelectedGuests(allGuestIds);
+
+          // Call onAllocate with initial guest count
+          const initialGuestCount = allGuestIds.length;
+          onAllocate(
+            response.data.attributes.arrival_date,
+            response.data.attributes.departure_date,
+            initialGuestCount
+          );
         }
       } catch (error) {
         console.error("Error fetching booking request:", error);

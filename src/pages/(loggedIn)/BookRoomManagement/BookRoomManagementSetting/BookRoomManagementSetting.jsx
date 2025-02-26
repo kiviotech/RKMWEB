@@ -70,7 +70,7 @@ const BookRoomManagementSetting = ({
             }`}
             onClick={() => setActiveTab("book")}
           >
-            Book Room
+            Allocate Room
           </button>
         </div>
 

@@ -866,7 +866,8 @@ const BookDormitoryRoomBed = ({ blockId, refreshTrigger, viewMode, arrivalDate, 
                 const tooltipContent = getTooltipContent(
                   room.attributes?.room_blockings?.data,
                   room.attributes?.room_allocations,
-                  date
+                  date,
+                  handleBedManagementClick
                 );
 
                 return (
@@ -878,7 +879,11 @@ const BookDormitoryRoomBed = ({ blockId, refreshTrigger, viewMode, arrivalDate, 
                       backgroundColor: getBackgroundColor(isBlocked, hasAllocation, allocation),
                       cursor: (!isBlocked && !hasAllocation && isInRange && availableBeds > 0 && selectedGuests?.length > 0) ? 'pointer' : 'default',
                     }}
-                    onClick={() => {
+                    onClick={(e) => {
+                      // Prevent bed selection if clicking on tooltip
+                      if (e.target.closest('.tooltip-content')) {
+                        return;
+                      }
                       if (!isBlocked && !hasAllocation && isInRange && availableBeds > 0 && selectedGuests?.length > 0) {
                         handleListViewBedSelection(room.id, room.attributes.room_number, date, availableBeds);
                       }

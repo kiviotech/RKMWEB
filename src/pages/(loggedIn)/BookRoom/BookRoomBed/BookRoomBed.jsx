@@ -714,7 +714,8 @@ const BookRoomBed = ({ blockId, refreshTrigger, viewMode, arrivalDate, departure
                 const tooltipContent = getTooltipContent(
                   room.attributes?.room_blockings?.data,
                   room.attributes?.room_allocations,
-                  date
+                  date,
+                  handleBedManagementClick
                 );
 
                 const isBlocked = room.attributes?.room_blockings?.data?.some(
@@ -783,7 +784,11 @@ const BookRoomBed = ({ blockId, refreshTrigger, viewMode, arrivalDate, departure
                       cursor: (!isBlocked && !hasAllocation && isInRange && availableBeds > 0 && selectedGuests?.length > 0 && !allBedsSelected) ? 'pointer' : 'default',
                       opacity: 1
                     }}
-                    onClick={() => {
+                    onClick={(e) => {
+                      // Prevent click if tooltip is clicked
+                      if (e.target.closest('.tooltip-content')) {
+                        return;
+                      }
                       if (!isBlocked && !hasAllocation && isInRange && availableBeds > 0 && selectedGuests?.length > 0 && !allBedsSelected) {
                         handleListViewBedSelection(room.id, date, availableBeds, room);
                       }

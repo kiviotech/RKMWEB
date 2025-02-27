@@ -157,17 +157,15 @@ const AllDonationDetails = () => {
         <div className="left-section">
           <div className="time-filter-buttons">
             <button
-              className={`filter-button ${
-                timeFilter === "today" ? "active" : ""
-              }`}
+              className={`filter-button ${timeFilter === "today" ? "active" : ""
+                }`}
               onClick={() => handleTimeFilterChange("today")}
             >
               Today Donations
             </button>
             <button
-              className={`filter-button ${
-                timeFilter === "all" ? "active" : ""
-              }`}
+              className={`filter-button ${timeFilter === "all" ? "active" : ""
+                }`}
               onClick={() => handleTimeFilterChange("all")}
             >
               All Donations
@@ -309,9 +307,8 @@ const AllDonationDetails = () => {
                 <button
                   key={pageNumber}
                   onClick={() => handlePageChange(pageNumber)}
-                  className={`pagination-btn ${
-                    currentPage === pageNumber ? "active" : ""
-                  }`}
+                  className={`pagination-btn ${currentPage === pageNumber ? "active" : ""
+                    }`}
                 >
                   {pageNumber}
                 </button>

@@ -3,7 +3,7 @@ import donationsEndpoints from "../endpoints/donationsEndpoints";
 
 // Fetch all donations
 export const getDonations = () =>
-  apiClient.get(donationsEndpoints.getDonations);
+  apiClient.get(donationsEndpoints.getDonations());
 
 // Fetch a specific donation by ID
 export const getDonationById = (id) =>

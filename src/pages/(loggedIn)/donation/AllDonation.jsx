@@ -19,7 +19,7 @@ const AllDonation = ({
   donatedFor = "ALL",
   currentPage = 1,
   itemsPerPage = 10,
-  setTotalPages = () => {}, // Provide default empty function
+  setTotalPages = () => { }, // Provide default empty function
   filterOptions = {
     receiptNumber: true,
     donorName: true,
@@ -202,9 +202,9 @@ const AllDonation = ({
         donations.map((donation) =>
           donation.id === donationId
             ? {
-                ...donation,
-                attributes: { ...donation.attributes, status: "cancelled" },
-              }
+              ...donation,
+              attributes: { ...donation.attributes, status: "cancelled" },
+            }
             : donation
         )
       );
@@ -574,42 +574,42 @@ const AllDonation = ({
                         {(donation.attributes.status.toLowerCase() ===
                           "pending" ||
                           donation.attributes.status.toLowerCase() ===
-                            "completed") && (
-                          <>
-                            <button
-                              className="cancel-btn"
-                              onClick={() => handleCancelClick(donation.id)}
-                            >
-                              Cancel
-                            </button>
-                            {donation.attributes.status.toLowerCase() ===
-                              "completed" && (
+                          "completed") && (
+                            <>
                               <button
-                                className="view-btn"
-                                style={{
-                                  color: "#ea7704",
-                                  background: "transparent",
-                                  border: "none",
-                                  cursor: "pointer",
-                                  padding: "5px 10px",
-                                  fontSize: "14px",
-                                }}
-                                onClick={() => handleViewDonation(donation)}
+                                className="cancel-btn"
+                                onClick={() => handleCancelClick(donation.id)}
                               >
-                                View
+                                Cancel
                               </button>
-                            )}
-                            {donation.attributes.status.toLowerCase() ===
-                              "pending" && (
-                              <button
-                                className="submit-btn"
-                                onClick={() => handleSubmit(donation)}
-                              >
-                                Submit
-                              </button>
-                            )}
-                          </>
-                        )}
+                              {donation.attributes.status.toLowerCase() ===
+                                "completed" && (
+                                  <button
+                                    className="view-btn"
+                                    style={{
+                                      color: "#ea7704",
+                                      background: "transparent",
+                                      border: "none",
+                                      cursor: "pointer",
+                                      padding: "5px 10px",
+                                      fontSize: "14px",
+                                    }}
+                                    onClick={() => handleViewDonation(donation)}
+                                  >
+                                    View
+                                  </button>
+                                )}
+                              {donation.attributes.status.toLowerCase() ===
+                                "pending" && (
+                                  <button
+                                    className="submit-btn"
+                                    onClick={() => handleSubmit(donation)}
+                                  >
+                                    Submit
+                                  </button>
+                                )}
+                            </>
+                          )}
                       </td>
                     )}
                   </tr>

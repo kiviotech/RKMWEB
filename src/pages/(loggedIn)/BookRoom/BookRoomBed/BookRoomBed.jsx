@@ -1,35 +1,32 @@
 import React, { useEffect, useState, useRef } from "react";
+import "./BookRoomBed.scss";
 import { icons } from "../../../../constants";
 import * as blockService from "../../../../../services/src/services/blockService";
 import { useNavigate } from "react-router-dom";
-import "./BookRoomBed.scss";
 
-const BookRoomBed = ({
-  blockId,
-  selectedDateRange,
-  numberOfBedsToAllocate,
-  refreshTrigger,
-  onRoomAllocation,
-  arrivalDate,
-  departureDate,
-  viewMode,
-  onBedSelect,
-}) => {
+const BookRoomBed = ({ blockId, refreshTrigger, viewMode, arrivalDate, departureDate, onRoomSelect, selectedGuests }) => {
   const [rooms, setRooms] = useState([]);
   const [dates, setDates] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const scrollContainerRef = useRef(null);
-  const [allocatedRoomNumber, setAllocatedRoomNumber] = useState(null);
-  const [allocatedRooms, setAllocatedRooms] = useState([]);
   const navigate = useNavigate();
   const [selectedBeds, setSelectedBeds] = useState({});
+  const [selectedBedCounts, setSelectedBedCounts] = useState({});
 
+  // Add effect to reset selections when refreshTrigger changes
+  useEffect(() => {
+    setSelectedBeds({});
+    setSelectedBedCounts({});
+  }, [refreshTrigger]);
+
+  // Modify the date generation useEffect
   useEffect(() => {
     const generateDates = () => {
       const datesArray = [];
-      if (!arrivalDate) return;
+      // Use arrival date as the start date, or current date if no arrival date
+      const startDate = arrivalDate ? new Date(arrivalDate) : new Date();
 
-      const startDate = new Date(arrivalDate);
+      // Generate dates for next 365 days starting from arrival date
       for (let i = 0; i < 365; i++) {
         const date = new Date(startDate);
         date.setDate(startDate.getDate() + i);
@@ -43,7 +40,7 @@ const BookRoomBed = ({
     };
 
     generateDates();
-  }, [arrivalDate]);
+  }, [arrivalDate]); // Add arrivalDate as dependency
 
   useEffect(() => {
     const fetchBlockDetails = async () => {
@@ -53,12 +50,11 @@ const BookRoomBed = ({
           const blockData = await blockService.fetchBlockById(blockId);
           const roomsData = blockData.data.attributes.rooms.data;
           setRooms(roomsData);
-
-          // Log all room allocation data
-          // console.log("=== All Rooms Data ===");
-          roomsData.forEach((room) => {
-            // console.log("room", room);
-          });
+          // Add console log to see room allocations
+          console.log("Rooms with allocations:", roomsData.map(room => ({
+            roomNumber: room.attributes.room_number,
+            allocations: room.attributes.room_allocations?.data
+          })));
         } catch (error) {
           console.error("Error fetching block details:", error);
         } finally {
@@ -70,20 +66,13 @@ const BookRoomBed = ({
     fetchBlockDetails();
   }, [blockId, refreshTrigger]);
 
-  // Add logging to debug date range
-  useEffect(() => {
-    // console.log("Selected Date Range:", selectedDateRange);
-    // console.log("Arrival Date:", arrivalDate);
-    // console.log("Departure Date:", departureDate);
-  }, [selectedDateRange, arrivalDate, departureDate]);
-
-  const handleBedClick = (allocation) => {
+  const handleBedManagementClick = (allocation) => {
     if (allocation) {
       // Get the booking request ID from the first guest's booking request
       const bookingRequestId =
         allocation.attributes.guests.data[0]?.attributes?.booking_request?.data
           ?.id;
-      // console.log("Booking Request ID:", allocation);
+      console.log("Booking Request ID:", allocation);
       if (bookingRequestId) {
         navigate("/requests", {
           state: {
@@ -98,432 +87,166 @@ const BookRoomBed = ({
     }
   };
 
-  const getTooltipContent = (roomBlockings, roomAllocations, currentDate) => {
-    // Early return if roomAllocations is undefined or doesn't have data
-    if (!roomAllocations?.data) return null;
+  // Helper function to check if a date is within arrival and departure range
+  const isDateInRange = (dateToCheck, arrivalDate, departureDate) => {
+    if (!arrivalDate || !departureDate) return false;
 
-    // Find allocation with additional safety checks
-    const allocation = roomAllocations.data.find((allocation) => {
-      // Check for allocations with guests
-      if (allocation?.attributes?.guests?.data?.length > 0) {
-        try {
-          const fromDate = new Date(
-            allocation.attributes.guests.data[0].attributes.arrival_date
-          );
-          const toDate = new Date(
-            allocation.attributes.guests.data[0].attributes.departure_date
-          );
-          const checkDate = new Date(
-            currentDate.year,
-            new Date(Date.parse(`01 ${currentDate.month} 2000`)).getMonth(),
-            currentDate.day
-          );
+    const checkDate = new Date(
+      dateToCheck.year,
+      new Date(Date.parse(`01 ${dateToCheck.month} 2000`)).getMonth(),
+      dateToCheck.day
+    );
+    const arrival = new Date(arrivalDate);
+    const departure = new Date(departureDate);
 
-          // Validate dates
-          if (
-            isNaN(fromDate.getTime()) ||
-            isNaN(toDate.getTime()) ||
-            isNaN(checkDate.getTime())
-          ) {
-            return false;
-          }
+    checkDate.setHours(0, 0, 0, 0);
+    arrival.setHours(0, 0, 0, 0);
+    departure.setHours(0, 0, 0, 0);
 
-          fromDate.setHours(0, 0, 0, 0);
-          toDate.setHours(0, 0, 0, 0);
-          checkDate.setHours(0, 0, 0, 0);
-
-          return checkDate >= fromDate && checkDate <= toDate;
-        } catch (error) {
-          console.error("Error processing dates:", error);
-          return false;
-        }
-      }
-      // Check for allocations without guests but with occupancy
-      else if (allocation.attributes.room_status === "allocated") {
-        return true; // Show tooltip for allocated rooms even without guests
-      }
-      return false;
-    });
-
-    if (allocation) {
-      if (allocation.attributes.guests?.data?.length > 0) {
-        // Existing guest tooltip content
-        const guests = allocation.attributes.guests.data;
-        return (
-          <div
-            className="tooltip-content"
-            onClick={() => handleBedClick(allocation)}
-            style={{ cursor: "pointer" }}
-          >
-            <h4>Room Allocation Details:</h4>
-            {guests.map((guest, index) => (
-              <div key={index} className="guest-details">
-                <p>
-                  <strong>Guest {index + 1}:</strong>
-                </p>
-                <p>Name: {guest.attributes.name}</p>
-                <p>From: {guest.attributes.arrival_date}</p>
-                <p>To: {guest.attributes.departure_date}</p>
-                <p>Phone: {guest.attributes.phone_number}</p>
-              </div>
-            ))}
-          </div>
-        );
-      } else {
-        // New tooltip content for rooms with occupancy but no guests
-        return (
-          <div className="tooltip-content">
-            <h4>Room Allocation Details:</h4>
-            <p>
-              <strong>Status:</strong> Allocated
-            </p>
-            <p>
-              <strong>Occupied Beds:</strong> {allocation.attributes.occupancy}
-            </p>
-            <p>
-              <strong>Created:</strong>{" "}
-              {new Date(allocation.attributes.createdAt).toLocaleString()}
-            </p>
-            <p>
-              <strong>Last Updated:</strong>{" "}
-              {new Date(allocation.attributes.updatedAt).toLocaleString()}
-            </p>
-          </div>
-        );
-      }
-    }
-
-    // Check for blockings if no allocation
-    const blocking = roomBlockings?.find((blocking) => {
-      const fromDate = new Date(blocking.attributes.from_date);
-      const toDate = new Date(blocking.attributes.to_date);
-      const checkDate = new Date(
-        currentDate.year,
-        new Date(Date.parse(`01 ${currentDate.month} 2000`)).getMonth(),
-        currentDate.day
-      );
-      fromDate.setHours(0, 0, 0, 0);
-      toDate.setHours(0, 0, 0, 0);
-      checkDate.setHours(0, 0, 0, 0);
-      return checkDate >= fromDate && checkDate <= toDate;
-    });
-
-    if (blocking) {
-      return (
-        <div className="tooltip-content">
-          <h4>Room Blocking Details:</h4>
-          <p>
-            <strong>Status:</strong> {blocking.attributes.room_block_status}
-          </p>
-          <p>
-            <strong>From:</strong> {blocking.attributes.from_date}
-          </p>
-          <p>
-            <strong>To:</strong> {blocking.attributes.to_date}
-          </p>
-          <p>
-            <strong>Reason:</strong> {blocking.attributes.reason_for_blocking}
-          </p>
-          <p>
-            <strong>Created:</strong>{" "}
-            {new Date(blocking.attributes.createdAt).toLocaleString()}
-          </p>
-          <p>
-            <strong>Last Updated:</strong>{" "}
-            {new Date(blocking.attributes.updatedAt).toLocaleString()}
-          </p>
-        </div>
-      );
-    }
-
-    return null;
+    return checkDate >= arrival && checkDate <= departure;
   };
 
-  const handleBedIconClick = (room, bedIndex, currentDate) => {
-    // Add debug logging
-    console.log("Current state:", {
-      numberOfBedsToAllocate,
-      selectedBeds,
-      dateRange: selectedDateRange,
-    });
+  // Add this helper function near the top of the component
+  const hasAllocationInDateRange = (room, startDate, endDate) => {
+    const allocations = room.attributes?.room_allocations?.data || [];
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    start.setHours(0, 0, 0, 0);
+    end.setHours(0, 0, 0, 0);
 
-    // Guard against invalid numberOfBedsToAllocate
-    if (
-      typeof numberOfBedsToAllocate !== "number" ||
-      numberOfBedsToAllocate <= 0
-    ) {
-      console.log(
-        "Invalid or zero numberOfBedsToAllocate:",
-        numberOfBedsToAllocate
+    return allocations.some(allocation => {
+      const guests = allocation.attributes?.guests?.data;
+      if (!guests?.[0]?.attributes) return false;
+
+      const allocationStart = new Date(guests[0].attributes.arrival_date);
+      const allocationEnd = new Date(guests[0].attributes.departure_date);
+      allocationStart.setHours(0, 0, 0, 0);
+      allocationEnd.setHours(0, 0, 0, 0);
+
+      // Check if date ranges overlap
+      return (
+        (start <= allocationEnd && end >= allocationStart) ||
+        (allocationStart <= end && allocationEnd >= start)
       );
+    });
+  };
+
+  // Modified handleBedCountClick to properly handle guest allocation
+  const handleBedCountClick = (roomId, roomNumber, dateIndex, totalBeds) => {
+    if (!selectedGuests?.length) return;
+
+    // Find the room object
+    const room = rooms.find(r => r.id === roomId);
+
+    // Check for allocation conflicts
+    if (hasAllocationInDateRange(room, arrivalDate, departureDate)) {
+      alert("This room is already allocated for some dates in your selected range. Please choose another room.");
       return;
     }
 
-    // Check if bed is already selected
-    const bedKey = `${room.attributes.room_number}-${bedIndex}-${currentDate.year}-${currentDate.month}-${currentDate.day}`;
-    const isCurrentlySelected = selectedBeds[bedKey];
+    const dateKey = `${roomId}-${dateIndex}`;
+    const currentCount = selectedBedCounts[dateKey] || 0;
+    const newCount = currentCount < totalBeds ? currentCount + 1 : 0;
 
-    if (isCurrentlySelected) {
-      // Deselect logic remains the same...
-      const start = new Date(selectedDateRange.arrivalDate);
-      const end = new Date(selectedDateRange.departureDate);
-      const bedUpdates = {};
+    setSelectedBedCounts(prev => {
+      const updates = {};
 
-      for (
-        let date = new Date(start);
-        date <= end;
-        date.setDate(date.getDate() + 1)
-      ) {
-        const year = date.getFullYear();
-        const month = date.toLocaleString("default", { month: "short" });
-        const day = date.getDate();
-        const rangeBedKey = `${room.attributes.room_number}-${bedIndex}-${year}-${month}-${day}`;
-        bedUpdates[rangeBedKey] = false;
+      // Apply the same count to all dates in range
+      dates.forEach((date, idx) => {
+        if (isDateInRange(date, arrivalDate, departureDate)) {
+          const key = `${roomId}-${idx}`;
+          updates[key] = newCount;
+        }
+      });
+
+      // If selecting (not deselecting), call onRoomSelect with guest info
+      if (newCount > currentCount) {
+        onRoomSelect(roomNumber, {
+          startDate: arrivalDate,
+          endDate: departureDate,
+          guest: selectedGuests[0], // Add guest information
+          roomId: roomId
+        });
       }
 
-      setSelectedBeds((prev) => {
-        const newSelectedBeds = { ...prev };
-        Object.keys(bedUpdates).forEach((key) => {
-          delete newSelectedBeds[key];
-        });
-        return newSelectedBeds;
-      });
+      return { ...prev, ...updates };
+    });
+  };
 
-      onBedSelect({
-        roomNumber: room.attributes.room_number,
-        roomId: room.id,
-        bedIndex: bedIndex,
-        date: currentDate,
-        isDeselecting: true,
-      });
+  // Modified handleBedClick to properly sync with list view
+  const handleBedClick = (roomId, roomNumber, dateIndex, bedIndex) => {
+    if (!selectedGuests?.length) return;
 
+    // Find the room object
+    const room = rooms.find(r => r.id === roomId);
+
+    // Check for allocation conflicts
+    if (hasAllocationInDateRange(room, arrivalDate, departureDate)) {
+      alert("This room is already allocated for some dates in your selected range. Please choose another room.");
       return;
     }
 
-    // Calculate number of days in date range
-    const start = new Date(selectedDateRange.arrivalDate);
-    const end = new Date(selectedDateRange.departureDate);
-    const daysInRange = (end - start) / (1000 * 60 * 60 * 24) + 1;
+    const clickedDate = dates[dateIndex];
+    const bedKey = `${roomId}-${dateIndex}-${bedIndex}`;
 
-    // Count currently selected unique beds
-    const selectedBedKeys = Object.keys(selectedBeds);
-    const uniqueBedsSelected = new Set(
-      selectedBedKeys.map((key) => key.split("-").slice(0, 2).join("-"))
-    ).size;
+    // If bed is already selected, don't allow deselection
+    if (selectedBeds[bedKey]) return;
 
-    console.log("Selection check:", {
-      uniqueBedsSelected,
-      numberOfBedsToAllocate,
-      daysInRange,
+    // Create all updates first
+    const bedUpdates = {};
+    const countUpdates = {};
+    const newValue = true; // Always set to true, no toggling
+
+    // Calculate updates for all dates in range
+    dates.forEach((date, idx) => {
+      if (isDateInRange(date, arrivalDate, departureDate)) {
+        bedUpdates[`${roomId}-${idx}-${bedIndex}`] = newValue;
+
+        // Calculate count for this date
+        let selectedCount = 0;
+        for (let i = 0; i < 4; i++) {
+          const isBedSelected = i === bedIndex ?
+            newValue :
+            selectedBeds[`${roomId}-${idx}-${i}`];
+          if (isBedSelected) {
+            selectedCount++;
+          }
+        }
+        countUpdates[`${roomId}-${idx}`] = selectedCount;
+      }
     });
 
-    // Check if we've reached the limit
-    if (uniqueBedsSelected >= numberOfBedsToAllocate) {
-      console.log("Cannot select more beds - allocation limit reached");
-      return;
-    }
-
-    // Proceed with selection
-    const bedUpdates = {};
-    for (
-      let date = new Date(start);
-      date <= end;
-      date.setDate(date.getDate() + 1)
-    ) {
-      const year = date.getFullYear();
-      const month = date.toLocaleString("default", { month: "short" });
-      const day = date.getDate();
-      const rangeBedKey = `${room.attributes.room_number}-${bedIndex}-${year}-${month}-${day}`;
-      bedUpdates[rangeBedKey] = true;
-    }
-
-    setSelectedBeds((prev) => ({
+    // Apply all updates at once
+    setSelectedBeds(prev => ({
       ...prev,
-      ...bedUpdates,
+      ...bedUpdates
     }));
 
-    onBedSelect({
-      roomNumber: room.attributes.room_number,
-      roomId: room.id,
-      bedIndex: bedIndex,
-      date: currentDate,
-      isDeselecting: false,
-    });
+    setSelectedBedCounts(prev => ({
+      ...prev,
+      ...countUpdates
+    }));
 
-    // Count selected beds for this room
-    const selectedBedsCount =
-      Object.entries(bedUpdates).filter(([_, isSelected]) => isSelected)
-        .length /
-      ((new Date(selectedDateRange.departureDate) -
-        new Date(selectedDateRange.arrivalDate)) /
-        (1000 * 60 * 60 * 24) +
-        1);
-
-    // Update allocated rooms
-    const updatedRoom = {
-      roomId: room.id,
-      roomNumber: room.attributes.room_number,
-      bedsSelected: selectedBedsCount,
-      totalBeds: room.attributes.no_of_beds,
-    };
-
-    onRoomAllocation([updatedRoom]);
+    // If selecting, call onRoomSelect
+    if (newValue) {
+      onRoomSelect(roomNumber, {
+        startDate: arrivalDate,
+        endDate: departureDate,
+        guest: selectedGuests[0],
+        roomId: roomId
+      });
+    }
   };
 
-  const renderBedIcon = (bedIndex, room, currentDate) => {
-    const bedKey = `${room.attributes.room_number}-${bedIndex}-${currentDate.year}-${currentDate.month}-${currentDate.day}`;
-
-    if (selectedBeds[bedKey]) {
-      return icons.selectedImage;
-    }
-
-    // Check blockings
-    const isBlocked = room.attributes.room_blockings?.some((blocking) => {
-      const fromDate = new Date(blocking.attributes.from_date);
-      const toDate = new Date(blocking.attributes.to_date);
-      const checkDate = new Date(
-        currentDate.year,
-        new Date(Date.parse(`01 ${currentDate.month} 2000`)).getMonth(),
-        currentDate.day,
-        0,
-        0,
-        0
-      );
-      fromDate.setHours(0, 0, 0, 0);
-      toDate.setHours(0, 0, 0, 0);
-      return checkDate >= fromDate && checkDate <= toDate;
-    });
-
-    // Get number of allocated beds for current date
-    const allocatedBedsCount =
-      room.attributes.room_allocations?.data?.reduce((count, allocation) => {
-        // Add null checks for nested properties
-        const firstGuest = allocation?.attributes?.guests?.data?.[0];
-        if (
-          !firstGuest?.attributes?.arrival_date ||
-          !firstGuest?.attributes?.departure_date
-        ) {
-          return count;
-        }
-
-        const fromDate = new Date(firstGuest.attributes.arrival_date);
-        const toDate = new Date(firstGuest.attributes.departure_date);
-        const checkDate = new Date(
-          currentDate.year,
-          new Date(Date.parse(`01 ${currentDate.month} 2000`)).getMonth(),
-          currentDate.day,
-          0,
-          0,
-          0
-        );
-        fromDate.setHours(0, 0, 0, 0);
-        toDate.setHours(0, 0, 0, 0);
-
-        if (checkDate >= fromDate && checkDate <= toDate) {
-          // Safely count guests with null check
-          return count + (allocation?.attributes?.guests?.data?.length || 0);
-        }
-        return count;
-      }, 0) || 0;
-
-    const isSelected =
-      selectedDateRange &&
-      (() => {
-        // Create date strings for comparison
-        const checkDateStr = `${currentDate.year}-${String(
-          new Date(Date.parse(`01 ${currentDate.month} 2000`)).getMonth() + 1
-        ).padStart(2, "0")}-${String(currentDate.day).padStart(2, "0")}`;
-
-        // Use the exact date strings from selectedDateRange
-        return (
-          checkDateStr >= selectedDateRange.arrivalDate &&
-          checkDateStr <= selectedDateRange.departureDate
-        );
-      })();
-
-    const tooltipContent = getTooltipContent(
-      room.attributes.room_blockings?.data,
-      room.attributes.room_allocations,
-      currentDate
-    );
-
-    if (isBlocked) {
-      // Check blocking status and return appropriate icon
-      const blocking = room.attributes.room_blockings?.find((blocking) => {
-        const fromDate = new Date(blocking.attributes.from_date);
-        const toDate = new Date(blocking.attributes.to_date);
-        const checkDate = new Date(
-          currentDate.year,
-          new Date(Date.parse(`01 ${currentDate.month} 2000`)).getMonth(),
-          currentDate.day,
-          0,
-          0,
-          0
-        );
-        fromDate.setHours(0, 0, 0, 0);
-        toDate.setHours(0, 0, 0, 0);
-        return checkDate >= fromDate && checkDate <= toDate;
-      });
-
-      if (blocking) {
-        switch (blocking.attributes.room_block_status) {
-          case "blocked":
-            return icons.Group_4;
-          case "maintenance":
-            return icons.Group_7;
-          case "cleaning":
-            return icons.Group_3;
-          default:
-            return icons.filledBed;
-        }
+  // Helper function to get selected count for a room and date
+  const getSelectedCount = (roomId, dateIndex) => {
+    let count = 0;
+    for (let i = 0; i < 4; i++) {
+      if (selectedBeds[`${roomId}-${dateIndex}-${i}`]) {
+        count++;
       }
-      return icons.filledBed;
-    } else {
-      // Check for allocations without guests
-      const allocation = room.attributes.room_allocations?.data?.find(
-        (allocation) => {
-          if (allocation.attributes.guests?.data?.length > 0) {
-            const fromDate = new Date(
-              allocation.attributes.guests.data[0].attributes.arrival_date
-            );
-            const toDate = new Date(
-              allocation.attributes.guests.data[0].attributes.departure_date
-            );
-            const checkDate = new Date(
-              currentDate.year,
-              new Date(Date.parse(`01 ${currentDate.month} 2000`)).getMonth(),
-              currentDate.day,
-              0,
-              0,
-              0
-            );
-            fromDate.setHours(0, 0, 0, 0);
-            toDate.setHours(0, 0, 0, 0);
-            return checkDate >= fromDate && checkDate <= toDate;
-          } else {
-            // If no guests but room is allocated, check occupancy
-            return (
-              allocation.attributes.room_status === "allocated" &&
-              bedIndex < allocation.attributes.occupancy
-            );
-          }
-        }
-      );
-
-      if (allocation) {
-        // If there are guests, use existing logic for recommendation letter
-        if (allocation.attributes.guests?.data?.length > 0) {
-          const hasRecommendationLetter =
-            allocation.attributes.guests.data[bedIndex]?.attributes
-              ?.booking_request?.data?.attributes?.recommendation_letter?.data;
-          return hasRecommendationLetter ? icons.Group_2 : icons.Group_1;
-        } else {
-          // If no guests but room is allocated, show as occupied
-          return icons.Group_1;
-        }
-      }
-      return icons.Group2; // Available bed
     }
+    return count;
   };
 
   const renderBeds = (
@@ -531,11 +254,22 @@ const BookRoomBed = ({
     roomBlockings,
     roomAllocations,
     currentDate,
-    room
+    roomId,
+    dateIndex,
+    roomNumber
   ) => {
+    const isInRange = isDateInRange(currentDate, arrivalDate, departureDate);
     const beds = [];
 
-    // Check blockings
+    // Get tooltip content based on allocations and blockings
+    const tooltipContent = getTooltipContent(
+      roomBlockings,
+      roomAllocations,
+      currentDate,
+      handleBedManagementClick
+    );
+
+    // Check both blockings and allocations
     const isBlocked = roomBlockings?.some((blocking) => {
       const fromDate = new Date(blocking.attributes.from_date);
       const toDate = new Date(blocking.attributes.to_date);
@@ -552,43 +286,76 @@ const BookRoomBed = ({
       return checkDate >= fromDate && checkDate <= toDate;
     });
 
-    // Get available beds for this date
-    const availableBeds = getAvailableBedsForDate(room, currentDate);
-
-    // Get selected beds for this date/room combination
-    const dateStr = `${currentDate.year}-${currentDate.month}-${currentDate.day}`;
-    const selectedBedsForDate = Object.keys(selectedBeds).filter((key) => {
-      const [roomNumber, _, year, month, day] = key.split("-");
-      const keyDateStr = `${year}-${month}-${day}`;
-      return (
-        roomNumber === room.attributes.room_number && keyDateStr === dateStr
+    // Check for recommendation letter
+    const hasRecommendationLetter = roomAllocations?.data?.some(allocation => {
+      const checkDate = new Date(
+        currentDate.year,
+        new Date(Date.parse(`01 ${currentDate.month} 2000`)).getMonth(),
+        currentDate.day,
+        0,
+        0,
+        0
       );
-    }).length;
 
-    const handleGridCellClick = () => {
-      if (isBlocked || availableBeds === 0) return;
+      if (allocation.attributes.booking_request?.data) {
+        const fromDate = new Date(allocation.attributes.booking_request.data.attributes.arrival_date);
+        const toDate = new Date(allocation.attributes.booking_request.data.attributes.departure_date);
+        fromDate.setHours(0, 0, 0, 0);
+        toDate.setHours(0, 0, 0, 0);
 
-      // Find the next available bed index
-      const nextBedIndex = selectedBedsForDate;
-      if (nextBedIndex < availableBeds) {
-        handleBedIconClick(room, nextBedIndex, currentDate);
+        if (checkDate >= fromDate && checkDate <= toDate) {
+          return allocation.attributes.booking_request.data.attributes.recommendation_letter?.data;
+        }
       }
+      return false;
+    });
+
+    // Calculate occupied beds considering both direct guests and booking request occupancy
+    const occupiedBeds = roomAllocations?.data?.reduce((count, allocation) => {
+      const checkDate = new Date(
+        currentDate.year,
+        new Date(Date.parse(`01 ${currentDate.month} 2000`)).getMonth(),
+        currentDate.day,
+        0,
+        0,
+        0
+      );
+
+      // If there are guests in the allocation, use their dates
+      if (allocation.attributes.guests?.data?.length > 0) {
+        const fromDate = new Date(allocation.attributes.guests.data[0].attributes.arrival_date);
+        const toDate = new Date(allocation.attributes.guests.data[0].attributes.departure_date);
+        fromDate.setHours(0, 0, 0, 0);
+        toDate.setHours(0, 0, 0, 0);
+
+        if (checkDate >= fromDate && checkDate <= toDate) {
+          return count + allocation.attributes.guests.data.length;
+        }
+      }
+      // If no guests but has booking request, use occupancy
+      else if (allocation.attributes.booking_request?.data) {
+        const fromDate = new Date(allocation.attributes.booking_request.data.attributes.arrival_date);
+        const toDate = new Date(allocation.attributes.booking_request.data.attributes.departure_date);
+        fromDate.setHours(0, 0, 0, 0);
+        toDate.setHours(0, 0, 0, 0);
+
+        if (checkDate >= fromDate && checkDate <= toDate) {
+          return count + (allocation.attributes.occupancy || 0);
+        }
+      }
+      return count;
+    }, 0) || 0;
+
+    // Get background color based on conditions
+    const getBackgroundColor = () => {
+      if (isBlocked) return "#FFFF00";
+      if (hasRecommendationLetter) return "orange";
+      if (occupiedBeds > 0) return "#F28E86";
+      return "inherit";
     };
 
-    const tooltipContent = getTooltipContent(
-      roomBlockings,
-      roomAllocations,
-      currentDate
-    );
-
-    // Modify renderBedIcon to handle selected state
-    const renderBedIcon = (bedIndex, room, currentDate) => {
-      const bedKey = `${room.attributes.room_number}-${bedIndex}-${currentDate.year}-${currentDate.month}-${currentDate.day}`;
-
-      if (selectedBeds[bedKey]) {
-        return icons.selectedImage;
-      }
-
+    // Helper function to get bed icon based on allocation status and recommendation letter
+    const getBedIcon = (bedIndex, roomId, dateIndex) => {
       if (isBlocked) {
         // Check blocking status and return appropriate icon
         const blocking = roomBlockings?.find((blocking) => {
@@ -612,111 +379,116 @@ const BookRoomBed = ({
             case "blocked":
               return icons.Group_4;
             case "maintenance":
-              return icons.Group_7;
-            case "cleaning":
               return icons.Group_3;
+            case "reserved":
+              return icons.Group_5;
             default:
               return icons.filledBed;
           }
         }
         return icons.filledBed;
-      } else {
-        // Check for allocations without guests
-        const allocation = roomAllocations?.data?.find((allocation) => {
-          if (allocation.attributes.guests?.data?.length > 0) {
-            const fromDate = new Date(
-              allocation.attributes.guests.data[0].attributes.arrival_date
-            );
-            const toDate = new Date(
-              allocation.attributes.guests.data[0].attributes.departure_date
-            );
-            const checkDate = new Date(
-              currentDate.year,
-              new Date(Date.parse(`01 ${currentDate.month} 2000`)).getMonth(),
-              currentDate.day,
-              0,
-              0,
-              0
-            );
-            fromDate.setHours(0, 0, 0, 0);
-            toDate.setHours(0, 0, 0, 0);
-            return checkDate >= fromDate && checkDate <= toDate;
-          } else {
-            // If no guests but room is allocated, check occupancy
-            return (
-              allocation.attributes.room_status === "allocated" &&
-              bedIndex < allocation.attributes.occupancy
-            );
-          }
-        });
-
-        if (allocation) {
-          // If there are guests, use existing logic for recommendation letter
-          if (allocation.attributes.guests?.data?.length > 0) {
-            const hasRecommendationLetter =
-              allocation.attributes.guests.data[bedIndex]?.attributes
-                ?.booking_request?.data?.attributes?.recommendation_letter
-                ?.data;
-            return hasRecommendationLetter ? icons.Group_2 : icons.Group_1;
-          } else {
-            // If no guests but room is allocated, show as occupied
-            return icons.Group_1;
-          }
-        }
-        return icons.Group2; // Available bed
       }
+
+      const allocation = roomAllocations?.data?.find((allocation) => {
+        const fromDate = new Date(
+          allocation.attributes.guests.data[0].attributes.arrival_date
+        );
+        const toDate = new Date(
+          allocation.attributes.guests.data[0].attributes.departure_date
+        );
+        const checkDate = new Date(
+          currentDate.year,
+          new Date(Date.parse(`01 ${currentDate.month} 2000`)).getMonth(),
+          currentDate.day,
+          0,
+          0,
+          0
+        );
+        fromDate.setHours(0, 0, 0, 0);
+        toDate.setHours(0, 0, 0, 0);
+        return checkDate >= fromDate && checkDate <= toDate;
+      });
+
+      if (allocation && bedIndex < allocation.attributes.guests.data.length) {
+        const guest = allocation.attributes.guests.data[bedIndex];
+        const hasRecommendationLetter =
+          guest?.attributes?.booking_request?.data?.attributes
+            ?.recommendation_letter?.data;
+        return hasRecommendationLetter ? icons.Group_2 : icons.Group_1;
+      }
+
+      // Check if bed is selected
+      const bedKey = `${roomId}-${dateIndex}-${bedIndex}`;
+      if (selectedBeds[bedKey]) {
+        return icons.selectedImage;
+      }
+
+      return icons.Group2;
     };
 
-    // Modify the img tag rendering to include onClick
-    const renderBedImage = (bedIndex) => (
-      <img
-        src={renderBedIcon(bedIndex, room, currentDate)}
-        alt="bed"
-        className="bed-icon"
-        onClick={() => {
-          // Allow clicking on both Group2 and selectedImage
-          if (
-            renderBedIcon(bedIndex, room, currentDate) === icons.Group2 ||
-            renderBedIcon(bedIndex, room, currentDate) === icons.selectedImage
-          ) {
-            handleBedIconClick(room, bedIndex, currentDate);
-          }
-        }}
-        style={{
-          cursor:
-            renderBedIcon(bedIndex, room, currentDate) === icons.Group2 ||
-            renderBedIcon(bedIndex, room, currentDate) === icons.selectedImage
-              ? "pointer"
-              : "default",
-        }}
-      />
-    );
+    // Modify the img tag rendering to include onClick handler with roomNumber
+    const renderBedIcon = (bedIndex) => {
+      const icon = getBedIcon(bedIndex, roomId, dateIndex);
+      const isClickable = !isBlocked && isInRange && selectedGuests?.length > 0 && (icon === icons.Group2 || icon === icons.selectedImage);
+
+      return (
+        <img
+          src={icon}
+          alt="bed"
+          className={`bed-icon ${isInRange ? 'in-range' : ''}`}
+          onClick={() => {
+            if (isClickable) {
+              handleBedClick(roomId, roomNumber, dateIndex, bedIndex);
+            }
+          }}
+          style={{
+            cursor: isClickable ? 'pointer' : 'default',
+            opacity: 1 // Remove opacity change
+          }}
+        />
+      );
+    };
 
     if (numberOfBeds > 4) {
+      const key = `${roomId}-${dateIndex}`;
+      const selectedCount = selectedBedCounts[key] || 0;
+      const availableBeds = numberOfBeds - occupiedBeds;
+      const allBedsSelected = selectedCount >= availableBeds;
+
       beds.push(
         <div
           key="bed-count-layout"
-          className="bed-count-layout"
-          title={tooltipContent ? "" : undefined}
+          className={`bed-count-layout ${isInRange ? 'in-range' : ''}`}
           data-tooltip={tooltipContent ? "true" : undefined}
-          onClick={handleGridCellClick}
+          onClick={() => {
+            if (!isBlocked && isInRange && selectedGuests?.length > 0 && availableBeds > 0 && !allBedsSelected) {
+              handleBedCountClick(roomId, roomNumber, dateIndex, availableBeds);
+            }
+          }}
           style={{
-            cursor: isBlocked || availableBeds === 0 ? "default" : "pointer",
+            cursor: (!isBlocked && isInRange && selectedGuests?.length > 0 && availableBeds > 0 && !allBedsSelected) ? 'pointer' : 'default',
+            backgroundColor: getBackgroundColor(),
+            borderRadius: "8px",
           }}
         >
           {tooltipContent && (
             <div className="custom-tooltip">{tooltipContent}</div>
           )}
-          <div className="bed-count-box">
-            <span className="bed-number">{numberOfBeds}</span>
+          <div className={`bed-count-box ${isInRange ? 'in-range' : ''}`}>
+            <span className="bed-number">
+              {isInRange && selectedCount > 0
+                ? `${selectedCount}/${availableBeds}`
+                : availableBeds
+              }
+            </span>
             <span className="bed-status">
               {isBlocked
                 ? "Blocked"
-                : selectedBedsForDate > 0
-                ? `Selected (${selectedBedsForDate}/${numberOfBeds})`
-                : availableBeds > 0
-                ? "Available"
-                : "Occupied"}
+                : occupiedBeds > 0
+                  ? "Available"
+                  : allBedsSelected
+                    ? "Full"
+                    : "Available"}
             </span>
           </div>
         </div>
@@ -725,36 +497,31 @@ const BookRoomBed = ({
       beds.push(
         <div
           key="three-bed-layout"
-          className="three-bed-layout"
-          title={tooltipContent ? "" : undefined}
+          className={`three-bed-layout ${isInRange ? 'in-range' : ''}`}
           data-tooltip={tooltipContent ? "true" : undefined}
-          onClick={handleGridCellClick}
-          style={{
-            cursor: isBlocked || availableBeds === 0 ? "default" : "pointer",
-          }}
         >
           {tooltipContent && (
             <div className="custom-tooltip">{tooltipContent}</div>
           )}
           <div className="top-row">
-            {renderBedImage(0)}
-            {renderBedImage(1)}
+            {renderBedIcon(0)}
+            {renderBedIcon(1)}
           </div>
-          <div className="bottom-row">{renderBedImage(2)}</div>
+          <div className="bottom-row">
+            {renderBedIcon(2)}
+          </div>
         </div>
       );
     } else {
-      // For other bed configurations
       const fullGroups = Math.floor(numberOfBeds / 2);
       const remainingBeds = numberOfBeds % 2;
-      let bedCount = 0;
 
       const bedGroups = [];
       for (let i = 0; i < fullGroups; i++) {
         bedGroups.push(
           <div key={`group-${i}`} className="bed-group">
-            {renderBedImage(bedCount++)}
-            {renderBedImage(bedCount++)}
+            {renderBedIcon(i * 2)}
+            {renderBedIcon(i * 2 + 1)}
           </div>
         );
       }
@@ -762,7 +529,7 @@ const BookRoomBed = ({
       if (remainingBeds > 0) {
         bedGroups.push(
           <div key="remaining" className="bed-group">
-            {renderBedImage(bedCount)}
+            {renderBedIcon(fullGroups * 2)}
           </div>
         );
       }
@@ -770,13 +537,8 @@ const BookRoomBed = ({
       beds.push(
         <div
           key="bed-layout"
-          className="bed-layout"
-          title={tooltipContent ? "" : undefined}
+          className={`bed-layout ${isInRange ? 'in-range' : ''}`}
           data-tooltip={tooltipContent ? "true" : undefined}
-          onClick={handleGridCellClick}
-          style={{
-            cursor: isBlocked || availableBeds === 0 ? "default" : "pointer",
-          }}
         >
           {tooltipContent && (
             <div className="custom-tooltip">{tooltipContent}</div>
@@ -787,303 +549,6 @@ const BookRoomBed = ({
     }
 
     return beds;
-  };
-
-  // Update findFirstAvailableRoom to handle multiple room allocations
-  useEffect(() => {
-    if (selectedDateRange && numberOfBedsToAllocate >= 0) {
-      const result = findFirstAvailableRoom();
-
-      if (numberOfBedsToAllocate === 0) {
-        // Clear all allocations when no beds are needed
-        setAllocatedRooms([]);
-        onRoomAllocation([]);
-      } else if (result) {
-        setAllocatedRooms(result);
-        onRoomAllocation(result);
-      } else {
-        setAllocatedRooms([]);
-        onRoomAllocation([]);
-      }
-    }
-  }, [selectedDateRange, numberOfBedsToAllocate, rooms]);
-
-  const findFirstAvailableRoom = () => {
-    // console.log("=== Finding Available Rooms ===");
-    // console.log("Selected Date Range:", selectedDateRange);
-    // console.log("Beds Needed:", numberOfBedsToAllocate);
-
-    if (
-      !selectedDateRange ||
-      !selectedDateRange.arrivalDate ||
-      !selectedDateRange.departureDate ||
-      numberOfBedsToAllocate <= 0
-    ) {
-      return null;
-    }
-
-    let remainingBedsNeeded = numberOfBedsToAllocate;
-    let allocatedRoomsResult = [];
-
-    // Sort rooms by capacity (descending) to allocate larger rooms first
-    const sortedRooms = [...rooms].sort(
-      (a, b) => b.attributes.no_of_beds - a.attributes.no_of_beds
-    );
-
-    for (const room of sortedRooms) {
-      // console.log(`\nChecking Room ${room.attributes.room_number}:`, {
-      //   totalBeds: room.attributes.no_of_beds,
-      //   existingAllocations: room.attributes.room_allocations?.data?.map(
-      //     (a) => ({
-      //       guests: a.attributes.guests.data.map((g) => ({
-      //         arrival: g.attributes.arrival_date,
-      //         departure: g.attributes.departure_date,
-      //       })),
-      //     })
-      //   ),
-      //   blockings: room.attributes.room_blockings?.data?.map((b) => ({
-      //     status: b.attributes.room_block_status,
-      //     from: b.attributes.from_date,
-      //     to: b.attributes.to_date,
-      //   })),
-      // });
-
-      // Skip if no more beds needed
-      if (remainingBedsNeeded <= 0) break;
-
-      // Check for existing allocations
-      const existingAllocations = room.attributes.room_allocations?.data || [];
-      let hasConflict = false;
-
-      for (const allocation of existingAllocations) {
-        const guests = allocation.attributes.guests.data;
-        if (!guests || guests.length === 0) continue;
-
-        const existingArrival = guests[0].attributes.arrival_date;
-        const existingDeparture = guests[0].attributes.departure_date;
-
-        const hasOverlap =
-          selectedDateRange.arrivalDate <= existingDeparture &&
-          selectedDateRange.departureDate >= existingArrival;
-
-        if (hasOverlap) {
-          hasConflict = true;
-          break;
-        }
-      }
-
-      if (hasConflict) continue;
-
-      // Check for room blockings
-      const roomBlockings = room.attributes.room_blockings?.data || [];
-      const isBlocked = roomBlockings.some((blocking) => {
-        const blockStart = blocking.attributes.from_date;
-        const blockEnd = blocking.attributes.to_date;
-        return (
-          selectedDateRange.arrivalDate <= blockEnd &&
-          selectedDateRange.departureDate >= blockStart
-        );
-      });
-
-      if (isBlocked) continue;
-
-      // Calculate available beds
-      const availableBeds = room.attributes.no_of_beds;
-
-      if (availableBeds > 0) {
-        const bedsToAllocate = Math.min(availableBeds, remainingBedsNeeded);
-
-        // Make sure we're including the room ID
-        allocatedRoomsResult.push({
-          roomNumber: room.attributes.room_number,
-          roomId: room.id, // Ensure this is the correct property name
-          bedsAllocated: bedsToAllocate,
-          totalBeds: availableBeds,
-        });
-        // console.log("Adding room to allocation:", {
-        //   roomNumber: room.attributes.room_number,
-        //   roomId: room.id,
-        //   bedsAllocated: bedsToAllocate,
-        // }); // Debug log
-
-        remainingBedsNeeded -= bedsToAllocate;
-
-        // console.log(`Room ${room.attributes.room_number} is available:`, {
-        //   availableBeds,
-        //   bedsToAllocate: Math.min(availableBeds, remainingBedsNeeded),
-        // });
-      }
-    }
-
-    // Log final allocation result
-    // console.log("\nFinal Allocation Result:", allocatedRoomsResult);
-
-    return allocatedRoomsResult;
-  };
-
-  // Update isFirstAvailableRoom to check against all allocated rooms
-  const isFirstAvailableRoom = (room, date) => {
-    if (
-      !selectedDateRange ||
-      !allocatedRooms.length ||
-      numberOfBedsToAllocate === 0
-    )
-      return false;
-    return allocatedRooms.some(
-      (allocated) => allocated.roomNumber === room.attributes.room_number
-    );
-  };
-
-  const renderListView = () => {
-    return (
-      <div className="list-view-container">
-        <div className="room-numbers-column">
-          <div className="list-header fixed-column">Room No.</div>
-          {rooms?.map((room) => (
-            <div key={room?.id} className="room-info">
-              <div className="room-number">
-                {room?.attributes?.room_number}
-                <span className="capacity">
-                  ({room?.attributes?.no_of_beds})
-                </span>
-              </div>
-            </div>
-          )) || null}
-        </div>
-
-        <div className="scrollable-content" ref={scrollContainerRef}>
-          <div className="header-row">
-            <div className="scrollable-dates">
-              {dates?.map((date, index) => (
-                <div key={index} className="date-column">
-                  {`${date?.day}${getOrdinalSuffix(date?.day)} ${date?.month}`}
-                </div>
-              )) || null}
-            </div>
-          </div>
-
-          {rooms?.map((room) => (
-            <div key={room?.id} className="list-row">
-              {dates?.map((date, index) => {
-                const tooltipContent = room
-                  ? getTooltipContent(
-                      room?.attributes?.room_blockings?.data,
-                      room?.attributes?.room_allocations,
-                      date
-                    )
-                  : null;
-
-                // Check for room blocking status with null checks
-                const blocking = room?.attributes?.room_blockings?.data?.find(
-                  (blocking) => {
-                    if (
-                      !blocking?.attributes?.from_date ||
-                      !blocking?.attributes?.to_date
-                    ) {
-                      return false;
-                    }
-
-                    try {
-                      const fromDate = new Date(blocking.attributes.from_date);
-                      const toDate = new Date(blocking.attributes.to_date);
-                      const checkDate = new Date(
-                        date.year,
-                        new Date(
-                          Date.parse(`01 ${date.month} 2000`)
-                        ).getMonth(),
-                        date.day,
-                        0,
-                        0,
-                        0
-                      );
-
-                      fromDate.setHours(0, 0, 0, 0);
-                      toDate.setHours(0, 0, 0, 0);
-
-                      return checkDate >= fromDate && checkDate <= toDate;
-                    } catch (error) {
-                      console.error("Error processing blocking dates:", error);
-                      return false;
-                    }
-                  }
-                );
-
-                // Get available beds for this date
-                const availableBeds = getAvailableBedsForDate(room, date);
-
-                // Get selected beds for this date/room combination
-                const dateStr = `${date.year}-${date.month}-${date.day}`;
-                const selectedBedsForDate = Object.keys(selectedBeds).filter(
-                  (key) => {
-                    const [roomNumber, _, year, month, day] = key.split("-");
-                    const keyDateStr = `${year}-${month}-${day}`;
-                    return (
-                      roomNumber === room.attributes.room_number &&
-                      keyDateStr === dateStr
-                    );
-                  }
-                ).length;
-
-                // Calculate display count - only show ratio if beds are selected
-                const displayCount =
-                  selectedBedsForDate > 0
-                    ? `${selectedBedsForDate}/${availableBeds}`
-                    : availableBeds;
-
-                // Handle click on availability box
-                const handleAvailabilityClick = () => {
-                  if (blocking || availableBeds === 0) return; // Don't allow clicks on blocked or full rooms
-
-                  // Find the next available bed index
-                  const nextBedIndex = selectedBedsForDate;
-                  if (nextBedIndex < availableBeds) {
-                    handleBedIconClick(room, nextBedIndex, date);
-                  }
-                };
-
-                // Determine background color based on conditions
-                let backgroundColor = "inherit";
-                if (blocking?.attributes?.room_block_status) {
-                  switch (blocking.attributes.room_block_status) {
-                    case "maintenance":
-                      backgroundColor = "#666666";
-                      break;
-                    case "blocked":
-                      backgroundColor = "#FFFF00";
-                      break;
-                    case "reserved":
-                      backgroundColor = "#00b050";
-                      break;
-                  }
-                } else if (selectedBedsForDate > 0) {
-                  backgroundColor = "#9866e9"; // Color for selected beds
-                }
-
-                return (
-                  <div
-                    key={index}
-                    className="availability-box"
-                    data-tooltip={!!tooltipContent}
-                    style={{
-                      backgroundColor,
-                      cursor:
-                        blocking || availableBeds === 0 ? "default" : "pointer",
-                    }}
-                    onClick={handleAvailabilityClick}
-                  >
-                    <div className="bed-count">{displayCount}</div>
-                    <div className="availability-label">Available</div>
-                    {tooltipContent && (
-                      <div className="custom-tooltip">{tooltipContent}</div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          )) || null}
-        </div>
-      </div>
-    );
   };
 
   // Helper function to add ordinal suffix to dates
@@ -1099,20 +564,18 @@ const BookRoomBed = ({
     const allocations = room.attributes.room_allocations?.data || [];
     const blockings = room.attributes.room_blockings?.data || [];
 
-    // Create a proper Date object for comparison
-    const checkDate = new Date(
-      date.year,
-      new Date(Date.parse(`01 ${date.month} 2000`)).getMonth(),
-      date.day,
-      0,
-      0,
-      0
-    );
-
     // Check if room is blocked
     const isBlocked = blockings.some((blocking) => {
       const fromDate = new Date(blocking.attributes.from_date);
       const toDate = new Date(blocking.attributes.to_date);
+      const checkDate = new Date(
+        date.year,
+        new Date(Date.parse(`01 ${date.month} 2000`)).getMonth(),
+        date.day,
+        0,
+        0,
+        0
+      );
       fromDate.setHours(0, 0, 0, 0);
       toDate.setHours(0, 0, 0, 0);
       return checkDate >= fromDate && checkDate <= toDate;
@@ -1122,26 +585,278 @@ const BookRoomBed = ({
 
     // Calculate occupied beds from allocations
     const occupiedBeds = allocations.reduce((count, allocation) => {
-      // If there are guests, count them
+      // Get the date to check
+      const checkDate = new Date(
+        date.year,
+        new Date(Date.parse(`01 ${date.month} 2000`)).getMonth(),
+        date.day,
+        0,
+        0,
+        0
+      );
+
+      // If there are guests in the allocation, use their dates
       if (allocation.attributes.guests?.data?.length > 0) {
-        const guests = allocation.attributes.guests.data;
-        const fromDate = new Date(guests[0].attributes.arrival_date);
-        const toDate = new Date(guests[0].attributes.departure_date);
+        const fromDate = new Date(allocation.attributes.guests.data[0].attributes.arrival_date);
+        const toDate = new Date(allocation.attributes.guests.data[0].attributes.departure_date);
+
         fromDate.setHours(0, 0, 0, 0);
         toDate.setHours(0, 0, 0, 0);
 
         if (checkDate >= fromDate && checkDate <= toDate) {
-          return count + guests.length;
+          return count + allocation.attributes.guests.data.length;
         }
       }
-      // If no guests but room is allocated, use the occupancy value
-      else if (allocation.attributes.room_status === "allocated") {
-        return count + (allocation.attributes.occupancy || 0);
+      // If no guests in allocation but has booking request, use occupancy
+      else if (allocation.attributes.booking_request?.data) {
+        const fromDate = new Date(allocation.attributes.booking_request.data.attributes.arrival_date);
+        const toDate = new Date(allocation.attributes.booking_request.data.attributes.departure_date);
+
+        fromDate.setHours(0, 0, 0, 0);
+        toDate.setHours(0, 0, 0, 0);
+
+        if (checkDate >= fromDate && checkDate <= toDate) {
+          return count + (allocation.attributes.occupancy || 0);
+        }
       }
+
       return count;
     }, 0);
 
-    return totalBeds - occupiedBeds;
+    const availableBeds = totalBeds - occupiedBeds;
+    return Math.max(0, availableBeds);
+  };
+
+  // Modified handleListViewBedSelection to include room parameter
+  const handleListViewBedSelection = (roomId, date, totalAvailableBeds, room) => {
+    if (!selectedGuests?.length) return;
+
+    // Check for allocation conflicts
+    if (hasAllocationInDateRange(room, arrivalDate, departureDate)) {
+      alert("This room is already allocated for some dates in your selected range. Please choose another room.");
+      return;
+    }
+
+    // Calculate all updates first
+    const bedUpdates = {};
+    const countUpdates = {};
+    const currentKey = `${roomId}-${date.year}-${date.month}-${date.day}`;
+    const currentCount = selectedBedCounts[currentKey] || 0;
+    const newCount = currentCount < totalAvailableBeds ? currentCount + 1 : 0;
+
+    // Calculate updates for all dates in range
+    dates.forEach((d, idx) => {
+      if (isDateInRange(d, arrivalDate, departureDate)) {
+        const dateKey = `${roomId}-${d.year}-${d.month}-${d.day}`;
+        countUpdates[dateKey] = newCount;
+
+        // Update bed selections
+        for (let i = 0; i < totalAvailableBeds; i++) {
+          bedUpdates[`${roomId}-${idx}-${i}`] = i < newCount;
+        }
+      }
+    });
+
+    // Apply all updates at once
+    setSelectedBedCounts(prev => ({
+      ...prev,
+      ...countUpdates
+    }));
+
+    setSelectedBeds(prev => ({
+      ...prev,
+      ...bedUpdates
+    }));
+
+    // If selecting a new bed, call onRoomSelect
+    if (currentCount < totalAvailableBeds) {
+      onRoomSelect(room.attributes.room_number, {
+        startDate: arrivalDate,
+        endDate: departureDate,
+        guest: selectedGuests[0],
+        roomId: room.id
+      });
+    }
+  };
+
+  const renderListView = () => {
+    return (
+      <div className="list-view-container">
+        <div className="room-numbers-column">
+          <div className="list-header fixed-column">Room No.</div>
+          {rooms.map((room) => (
+            <div key={room.id} className="room-info">
+              <div className="room-number">
+                {room.attributes.room_number}
+                <span className="capacity">({room.attributes.no_of_beds})</span>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div className="scrollable-content" ref={scrollContainerRef}>
+          <div className="header-row">
+            <div className="scrollable-dates">
+              {dates.map((date, index) => (
+                <div key={index} className="date-column">
+                  <div className="year">{date.year}</div>
+                  <div>{`${date.day} ${date.month}`}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {rooms.map((room) => (
+            <div key={room.id} className="list-row">
+              {dates.map((date, index) => {
+                const totalBeds = room.attributes.no_of_beds;
+                const availableBeds = getAvailableBedsForDate(room, date);
+                const tooltipContent = getTooltipContent(
+                  room.attributes?.room_blockings?.data,
+                  room.attributes?.room_allocations,
+                  date
+                );
+
+                const isBlocked = room.attributes?.room_blockings?.data?.some(
+                  (blocking) => {
+                    if (!blocking?.attributes) return false;
+                    return isDateInBlockingRange(blocking, date);
+                  }
+                );
+
+                // Check for recommendation letter
+                const hasRecommendationLetter = room.attributes?.room_allocations?.data?.some(allocation => {
+                  const checkDate = new Date(
+                    date.year,
+                    new Date(Date.parse(`01 ${date.month} 2000`)).getMonth(),
+                    date.day,
+                    0,
+                    0,
+                    0
+                  );
+
+                  if (allocation.attributes.booking_request?.data) {
+                    const fromDate = new Date(allocation.attributes.booking_request.data.attributes.arrival_date);
+                    const toDate = new Date(allocation.attributes.booking_request.data.attributes.departure_date);
+                    fromDate.setHours(0, 0, 0, 0);
+                    toDate.setHours(0, 0, 0, 0);
+
+                    if (checkDate >= fromDate && checkDate <= toDate) {
+                      return allocation.attributes.booking_request.data.attributes.recommendation_letter?.data;
+                    }
+                  }
+                  return false;
+                });
+
+                const hasAllocation = room.attributes?.room_allocations?.data?.some(
+                  (allocation) => {
+                    if (!allocation?.attributes?.guests?.data?.[0]?.attributes)
+                      return false;
+                    return isDateInAllocationRange(allocation, date);
+                  }
+                );
+
+                const dateKey = `${room.id}-${date.year}-${date.month}-${date.day}`;
+                const selectedCount = totalBeds <= 4
+                  ? getSelectedCount(room.id, index)
+                  : (selectedBedCounts[dateKey] || 0);
+                const isInRange = isDateInRange(date, arrivalDate, departureDate);
+
+                // Get background color based on conditions
+                const getBackgroundColor = () => {
+                  if (isBlocked) return "#FFFF00";
+                  if (hasRecommendationLetter) return "orange";
+                  if (hasAllocation || availableBeds < totalBeds) return "#F28E86";
+                  return "inherit";
+                };
+
+                // Check if all available beds are selected
+                const allBedsSelected = selectedCount >= availableBeds;
+
+                return (
+                  <div
+                    key={index}
+                    className={`availability-box ${isInRange ? 'in-range' : ''}`}
+                    data-tooltip={tooltipContent ? "true" : undefined}
+                    style={{
+                      backgroundColor: getBackgroundColor(),
+                      cursor: (!isBlocked && !hasAllocation && isInRange && availableBeds > 0 && selectedGuests?.length > 0 && !allBedsSelected) ? 'pointer' : 'default',
+                      opacity: 1
+                    }}
+                    onClick={() => {
+                      if (!isBlocked && !hasAllocation && isInRange && availableBeds > 0 && selectedGuests?.length > 0 && !allBedsSelected) {
+                        handleListViewBedSelection(room.id, date, availableBeds, room);
+                      }
+                    }}
+                  >
+                    <div className={`bed-count ${isInRange ? 'in-range' : ''}`}>
+                      {isInRange
+                        ? (selectedCount > 0
+                          ? `${selectedCount}/${availableBeds}`
+                          : availableBeds)
+                        : availableBeds
+                      }
+                    </div>
+                    <div className="availability-label">Available</div>
+                    {tooltipContent && (
+                      <div className="custom-tooltip">{tooltipContent}</div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  };
+
+  // Helper function to get background color
+  const getBackgroundColor = (isBlocked, hasAllocation) => {
+    if (isBlocked) {
+      return "#FFFF00"; // or whatever color you use for blocked rooms
+    }
+    if (hasAllocation) {
+      return "#F28E86"; // or whatever color you use for allocated rooms
+    }
+    return "inherit";
+  };
+
+  // Helper functions for date checks
+  const isDateInBlockingRange = (blocking, date) => {
+    const fromDate = new Date(blocking.attributes.from_date);
+    const toDate = new Date(blocking.attributes.to_date);
+    const checkDate = new Date(
+      date.year,
+      new Date(Date.parse(`01 ${date.month} 2000`)).getMonth(),
+      date.day,
+      0,
+      0,
+      0
+    );
+    fromDate.setHours(0, 0, 0, 0);
+    toDate.setHours(0, 0, 0, 0);
+    return checkDate >= fromDate && checkDate <= toDate;
+  };
+
+  const isDateInAllocationRange = (allocation, date) => {
+    const fromDate = new Date(
+      allocation.attributes.guests.data[0].attributes.arrival_date
+    );
+    const toDate = new Date(
+      allocation.attributes.guests.data[0].attributes.departure_date
+    );
+    const checkDate = new Date(
+      date.year,
+      new Date(Date.parse(`01 ${date.month} 2000`)).getMonth(),
+      date.day,
+      0,
+      0,
+      0
+    );
+    fromDate.setHours(0, 0, 0, 0);
+    toDate.setHours(0, 0, 0, 0);
+    return checkDate >= fromDate && checkDate <= toDate;
   };
 
   return (
@@ -1175,17 +890,23 @@ const BookRoomBed = ({
               </div>
             </div>
 
-            {rooms.map((room, roomIndex) => (
+            {rooms.map((room) => (
               <div key={room.id} className="room-row">
                 <div className="scrollable-beds">
                   {dates.map((date, dateIndex) => (
-                    <div key={dateIndex} className="bed-cell">
+                    <div
+                      key={dateIndex}
+                      className="bed-cell"
+                      style={{ padding: room.attributes.no_of_beds <= 4 ? "10px" : "0px" }}
+                    >
                       {renderBeds(
                         room.attributes.no_of_beds,
                         room.attributes.room_blockings?.data,
                         room.attributes.room_allocations,
                         date,
-                        room
+                        room.id,
+                        dateIndex,
+                        room.attributes.room_number
                       )}
                     </div>
                   ))}
@@ -1197,6 +918,129 @@ const BookRoomBed = ({
       )}
     </div>
   );
+};
+
+// Update the getTooltipContent function signature to accept the handler
+const getTooltipContent = (
+  roomBlockings,
+  roomAllocations,
+  currentDate,
+  onBedManagementClick
+) => {
+  const allocation = roomAllocations?.data?.find((allocation) => {
+    const checkDate = new Date(
+      currentDate.year,
+      new Date(Date.parse(`01 ${currentDate.month} 2000`)).getMonth(),
+      currentDate.day
+    );
+    checkDate.setHours(0, 0, 0, 0);
+
+    // Check dates from either guests or booking request
+    if (allocation.attributes.guests?.data?.length > 0) {
+      const fromDate = new Date(allocation.attributes.guests.data[0].attributes.arrival_date);
+      const toDate = new Date(allocation.attributes.guests.data[0].attributes.departure_date);
+      fromDate.setHours(0, 0, 0, 0);
+      toDate.setHours(0, 0, 0, 0);
+      return checkDate >= fromDate && checkDate <= toDate;
+    } else if (allocation.attributes.booking_request?.data) {
+      const fromDate = new Date(allocation.attributes.booking_request.data.attributes.arrival_date);
+      const toDate = new Date(allocation.attributes.booking_request.data.attributes.departure_date);
+      fromDate.setHours(0, 0, 0, 0);
+      toDate.setHours(0, 0, 0, 0);
+      return checkDate >= fromDate && checkDate <= toDate;
+    }
+    return false;
+  });
+
+  if (allocation) {
+    if (allocation.attributes.guests?.data?.length > 0) {
+      // Show guest details as before
+      const guests = allocation.attributes.guests.data;
+      return (
+        <div
+          className="tooltip-content"
+          onClick={() => onBedManagementClick?.(allocation)}
+          style={{ cursor: "pointer" }}
+        >
+          <h4>Room Allocation Details:</h4>
+          {guests.map((guest, index) => (
+            <div key={index} className="guest-details">
+              <p><strong>Guest {index + 1}:</strong></p>
+              <p>Name: {guest.attributes?.name}</p>
+              <p>From: {guest.attributes?.arrival_date}</p>
+              <p>To: {guest.attributes?.departure_date}</p>
+              <p>Phone: {guest.attributes?.phone_number}</p>
+            </div>
+          ))}
+        </div>
+      );
+    } else if (allocation.attributes.booking_request?.data) {
+      // Show booking request details with occupancy
+      const request = allocation.attributes.booking_request.data.attributes;
+      return (
+        <div
+          className="tooltip-content"
+          onClick={() => onBedManagementClick?.(allocation)}
+          style={{ cursor: "pointer" }}
+        >
+          <h4>Room Allocation Details:</h4>
+          <p><strong>Booking Request:</strong></p>
+          <p>Name: {request.name}</p>
+          <p>From: {request.arrival_date}</p>
+          <p>To: {request.departure_date}</p>
+          <p>Occupancy: {allocation.attributes.occupancy}</p>
+          <p>Phone: {request.phone_number}</p>
+        </div>
+      );
+    }
+  }
+
+  // Check for blockings if no allocation
+  const blocking = roomBlockings?.find((blocking) => {
+    if (!blocking?.attributes) return false;
+
+    const fromDate = new Date(blocking.attributes.from_date);
+    const toDate = new Date(blocking.attributes.to_date);
+    const checkDate = new Date(
+      currentDate.year,
+      new Date(Date.parse(`01 ${currentDate.month} 2000`)).getMonth(),
+      currentDate.day
+    );
+    fromDate.setHours(0, 0, 0, 0);
+    toDate.setHours(0, 0, 0, 0);
+    checkDate.setHours(0, 0, 0, 0);
+    return checkDate >= fromDate && checkDate <= toDate;
+  });
+
+  if (blocking?.attributes) {
+    return (
+      <div className="tooltip-content">
+        <h4>Room Blocking Details:</h4>
+        <p>
+          <strong>Status:</strong> {blocking.attributes.room_block_status}
+        </p>
+        <p>
+          <strong>From:</strong> {blocking.attributes.from_date}
+        </p>
+        <p>
+          <strong>To:</strong> {blocking.attributes.to_date}
+        </p>
+        <p>
+          <strong>Reason:</strong> {blocking.attributes.reason_for_blocking}
+        </p>
+        <p>
+          <strong>Created:</strong>{" "}
+          {new Date(blocking.attributes.createdAt).toLocaleString()}
+        </p>
+        <p>
+          <strong>Last Updated:</strong>{" "}
+          {new Date(blocking.attributes.updatedAt).toLocaleString()}
+        </p>
+      </div>
+    );
+  }
+
+  return null;
 };
 
 export default BookRoomBed;

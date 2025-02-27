@@ -15,78 +15,57 @@ const ConfirmAllocationEmail = ({
 }) => {
   const navigate = useNavigate();
 
-  const handleSendEmail = async () => {
+  // Add console logs to see the received props
+  console.log("ConfirmAllocationEmail - Props received:", {
+    guestData,
+    requestId,
+    allocatedGuests,
+    allocatedRooms
+  });
+
+  const handleSend = async () => {
     try {
-      let guestIndex = 0; // Keep track of which guests have been allocated
+      // Group allocations by roomId
+      const groupedAllocations = allocatedRooms.reduce((acc, curr) => {
+        if (!acc[curr.roomId]) {
+          acc[curr.roomId] = {
+            roomId: curr.roomId,
+            guestIds: [],
+            startDate: curr.startDate,
+            endDate: curr.endDate
+          };
+        }
+        acc[curr.roomId].guestIds.push(curr.guestId);
+        return acc;
+      }, {});
 
-      // Create separate allocations for each room
-      for (const room of allocatedRooms) {
-        console.log("Room:", room); // Debug log to see room object structure
-
-        // Get the specific guests for this room
-        const guestsForRoom = allocatedGuests.slice(
-          guestIndex,
-          guestIndex + room.bedsAllocated
-        );
-
-        // Update the guest index for the next room
-        guestIndex += room.bedsAllocated;
-
-        const allocationData = {
+      // Create room allocations for each group
+      for (const roomGroup of Object.values(groupedAllocations)) {
+        await createNewRoomAllocation({
           room_status: "allocated",
-          guests: {
-            connect: guestsForRoom.map((guest) => guest.id),
-          },
-          booking_request: [requestId],
-          room: [room.id], // Changed from room.roomId to room.id
-        };
-
-        // console.log(`Creating allocation for room ${room.roomNumber}:`, {
-        //   roomNumber: room.roomNumber,
-        //   guestCount: guestsForRoom.length,
-        //   guestIds: guestsForRoom.map((g) => g.id),
-        // });
-
-        await createNewRoomAllocation(allocationData);
+          guests: roomGroup.guestIds,
+          booking_request: requestId,
+          room: roomGroup.roomId,
+          start_date: roomGroup.startDate,
+          end_date: roomGroup.endDate
+        });
       }
 
-      // Update booking request status to confirmed
-      const updateData = {
+      // Update booking request status
+      await updateBookingRequestById(requestId, {
         data: {
-          status: "confirmed",
-        },
-      };
+          status: "confirmed"
+        }
+      });
 
-      await updateBookingRequestById(requestId, updateData);
-      // console.log("Booking request status updated to confirmed");
-
-      toast.success(
-        "Room allocations created and booking request updated successfully!"
-      );
-      onSend();
+      toast.success("Room allocation confirmed successfully!");
       onClose();
-      navigate("/Requests");
+      navigate("/Requests"); // Navigate to Requests page after successful allocation
     } catch (error) {
-      // console.error("Error in room allocation process:", error);
-      toast.error(
-        "Failed to complete the allocation process. Please try again."
-      );
+      console.error("Error creating room allocations:", error);
+      toast.error("Failed to confirm room allocation");
     }
   };
-
-  // Format room numbers for display
-  const formatRoomNumbers = () => {
-    return allocatedRooms
-      .map((room) => `${room.roomNumber} (${room.bedsAllocated} beds)`)
-      .join(", ");
-  };
-
-  // console.log("Email Component Data:", {
-  //   requestId,
-  //   guestEmail: guestData?.attributes?.email,
-  //   allocatedGuests,
-  //   allocatedRooms,
-  // });
 
   return (
     <div className="allocation-email-overlay">
@@ -169,7 +148,7 @@ const ConfirmAllocationEmail = ({
             </button>
             <button
               className="allocation-send-button"
-              onClick={handleSendEmail}
+              onClick={handleSend}
             >
               Send
             </button>

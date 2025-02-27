@@ -6,120 +6,74 @@ import BookRoomDevoteeDetails from "./BookRoomDevoteeDetails/BookRoomDevoteeDeta
 
 const BookRoom = () => {
   const [selectedBlockId, setSelectedBlockId] = useState(null);
-  const [selectedDateRange, setSelectedDateRange] = useState(null);
-  const [allocationBlockId, setAllocationBlockId] = useState(null);
-  const [selectedGuestCount, setSelectedGuestCount] = useState(0);
-  const [allocatedRoomNumber, setAllocatedRoomNumber] = useState(null);
-  const [allocatedRoomId, setAllocatedRoomId] = useState(null);
-  const [allocatedRooms, setAllocatedRooms] = useState([]);
-  const location = useLocation();
-  const requestId = location.state?.requestId;
-  const arrivalDate = location.state?.arrivalDate;
-  const departureDate = location.state?.departureDate;
   const [viewMode, setViewMode] = useState("dashboard");
-  const [selectedBedForGuest, setSelectedBedForGuest] = useState(null);
+  const location = useLocation();
+  const [selectedGuests, setSelectedGuests] = useState([]);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   useEffect(() => {
-    if (requestId) {
-      setSelectedGuestCount(location.state?.guestCount || 0);
-    }
-  }, [requestId, location.state]);
+    // Log the navigation state
+    console.log("BookRoom navigation state:", location.state);
+  }, [location]);
 
   const handleBlockSelect = (blockId) => {
     setSelectedBlockId(blockId);
-  };
-
-  const handleAllocate = (
-    arrivalDate,
-    departureDate,
-    guestCount,
-    genderCounts = null
-  ) => {
-    console.log("Allocation request:", {
-      arrivalDate,
-      departureDate,
-      guestCount,
-      genderCounts,
-    });
-
-    // Ensure dates are in YYYY-MM-DD format
-    setSelectedDateRange({
-      arrivalDate: new Date(arrivalDate).toISOString().split("T")[0],
-      departureDate: new Date(departureDate).toISOString().split("T")[0],
-    });
-    setAllocationBlockId(selectedBlockId);
-
-    // Update the guest count
-    const newGuestCount = genderCounts
-      ? genderCounts.male + genderCounts.female
-      : parseInt(guestCount, 10);
-    console.log("Setting new guest count:", newGuestCount);
-    setSelectedGuestCount(newGuestCount);
-  };
-
-  const handleRoomAllocation = (roomAllocations) => {
-    // console.log("Room allocations in BookRoom:", roomAllocations);
-    if (Array.isArray(roomAllocations) && roomAllocations.length > 0) {
-      const formattedRooms = roomAllocations.map((room) => ({
-        roomId: room.roomId,
-        id: room.roomId,
-        roomNumber: room.roomNumber,
-        bedsAllocated: room.bedsSelected || room.bedsAllocated || 0,
-        totalBeds: room.totalBeds || 0,
-      }));
-      // console.log("Formatted rooms:", formattedRooms);
-      setAllocatedRooms(formattedRooms);
-    }
   };
 
   const handleViewChange = (view) => {
     setViewMode(view);
   };
 
-  const handleAllocatedGuestSelect = (guest) => {
-    // Update the number of beds to allocate
-    const updatedGuestCount = selectedGuestCount - 1;
-    setSelectedGuestCount(updatedGuestCount);
-
-    // Update the allocation with the new guest count
-    handleAllocate(arrivalDate, departureDate, updatedGuestCount);
-  };
-
-  const handleBedSelection = (bedInfo) => {
-    setSelectedBedForGuest(bedInfo);
+  // Modify handleRoomAllocation to include roomId
+  const handleRoomAllocation = (roomNumber, dates) => {
+    if (dates.guest) {
+      // Dispatch custom event for single guest room allocation
+      const event = new CustomEvent('roomAllocated', {
+        detail: { 
+          roomNumber, 
+          dates: {
+            startDate: dates.startDate,
+            endDate: dates.endDate
+          },
+          guestId: dates.guest.id,
+          roomId: dates.roomId  // Add the roomId here
+        }
+      });
+      window.dispatchEvent(event);
+      
+      // Remove the allocated guest from selectedGuests
+      setSelectedGuests(prev => prev.filter(g => g.id !== dates.guest.id));
+      
+      console.log("Allocating room:", roomNumber, "with ID:", dates.roomId, "for guest:", dates.guest);
+    }
   };
 
   return (
     <div>
       <BookRoomHeader
         onBlockSelect={handleBlockSelect}
-        arrivalDate={arrivalDate}
-        departureDate={departureDate}
+        arrivalDate={location.state?.arrivalDate}
+        departureDate={location.state?.departureDate}
         onViewChange={handleViewChange}
       />
       <div style={{ display: "flex" }}>
         <div style={{ width: "70%" }}>
           <BookRoomBed
             blockId={selectedBlockId}
-            arrivalDate={arrivalDate}
-            departureDate={departureDate}
-            selectedDateRange={{
-              arrivalDate: arrivalDate || "",
-              departureDate: departureDate || "",
-            }}
-            numberOfBedsToAllocate={selectedGuestCount}
-            onRoomAllocation={handleRoomAllocation}
+            arrivalDate={location.state?.arrivalDate}
+            departureDate={location.state?.departureDate}
             viewMode={viewMode}
-            onBedSelect={handleBedSelection}
+            onRoomSelect={handleRoomAllocation}
+            selectedGuests={selectedGuests}
+            refreshTrigger={refreshTrigger}
           />
         </div>
         <div style={{ width: "30%" }}>
           <BookRoomDevoteeDetails
-            requestId={requestId}
-            onAllocate={handleAllocate}
-            allocatedRooms={allocatedRooms}
-            onGuestUncheck={handleAllocatedGuestSelect}
-            selectedBedForGuest={selectedBedForGuest}
+            id={location.state?.requestId}
+            selectedGuests={selectedGuests}
+            setSelectedGuests={setSelectedGuests}
+            onClear={() => setRefreshTrigger(prev => prev + 1)}
           />
         </div>
       </div>

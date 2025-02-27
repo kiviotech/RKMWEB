@@ -1,29 +1,18 @@
 import React, { useEffect, useState } from "react";
-import "./BookRoomHeader.scss";
 import * as blockService from "../../../../../services/src/services/blockService";
 import icons from "../../../../constants/icons";
+import "./BookRoomHeader.scss";
 
 const BookRoomHeader = ({
   refreshTrigger,
   onBlockSelect,
-  arrivalDate,
-  departureDate,
   onViewChange,
+  arrivalDate,
+  departureDate
 }) => {
   const [blocks, setBlocks] = useState([]);
   const [activeBlock, setActiveBlock] = useState("");
   const [activeToggler, setActiveToggler] = useState("dashboard");
-
-  const getStyle = (view) => ({
-    cursor: "pointer",
-    borderRadius: "5px",
-    background: activeToggler === view ? "#ff6b00" : "transparent",
-  });
-
-  const handleTogglerClick = (view) => {
-    setActiveToggler(view);
-    onViewChange(view);
-  };
 
   useEffect(() => {
     const getBlocks = async () => {
@@ -42,14 +31,18 @@ const BookRoomHeader = ({
     };
 
     getBlocks();
-  }, [refreshTrigger]);
+  }, [refreshTrigger, onBlockSelect, activeBlock]);
 
-  // useEffect(() => {
-  //   console.log("BookRoomHeader received dates:", {
-  //     arrivalDate,
-  //     departureDate,
-  //   });
-  // }, [arrivalDate, departureDate]);
+  const getStyle = (view) => ({
+    cursor: "pointer",
+    borderRadius: "5px",
+    background: activeToggler === view ? "#ff6b00" : "transparent",
+  });
+
+  const handleTogglerClick = (view) => {
+    setActiveToggler(view);
+    onViewChange(view);
+  };
 
   return (
     <div className="book-room-header">
@@ -106,21 +99,19 @@ const BookRoomHeader = ({
           </select>
         </div>
         <div className="arrival-date-picker">
-          <input
-            type="date"
-            className="date-input"
-            placeholder="dd-mm-yyyy"
-            value={arrivalDate || ""}
-            readOnly
+          <input 
+            type="date" 
+            className="date-input" 
+            value={arrivalDate || ''}
+            disabled
           />
         </div>
         <div className="departure-date-picker">
-          <input
-            type="date"
-            className="date-input"
-            placeholder="dd-mm-yyyy"
-            value={departureDate || ""}
-            readOnly
+          <input 
+            type="date" 
+            className="date-input" 
+            value={departureDate || ''}
+            disabled
           />
         </div>
       </div>

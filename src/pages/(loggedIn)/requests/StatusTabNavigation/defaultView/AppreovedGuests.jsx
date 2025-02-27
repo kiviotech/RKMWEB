@@ -19,9 +19,10 @@ const ApprovedGuests = ({ selectedDate, label }) => {
     const arrivalDate = request.userDetails.arrivalDate;
     const departureDate = request.userDetails.departureDate;
 
-    // console.log("Navigating with dates:", { arrivalDate, departureDate });
+    // Check number_of_guest_members to determine the route
+    const route = request.noOfGuest > 0 ? "/book-dormitory-room" : "/book-room";
 
-    navigate("/book-room", {
+    navigate(route, {
       state: {
         requestId: request.id,
         arrivalDate: arrivalDate,

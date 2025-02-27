@@ -106,30 +106,34 @@ const BookRoomManagementBed = ({ blockId, refreshTrigger, viewMode }) => {
     });
 
     // Check allocations and count occupied beds
-    const occupiedBeds =
-      roomAllocations?.data?.reduce((count, allocation) => {
-        const fromDate = new Date(
-          allocation.attributes.guests.data[0].attributes.arrival_date
-        );
-        const toDate = new Date(
-          allocation.attributes.guests.data[0].attributes.departure_date
-        );
-        const checkDate = new Date(
-          currentDate.year,
-          new Date(Date.parse(`01 ${currentDate.month} 2000`)).getMonth(),
-          currentDate.day,
-          0,
-          0,
-          0
-        );
-        fromDate.setHours(0, 0, 0, 0);
-        toDate.setHours(0, 0, 0, 0);
-
-        if (checkDate >= fromDate && checkDate <= toDate) {
-          return count + allocation.attributes.guests.data.length;
-        }
+    const occupiedBeds = roomAllocations?.data?.reduce((count, allocation) => {
+      // Add null check for allocation and its nested properties
+      if (!allocation?.attributes?.guests?.data?.[0]?.attributes) {
         return count;
-      }, 0) || 0;
+      }
+
+      const fromDate = new Date(
+        allocation.attributes.guests.data[0].attributes.arrival_date
+      );
+      const toDate = new Date(
+        allocation.attributes.guests.data[0].attributes.departure_date
+      );
+      const checkDate = new Date(
+        currentDate.year,
+        new Date(Date.parse(`01 ${currentDate.month} 2000`)).getMonth(),
+        currentDate.day,
+        0,
+        0,
+        0
+      );
+      fromDate.setHours(0, 0, 0, 0);
+      toDate.setHours(0, 0, 0, 0);
+
+      if (checkDate >= fromDate && checkDate <= toDate) {
+        return count + allocation.attributes.guests.data.length;
+      }
+      return count;
+    }, 0) || 0;
 
     // Helper function to get bed icon based on allocation status and recommendation letter
     const getBedIcon = (bedIndex) => {
@@ -213,8 +217,8 @@ const BookRoomManagementBed = ({ blockId, refreshTrigger, viewMode }) => {
               {isBlocked
                 ? "Blocked"
                 : occupiedBeds > 0
-                ? "Occupied"
-                : "Available"}
+                  ? "Occupied"
+                  : "Available"}
             </span>
           </div>
         </div>

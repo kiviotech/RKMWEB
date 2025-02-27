@@ -1,0 +1,266 @@
+.devotee-details {
+  margin-left: 20px;
+  border-radius: 10px;
+
+  .allocated-guests-section,
+  .non-allocated-guests-section {
+    background: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-bottom: 24px;
+
+    .section-content {
+      padding: 20px;
+    }
+  }
+
+  h2 {
+    font-size: 18px;
+    margin-bottom: 16px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+    -webkit-overflow-scrolling: touch;
+
+    th {
+      text-align: center;
+      padding: 10px;
+      min-width: 100px;
+    }
+
+    td {
+      padding: 10px;
+      min-width: 100px;
+      text-align: center;
+      font-size: 18px;
+    }
+
+    tr {
+      cursor: pointer;
+    }
+  }
+
+  .guest-name-cell {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+    }
+
+    .guest-name {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 150px;
+      display: inline-block;
+    }
+  }
+
+  .allocate-button {
+    width: 100%;
+    padding: 10px;
+    background-color: #ff6b00;
+    border: none;
+    border-radius: 5px;
+    margin-top: 20px;
+    cursor: pointer;
+    color: white;
+    font-size: 16px;
+    font-weight: 500;
+    text-align: center;
+    transition: background-color 0.2s ease;
+
+    &:hover {
+      background-color: darken(#ff6b00, 5%);
+    }
+
+    &:active {
+      background-color: darken(#ff6b00, 10%);
+    }
+  }
+}
+
+.confirm-allocation-button {
+  margin-top: 20px;
+  padding: 10px 20px;
+  background-color: #ff6b00;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+  width: 100%;
+}
+
+.allocated-rooms-card {
+  background: white;
+  border-radius: 8px;
+  padding: 20px;
+  margin: 20px 0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+  h2 {
+    margin-bottom: 15px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+
+    th,
+    td {
+      padding: 12px;
+      text-align: left;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+  }
+}
+
+.non-allocated-guests-card {
+  background: white;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+
+  h2 {
+    font-size: 18px;
+    margin-bottom: 20px;
+    color: #333;
+  }
+
+  .table-container {
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .table-header {
+    display: grid;
+    grid-template-columns: 50px 1fr 1fr 1fr;
+    padding: 12px 0;
+
+    .header-cell {
+      font-weight: 500;
+      padding: 0 16px;
+      font-size: 20px;
+    }
+  }
+
+  .table-body {
+    .table-row {
+      display: grid;
+      grid-template-columns: 50px 1fr 1fr 1fr;
+      padding: 12px 0;
+      color: #666;
+
+      .cell {
+        padding: 0 16px;
+        display: flex;
+        align-items: center;
+        font-size: 19px;
+        font-weight: 500;
+      }
+
+      .checkbox-cell {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        input[type="checkbox"] {
+          width: 18px;
+          height: 18px;
+          border: 2px solid #ddd;
+          border-radius: 4px;
+          cursor: pointer;
+
+          &:checked {
+            background-color: #007bff;
+            border-color: #007bff;
+          }
+        }
+      }
+    }
+  }
+}
+
+.allocated-guests-card {
+  background: #fff;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+  h2 {
+    margin-bottom: 16px;
+    font-size: 1.2rem;
+    color: #333;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    
+    th, td {
+      padding: 12px;
+      text-align: left;
+    }
+
+    th {
+      font-weight: 600;
+      color: #666;
+    }
+
+    td {
+      color: #333;
+    }
+  }
+}
+
+.increment-control {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  margin-top: 20px;
+  border-radius: 4px;
+  overflow: hidden;
+  width: fit-content;
+  margin: 20px 0 20px auto;
+
+  button {
+    width: 40px;
+    height: 40px;
+    border: none;
+    background: #ff6b00;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 20px;
+    font-weight: bold;
+
+    &:hover {
+      background: darken(#ff6b00, 5%);
+    }
+  }
+
+  span {
+    min-width: 40px;
+    text-align: center;
+    background: white;
+    height: 40px;
+    line-height: 40px;
+    border: 1px solid #ccc;
+  }
+}

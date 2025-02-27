@@ -1,0 +1,120 @@
+.bed-cell,
+.availability-box {
+  position: relative;
+
+  .custom-tooltip {
+    display: none;
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 16px;
+    width: 280px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    text-align: left;
+
+    // Purple header style
+    h4 {
+      margin: 0 0 12px 0;
+      color: #6941c6;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    // Guest details styling
+    .guest-details {
+      margin-bottom: 8px;
+
+      strong {
+        color: #344054;
+        font-weight: 500;
+      }
+
+      p {
+        margin: 4px 0;
+        font-size: 13px;
+        color: #475467;
+        line-height: 1.4;
+      }
+    }
+  }
+
+  &:hover .custom-tooltip {
+    display: block;
+  }
+}
+
+[data-tooltip="true"] {
+  cursor: pointer;
+}
+
+// Include your existing styles...
+
+.list-view-container {
+  display: flex;
+  height: 100%;
+  overflow: hidden;
+  width: 100%;
+
+  .room-numbers-column {
+    position: sticky;
+    left: 0;
+    z-index: 2;
+    background: white;
+
+    .fixed-column {
+      padding: 1rem;
+      font-weight: 600;
+    }
+
+    .room-info {
+      padding: 1rem;
+    }
+  }
+
+  .scrollable-content {
+    flex: 1;
+    overflow-x: auto;
+    width: 0;
+    min-width: 0;
+
+    .header-row {
+      position: sticky;
+      top: 0;
+      z-index: 1;
+      background: white;
+    }
+
+    .scrollable-dates {
+      display: flex;
+
+      .date-column {
+        min-width: 150px;
+        padding: 1rem;
+        text-align: center;
+        font-weight: 600;
+      }
+    }
+
+    .list-row {
+      display: flex;
+
+      .availability-box {
+        min-width: 150px;
+        padding: 1rem;
+        text-align: center;
+
+        &:has(.bed-count:not(:empty)) {
+          background: #fff;
+          border: 1px solid #ffd7b5;
+          border-radius: 8px;
+          margin: 8px;
+        }
+      }
+    }
+  }
+}

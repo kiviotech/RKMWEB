@@ -45,6 +45,7 @@ import ConsentLetter from "../pages/(loggedIn)/donation/ConsentLetter";
 import UserCoupons from "../pages/(loggedIn)/coupons/UserCoupons";
 import BookRoomManagement from "../pages/(loggedIn)/BookRoomManagement/BookRoomManagement";
 import Calendar from "../pages/(loggedIn)/Calendar/Calendar";
+import BookDormitoryRoom from "../pages/(loggedIn)/BookDormitoryRoom/BookDormitoryRoom";
 
 const AppRoutes = () => {
   return (
@@ -153,6 +154,14 @@ const AppRoutes = () => {
           element={
             <SuperAdminRoute>
               <BookRoom />
+            </SuperAdminRoute>
+          }
+        />
+        <Route
+          path="/book-dormitory-room"
+          element={
+            <SuperAdminRoute>
+              <BookDormitoryRoom />
             </SuperAdminRoute>
           }
         />

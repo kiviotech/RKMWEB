@@ -3,7 +3,7 @@ import { fetchDonations } from "../../../../services/src/services/donationsServi
 import "./ExportDonations.scss";
 import { generateDonationReport } from "./generateDonationReport";
 
-const ExportDonations = ({ timeFilter }) => {
+const ExportDonations = ({ timeFilter, dateRange }) => {
   const [showExportDropdown, setShowExportDropdown] = useState(false);
 
   useEffect(() => {
@@ -50,13 +50,23 @@ const ExportDonations = ({ timeFilter }) => {
             ? donationFor === "MATH"
             : donationFor === "MISSION";
 
+        const donationDate = new Date(donation.attributes.createdAt)
+          .toISOString()
+          .split("T")[0];
+
         // Add date filtering for today
         if (timeFilter === "today") {
           const today = new Date().toISOString().split("T")[0];
-          const donationDate = new Date(donation.attributes.createdAt)
-            .toISOString()
-            .split("T")[0];
           return isCorrectType && donationDate === today;
+        }
+
+        // Filter by date range if dates are selected
+        if (dateRange.startDate && dateRange.endDate) {
+          return (
+            isCorrectType &&
+            donationDate >= dateRange.startDate &&
+            donationDate <= dateRange.endDate
+          );
         }
 
         return isCorrectType;

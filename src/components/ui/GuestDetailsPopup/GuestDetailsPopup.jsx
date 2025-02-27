@@ -42,8 +42,8 @@ const GuestDetailsPopup = ({ isOpen, onClose, onStatusChange, requestId }) => {
       setSelectedRow(firstGuest.id);
       setSelectedGuestName(
         firstGuest.attributes.name ||
-          bookingRequestDetails?.data?.attributes?.name ||
-          ""
+        bookingRequestDetails?.data?.attributes?.name ||
+        ""
       );
     } else if (bookingRequestDetails?.data?.attributes?.name) {
       setSelectedGuestName(bookingRequestDetails.data.attributes.name);
@@ -92,7 +92,7 @@ const GuestDetailsPopup = ({ isOpen, onClose, onStatusChange, requestId }) => {
             arrivalDate,
             departureDate
           );
-          console.log("Celebrations between dates:", celebrations);
+          // console.log("Celebrations between dates:", celebrations);
 
           // If you want to store the celebrations in state:
           if (celebrations?.data?.length > 0) {
@@ -115,8 +115,8 @@ const GuestDetailsPopup = ({ isOpen, onClose, onStatusChange, requestId }) => {
       );
     setSelectedGuestName(
       selectedGuest?.attributes?.name ||
-        bookingRequestDetails?.data?.attributes?.name ||
-        ""
+      bookingRequestDetails?.data?.attributes?.name ||
+      ""
     );
   };
 
@@ -254,7 +254,7 @@ const GuestDetailsPopup = ({ isOpen, onClose, onStatusChange, requestId }) => {
   }
 
   if (!isOpen) return null;
-  console.log(bookingRequestDetails?.data?.attributes?.status);
+  // console.log(bookingRequestDetails?.data?.attributes?.status);
 
   const renderActionButtons = () => {
     const status =
@@ -422,12 +422,12 @@ const GuestDetailsPopup = ({ isOpen, onClose, onStatusChange, requestId }) => {
                         <span className="value">
                           <strong>
                             {bookingRequestDetails?.data?.attributes?.gender ===
-                            "M"
+                              "M"
                               ? "Male"
                               : bookingRequestDetails?.data?.attributes
-                                  ?.gender === "F"
-                              ? "Female"
-                              : "N/A"}
+                                ?.gender === "F"
+                                ? "Female"
+                                : "N/A"}
                           </strong>
                         </span>
                       </div>
@@ -462,31 +462,31 @@ const GuestDetailsPopup = ({ isOpen, onClose, onStatusChange, requestId }) => {
                       </div>
                       {bookingRequestDetails?.data?.attributes?.status ===
                         "confirmed" && (
-                        <div className="info-item">
-                          <span className="label">Assigned Room</span>
-                          <span className="value">
-                            <strong>
-                              {bookingRequestDetails?.data?.attributes?.guests?.data.map(
-                                (room, index) => (
-                                  <span key={index}>
-                                    {
-                                      room?.attributes?.room_allocations
-                                        ?.data?.[0]?.attributes?.room?.data
-                                        ?.attributes?.room_number
-                                    }
-                                    {index <
-                                    bookingRequestDetails.data.attributes.guests
-                                      .data.length -
-                                      1
-                                      ? ", "
-                                      : ""}
-                                  </span>
-                                )
-                              ) || "N/A"}
-                            </strong>
-                          </span>
-                        </div>
-                      )}
+                          <div className="info-item">
+                            <span className="label">Assigned Room</span>
+                            <span className="value">
+                              <strong>
+                                {bookingRequestDetails?.data?.attributes?.guests?.data.map(
+                                  (room, index) => (
+                                    <span key={index}>
+                                      {
+                                        room?.attributes?.room_allocations
+                                          ?.data?.[0]?.attributes?.room?.data
+                                          ?.attributes?.room_number
+                                      }
+                                      {index <
+                                        bookingRequestDetails.data.attributes.guests
+                                          .data.length -
+                                        1
+                                        ? ", "
+                                        : ""}
+                                    </span>
+                                  )
+                                ) || "N/A"}
+                              </strong>
+                            </span>
+                          </div>
+                        )}
                       <div className="info-item">
                         <span className="label">Initiation by</span>
                         <span className="value">
@@ -498,33 +498,33 @@ const GuestDetailsPopup = ({ isOpen, onClose, onStatusChange, requestId }) => {
                       </div>
                       {bookingRequestDetails?.data?.attributes
                         ?.recommendation_letter?.data?.[0]?.attributes?.url && (
-                        <div className="info-item">
-                          <span className="label">Recommendation Letter</span>
-                          <span className="value">
-                            <button
-                              onClick={handlePreviewClick}
-                              style={{
-                                border: "none",
-                                background: "none",
-                                cursor: "pointer",
-                                padding: 0,
-                                display: "inline-flex",
-                                alignItems: "center",
-                                gap: "5px",
-                                color: "#066bff",
-                                paddingTop: "5px",
-                              }}
-                            >
-                              <img
-                                src={icons.Eye}
-                                alt="preview"
-                                style={{ width: "16px", height: "16px" }}
-                              />
-                              <span style={{ fontSize: "14px" }}>Preview</span>
-                            </button>
-                          </span>
-                        </div>
-                      )}
+                          <div className="info-item">
+                            <span className="label">Recommendation Letter</span>
+                            <span className="value">
+                              <button
+                                onClick={handlePreviewClick}
+                                style={{
+                                  border: "none",
+                                  background: "none",
+                                  cursor: "pointer",
+                                  padding: 0,
+                                  display: "inline-flex",
+                                  alignItems: "center",
+                                  gap: "5px",
+                                  color: "#066bff",
+                                  paddingTop: "5px",
+                                }}
+                              >
+                                <img
+                                  src={icons.Eye}
+                                  alt="preview"
+                                  style={{ width: "16px", height: "16px" }}
+                                />
+                                <span style={{ fontSize: "14px" }}>Preview</span>
+                              </button>
+                            </span>
+                          </div>
+                        )}
                     </div>
                   </div>
                 </div>
@@ -727,7 +727,7 @@ const GuestDetailsPopup = ({ isOpen, onClose, onStatusChange, requestId }) => {
                             const monthsDifference =
                               (currentDate.getFullYear() -
                                 visitDate.getFullYear()) *
-                                12 +
+                              12 +
                               (currentDate.getMonth() - visitDate.getMonth());
 
                             const isWithinSixMonths = monthsDifference < 6;

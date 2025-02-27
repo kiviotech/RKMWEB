@@ -42,7 +42,7 @@ const Dashboard = () => {
 
         // Fetch guest details and calculate arrived guests count
         const guestDetailsResponse = await fetchAllGuestDetails();
-        console.log("Guest Details:", guestDetailsResponse);
+        // console.log("Guest Details:", guestDetailsResponse);
 
         // Calculate current guest count from guest details
         const arriveddGuests = guestDetailsResponse.data.filter(
@@ -52,7 +52,7 @@ const Dashboard = () => {
 
         // Fetch and log blocks data with rooms
         const blocksWithRoomsResponse = await fetchBlocksWithRooms();
-        console.log("Blocks with rooms data:", blocksWithRoomsResponse);
+        // console.log("Blocks with rooms data:", blocksWithRoomsResponse);
         setBlocks(blocksWithRoomsResponse.data || []);
 
         // Calculate room statistics for each block
@@ -104,7 +104,7 @@ const Dashboard = () => {
           "departure_date",
           today
         );
-        console.log(checkOutAllocations);
+        // console.log(checkOutAllocations);
 
         // Calculate check-ins
         let totalCheckInGuests = 0;

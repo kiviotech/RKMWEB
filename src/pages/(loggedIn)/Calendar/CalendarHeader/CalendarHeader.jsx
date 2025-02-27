@@ -112,10 +112,10 @@ const CalendarHeader = ({
     });
   };
 
-  console.log("Calendar Range:", {
-    start: startDate?.toISOString(),
-    end: endDate?.toISOString(),
-  });
+  // console.log("Calendar Range:", {
+  //   start: startDate?.toISOString(),
+  //   end: endDate?.toISOString(),
+  // });
 
   return (
     <div className="calendar-header-container">

@@ -51,10 +51,10 @@ const BookRoomBed = ({ blockId, refreshTrigger, viewMode, arrivalDate, departure
           const roomsData = blockData.data.attributes.rooms.data;
           setRooms(roomsData);
           // Add console log to see room allocations
-          console.log("Rooms with allocations:", roomsData.map(room => ({
-            roomNumber: room.attributes.room_number,
-            allocations: room.attributes.room_allocations?.data
-          })));
+          // console.log("Rooms with allocations:", roomsData.map(room => ({
+          //   roomNumber: room.attributes.room_number,
+          //   allocations: room.attributes.room_allocations?.data
+          // })));
         } catch (error) {
           console.error("Error fetching block details:", error);
         } finally {
@@ -72,7 +72,7 @@ const BookRoomBed = ({ blockId, refreshTrigger, viewMode, arrivalDate, departure
       const bookingRequestId =
         allocation.attributes.guests.data[0]?.attributes?.booking_request?.data
           ?.id;
-      console.log("Booking Request ID:", allocation);
+      // console.log("Booking Request ID:", allocation);
       if (bookingRequestId) {
         navigate("/requests", {
           state: {

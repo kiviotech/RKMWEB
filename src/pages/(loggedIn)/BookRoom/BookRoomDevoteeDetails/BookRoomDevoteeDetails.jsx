@@ -13,7 +13,7 @@ const BookRoomDevoteeDetails = ({ id, selectedGuests, setSelectedGuests, onClear
     const fetchDevoteeDetails = async () => {
       const response = await fetchBookingRequestById(id);
       setDevoteeDetails(response.data);
-      console.log("Devotee Details:", response.data);
+      // console.log("Devotee Details:", response.data);
 
       // Get non-allocated guests and set them as selected by default
       const guests = response.data.attributes.guests.data;
@@ -84,7 +84,7 @@ const BookRoomDevoteeDetails = ({ id, selectedGuests, setSelectedGuests, onClear
   };
 
   const handleConfirmAllocations = () => {
-    console.log("Confirming allocations:", tempAllocations);
+    // console.log("Confirming allocations:", tempAllocations);
     setShowConfirmEmail(true);
   };
 

@@ -29,8 +29,8 @@ const BookRoom = () => {
     if (dates.guest) {
       // Dispatch custom event for single guest room allocation
       const event = new CustomEvent('roomAllocated', {
-        detail: { 
-          roomNumber, 
+        detail: {
+          roomNumber,
           dates: {
             startDate: dates.startDate,
             endDate: dates.endDate
@@ -40,11 +40,11 @@ const BookRoom = () => {
         }
       });
       window.dispatchEvent(event);
-      
+
       // Remove the allocated guest from selectedGuests
       setSelectedGuests(prev => prev.filter(g => g.id !== dates.guest.id));
-      
-      console.log("Allocating room:", roomNumber, "with ID:", dates.roomId, "for guest:", dates.guest);
+
+      // console.log("Allocating room:", roomNumber, "with ID:", dates.roomId, "for guest:", dates.guest);
     }
   };
 

@@ -16,12 +16,12 @@ const ConfirmAllocationEmail = ({
   const navigate = useNavigate();
 
   // Add console logs to see the received props
-  console.log("ConfirmAllocationEmail - Props received:", {
-    guestData,
-    requestId,
-    allocatedGuests,
-    allocatedRooms
-  });
+  // console.log("ConfirmAllocationEmail - Props received:", {
+  //   guestData,
+  //   requestId,
+  //   allocatedGuests,
+  //   allocatedRooms
+  // });
 
   const handleSend = async () => {
     try {

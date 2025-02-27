@@ -41,7 +41,6 @@ const useDonationStore = create((set) => ({
 
   // Function to set the selected donation
   setSelectedDonation: (donation) => {
-    // console.log("Setting selected donation:", donation); // Add this log
     set({ selectedDonation: donation });
   },
 }));

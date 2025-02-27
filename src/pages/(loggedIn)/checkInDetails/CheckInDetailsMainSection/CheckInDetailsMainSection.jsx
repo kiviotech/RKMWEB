@@ -21,9 +21,9 @@ const CheckInDetailsMainSection = ({ selectedDate }) => {
           selectedDate
         );
         setAllocations(response.data || []);
-        console.log("Room allocations for", selectedDate, ":", response.data);
+        // console.log("Room allocations for", selectedDate, ":", response.data);
       } catch (error) {
-        console.error("Error fetching room allocations:", error);
+        // console.error("Error fetching room allocations:", error);
         setAllocations([]);
       } finally {
         setIsLoading(false);
@@ -67,12 +67,12 @@ const CheckInDetailsMainSection = ({ selectedDate }) => {
                   data: allocation.attributes.guests.data.map((guest, index) =>
                     index === 0
                       ? {
-                          ...guest,
-                          attributes: {
-                            ...guest.attributes,
-                            status: newStatus,
-                          },
-                        }
+                        ...guest,
+                        attributes: {
+                          ...guest.attributes,
+                          status: newStatus,
+                        },
+                      }
                       : guest
                   ),
                 },
@@ -96,7 +96,7 @@ const CheckInDetailsMainSection = ({ selectedDate }) => {
   };
 
   // You can now use selectedDate to filter your table data
-  console.log("Selected date:", selectedDate);
+  // console.log("Selected date:", selectedDate);
 
   return (
     <div className="check-in-details">
@@ -133,8 +133,8 @@ const CheckInDetailsMainSection = ({ selectedDate }) => {
               const stayDuration =
                 departureDate && arrivalDate
                   ? Math.ceil(
-                      (departureDate - arrivalDate) / (1000 * 60 * 60 * 24)
-                    )
+                    (departureDate - arrivalDate) / (1000 * 60 * 60 * 24)
+                  )
                   : "N/A";
 
               return (
@@ -150,15 +150,15 @@ const CheckInDetailsMainSection = ({ selectedDate }) => {
                     {allocation.attributes.guests.data[0]?.attributes
                       ?.arrival_date
                       ? new Date(
-                          allocation.attributes.guests.data[0].attributes.arrival_date
-                        )
-                          .toLocaleDateString("en-GB", {
-                            day: "2-digit",
-                            month: "2-digit",
-                            year: "numeric",
-                          })
-                          .split("/")
-                          .join("-")
+                        allocation.attributes.guests.data[0].attributes.arrival_date
+                      )
+                        .toLocaleDateString("en-GB", {
+                          day: "2-digit",
+                          month: "2-digit",
+                          year: "numeric",
+                        })
+                        .split("/")
+                        .join("-")
                       : "N/A"}
                   </td>
                   <td>{allocation.attributes.guests.data?.length || 0}</td>

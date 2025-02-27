@@ -193,7 +193,7 @@ const BookDormitoryRoomDevoteeDetails = ({ id, selectedGuests, setSelectedGuests
       alert("Please allocate all devotees before confirming");
       return;
     }
-    console.log("Confirming allocations:", allocatedRooms);
+    // console.log("Confirming allocations:", allocatedRooms);
     setShowEmailModal(true);
   };
 

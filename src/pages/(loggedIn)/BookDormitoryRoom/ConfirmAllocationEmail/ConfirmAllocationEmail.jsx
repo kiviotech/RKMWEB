@@ -21,7 +21,7 @@ const ConfirmAllocationEmail = ({
 
       // Create separate allocations for each room
       for (const room of allocatedRooms) {
-        console.log("Room:", room); // Debug log to see room object structure
+        // console.log("Room:", room); // Debug log to see room object structure
 
         // Get the specific guests for this room
         const guestsForRoom = allocatedGuests.slice(

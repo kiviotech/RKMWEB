@@ -66,7 +66,7 @@ const BookDormitoryRoomBed = ({ blockId, refreshTrigger, viewMode, arrivalDate, 
       const bookingRequestId =
         allocation.attributes.guests.data[0]?.attributes?.booking_request?.data
           ?.id;
-      console.log("Booking Request ID:", allocation);
+      // console.log("Booking Request ID:", allocation);
       if (bookingRequestId) {
         navigate("/requests", {
           state: {

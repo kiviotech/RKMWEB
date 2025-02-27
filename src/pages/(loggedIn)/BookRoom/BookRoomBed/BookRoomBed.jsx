@@ -133,7 +133,10 @@ const BookRoomBed = ({ blockId, refreshTrigger, viewMode, arrivalDate, departure
 
   // Modified handleBedCountClick to properly handle guest allocation
   const handleBedCountClick = (roomId, roomNumber, dateIndex, totalBeds) => {
-    if (!selectedGuests?.length) return;
+    if (!selectedGuests?.length) {
+      alert("Please select a guest first before allocating a room");
+      return;
+    }
 
     // Find the room object
     const room = rooms.find(r => r.id === roomId);
@@ -175,7 +178,10 @@ const BookRoomBed = ({ blockId, refreshTrigger, viewMode, arrivalDate, departure
 
   // Modified handleBedClick to properly sync with list view
   const handleBedClick = (roomId, roomNumber, dateIndex, bedIndex) => {
-    if (!selectedGuests?.length) return;
+    if (!selectedGuests?.length) {
+      alert("Please select a guest first before allocating a room");
+      return;
+    }
 
     // Find the room object
     const room = rooms.find(r => r.id === roomId);
@@ -629,7 +635,10 @@ const BookRoomBed = ({ blockId, refreshTrigger, viewMode, arrivalDate, departure
 
   // Modified handleListViewBedSelection to include room parameter
   const handleListViewBedSelection = (roomId, date, totalAvailableBeds, room) => {
-    if (!selectedGuests?.length) return;
+    if (!selectedGuests?.length) {
+      alert("Please select a guest first before allocating a room");
+      return;
+    }
 
     // Check for allocation conflicts
     if (hasAllocationInDateRange(room, arrivalDate, departureDate)) {
@@ -725,7 +734,6 @@ const BookRoomBed = ({ blockId, refreshTrigger, viewMode, arrivalDate, departure
                   }
                 );
 
-                // Check for recommendation letter
                 const hasRecommendationLetter = room.attributes?.room_allocations?.data?.some(allocation => {
                   const checkDate = new Date(
                     date.year,
@@ -763,7 +771,6 @@ const BookRoomBed = ({ blockId, refreshTrigger, viewMode, arrivalDate, departure
                   : (selectedBedCounts[dateKey] || 0);
                 const isInRange = isDateInRange(date, arrivalDate, departureDate);
 
-                // Get background color based on conditions
                 const getBackgroundColor = () => {
                   if (isBlocked) return "#FFFF00";
                   if (hasRecommendationLetter) return "orange";
@@ -771,8 +778,8 @@ const BookRoomBed = ({ blockId, refreshTrigger, viewMode, arrivalDate, departure
                   return "inherit";
                 };
 
-                // Check if all available beds are selected
                 const allBedsSelected = selectedCount >= availableBeds;
+                const isClickable = !isBlocked && !hasAllocation && isInRange && availableBeds > 0 && !allBedsSelected;
 
                 return (
                   <div
@@ -781,15 +788,18 @@ const BookRoomBed = ({ blockId, refreshTrigger, viewMode, arrivalDate, departure
                     data-tooltip={tooltipContent ? "true" : undefined}
                     style={{
                       backgroundColor: getBackgroundColor(),
-                      cursor: (!isBlocked && !hasAllocation && isInRange && availableBeds > 0 && selectedGuests?.length > 0 && !allBedsSelected) ? 'pointer' : 'default',
+                      cursor: isClickable ? 'pointer' : 'default',
                       opacity: 1
                     }}
                     onClick={(e) => {
-                      // Prevent click if tooltip is clicked
                       if (e.target.closest('.tooltip-content')) {
                         return;
                       }
-                      if (!isBlocked && !hasAllocation && isInRange && availableBeds > 0 && selectedGuests?.length > 0 && !allBedsSelected) {
+                      if (!selectedGuests?.length) {
+                        alert("Please select a guest first before allocating a room");
+                        return;
+                      }
+                      if (isClickable) {
                         handleListViewBedSelection(room.id, date, availableBeds, room);
                       }
                     }}
@@ -898,23 +908,32 @@ const BookRoomBed = ({ blockId, refreshTrigger, viewMode, arrivalDate, departure
             {rooms.map((room) => (
               <div key={room.id} className="room-row">
                 <div className="scrollable-beds">
-                  {dates.map((date, dateIndex) => (
-                    <div
-                      key={dateIndex}
-                      className="bed-cell"
-                      style={{ padding: room.attributes.no_of_beds <= 4 ? "10px" : "0px" }}
-                    >
-                      {renderBeds(
-                        room.attributes.no_of_beds,
-                        room.attributes.room_blockings?.data,
-                        room.attributes.room_allocations,
-                        date,
-                        room.id,
-                        dateIndex,
-                        room.attributes.room_number
-                      )}
-                    </div>
-                  ))}
+                  {dates.map((date, dateIndex) => {
+                    const isInRange = isDateInRange(date, arrivalDate, departureDate);
+                    return (
+                      <div
+                        key={dateIndex}
+                        className="bed-cell"
+                        style={{ padding: room.attributes.no_of_beds <= 4 ? "10px" : "0px" }}
+                        onClick={() => {
+                          if (!selectedGuests?.length) {
+                            alert("Please select a guest first before allocating a room");
+                            return;
+                          }
+                        }}
+                      >
+                        {renderBeds(
+                          room.attributes.no_of_beds,
+                          room.attributes.room_blockings?.data,
+                          room.attributes.room_allocations,
+                          date,
+                          room.id,
+                          dateIndex,
+                          room.attributes.room_number
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             ))}

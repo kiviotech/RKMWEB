@@ -127,7 +127,10 @@ const BookDormitoryRoomBed = ({ blockId, refreshTrigger, viewMode, arrivalDate, 
 
   // Modified handleBedCountClick to handle date range
   const handleBedCountClick = (roomId, roomNumber, dateIndex, totalAvailableBeds) => {
-    if (!selectedGuests?.length) return;
+    if (!selectedGuests?.length || !selectedGuests[0]?.attributes?.count) {
+      alert("Please select devotees first before selecting a bed.");
+      return;
+    }
 
     const requestedCount = selectedGuests[0]?.attributes?.count || 0;
     const room = rooms.find(r => r.id === roomId);
@@ -194,7 +197,12 @@ const BookDormitoryRoomBed = ({ blockId, refreshTrigger, viewMode, arrivalDate, 
 
   // Modified handleListViewBedSelection
   const handleListViewBedSelection = (roomId, roomNumber, date, totalAvailableBeds) => {
-    const requestedCount = selectedGuests?.[0]?.attributes?.count || 0;
+    if (!selectedGuests?.length || !selectedGuests[0]?.attributes?.count) {
+      alert("Please select devotees first before selecting a bed.");
+      return;
+    }
+
+    const requestedCount = selectedGuests[0]?.attributes?.count || 0;
 
     // Find the room object
     const room = rooms.find(r => r.id === roomId);
@@ -287,7 +295,10 @@ const BookDormitoryRoomBed = ({ blockId, refreshTrigger, viewMode, arrivalDate, 
 
   // Modified handleBedClick to sync with list view
   const handleBedClick = (roomId, roomNumber, dateIndex, bedIndex, totalAvailableBeds) => {
-    if (!selectedGuests?.length) return;
+    if (!selectedGuests?.length || !selectedGuests[0]?.attributes?.count) {
+      alert("Please select devotees first before selecting a bed.");
+      return;
+    }
 
     const requestedCount = selectedGuests[0]?.attributes?.count || 0;
     const room = rooms.find(r => r.id === roomId);
@@ -563,7 +574,7 @@ const BookDormitoryRoomBed = ({ blockId, refreshTrigger, viewMode, arrivalDate, 
     // Add getBedIcon function here
     const getBedIcon = (bedIndex) => {
       const icon = renderBedIcon(bedIndex, roomId, dateIndex, numberOfBeds, roomBlockings, roomAllocations, currentDate);
-      const isClickable = !isBlocked && isInRange && selectedGuests?.length > 0 && (icon === icons.Group2 || icon === icons.selectedImage);
+      const isClickable = !isBlocked && isInRange && (icon === icons.Group2 || icon === icons.selectedImage);
 
       return (
         <img
@@ -571,6 +582,10 @@ const BookDormitoryRoomBed = ({ blockId, refreshTrigger, viewMode, arrivalDate, 
           alt="bed"
           className={`bed-icon ${isInRange ? 'in-range' : ''}`}
           onClick={() => {
+            if (!selectedGuests?.length || !selectedGuests[0]?.attributes?.count) {
+              alert("Please select devotees first before selecting a bed.");
+              return;
+            }
             if (isClickable) {
               handleBedClick(roomId, roomNumber, dateIndex, bedIndex, numberOfBeds);
             }
@@ -594,12 +609,16 @@ const BookDormitoryRoomBed = ({ blockId, refreshTrigger, viewMode, arrivalDate, 
           className={`bed-count-layout ${isInRange ? 'in-range' : ''}`}
           data-tooltip={tooltipContent ? "true" : undefined}
           onClick={() => {
-            if (!isBlocked && isInRange && selectedGuests?.length > 0) {
+            if (!selectedGuests?.length || !selectedGuests[0]?.attributes?.count) {
+              alert("Please select devotees first before selecting a bed.");
+              return;
+            }
+            if (!isBlocked && isInRange) {
               handleBedCountClick(roomId, roomNumber, dateIndex, availableBeds);
             }
           }}
           style={{
-            cursor: (!isBlocked && isInRange && selectedGuests?.length > 0) ? 'pointer' : 'default',
+            cursor: (!isBlocked && isInRange) ? 'pointer' : 'default',
             backgroundColor: getBackgroundColor(isBlocked, !!allocation, allocation),
             borderRadius: "8px"
           }}
@@ -877,14 +896,18 @@ const BookDormitoryRoomBed = ({ blockId, refreshTrigger, viewMode, arrivalDate, 
                     data-tooltip={tooltipContent ? "true" : undefined}
                     style={{
                       backgroundColor: getBackgroundColor(isBlocked, hasAllocation, allocation),
-                      cursor: (!isBlocked && !hasAllocation && isInRange && availableBeds > 0 && selectedGuests?.length > 0) ? 'pointer' : 'default',
+                      cursor: (!isBlocked && !hasAllocation && isInRange && availableBeds > 0) ? 'pointer' : 'default',
                     }}
                     onClick={(e) => {
                       // Prevent bed selection if clicking on tooltip
                       if (e.target.closest('.tooltip-content')) {
                         return;
                       }
-                      if (!isBlocked && !hasAllocation && isInRange && availableBeds > 0 && selectedGuests?.length > 0) {
+                      if (!selectedGuests?.length || !selectedGuests[0]?.attributes?.count) {
+                        alert("Please select devotees first before selecting a bed.");
+                        return;
+                      }
+                      if (!isBlocked && !hasAllocation && isInRange && availableBeds > 0) {
                         handleListViewBedSelection(room.id, room.attributes.room_number, date, availableBeds);
                       }
                     }}

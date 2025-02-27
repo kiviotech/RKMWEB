@@ -129,7 +129,7 @@ const BookDormitoryRoomBed = ({ blockId, refreshTrigger, viewMode, arrivalDate, 
   const handleBedCountClick = (roomId, roomNumber, dateIndex, totalAvailableBeds) => {
     if (!selectedGuests?.length) return;
 
-    // Find the room object
+    const requestedCount = selectedGuests[0]?.attributes?.count || 0;
     const room = rooms.find(r => r.id === roomId);
 
     // Check for allocation conflicts
@@ -138,12 +138,23 @@ const BookDormitoryRoomBed = ({ blockId, refreshTrigger, viewMode, arrivalDate, 
       return;
     }
 
-    const requestedCount = selectedGuests[0]?.attributes?.count || 0;
-    const clickedDate = dates[dateIndex];
+    // Check minimum available beds across the date range
+    let minAvailableBeds = totalAvailableBeds;
+    const startDate = new Date(arrivalDate);
+    const endDate = new Date(departureDate);
 
-    // Check if there are enough available beds
-    if (requestedCount > totalAvailableBeds) {
-      alert(`Only ${totalAvailableBeds} beds available in this room. Please select a different room or reduce the number of devotees.`);
+    for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
+      const currentDate = {
+        year: d.getFullYear(),
+        month: d.toLocaleString("default", { month: "short" }),
+        day: d.getDate()
+      };
+      const availableBedsForDate = getAvailableBedsForDate(room, currentDate);
+      minAvailableBeds = Math.min(minAvailableBeds, availableBedsForDate);
+    }
+
+    if (requestedCount > minAvailableBeds) {
+      alert(`Cannot allocate ${requestedCount} beds. Only ${minAvailableBeds} beds are available for the selected date range. Please select a different room or reduce the number of devotees.`);
       return;
     }
 
@@ -194,8 +205,23 @@ const BookDormitoryRoomBed = ({ blockId, refreshTrigger, viewMode, arrivalDate, 
       return;
     }
 
-    if (requestedCount > totalAvailableBeds) {
-      alert(`Only ${totalAvailableBeds} beds available in this room. Please select a different room or reduce the number of devotees.`);
+    // Check if requested count exceeds available beds for any date in the range
+    let minAvailableBeds = totalAvailableBeds;
+    const startDate = new Date(arrivalDate);
+    const endDate = new Date(departureDate);
+
+    for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
+      const currentDate = {
+        year: d.getFullYear(),
+        month: d.toLocaleString("default", { month: "short" }),
+        day: d.getDate()
+      };
+      const availableBedsForDate = getAvailableBedsForDate(room, currentDate);
+      minAvailableBeds = Math.min(minAvailableBeds, availableBedsForDate);
+    }
+
+    if (requestedCount > minAvailableBeds) {
+      alert(`Cannot allocate ${requestedCount} beds. Only ${minAvailableBeds} beds are available for the selected date range. Please select a different room or reduce the number of devotees.`);
       return;
     }
 
@@ -263,7 +289,7 @@ const BookDormitoryRoomBed = ({ blockId, refreshTrigger, viewMode, arrivalDate, 
   const handleBedClick = (roomId, roomNumber, dateIndex, bedIndex, totalAvailableBeds) => {
     if (!selectedGuests?.length) return;
 
-    // Find the room object
+    const requestedCount = selectedGuests[0]?.attributes?.count || 0;
     const room = rooms.find(r => r.id === roomId);
 
     // Check for allocation conflicts
@@ -272,10 +298,23 @@ const BookDormitoryRoomBed = ({ blockId, refreshTrigger, viewMode, arrivalDate, 
       return;
     }
 
-    const requestedCount = selectedGuests[0]?.attributes?.count || 0;
+    // Check minimum available beds across the date range
+    let minAvailableBeds = totalAvailableBeds;
+    const startDate = new Date(arrivalDate);
+    const endDate = new Date(departureDate);
 
-    if (requestedCount > totalAvailableBeds) {
-      alert(`Only ${totalAvailableBeds} beds available in this room. Please select a different room or reduce the number of devotees.`);
+    for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
+      const currentDate = {
+        year: d.getFullYear(),
+        month: d.toLocaleString("default", { month: "short" }),
+        day: d.getDate()
+      };
+      const availableBedsForDate = getAvailableBedsForDate(room, currentDate);
+      minAvailableBeds = Math.min(minAvailableBeds, availableBedsForDate);
+    }
+
+    if (requestedCount > minAvailableBeds) {
+      alert(`Cannot allocate ${requestedCount} beds. Only ${minAvailableBeds} beds are available for the selected date range. Please select a different room or reduce the number of devotees.`);
       return;
     }
 

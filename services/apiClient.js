@@ -19,6 +19,7 @@ apiClient.interceptors.request.use(
       // console.log("Fetched token:", token); // Debugging log
 
       if (token) {
+        // config.headers.Authorization = `Bearer d1d729c06a3dc86f95caa80efc120f3ad79d69e771d8d78fff34497e4ed4b542f86cd048a4dfbf6d8ee519bb53ce3edb47c14e1c3f3837dd36c26c599b88ba7cc5442815db334d378760373e8f88ad07932b07154d5d86946dc95ca7b7c67fdcfab3ce4c6a3e9e021722857fcc487984edb099f2694f462178bdc1184fd9354d`;
         config.headers.Authorization = `Bearer ${token}`;
         // console.log("Token set in headers"); // Debugging log
       } else {

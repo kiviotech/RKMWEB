@@ -1,9 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./Signup.scss";
 import CommonButton from "../../../components/ui/Button";
 import { icons } from "../../../constants";
 import { signUpUser } from "../../../../services/auth"; // Adjust path if necessary
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import { fetchUsers } from "../../../../services/src/services/userServices";
 
 const Signup = () => {
   const navigate = useNavigate();
@@ -20,6 +22,24 @@ const Signup = () => {
   const [passwordError, setPasswordError] = useState("");
   const [confirmPasswordError, setConfirmPasswordError] = useState("");
 
+  const [isLoading, setIsLoading] = useState(false);
+
+  const [existingUsers, setExistingUsers] = useState([]);
+
+  useEffect(() => {
+    const getAllUsers = async () => {
+      try {
+        const userData = await fetchUsers();
+        setExistingUsers(userData);
+        console.log("All Users Data:", userData);
+      } catch (error) {
+        console.error("Error fetching users:", error);
+      }
+    };
+
+    getAllUsers();
+  }, []);
+
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
   };
@@ -28,37 +48,68 @@ const Signup = () => {
     setShowConfirmPassword(!showConfirmPassword);
   };
 
-  const validateUsername = () => {
-    if (username.trim() === "") {
-      setUsernameError("Username is required.");
+  const validateUsername = (value) => {
+    const sanitizedValue = value.replace(/[^a-zA-Z0-9_\.\s]/g, '');
+    if (value !== sanitizedValue) {
+      setUsernameError("Only letters, numbers, dots, spaces, and underscores are allowed");
       return false;
     }
+    if (value.trim() === "") {
+      setUsernameError("Username is required");
+      return false;
+    }
+
+    const usernameExists = existingUsers.some(
+      user => user.username.toLowerCase() === value.toLowerCase()
+    );
+    if (usernameExists) {
+      setUsernameError("Username already exists");
+      return false;
+    }
+
     setUsernameError("");
     return true;
   };
 
-  const validateEmail = () => {
+  const validateEmail = (value = email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
+    if (!emailRegex.test(value)) {
       setEmailError("Invalid email format.");
       return false;
     }
+
+    const emailExists = existingUsers.some(
+      user => user.email.toLowerCase() === value.toLowerCase()
+    );
+    if (emailExists) {
+      setEmailError("Email already exists");
+      return false;
+    }
+
     setEmailError("");
     return true;
   };
 
-  const validatePassword = () => {
-    if (password.length < 8) {
-      setPasswordError("Password must be at least 8 characters.");
+  const validatePassword = (value) => {
+    if (value.length < 8) {
+      setPasswordError("Password must be at least 8 characters");
+      return false;
+    }
+    if (/\s/.test(value)) {
+      setPasswordError("Password cannot contain spaces");
       return false;
     }
     setPasswordError("");
     return true;
   };
 
-  const validateConfirmPassword = () => {
-    if (password !== confirmPassword) {
-      setConfirmPasswordError("Passwords do not match.");
+  const validateConfirmPassword = (value) => {
+    if (value !== password) {
+      setConfirmPasswordError("Passwords do not match");
+      return false;
+    }
+    if (/\s/.test(value)) {
+      setConfirmPasswordError("Password cannot contain spaces");
       return false;
     }
     setConfirmPasswordError("");
@@ -68,29 +119,47 @@ const Signup = () => {
   const handleSignup = async (e) => {
     e.preventDefault();
 
-    const isValidUsername = validateUsername();
+    const isValidUsername = validateUsername(username);
     const isValidEmail = validateEmail();
-    const isValidPassword = validatePassword();
-    const isValidConfirmPassword = validateConfirmPassword();
+    const isValidPassword = validatePassword(password);
+    const isValidConfirmPassword = validateConfirmPassword(confirmPassword);
 
-    if (
-      !isValidUsername ||
-      !isValidEmail ||
-      !isValidPassword ||
-      !isValidConfirmPassword
-    ) {
+    if (!isValidUsername || !isValidEmail || !isValidPassword || !isValidConfirmPassword) {
       return;
     }
 
     try {
+      setIsLoading(true);
       const response = await signUpUser({ username, email, password });
-      // console.log("Sign-up successful", response);
 
-      // Redirect to login page after successful sign-up
-      navigate("/");
+      // Show success toast message
+      toast.success("Sign up successful! Please login to continue.", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
+
+      // Short delay before navigation to allow toast to be visible
+      setTimeout(() => {
+        navigate("/");
+      }, 1000);
+
     } catch (err) {
-      // console.error("Error during sign-up:", err);
       setError("Sign-up failed. Please try again.");
+      // Show error toast message
+      toast.error("Sign up failed. Please try again.", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -106,7 +175,9 @@ const Signup = () => {
         </div>
         <form onSubmit={handleSignup}>
           <div className="input-group">
-            <label htmlFor="username">Username</label>
+            <label htmlFor="username">
+              Username <span style={{ color: 'red' }}>*</span>
+            </label>
             <input
               type="text"
               id="username"
@@ -114,17 +185,23 @@ const Signup = () => {
               placeholder="User Name"
               value={username}
               onChange={(e) => {
-                setUsername(e.target.value);
-                if (usernameError) validateUsername();
+                const sanitizedValue = e.target.value.replace(/[^a-zA-Z0-9_\.\s]/g, '');
+                setUsername(sanitizedValue);
+                validateUsername(sanitizedValue);
               }}
-              onBlur={validateUsername}
+              onBlur={() => validateUsername(username)}
+              pattern="[a-zA-Z0-9_\.\s]+"
+              title="Username can only contain letters, numbers, dots, spaces, and underscores"
               required
+              disabled={isLoading}
             />
             {usernameError && <p className="error-message">{usernameError}</p>}
           </div>
 
           <div className="input-group">
-            <label htmlFor="email">Email</label>
+            <label htmlFor="email">
+              Email <span style={{ color: 'red' }}>*</span>
+            </label>
             <input
               type="email"
               id="email"
@@ -132,19 +209,23 @@ const Signup = () => {
               placeholder="Email"
               value={email}
               onChange={(e) => {
-                setEmail(e.target.value);
-                if (emailError) validateEmail();
+                const newEmail = e.target.value;
+                setEmail(newEmail);
+                validateEmail(newEmail);
               }}
-              onBlur={validateEmail}
+              onBlur={() => validateEmail(email)}
               required
+              disabled={isLoading}
             />
             {emailError && <p className="error-message">{emailError}</p>}
           </div>
 
           <div className="input-group">
             <div className="filed-tip">
-              <label htmlFor="password">Password</label>
-              <img src={icons.fieldTip} alt="fieldTip" />
+              <label htmlFor="password">
+                Password <span style={{ color: 'red' }}>*</span>
+              </label>
+              {/* <img src={icons.fieldTip} alt="fieldTip" /> */}
             </div>
             <div className="password-input">
               <input
@@ -154,11 +235,16 @@ const Signup = () => {
                 placeholder="Password"
                 value={password}
                 onChange={(e) => {
-                  setPassword(e.target.value);
-                  if (passwordError) validatePassword();
+                  const sanitizedValue = e.target.value.replace(/\s/g, '');
+                  setPassword(sanitizedValue);
+                  validatePassword(sanitizedValue);
+                  if (confirmPassword) {
+                    validateConfirmPassword(confirmPassword);
+                  }
                 }}
-                onBlur={validatePassword}
+                onBlur={() => validatePassword(password)}
                 required
+                disabled={isLoading}
               />
               <button
                 type="button"
@@ -192,8 +278,10 @@ const Signup = () => {
 
           <div className="input-group">
             <div className="filed-tip">
-              <label htmlFor="ConfirmPassword">Confirm Password</label>
-              <img src={icons.fieldTip} alt="fieldTip" />
+              <label htmlFor="ConfirmPassword">
+                Confirm Password <span style={{ color: 'red' }}>*</span>
+              </label>
+              {/* <img src={icons.fieldTip} alt="fieldTip" /> */}
             </div>
             <div className="password-input">
               <input
@@ -203,11 +291,13 @@ const Signup = () => {
                 placeholder="Confirm Password"
                 value={confirmPassword}
                 onChange={(e) => {
-                  setConfirmPassword(e.target.value);
-                  if (confirmPasswordError) validateConfirmPassword();
+                  const sanitizedValue = e.target.value.replace(/\s/g, '');
+                  setConfirmPassword(sanitizedValue);
+                  validateConfirmPassword(sanitizedValue);
                 }}
-                onBlur={validateConfirmPassword}
+                onBlur={() => validateConfirmPassword(confirmPassword)}
                 required
+                disabled={isLoading}
               />
               <button
                 type="button"
@@ -244,7 +334,7 @@ const Signup = () => {
           {error && <p className="error-message">{error}</p>}
 
           <CommonButton
-            buttonName="Sign Up"
+            buttonName={isLoading ? "Signing Up..." : "Sign Up"}
             buttonWidth="100%"
             style={{
               backgroundColor: "#ea7704",
@@ -252,8 +342,11 @@ const Signup = () => {
               borderRadius: "16px",
               borderWidth: 0,
               padding: "10px 20px",
+              opacity: isLoading ? 0.7 : 1,
+              cursor: isLoading ? "not-allowed" : "pointer",
             }}
             onClick={handleSignup}
+            disabled={isLoading}
           />
         </form>
         <div className="already-account">
@@ -268,7 +361,7 @@ const Signup = () => {
                 fontWeight: "bold",
               }}
             >
-              Login
+              Sign In
             </span>
           </p>
         </div>

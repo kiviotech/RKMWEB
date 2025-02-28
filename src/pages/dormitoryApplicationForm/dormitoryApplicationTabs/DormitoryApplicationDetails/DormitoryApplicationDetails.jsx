@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import "./DormitoryApplicationDetails.scss";
 import CommonButton from "../../../../components/ui/Button";
 import useDormitoryStore from "../../../../../dormitoryStore";
+import { fetchGuestDetails } from "../../../../../services/src/services/guestDetailsService";
 
 const DormitoryApplicationDetails = ({ goToNextStep, tabName }) => {
   const { formData, updateFormData, updateAddress } = useDormitoryStore();
@@ -14,6 +15,11 @@ const DormitoryApplicationDetails = ({ goToNextStep, tabName }) => {
   const [isDeekshaDropdownOpen, setIsDeekshaDropdownOpen] = useState(false);
   const [deekshaSearchQuery, setDeekshaSearchQuery] = useState("");
   const deekshaDropdownRef = useRef(null);
+
+  const [isNameDropdownOpen, setIsNameDropdownOpen] = useState(false);
+  const [nameSearchQuery, setNameSearchQuery] = useState("");
+  const [guestList, setGuestList] = useState([]);
+  const nameDropdownRef = useRef(null);
 
   // Add logging effect for formData changes
   useEffect(() => {
@@ -415,6 +421,76 @@ const DormitoryApplicationDetails = ({ goToNextStep, tabName }) => {
     };
   }, []);
 
+  // Add filtered guests list
+  const filteredGuests = guestList.filter((guest) =>
+    guest.attributes.name.toLowerCase().includes(nameSearchQuery.toLowerCase())
+  );
+
+  // Add this useEffect to fetch guest details
+  useEffect(() => {
+    const fetchAndLogGuestDetails = async () => {
+      try {
+        const guestDetails = await fetchGuestDetails();
+        console.log("Fetched Guest Details:", guestDetails);
+        setGuestList(guestDetails.data);
+      } catch (error) {
+        console.error("Error fetching guest details:", error);
+      }
+    };
+
+    fetchAndLogGuestDetails();
+  }, []);
+
+  // Add click outside handler for name dropdown
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (nameDropdownRef.current && !nameDropdownRef.current.contains(event.target)) {
+        setIsNameDropdownOpen(false);
+        setNameSearchQuery("");
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  // Add function to handle guest selection
+  const handleGuestSelect = (guest) => {
+    const { attributes } = guest;
+    const addressParts = attributes.address.split(", ");
+
+    // Update form data
+    handleFormDataChange("title", attributes.name.split(" ")[0]); // Extract title
+    handleFormDataChange("contactPersonName", attributes.name.substring(attributes.name.indexOf(" ") + 1)); // Remove title
+    handleFormDataChange("age", attributes.age.toString());
+    handleFormDataChange("gender", attributes.gender);
+    handleFormDataChange("email", attributes.email);
+    handleFormDataChange("occupation", attributes.occupation);
+    handleFormDataChange("deeksha", attributes.deeksha);
+    handleFormDataChange("aadhaar", attributes.identity_number);
+    handleFormDataChange("phoneNumber", attributes.phone_number.substring(3)); // Remove country code
+    handleCountryCodeChange(attributes.phone_number.substring(1, 3)); // Extract country code
+
+    // Update address
+    updateAddress({
+      houseNumber: addressParts[0] || "",
+      streetName: addressParts[1] || "",
+      district: addressParts[3] || "",
+      state: addressParts[4] || "",
+      pinCode: addressParts[5] || "",
+      postOffice: addressParts[2] || "",
+    });
+
+    // Clear any existing errors
+    handleSetError("contactPersonName", "");
+    handleSetError("title", "");
+
+    setIsNameDropdownOpen(false);
+    setNameSearchQuery("");
+  };
+
   return (
     <div className="application-form">
       <form onSubmit={handleSubmit}>
@@ -440,8 +516,8 @@ const DormitoryApplicationDetails = ({ goToNextStep, tabName }) => {
               {/* Contact Person Name Field */}
               <div className="form-group">
                 <label>Contact Person Name</label>
-                <div className="unified-input">
-                  <div className="custom-select">
+                <div className="unified-input" ref={nameDropdownRef} style={{ display: 'flex', gap: '10px' }}>
+                  <div className="custom-select" style={{ width: '120px', minWidth: '120px' }}>
                     <select
                       name="title"
                       value={formData.title || ""}
@@ -459,18 +535,114 @@ const DormitoryApplicationDetails = ({ goToNextStep, tabName }) => {
                       <option value="Ms">Ms.</option>
                     </select>
                   </div>
-                  <input
-                    type="text"
-                    name="contactPersonName"
-                    value={formData.contactPersonName}
-                    onChange={handleInputChange}
-                    placeholder="Contact Person Name"
-                  />
+                  <div className="name-input-container" style={{ position: 'relative', flex: '1 1 auto', width: '100%' }}>
+                    <input
+                      type="text"
+                      name="contactPersonName"
+                      value={nameSearchQuery || formData.contactPersonName}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        setNameSearchQuery(value);
+                        if (!isNameDropdownOpen) {
+                          handleInputChange(e);
+                        }
+                        setIsNameDropdownOpen(true);
+                      }}
+                      onClick={() => {
+                        setIsNameDropdownOpen(true);
+                        setNameSearchQuery(formData.contactPersonName || "");
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Backspace' && nameSearchQuery === '') {
+                          // Clear form data when backspace is pressed on empty field
+                          handleFormDataChange("title", "");
+                          handleFormDataChange("contactPersonName", "");
+                          handleFormDataChange("age", "");
+                          handleFormDataChange("gender", "");
+                          handleFormDataChange("email", "");
+                          handleFormDataChange("occupation", "");
+                          handleFormDataChange("deeksha", "");
+                          handleFormDataChange("aadhaar", "");
+                          handleFormDataChange("phoneNumber", "");
+                          handleCountryCodeChange("91");
+
+                          // Clear address
+                          updateAddress({
+                            houseNumber: "",
+                            streetName: "",
+                            district: "",
+                            state: "",
+                            pinCode: "",
+                            postOffice: "",
+                          });
+                        }
+                      }}
+                      placeholder="Contact Person Name"
+                      style={{ width: '100%' }}
+                    />
+                    {isNameDropdownOpen && (
+                      <div className="country-dropdown" style={{
+                        position: 'absolute',
+                        top: '100%',
+                        left: 0,
+                        right: 0,
+                        zIndex: 1000,
+                        backgroundColor: 'white',
+                        border: '1px solid #ccc',
+                        borderRadius: '4px',
+                        maxHeight: '300px',
+                        overflowY: 'auto',
+                        boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                      }}>
+                        {filteredGuests.length > 0 ? (
+                          filteredGuests.map((guest) => (
+                            <div
+                              key={guest.id}
+                              className="country-option"
+                              onClick={() => handleGuestSelect(guest)}
+                              style={{
+                                padding: '12px',
+                                cursor: 'pointer',
+                                borderBottom: '1px solid #eee',
+                                transition: 'background-color 0.2s',
+                                ':hover': {
+                                  backgroundColor: '#f5f5f5'
+                                }
+                              }}
+                            >
+                              <div style={{ fontWeight: 'bold', marginBottom: '4px' }}>
+                                {guest.attributes.name}
+                              </div>
+                              <div style={{
+                                fontSize: '0.9em',
+                                color: '#666',
+                                display: 'flex',
+                                gap: '8px',
+                                alignItems: 'center'
+                              }}>
+                                <span>📞 {guest.attributes.phone_number}</span>
+                                <span>📧 {guest.attributes.email}</span>
+                              </div>
+                              <div style={{
+                                fontSize: '0.9em',
+                                color: '#666',
+                                marginTop: '4px'
+                              }}>
+                                📍 {guest.attributes.address}
+                              </div>
+                            </div>
+                          ))
+                        ) : (
+                          <div style={{ padding: '8px 12px', color: '#666' }}>
+                            No matching guests found
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
                 </div>
                 {errors.title && <span className="error">{errors.title}</span>}
-                {errors.contactPersonName && (
-                  <span className="error">{errors.contactPersonName}</span>
-                )}
+                {errors.contactPersonName && <span className="error">{errors.contactPersonName}</span>}
               </div>
 
               {/* Age and Gender Fields - Moved here */}
@@ -641,9 +813,8 @@ const DormitoryApplicationDetails = ({ goToNextStep, tabName }) => {
                   >
                     <span>{formData.deeksha || "Select Deeksha"}</span>
                     <svg
-                      className={`dropdown-icon ${
-                        isDeekshaDropdownOpen ? "open" : ""
-                      }`}
+                      className={`dropdown-icon ${isDeekshaDropdownOpen ? "open" : ""
+                        }`}
                       width="14"
                       height="8"
                       viewBox="0 0 14 8"

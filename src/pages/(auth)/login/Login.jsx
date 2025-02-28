@@ -19,24 +19,59 @@ const Login = () => {
     setShowPassword(!showPassword);
   };
 
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+
+    if (name === 'username') {
+      // Allow letters, numbers, underscores, dots, and spaces
+      const sanitizedValue = value.replace(/[^a-zA-Z0-9_\.\s]/g, '');
+      setFormValues({ ...formValues, [name]: sanitizedValue });
+
+      // Show error if user tries to enter other special characters
+      if (value !== sanitizedValue) {
+        setFormErrors({
+          ...formErrors,
+          username: "Only letters, numbers, dots, spaces, and underscores are allowed"
+        });
+      } else {
+        setFormErrors({
+          ...formErrors,
+          username: ""
+        });
+      }
+    } else if (name === 'password') {
+      // Remove spaces from password
+      const sanitizedValue = value.replace(/\s/g, '');
+      setFormValues({ ...formValues, [name]: sanitizedValue });
+
+      // Show error if user tries to enter spaces
+      if (value !== sanitizedValue) {
+        setFormErrors({
+          ...formErrors,
+          password: "Spaces are not allowed in password"
+        });
+      } else {
+        setFormErrors({
+          ...formErrors,
+          password: ""
+        });
+      }
+    }
+  };
+
   const validateForm = () => {
     const errors = {};
     if (!formValues.username.trim()) {
       errors.username = "Username is required";
+    } else if (!/^[a-zA-Z0-9_\.\s]+$/.test(formValues.username)) {
+      errors.username = "Username can only contain letters, numbers, dots, spaces, and underscores";
     }
-    if (!formValues.password.trim()) {
+    if (!formValues.password) {
       errors.password = "Password is required";
+    } else if (/\s/.test(formValues.password)) {
+      errors.password = "Password cannot contain spaces";
     }
     return errors;
-  };
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormValues({ ...formValues, [name]: value });
-
-    if (formErrors[name]) {
-      setFormErrors({ ...formErrors, [name]: "" });
-    }
   };
 
   const handleSubmit = async (e) => {
@@ -99,6 +134,8 @@ const Login = () => {
               onChange={handleChange}
               placeholder="User Name"
               disabled={isLoading}
+              pattern="[a-zA-Z0-9_\.\s]+" // Updated HTML5 pattern validation to include spaces
+              title="Username can only contain letters, numbers, dots, spaces, and underscores"
             />
             {formErrors.username && (
               <p className="error-text">{formErrors.username}</p>

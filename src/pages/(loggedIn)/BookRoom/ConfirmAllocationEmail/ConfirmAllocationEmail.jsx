@@ -3,6 +3,7 @@ import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import { createNewRoomAllocation } from "../../../../../services/src/services/roomAllocationService";
 import { updateBookingRequestById } from "../../../../../services/src/services/bookingRequestService";
+import { sendBookingConfirmation } from "../../../../../services/src/services/emailTemplateService";
 import "./ConfirmAllocationEmail.scss";
 
 const ConfirmAllocationEmail = ({
@@ -32,7 +33,7 @@ const ConfirmAllocationEmail = ({
             roomId: curr.roomId,
             guestIds: [],
             startDate: curr.startDate,
-            endDate: curr.endDate
+            endDate: curr.endDate,
           };
         }
         acc[curr.roomId].guestIds.push(curr.guestId);
@@ -47,23 +48,41 @@ const ConfirmAllocationEmail = ({
           booking_request: requestId,
           room: roomGroup.roomId,
           start_date: roomGroup.startDate,
-          end_date: roomGroup.endDate
+          end_date: roomGroup.endDate,
         });
       }
 
       // Update booking request status
       await updateBookingRequestById(requestId, {
         data: {
-          status: "confirmed"
-        }
+          status: "confirmed",
+        },
       });
 
-      toast.success("Room allocation confirmed successfully!");
+      // Send booking confirmation email
+      const emailData = {
+        bookingId: `${requestId}`,
+        name: allocatedGuests[0]?.attributes?.name || "",
+        email: allocatedGuests[0]?.attributes?.email || "",
+        checkInDate: new Date(guestData?.attributes?.arrival_date)
+          .toISOString()
+          .split("T")[0],
+        checkOutDate: new Date(guestData?.attributes?.departure_date)
+          .toISOString()
+          .split("T")[0],
+        numberOfGuests: allocatedGuests.length,
+        accommodationType: "Guest House",
+      };
+
+      // Send the confirmation email
+      await sendBookingConfirmation(emailData);
+
+      toast.success("Room allocation confirmed and email sent successfully!");
       onClose();
       navigate("/Requests"); // Navigate to Requests page after successful allocation
     } catch (error) {
-      console.error("Error creating room allocations:", error);
-      toast.error("Failed to confirm room allocation");
+      console.error("Error in room allocation process:", error);
+      toast.error("Failed to complete room allocation process");
     }
   };
 
@@ -146,10 +165,7 @@ const ConfirmAllocationEmail = ({
             <button className="allocation-cancel-button" onClick={onClose}>
               Cancel
             </button>
-            <button
-              className="allocation-send-button"
-              onClick={handleSend}
-            >
+            <button className="allocation-send-button" onClick={handleSend}>
               Send
             </button>
           </div>

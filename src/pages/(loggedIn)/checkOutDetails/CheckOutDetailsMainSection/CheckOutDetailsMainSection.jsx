@@ -1,9 +1,14 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { toast } from "react-toastify";
 import {
   fetchRoomAllocationsForCheckin,
   updateRoomAllocationStatus,
 } from "../../../../../services/src/services/roomAllocationService";
+import {
+  sendAllReminders,
+  sendReminderEmail,
+  sendReminderSMS,
+} from "../../../../../services/src/services/reminderService";
 import icons from "../../../../constants/icons";
 
 const CheckOutDetailsMainSection = ({ selectedDate }) => {
@@ -59,6 +64,81 @@ const CheckOutDetailsMainSection = ({ selectedDate }) => {
 
   const handleMoreClick = (index) => {
     setActiveDropdown(activeDropdown === index ? null : index);
+  };
+
+  const handleSendAllNotifications = async (allocation) => {
+    try {
+      const reminderData = {
+        data: {
+          bookingId: allocation.id,
+          name: allocation.attributes.guests.data[0]?.attributes?.name || "",
+          email: allocation.attributes.guests.data[0]?.attributes?.email || "",
+          checkoutDate: new Date(
+            allocation.attributes.guests.data[0]?.attributes?.departure_date
+          )
+            .toISOString()
+            .split("T")[0],
+          roomNumber: allocation.attributes.room.data.attributes.room_number,
+        },
+      };
+
+      await sendAllReminders(reminderData);
+      toast.success("Reminder notifications sent successfully!");
+      setActiveDropdown(null);
+    } catch (error) {
+      console.error("Error sending reminder notifications:", error);
+      toast.error("Failed to send reminder notifications");
+    }
+  };
+
+  const handleSendEmail = async (allocation) => {
+    try {
+      const emailData = {
+        bookingId: allocation.id,
+        name: allocation.attributes.guests.data[0]?.attributes?.name || "",
+        email: allocation.attributes.guests.data[0]?.attributes?.email || "",
+        phoneNumber:
+          allocation.attributes.guests.data[0]?.attributes?.phone_number || "",
+        checkoutDate: new Date(
+          allocation.attributes.guests.data[0]?.attributes?.departure_date
+        )
+          .toISOString()
+          .split("T")[0],
+        roomNumber: allocation.attributes.room.data.attributes.room_number,
+      };
+
+      await sendReminderEmail(emailData);
+      toast.success("Reminder email sent successfully!");
+      setActiveDropdown(null);
+    } catch (error) {
+      console.error("Error sending reminder email:", error);
+      toast.error("Failed to send reminder email");
+    }
+  };
+
+  const handleSendSMS = async (allocation) => {
+    try {
+      const smsData = {
+        bookingId: allocation.id,
+        name: allocation.attributes.guests.data[0]?.attributes?.name || "",
+        email: allocation.attributes.guests.data[0]?.attributes?.email || "",
+        phoneNumber:
+          allocation.attributes.guests.data[0]?.attributes?.phone_number || "",
+        checkoutDate: new Date(
+          allocation.attributes.guests.data[0]?.attributes?.departure_date
+        )
+          .toISOString()
+          .split("T")[0],
+        roomNumber: allocation.attributes.room.data.attributes.room_number,
+      };
+
+      await sendReminderSMS(smsData);
+      toast.success("Reminder SMS sent successfully!");
+      setActiveDropdown(null);
+    } catch (error) {
+      console.error("Error sending reminder SMS:", error);
+      toast.error("Failed to send reminder SMS");
+    }
   };
 
   React.useEffect(() => {
@@ -151,7 +231,7 @@ const CheckOutDetailsMainSection = ({ selectedDate }) => {
                   >
                     {allocation.attributes.donation}
                   </td>
-                  <td>₹{allocation.attributes.donationAmount}</td>
+                  <td>₹{allocation.attributes.donationAmount || 0}</td>
                   <td className="actions">
                     <div className="dropdown-container" ref={dropdownRef}>
                       <button
@@ -162,7 +242,12 @@ const CheckOutDetailsMainSection = ({ selectedDate }) => {
                       </button>
                       {activeDropdown === index && (
                         <div className="dropdown-menus">
-                          <button className="dropdown-item">
+                          <button
+                            className="dropdown-item"
+                            onClick={() =>
+                              handleSendAllNotifications(allocation)
+                            }
+                          >
                             <img src={icons.notification2} alt="" />
                             Send all notifications
                           </button>
@@ -172,12 +257,18 @@ const CheckOutDetailsMainSection = ({ selectedDate }) => {
                             Send Whatsapp
                           </button>
                           <div className="dropdown-divider"></div>
-                          <button className="dropdown-item">
+                          <button
+                            className="dropdown-item"
+                            onClick={() => handleSendEmail(allocation)}
+                          >
                             <img src={icons.mail} alt="" />
                             Send an E-mail
                           </button>
                           <div className="dropdown-divider"></div>
-                          <button className="dropdown-item">
+                          <button
+                            className="dropdown-item"
+                            onClick={() => handleSendSMS(allocation)}
+                          >
                             <img src={icons.message} alt="" />
                             Send SMS
                           </button>

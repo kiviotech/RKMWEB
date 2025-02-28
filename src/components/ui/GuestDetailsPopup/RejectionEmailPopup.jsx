@@ -1,5 +1,10 @@
 import React, { useState, useEffect } from "react";
 import "./RejectionEmailPopup.scss";
+import {
+  sendNoRoomsRegret,
+  sendRevisitRegret,
+  sendSpecialCelebrationRegret,
+} from "../../../../services/src/services/emailTemplateService";
 
 const RejectionEmailPopup = ({ onClose, onSubmit, guestDetail }) => {
   const [selectedReasons, setSelectedReasons] = useState([]);
@@ -7,11 +12,10 @@ const RejectionEmailPopup = ({ onClose, onSubmit, guestDetail }) => {
   const [emailContent, setEmailContent] = useState("");
 
   const reasons = [
-    "Please don't get disheartened as it will not be possible for us to accommodate you during the period requested by you due to paucity of space.",
-    "Reason 2",
-    "Reason 3",
-    "Reason 4",
-    "Reason 5",
+    "No Rooms Available.",
+    "Revisit in 6 months",
+    "Special Celebrations (Below 10k)",
+    "Special Celebrations (Above 10k)",
   ];
 
   const arrivalDate = guestDetail?.data?.attributes?.arrival_date;
@@ -58,15 +62,41 @@ Swami Lokahanananda`;
     setIsEmailModalOpen(true);
   };
 
-  const handleSendEmail = () => {
+  const handleSendEmail = async () => {
     try {
+      const emailData = {
+        bookingId: `${guestDetail?.data?.id}`,
+        name:
+          guestDetail?.data?.attributes?.guests?.data[0]?.attributes?.name ||
+          "",
+        email:
+          guestDetail?.data?.attributes?.guests?.data[0]?.attributes?.email ||
+          "",
+        checkInDate: new Date(arrivalDate).toISOString().split("T")[0],
+        checkOutDate: new Date(departureDate).toISOString().split("T")[0],
+        numberOfGuests:
+          guestDetail?.data?.attributes?.guests?.data?.length || 0,
+      };
+
+      // Determine which email template to use based on selected reasons
+      if (selectedReasons.includes("No Rooms Available.")) {
+        await sendNoRoomsRegret(emailData);
+      } else if (selectedReasons.includes("Revisit in 6 months")) {
+        await sendRevisitRegret(emailData);
+      } else if (
+        selectedReasons.includes("Special Celebrations (Below 10k)") ||
+        selectedReasons.includes("Special Celebrations (Above 10k)")
+      ) {
+        await sendSpecialCelebrationRegret(emailData);
+      }
+
       onSubmit(selectedReasons);
       setIsEmailModalOpen(false);
       alert("Email sent successfully!");
       onClose();
     } catch (error) {
-      // console.error("Error sending email:", error);
-      alert("Failed to send email and allocate rooms. Please try again.");
+      console.error("Error sending rejection email:", error);
+      alert("Failed to send rejection email. Please try again.");
     }
   };
 

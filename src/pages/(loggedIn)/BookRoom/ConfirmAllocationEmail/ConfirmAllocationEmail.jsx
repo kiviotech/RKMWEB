@@ -3,7 +3,11 @@ import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import { createNewRoomAllocation } from "../../../../../services/src/services/roomAllocationService";
 import { updateBookingRequestById } from "../../../../../services/src/services/bookingRequestService";
-import { sendBookingConfirmation } from "../../../../../services/src/services/emailTemplateService";
+import {
+  sendBookingConfirmation,
+  sendPeerlessConfirmation,
+  sendYatriNivasConfirmation
+} from "../../../../../services/src/services/emailTemplateService";
 import "./ConfirmAllocationEmail.scss";
 
 const ConfirmAllocationEmail = ({
@@ -17,12 +21,12 @@ const ConfirmAllocationEmail = ({
   const navigate = useNavigate();
 
   // Add console logs to see the received props
-  // console.log("ConfirmAllocationEmail - Props received:", {
-  //   guestData,
-  //   requestId,
-  //   allocatedGuests,
-  //   allocatedRooms
-  // });
+  console.log("ConfirmAllocationEmail - Props received:", {
+    guestData,
+    requestId,
+    allocatedGuests,
+    allocatedRooms,
+  });
 
   const handleSend = async () => {
     try {
@@ -59,7 +63,30 @@ const ConfirmAllocationEmail = ({
         },
       });
 
-      // Send booking confirmation email
+      // Determine accommodation type based on first room's prefix
+      const firstRoomPrefix = allocatedRooms[0]?.roomNumber?.split(' ')[0];
+      let accommodationType = "Guest House";
+      let sendEmailConfirmation = sendBookingConfirmation;
+
+      switch (firstRoomPrefix) {
+        case 'GH':
+          accommodationType = "Guest House";
+          sendEmailConfirmation = sendBookingConfirmation;
+          break;
+        case 'F':
+          accommodationType = "Peerless";
+          sendEmailConfirmation = sendPeerlessConfirmation;
+          break;
+        case 'YN':
+          accommodationType = "Yatri Nivas";
+          sendEmailConfirmation = sendYatriNivasConfirmation;
+          break;
+        default:
+          accommodationType = "Guest House";
+          sendEmailConfirmation = sendBookingConfirmation;
+      }
+
+      // Prepare email data
       const emailData = {
         bookingId: `${requestId}`,
         name: allocatedGuests[0]?.attributes?.name || "",
@@ -71,15 +98,15 @@ const ConfirmAllocationEmail = ({
           .toISOString()
           .split("T")[0],
         numberOfGuests: allocatedGuests.length,
-        accommodationType: "Guest House",
+        accommodationType: accommodationType,
       };
 
-      // Send the confirmation email
-      await sendBookingConfirmation(emailData);
+      // Send the confirmation email using the determined function
+      await sendEmailConfirmation(emailData);
 
       toast.success("Room allocation confirmed and email sent successfully!");
       onClose();
-      navigate("/Requests"); // Navigate to Requests page after successful allocation
+      navigate("/Requests");
     } catch (error) {
       console.error("Error in room allocation process:", error);
       toast.error("Failed to complete room allocation process");

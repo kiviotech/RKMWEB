@@ -3,6 +3,7 @@ import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import { createNewRoomAllocation } from "../../../../../services/src/services/roomAllocationService";
 import { updateBookingRequestById } from "../../../../../services/src/services/bookingRequestService";
+import { sendDormitoryConfirmation } from "../../../../../services/src/services/emailTemplateService";
 
 const ConfirmDormitoryEmail = ({
   onClose,
@@ -22,7 +23,7 @@ const ConfirmDormitoryEmail = ({
           room_status: "allocated",
           booking_request: requestId,
           room: room.roomId,
-          occupancy: room.count
+          occupancy: room.count,
         };
 
         return await createNewRoomAllocation(allocationData);
@@ -34,20 +35,45 @@ const ConfirmDormitoryEmail = ({
       // Update booking request status
       await updateBookingRequestById(requestId, {
         data: {
-          status: "confirmed"
-        }
+          status: "confirmed",
+        },
       });
 
-      toast.success("Room allocations created successfully!");
+      // Calculate total number of guests
+      const totalGuests = allocatedRooms.reduce(
+        (total, room) => total + room.count,
+        0
+      );
+
+      // Send dormitory confirmation email
+      const emailData = {
+        bookingId: `${requestId}`,
+        email: allocatedGuests[0]?.attributes?.email || "",
+        name: allocatedGuests[0]?.attributes?.name || "",
+        checkInDate: new Date(guestData?.attributes?.arrival_date)
+          .toISOString()
+          .split("T")[0],
+        checkOutDate: new Date(guestData?.attributes?.departure_date)
+          .toISOString()
+          .split("T")[0],
+        numberOfGuests: totalGuests,
+      };
+
+      // Send the confirmation email
+      await sendDormitoryConfirmation(emailData);
+
+      toast.success(
+        "Room allocations created and confirmation email sent successfully!"
+      );
       onClose();
 
-      // Optionally navigate to a different page or refresh the current one
+      // Navigate to requests page
       navigate("/requests", {
-        state: { activeTab: "confirmed" }
+        state: { activeTab: "confirmed" },
       });
     } catch (error) {
-      console.error("Error creating room allocations:", error);
-      toast.error("Failed to create room allocations. Please try again.");
+      console.error("Error in dormitory allocation process:", error);
+      toast.error("Failed to complete dormitory allocation process");
     }
   };
 
@@ -103,9 +129,16 @@ const ConfirmDormitoryEmail = ({
                 .split("/")
                 .join("-")}{" "}
               after breakfast at 07:30 a.m. The accommodation will be kept
-              reserved for {allocatedRooms.reduce((acc, data) => {
-                return acc + `${data.count} ${data.gender === 'M' ? 'Male' : 'Female'}, `
-              }, '').slice(0, -2)} devotees.
+              reserved for{" "}
+              {allocatedRooms
+                .reduce((acc, data) => {
+                  return (
+                    acc +
+                    `${data.count} ${data.gender === "M" ? "Male" : "Female"}, `
+                  );
+                }, "")
+                .slice(0, -2)}{" "}
+              devotees.
             </p>
 
             <p>

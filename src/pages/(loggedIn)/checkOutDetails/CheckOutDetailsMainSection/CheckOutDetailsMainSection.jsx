@@ -69,17 +69,17 @@ const CheckOutDetailsMainSection = ({ selectedDate }) => {
   const handleSendAllNotifications = async (allocation) => {
     try {
       const reminderData = {
-        data: {
-          bookingId: allocation.id,
-          name: allocation.attributes.guests.data[0]?.attributes?.name || "",
-          email: allocation.attributes.guests.data[0]?.attributes?.email || "",
-          checkoutDate: new Date(
-            allocation.attributes.guests.data[0]?.attributes?.departure_date
-          )
-            .toISOString()
-            .split("T")[0],
-          roomNumber: allocation.attributes.room.data.attributes.room_number,
-        },
+        bookingId: allocation.id,
+        name: allocation.attributes.guests.data[0]?.attributes?.name || "",
+        email: allocation.attributes.guests.data[0]?.attributes?.email || "",
+        phoneNumber:
+          allocation.attributes.guests.data[0]?.attributes?.phone_number || "",
+        checkoutDate: new Date(
+          allocation.attributes.guests.data[0]?.attributes?.departure_date
+        )
+          .toISOString()
+          .split("T")[0],
+        roomNumber: allocation.attributes.room.data.attributes.room_number,
       };
 
       await sendAllReminders(reminderData);

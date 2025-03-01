@@ -5,6 +5,7 @@ import {
   createBookingRequest,
   updateBookingRequest,
   deleteBookingRequest,
+  getBookingRequestsStatus,
 } from "../api/repositories/bookingRequestRepository";
 
 export const fetchBookingRequests = async () => {
@@ -26,7 +27,6 @@ export const fetchBookingRequestsByStatus = async (status) => {
     throw error;
   }
 };
-
 
 export const fetchBookingRequestById = async (id) => {
   // eslint-disable-next-line no-useless-catch
@@ -62,6 +62,15 @@ export const deleteBookingRequestById = async (id) => {
   // eslint-disable-next-line no-useless-catch
   try {
     const response = await deleteBookingRequest(id);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const fetchBookingRequestsStatus = async () => {
+  try {
+    const response = await getBookingRequestsStatus();
     return response.data;
   } catch (error) {
     throw error;

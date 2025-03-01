@@ -123,6 +123,7 @@ const CheckInDetailsMainSection = ({ selectedDate }) => {
             </tr>
           ) : Array.isArray(allocations) && allocations.length > 0 ? (
             allocations.map((allocation, index) => {
+              console.log("allocation", allocation)
               // Calculate stay duration
               const arrivalDate = new Date(
                 allocation.attributes.guests.data[0]?.attributes?.arrival_date

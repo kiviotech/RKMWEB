@@ -30,3 +30,7 @@ export const getBookingRequestsByUser = (userId) =>
   apiClient.get(
     `${bookingRequestEndpoints.getBookingRequests}?userId=${userId}`
   );
+
+// Add new function to get booking requests with only status
+export const getBookingRequestsStatus = () =>
+  apiClient.get(bookingRequestEndpoints.getBookingRequestsStatus);

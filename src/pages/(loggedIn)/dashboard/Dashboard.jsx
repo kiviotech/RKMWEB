@@ -6,7 +6,10 @@ import icons from "../../../constants/icons";
 import ProgressBar from "../../../components/ui/progressBar/ProgressBar";
 import CommonButton from "../../../components/ui/Button";
 import { useNavigate } from "react-router-dom";
-import { fetchBookingRequests } from "../../../../services/src/services/bookingRequestService";
+import {
+  fetchBookingRequests,
+  fetchBookingRequestsStatus  // Add this import
+} from "../../../../services/src/services/bookingRequestService";
 import {
   fetchBlocks,
   fetchBlocksWithRooms,
@@ -42,6 +45,10 @@ const Dashboard = () => {
     const fetchData = async () => {
       try {
         setIsLoading(true);
+
+        // Add this new API call
+        const statusResponse = await fetchBookingRequestsStatus();
+        console.log("Booking Requests Status:", statusResponse);
 
         // Fetch guest details and calculate arrived guests count
         const guestDetailsResponse = await fetchAllGuestDetails();

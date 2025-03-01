@@ -35,6 +35,9 @@ const Dashboard = () => {
   const [selectedDate, setSelectedDate] = useState("");
   const [isLoading, setIsLoading] = useState(true);
 
+  // Add these labels where you define other constants
+  const roomStatusLabels = ["Available Rooms", "Occupied Rooms", "Blocked Rooms", "Cleaning Rooms"];
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -192,8 +195,8 @@ const Dashboard = () => {
     { color: "#A3D65C", text: "Cleaning underway" },
   ];
 
-  const navigateToPage = (pageRoute) => {
-    navigate(pageRoute);
+  const navigateToPage = (pageRoute, state) => {
+    navigate(pageRoute, { state });
   };
 
   return (
@@ -241,26 +244,31 @@ const Dashboard = () => {
                     color={colors[0]}
                     text="Awaiting"
                     number={statuses.awaiting}
+                    onClick={() => navigateToPage('/requests', { activeTab: 'pending' })}
                   />
                   <StatusItem
                     color={colors[1]}
                     text="Approved"
                     number={statuses.approved}
+                    onClick={() => navigateToPage('/requests', { activeTab: 'approved' })}
                   />
                   <StatusItem
                     color={colors[2]}
-                    text="On hold"
+                    text="On Hold"
                     number={statuses.on_hold}
+                    onClick={() => navigateToPage('/requests', { activeTab: 'onHold' })}
                   />
                   <StatusItem
                     color={colors[3]}
                     text="Rejected"
                     number={statuses.rejected}
+                    onClick={() => navigateToPage('/requests', { activeTab: 'rejected' })}
                   />
                   <StatusItem
                     color={colors[4]}
-                    text="Confirmed"
+                    text="Rescheduled"
                     number={statuses.rescheduled}
+                    onClick={() => navigateToPage('/requests', { activeTab: 'rescheduled' })}
                   />
                 </div>
               </div>
@@ -368,6 +376,7 @@ const Dashboard = () => {
                             colors={roomStatusColors}
                             width="180"
                             height="180"
+                            labels={roomStatusLabels}
                           />
                           <span>{block.attributes.block_name}</span>
                         </div>
@@ -404,6 +413,43 @@ const Dashboard = () => {
                           onChange={(e) => setSelectedDate(e.target.value)}
                           className="stats-date-filter"
                         />
+                        <svg
+                          className="calendar-icon"
+                          width="16"
+                          height="16"
+                          viewBox="0 0 16 16"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            d="M12.6667 2.66667H3.33333C2.59695 2.66667 2 3.26362 2 4V13.3333C2 14.0697 2.59695 14.6667 3.33333 14.6667H12.6667C13.403 14.6667 14 14.0697 14 13.3333V4C14 3.26362 13.403 2.66667 12.6667 2.66667Z"
+                            stroke="#666666"
+                            strokeWidth="1.33333"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                          <path
+                            d="M10.6667 1.33333V4"
+                            stroke="#666666"
+                            strokeWidth="1.33333"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                          <path
+                            d="M5.33333 1.33333V4"
+                            stroke="#666666"
+                            strokeWidth="1.33333"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                          <path
+                            d="M2 6.66667H14"
+                            stroke="#666666"
+                            strokeWidth="1.33333"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                        </svg>
                       </div>
                     </div>
                     <div className="rooms-stats-list">

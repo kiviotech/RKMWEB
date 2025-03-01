@@ -303,33 +303,32 @@ const useDonationStore = create((set) => ({
         .filter((item) => item.attributes.Receipt_number?.startsWith("MSN"))
         .map((item) => parseInt(item.attributes.Receipt_number.split(" ")[1]));
 
-      // Get unique numbers from guestDetails instead
       const uniqueNumbers = guestDetails.data
         .filter((item) => item.attributes.unique_no)
         .map((item) => parseInt(item.attributes.unique_no.substring(1)));
 
-      // Add debug logs
-      console.log("MT Numbers:", mtNumbers);
-      console.log("MSN Numbers:", msnNumbers);
-      console.log("Unique Numbers:", uniqueNumbers);
+      // Get last MT and MSN numbers
+      const lastMT = mtNumbers.length > 0 ? Math.max(...mtNumbers) : 0;
+      const lastMSN = msnNumbers.length > 0 ? Math.max(...msnNumbers) : 0;
 
-      const highestMT = mtNumbers.length > 0 ? Math.max(...mtNumbers) + 1 : 1;
-      const highestMSN =
-        msnNumbers.length > 0 ? Math.max(...msnNumbers) + 1 : 1;
+      // Calculate next MT and MSN numbers
+      const nextMT = lastMT + 1;
+      const nextMSN = lastMSN + 1;
+
+      // Console log both last and next numbers
+      console.log("Last MT Number:", `MT ${lastMT}`);
+      console.log("Next MT Number:", `MT ${nextMT}`);
+      console.log("Last MSN Number:", `MSN ${lastMSN}`);
+      console.log("Next MSN Number:", `MSN ${nextMSN}`);
+
       const highestUniqueNo =
         uniqueNumbers.length > 0 ? Math.max(...uniqueNumbers) + 1 : 1;
 
-      // Add debug logs for final values
-      console.log("Highest MT:", highestMT);
-      console.log("Highest MSN:", highestMSN);
-      console.log("Highest Unique Number:", highestUniqueNo);
-
       set((state) => {
-        // Update next receipt numbers
         const newState = {
           nextReceiptNumbers: {
-            mtNumber: highestMT,
-            msnNumber: highestMSN,
+            mtNumber: nextMT,
+            msnNumber: nextMSN,
             uniqueNumber: highestUniqueNo,
           },
         };
@@ -340,8 +339,8 @@ const useDonationStore = create((set) => ({
           updatedTabs[tabId] = {
             ...state.donorTabs[tabId],
             receiptNumbers: {
-              math: `MT ${highestMT + index}`,
-              mission: `MSN ${highestMSN + index}`,
+              math: `MT ${nextMT + index}`,
+              mission: `MSN ${nextMSN + index}`,
             },
             uniqueNo: `C${highestUniqueNo + index}`,
           };
@@ -353,7 +352,6 @@ const useDonationStore = create((set) => ({
         };
       });
 
-      console.log("Next Available Unique Number: C", highestUniqueNo);
     } catch (error) {
       console.error("Failed to fetch receipt details:", error);
     }

@@ -72,9 +72,27 @@ const Signup = () => {
   };
 
   const validateEmail = (value = email) => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    // Basic email format check
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
     if (!emailRegex.test(value)) {
       setEmailError("Invalid email format.");
+      return false;
+    }
+
+    // Additional validation rules
+    if (/^[0-9]+@/.test(value)) {
+      setEmailError("Email cannot start with numbers only");
+      return false;
+    }
+
+    if (/^[A-Z]+@/.test(value)) {
+      setEmailError("Email cannot contain only uppercase letters");
+      return false;
+    }
+
+    if (/[#$%^&*()+=\[\]{};':"\\|,<>\/?]+/.test(value)) {
+      setEmailError("Email contains invalid special characters");
       return false;
     }
 

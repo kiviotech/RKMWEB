@@ -136,9 +136,8 @@ const DonationHeader = ({ onTabChange }) => {
                 return (
                   <button
                     key={tab.id}
-                    className={`atth-btn-donor ${
-                      activeTabId === tab.id ? "active" : ""
-                    }`}
+                    className={`atth-btn-donor ${activeTabId === tab.id ? "active" : ""
+                      }`}
                     style={{
                       fontSize: "0.95rem",
                       margin: "4px",
@@ -214,11 +213,10 @@ const DonationHeader = ({ onTabChange }) => {
         <div className="atth-subheader-left">
           <div className="atth-tab-group">
             <button
-              className={`atth-tab ${
-                donorTabs[activeTabId].activeSection === "math"
+              className={`atth-tab ${donorTabs[activeTabId].activeSection === "math"
                   ? "atth-active"
                   : ""
-              }`}
+                }`}
               onClick={() => handleTabChange("Math")}
               data-tab="math"
               style={{
@@ -229,11 +227,10 @@ const DonationHeader = ({ onTabChange }) => {
               Math
             </button>
             <button
-              className={`atth-tab ${
-                donorTabs[activeTabId].activeSection === "mission"
+              className={`atth-tab ${donorTabs[activeTabId].activeSection === "mission"
                   ? "atth-active"
                   : ""
-              }`}
+                }`}
               onClick={() => handleTabChange("Mission")}
               data-tab="mission"
               style={{

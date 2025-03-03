@@ -176,7 +176,7 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
       if (name === "departureTime") {
         const daysDiff = Math.ceil(
           (new Date(visitData.departureDate) - new Date(visitData.visitDate)) /
-            (1000 * 60 * 60 * 24)
+          (1000 * 60 * 60 * 24)
         );
 
         if (daysDiff === 3) {
@@ -443,7 +443,6 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
 
     return (
       <>
-        <option value="">Select Time</option>
         <optgroup label="Morning (7:30 AM - 11:00 AM)">
           {morningTimes.map((time) => (
             <option key={time.value} value={time.value}>
@@ -567,19 +566,19 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
                   {Math.ceil(
                     (new Date(visitData.departureDate) -
                       new Date(visitData.visitDate)) /
-                      (1000 * 60 * 60 * 24)
+                    (1000 * 60 * 60 * 24)
                   ) === 3 && (
-                    <span
-                      style={{
-                        marginLeft: "5px",
-                        fontSize: "14px",
-                        color: "red",
-                      }}
-                    >
-                      (You have to depart by 7:30 a.m, as only 3 nights are
-                      allowed for accommodation)
-                    </span>
-                  )}
+                      <span
+                        style={{
+                          marginLeft: "5px",
+                          fontSize: "14px",
+                          color: "red",
+                        }}
+                      >
+                        (You have to depart by 7:30 a.m, as only 3 nights are
+                        allowed for accommodation)
+                      </span>
+                    )}
                 </label>
                 <select
                   name="departureTime"
@@ -589,7 +588,7 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
                     Math.ceil(
                       (new Date(visitData.departureDate) -
                         new Date(visitData.visitDate)) /
-                        (1000 * 60 * 60 * 24)
+                      (1000 * 60 * 60 * 24)
                     ) === 3
                   }
                 >
@@ -784,6 +783,7 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
                   name="previousVisitDate"
                   value={visitData.previousVisitDate || ""}
                   onChange={handleInputChange}
+                  max={new Date(Date.now() - 86400000).toISOString().split("T")[0]}
                 />
                 {formData.errors.previousVisitDate && (
                   <span className="error">
@@ -935,8 +935,8 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
                   {celebration.isArrival
                     ? " (your arrival date)"
                     : celebration.isDeparture
-                    ? " (your departure date)"
-                    : ""}
+                      ? " (your departure date)"
+                      : ""}
                   .
                 </p>
                 <p style={{ color: "#666" }}>

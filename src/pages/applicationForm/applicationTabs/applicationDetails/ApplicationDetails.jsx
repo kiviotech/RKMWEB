@@ -23,6 +23,12 @@ const ApplicationDetails = ({ goToNextStep, tabName }) => {
   const [showCustomDeeksha, setShowCustomDeeksha] = useState(false);
   const [customDeeksha, setCustomDeeksha] = useState("");
 
+  const [isTitleDropdownOpen, setIsTitleDropdownOpen] = useState(false);
+  const titleDropdownRef = useRef(null);
+
+  const [isGenderDropdownOpen, setIsGenderDropdownOpen] = useState(false);
+  const genderDropdownRef = useRef(null);
+
   const deekshaOptions = [
     "Srimat Swami Atmasthanandaji Maharaj",
     "Srimat Swami Bhuteshanandaji Maharaj",
@@ -64,6 +70,24 @@ const ApplicationDetails = ({ goToNextStep, tabName }) => {
       country.code.includes(searchQuery) ||
       country.name?.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  const titleOptions = [
+    "Sri",
+    "Smt.",
+    "Mr.",
+    "Mrs.",
+    "Swami",
+    "Dr.",
+    "Prof.",
+    "Kumari",
+    "Ms."
+  ];
+
+  const genderOptions = [
+    { value: "M", label: "Male" },
+    { value: "F", label: "Female" },
+    { value: "O", label: "Other" }
+  ];
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -132,6 +156,38 @@ const ApplicationDetails = ({ goToNextStep, tabName }) => {
     };
   }, []);
 
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        titleDropdownRef.current &&
+        !titleDropdownRef.current.contains(event.target)
+      ) {
+        setIsTitleDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        genderDropdownRef.current &&
+        !genderDropdownRef.current.contains(event.target)
+      ) {
+        setIsGenderDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
   const validateField = (name, value) => {
     switch (name) {
       case "title":
@@ -191,8 +247,11 @@ const ApplicationDetails = ({ goToNextStep, tabName }) => {
         break;
 
       case "occupation":
+        const occupationRegex = /^[A-Za-z\s]+$/;
         if (!value) {
           setErrors(name, "Occupation is required");
+        } else if (!occupationRegex.test(value)) {
+          setErrors(name, "Occupation can only contain letters and spaces");
         } else {
           setErrors(name, "");
         }
@@ -276,6 +335,13 @@ const ApplicationDetails = ({ goToNextStep, tabName }) => {
       return;
     }
 
+    if (name === "occupation") {
+      const sanitizedValue = value.replace(/[^A-Za-z\s]/g, "");
+      setFormData(name, sanitizedValue);
+      validateField(name, sanitizedValue);
+      return;
+    }
+
     if (name === "phoneNumber") {
       // Only allow digits and limit to 10 characters
       const numericValue = value.replace(/\D/g, "").slice(0, 10);
@@ -299,37 +365,56 @@ const ApplicationDetails = ({ goToNextStep, tabName }) => {
     const { name, value } = e.target;
     setAddressData(name, value);
     console.log("Address Input Change:", { field: name, value });
-    validateAddressField(name, value);
 
-    if (name === "pinCode" && value.length === 6) {
-      try {
-        const response = await fetch(
-          `https://api.postalpincode.in/pincode/${value}`
-        );
-        const data = await response.json();
+    if (name === "pinCode") {
+      // Clear previous error first
+      setErrors(name, "");
 
-        if (data[0].Status === "Success") {
-          const postOffice = data[0].PostOffice[0];
-          setAddressData("state", postOffice.State);
-          setAddressData("district", postOffice.District);
-          setAddressData("postOffice", postOffice.Name);
-          console.log("Pincode API Response:", {
-            state: postOffice.State,
-            district: postOffice.District,
-            postOffice: postOffice.Name,
-          });
-        } else {
-          setAddressData("state", "");
-          setAddressData("district", "");
-          setAddressData("postOffice", "");
-          console.log("Invalid Pincode Response");
-        }
-      } catch (error) {
-        console.error("Error fetching address details:", error);
+      if (!value) {
+        setErrors(name, "Pin Code is required");
         setAddressData("state", "");
         setAddressData("district", "");
         setAddressData("postOffice", "");
+      } else if (!/^\d{6}$/.test(value)) {
+        setErrors(name, "Pin Code must be 6 digits long");
+        setAddressData("state", "");
+        setAddressData("district", "");
+        setAddressData("postOffice", "");
+      } else {
+        try {
+          const response = await fetch(
+            `https://api.postalpincode.in/pincode/${value}`
+          );
+          const data = await response.json();
+
+          if (data[0].Status === "Success" && data[0].PostOffice && data[0].PostOffice.length > 0) {
+            const postOffice = data[0].PostOffice[0];
+            setAddressData("state", postOffice.State);
+            setAddressData("district", postOffice.District);
+            setAddressData("postOffice", postOffice.Name);
+            setErrors(name, ""); // Clear any existing error
+            console.log("Pincode API Response:", {
+              state: postOffice.State,
+              district: postOffice.District,
+              postOffice: postOffice.Name,
+            });
+          } else {
+            setErrors(name, "Invalid Pin Code");
+            setAddressData("state", "");
+            setAddressData("district", "");
+            setAddressData("postOffice", "");
+            console.log("Invalid Pincode Response:", data);
+          }
+        } catch (error) {
+          console.error("Error fetching address details:", error);
+          setErrors(name, "Error validating Pin Code");
+          setAddressData("state", "");
+          setAddressData("district", "");
+          setAddressData("postOffice", "");
+        }
       }
+    } else {
+      validateAddressField(name, value);
     }
   };
 
@@ -418,23 +503,51 @@ const ApplicationDetails = ({ goToNextStep, tabName }) => {
               <div className="form-group">
                 <label>Name</label>
                 <div className="unified-input">
-                  <div className="custom-select">
-                    <select
-                      name="title"
-                      value={formData.title || ""}
-                      onChange={handleInputChange}
+                  <div className="custom-select" ref={titleDropdownRef}>
+                    <div
+                      className="selected-deeksha"
+                      onClick={() =>
+                        setIsTitleDropdownOpen(!isTitleDropdownOpen)
+                      }
                     >
-                      <option value="">Title</option>
-                      <option value="Sri">Sri</option>
-                      <option value="Smt">Smt.</option>
-                      <option value="Mr">Mr.</option>
-                      <option value="Mrs">Mrs.</option>
-                      <option value="Swami">Swami</option>
-                      <option value="Dr">Dr.</option>
-                      <option value="Prof">Prof.</option>
-                      <option value="Kumari">Kumari</option>
-                      <option value="Ms">Ms.</option>
-                    </select>
+                      <span>{formData.title || "Title"}</span>
+                      <svg
+                        className={`dropdown-icon ${isTitleDropdownOpen ? "open" : ""}`}
+                        width="14"
+                        height="8"
+                        viewBox="0 0 14 8"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          d="M1 1L7 7L13 1"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                      </svg>
+                    </div>
+                    {isTitleDropdownOpen && (
+                      <div className="deeksha-dropdown">
+                        <div className="deeksha-list">
+                          {titleOptions.map((option) => (
+                            <div
+                              key={option}
+                              className="deeksha-option"
+                              onClick={() => {
+                                handleInputChange({
+                                  target: { name: "title", value: option },
+                                });
+                                setIsTitleDropdownOpen(false);
+                              }}
+                            >
+                              {option}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
                   <input
                     type="text"
@@ -463,17 +576,56 @@ const ApplicationDetails = ({ goToNextStep, tabName }) => {
                 </div>
                 <div className="form-group" style={{ width: "50%" }}>
                   <label>Gender</label>
-                  <select
-                    name="gender"
-                    value={formData.gender}
-                    onChange={handleInputChange}
-                    className="form-control"
-                  >
-                    <option value="">Select Gender</option>
-                    <option value="M">Male</option>
-                    <option value="F">Female</option>
-                    <option value="O">Other</option>
-                  </select>
+                  <div className="custom-select" ref={genderDropdownRef}>
+                    <div
+                      className="selected-deeksha"
+                      onClick={() =>
+                        setIsGenderDropdownOpen(!isGenderDropdownOpen)
+                      }
+                    >
+                      <span>
+                        {formData.gender
+                          ? genderOptions.find(g => g.value === formData.gender)?.label
+                          : "Select Gender"}
+                      </span>
+                      <svg
+                        className={`dropdown-icon ${isGenderDropdownOpen ? "open" : ""}`}
+                        width="14"
+                        height="8"
+                        viewBox="0 0 14 8"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          d="M1 1L7 7L13 1"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                      </svg>
+                    </div>
+                    {isGenderDropdownOpen && (
+                      <div className="deeksha-dropdown">
+                        <div className="deeksha-list">
+                          {genderOptions.map((option) => (
+                            <div
+                              key={option.value}
+                              className="deeksha-option"
+                              onClick={() => {
+                                handleInputChange({
+                                  target: { name: "gender", value: option.value },
+                                });
+                                setIsGenderDropdownOpen(false);
+                              }}
+                            >
+                              {option.label}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
                   {errors.gender && (
                     <span className="error">{errors.gender}</span>
                   )}
@@ -565,7 +717,7 @@ const ApplicationDetails = ({ goToNextStep, tabName }) => {
                     name="phoneNumber"
                     value={formData.phoneNumber}
                     onChange={handleInputChange}
-                    placeholder="921234902"
+                    placeholder="Phone Number"
                     maxLength="10"
                     pattern="\d{10}"
                     title="Please enter exactly 10 digits"
@@ -605,9 +757,8 @@ const ApplicationDetails = ({ goToNextStep, tabName }) => {
                   >
                     <span>{formData.deeksha || "Select Deeksha"}</span>
                     <svg
-                      className={`dropdown-icon ${
-                        isDeekshaDropdownOpen ? "open" : ""
-                      }`}
+                      className={`dropdown-icon ${isDeekshaDropdownOpen ? "open" : ""
+                        }`}
                       width="14"
                       height="8"
                       viewBox="0 0 14 8"

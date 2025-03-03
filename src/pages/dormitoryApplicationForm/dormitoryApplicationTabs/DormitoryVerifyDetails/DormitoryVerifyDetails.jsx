@@ -167,17 +167,14 @@ const DormitoryVerifyDetails = () => {
           <span className="detail-value">{formData.contactPersonName}</span>
         </div>
 
-        <div className="detail-row age-gender">
-          <div>
-            <span className="detail-label">Age:</span>
-            <span className="detail-value">{formData.age} years</span>
-          </div>
-          <div>
-            <span className="detail-label">Gender:</span>
-            <span className="detail-value">{formData.gender}</span>
-          </div>
+        <div className="detail-row">
+          <span className="detail-label">Age:</span>
+          <span className="detail-value">{formData.age} years</span>
         </div>
-
+        <div className="detail-row">
+          <span className="detail-label">Gender:</span>
+          <span className="detail-value">{formData.gender}</span>
+        </div>
         <div className="detail-row">
           <span className="detail-label">Phone number:</span>
           <span className="detail-value">

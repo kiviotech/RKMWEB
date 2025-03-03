@@ -15,6 +15,15 @@ const DormitoryApplicationDetails = ({ goToNextStep, tabName }) => {
   const [deekshaSearchQuery, setDeekshaSearchQuery] = useState("");
   const deekshaDropdownRef = useRef(null);
 
+  const [isInstitutionDropdownOpen, setIsInstitutionDropdownOpen] = useState(false);
+  const institutionDropdownRef = useRef(null);
+
+  const [isGenderDropdownOpen, setIsGenderDropdownOpen] = useState(false);
+  const genderDropdownRef = useRef(null);
+
+  const [isTitleDropdownOpen, setIsTitleDropdownOpen] = useState(false);
+  const titleDropdownRef = useRef(null);
+
   // Add logging effect for formData changes
   useEffect(() => {
     console.log("Current Zustand Store State:", formData);
@@ -301,9 +310,20 @@ const DormitoryApplicationDetails = ({ goToNextStep, tabName }) => {
             district: postOffice.District,
             postOffice: postOffice.Name,
           });
+          handleSetError("pinCode", ""); // Clear error if successful
+        } else {
+          // Set error for invalid pincode
+          handleSetError("pinCode", "Invalid pincode");
+          // Clear the address fields
+          updateAddress({
+            state: "",
+            district: "",
+            postOffice: "",
+          });
         }
       } catch (error) {
         console.error("Error fetching address details:", error);
+        handleSetError("pinCode", "Invalid pincode");
         updateAddress({
           state: "",
           district: "",
@@ -429,6 +449,85 @@ const DormitoryApplicationDetails = ({ goToNextStep, tabName }) => {
     };
   }, []);
 
+  // Add this array of institution options
+  const institutionOptions = [
+    "School",
+    "College",
+    "Religious",
+    "Others"
+  ];
+
+  // Add this effect for handling clicks outside the institution dropdown
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        institutionDropdownRef.current &&
+        !institutionDropdownRef.current.contains(event.target)
+      ) {
+        setIsInstitutionDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  // Add this array of gender options
+  const genderOptions = [
+    { value: "M", label: "Male" },
+    { value: "F", label: "Female" },
+    { value: "O", label: "Other" }
+  ];
+
+  // Add this effect for handling clicks outside the gender dropdown
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        genderDropdownRef.current &&
+        !genderDropdownRef.current.contains(event.target)
+      ) {
+        setIsGenderDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  // Add this array of title options
+  const titleOptions = [
+    "Sri",
+    "Smt.",
+    "Mr.",
+    "Mrs.",
+    "Swami",
+    "Dr.",
+    "Prof.",
+    "Kumari",
+    "Ms."
+  ];
+
+  // Add this effect for handling clicks outside the title dropdown
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        titleDropdownRef.current &&
+        !titleDropdownRef.current.contains(event.target)
+      ) {
+        setIsTitleDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
   return (
     <div className="application-form">
       <form onSubmit={handleSubmit}>
@@ -455,23 +554,51 @@ const DormitoryApplicationDetails = ({ goToNextStep, tabName }) => {
               <div className="form-group">
                 <label>Contact Person Name</label>
                 <div className="unified-input">
-                  <div className="custom-select">
-                    <select
-                      name="title"
-                      value={formData.title || ""}
-                      onChange={handleInputChange}
+                  <div className="custom-select" ref={titleDropdownRef}>
+                    <div
+                      className="selected-deeksha"
+                      onClick={() =>
+                        setIsTitleDropdownOpen(!isTitleDropdownOpen)
+                      }
                     >
-                      <option value="">Title</option>
-                      <option value="Sri">Sri</option>
-                      <option value="Smt">Smt.</option>
-                      <option value="Mr">Mr.</option>
-                      <option value="Mrs">Mrs.</option>
-                      <option value="Swami">Swami</option>
-                      <option value="Dr">Dr.</option>
-                      <option value="Prof">Prof.</option>
-                      <option value="Kumari">Kumari</option>
-                      <option value="Ms">Ms.</option>
-                    </select>
+                      <span>{formData.title || "Title"}</span>
+                      <svg
+                        className={`dropdown-icon ${isTitleDropdownOpen ? "open" : ""}`}
+                        width="14"
+                        height="8"
+                        viewBox="0 0 14 8"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          d="M1 1L7 7L13 1"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                      </svg>
+                    </div>
+                    {isTitleDropdownOpen && (
+                      <div className="deeksha-dropdown">
+                        <div className="deeksha-list">
+                          {titleOptions.map((option) => (
+                            <div
+                              key={option}
+                              className="deeksha-option"
+                              onClick={() => {
+                                handleInputChange({
+                                  target: { name: "title", value: option },
+                                });
+                                setIsTitleDropdownOpen(false);
+                              }}
+                            >
+                              {option}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
                   <input
                     type="text"
@@ -487,7 +614,7 @@ const DormitoryApplicationDetails = ({ goToNextStep, tabName }) => {
                 )}
               </div>
 
-              {/* Age and Gender Fields - Moved here */}
+              {/* Age and Gender Fields */}
               <div style={{ display: "flex", gap: "10px" }}>
                 <div className="form-group" style={{ width: "50%" }}>
                   <label>Age</label>
@@ -502,17 +629,56 @@ const DormitoryApplicationDetails = ({ goToNextStep, tabName }) => {
                 </div>
                 <div className="form-group" style={{ width: "50%" }}>
                   <label>Gender</label>
-                  <select
-                    name="gender"
-                    value={formData.gender}
-                    onChange={handleInputChange}
-                    className="form-control"
-                  >
-                    <option value="">Select Gender</option>
-                    <option value="M">Male</option>
-                    <option value="F">Female</option>
-                    <option value="O">Other</option>
-                  </select>
+                  <div className="custom-select" ref={genderDropdownRef}>
+                    <div
+                      className="selected-deeksha"
+                      onClick={() =>
+                        setIsGenderDropdownOpen(!isGenderDropdownOpen)
+                      }
+                    >
+                      <span>
+                        {formData.gender
+                          ? genderOptions.find(g => g.value === formData.gender)?.label
+                          : "Select Gender"}
+                      </span>
+                      <svg
+                        className={`dropdown-icon ${isGenderDropdownOpen ? "open" : ""}`}
+                        width="14"
+                        height="8"
+                        viewBox="0 0 14 8"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          d="M1 1L7 7L13 1"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                      </svg>
+                    </div>
+                    {isGenderDropdownOpen && (
+                      <div className="deeksha-dropdown">
+                        <div className="deeksha-list">
+                          {genderOptions.map((option) => (
+                            <div
+                              key={option.value}
+                              className="deeksha-option"
+                              onClick={() => {
+                                handleInputChange({
+                                  target: { name: "gender", value: option.value },
+                                });
+                                setIsGenderDropdownOpen(false);
+                              }}
+                            >
+                              {option.label}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
                   {errors.gender && (
                     <span className="error">{errors.gender}</span>
                   )}
@@ -591,7 +757,7 @@ const DormitoryApplicationDetails = ({ goToNextStep, tabName }) => {
                     name="phoneNumber"
                     value={formData.phoneNumber}
                     onChange={handleInputChange}
-                    placeholder="921234902"
+                    placeholder="Phone Number"
                   />
                 </div>
                 {errors.phoneNumber && (
@@ -601,20 +767,54 @@ const DormitoryApplicationDetails = ({ goToNextStep, tabName }) => {
             </div>
 
             <div className="form-right-section">
-              {/* Type of Institution Field - Moved here */}
               <div className="form-group">
                 <label>Type of Institution</label>
-                <select
-                  name="institutionType"
-                  value={formData.institutionType}
-                  onChange={handleInputChange}
-                >
-                  <option value="">Select Institution Type</option>
-                  <option value="School">School</option>
-                  <option value="College">College</option>
-                  <option value="Religious">Religious</option>
-                  <option value="Others">Others</option>
-                </select>
+                <div className="custom-select" ref={institutionDropdownRef}>
+                  <div
+                    className="selected-deeksha"
+                    onClick={() =>
+                      setIsInstitutionDropdownOpen(!isInstitutionDropdownOpen)
+                    }
+                  >
+                    <span>{formData.institutionType || "Select Institution Type"}</span>
+                    <svg
+                      className={`dropdown-icon ${isInstitutionDropdownOpen ? "open" : ""}`}
+                      width="14"
+                      height="8"
+                      viewBox="0 0 14 8"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M1 1L7 7L13 1"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  </div>
+                  {isInstitutionDropdownOpen && (
+                    <div className="deeksha-dropdown">
+                      <div className="deeksha-list">
+                        {institutionOptions.map((option) => (
+                          <div
+                            key={option}
+                            className="deeksha-option"
+                            onClick={() => {
+                              handleInputChange({
+                                target: { name: "institutionType", value: option },
+                              });
+                              setIsInstitutionDropdownOpen(false);
+                            }}
+                          >
+                            {option}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
                 {formData.institutionType === "Others" && (
                   <input
                     type="text"

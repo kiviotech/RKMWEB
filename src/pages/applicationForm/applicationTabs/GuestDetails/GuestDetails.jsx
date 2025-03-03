@@ -34,6 +34,34 @@ const GuestDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
   const [showCustomDeekshas, setShowCustomDeekshas] = useState({});
   const [customDeekshas, setCustomDeekshas] = useState({});
 
+  // Add new state for title dropdown
+  const [isTitleDropdownOpen, setIsTitleDropdownOpen] = useState(false);
+  const titleDropdownRef = useRef(null);
+
+  // Add new state for gender dropdown
+  const [isGenderDropdownOpen, setIsGenderDropdownOpen] = useState(false);
+  const genderDropdownRef = useRef(null);
+
+  // Add new state for relation dropdown
+  const [isRelationDropdownOpen, setIsRelationDropdownOpen] = useState(false);
+  const relationDropdownRef = useRef(null);
+
+  // Define title options
+  const titleOptions = [
+    "Sri",
+    "Smt.",
+    "Mr.",
+    "Mrs.",
+    "Swami",
+    "Dr.",
+    "Prof.",
+    "Kumari",
+    "Ms.",
+  ];
+
+  // Define gender options
+  const genderOptions = ["Male", "Female", "Other"];
+
   const deekshaOptions = [
     "Srimat Swami Atmasthanandaji Maharaj",
     "Srimat Swami Bhuteshanandaji Maharaj",
@@ -187,6 +215,24 @@ const GuestDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
         setIsDeekshaDropdownOpen(false);
         setDeekshaSearchQuery("");
       }
+      if (
+        titleDropdownRef.current &&
+        !titleDropdownRef.current.contains(event.target)
+      ) {
+        setIsTitleDropdownOpen(false);
+      }
+      if (
+        genderDropdownRef.current &&
+        !genderDropdownRef.current.contains(event.target)
+      ) {
+        setIsGenderDropdownOpen(false);
+      }
+      if (
+        relationDropdownRef.current &&
+        !relationDropdownRef.current.contains(event.target)
+      ) {
+        setIsRelationDropdownOpen(false);
+      }
     };
 
     document.addEventListener("mousedown", handleClickOutside);
@@ -282,6 +328,8 @@ const GuestDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
       case "guestOccupation":
         if (!value) {
           setErrors(`guestOccupation${index}`, "Occupation is required");
+        } else if (!/^[A-Za-z\s]+$/.test(value)) {
+          setErrors(`guestOccupation${index}`, "Occupation must be letters and spaces");
         } else {
           setErrors(`guestOccupation${index}`, "");
         }
@@ -376,6 +424,20 @@ const GuestDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
       });
       validateGuestField(index, name, sanitizedValue);
       setActiveTab(sanitizedValue || `Guest ${index + 1}`);
+      return;
+    }
+
+    if (name === "guestOccupation") {
+      // Only allow letters and spaces for occupation
+      const sanitizedValue = value.replace(/[^A-Za-z\s]/g, "");
+      setGuestData(index, name, sanitizedValue);
+      console.log("Guest Input Change:", {
+        guestIndex: index,
+        field: name,
+        value: sanitizedValue,
+        currentGuest: formData.guests[index],
+      });
+      validateGuestField(index, name, sanitizedValue);
       return;
     }
 
@@ -576,8 +638,7 @@ const GuestDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
 
       if (guestEmptyFields.length > 0) {
         alert(
-          `Please fill in the following required fields for Guest ${
-            index + 1
+          `Please fill in the following required fields for Guest ${index + 1
           }:\n${guestEmptyFields.join("\n")}`
         );
         setActiveTab(guestTabs[index]);
@@ -739,23 +800,86 @@ const GuestDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
                   <div className="form-group">
                     <label>Name</label>
                     <div className="unified-input">
-                      <div className="custom-select">
-                        <select
-                          name="guestTitle"
-                          value={formData.guests[index].guestTitle || ""}
-                          onChange={(e) => handleGuestInputChange(e, index)}
+                      <div className="custom-dropdown" style={{ position: "relative", minWidth: "120px" }} ref={titleDropdownRef}>
+                        <div
+                          className="dropdown-header"
+                          onClick={() => {
+                            setIsTitleDropdownOpen(!isTitleDropdownOpen);
+                          }}
+                          style={{
+                            padding: "10px",
+                            border: "1px solid #515151",
+                            borderRadius: "4px",
+                            cursor: "pointer",
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "center",
+                            backgroundColor: "#fff",
+                          }}
                         >
-                          <option value="">Title</option>
-                          <option value="Sri">Sri</option>
-                          <option value="Smt">Smt.</option>
-                          <option value="Mr">Mr.</option>
-                          <option value="Mrs">Mrs.</option>
-                          <option value="Swami">Swami</option>
-                          <option value="Dr">Dr.</option>
-                          <option value="Prof">Prof.</option>
-                          <option value="Kumari">Kumari</option>
-                          <option value="Ms">Ms.</option>
-                        </select>
+                          <span>
+                            {formData.guests[index].guestTitle || "Title"}
+                          </span>
+                          <svg
+                            width="16"
+                            height="16"
+                            viewBox="0 0 16 16"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                            style={{
+                              transform: isTitleDropdownOpen
+                                ? "rotate(180deg)"
+                                : "rotate(0deg)",
+                              transition: "transform 0.2s ease",
+                            }}
+                          >
+                            <path
+                              d="M4 6L8 10L12 6"
+                              stroke="#6B7280"
+                              strokeWidth="2"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            />
+                          </svg>
+                        </div>
+                        {isTitleDropdownOpen && (
+                          <div
+                            className="dropdown-options"
+                            style={{
+                              position: "absolute",
+                              top: "100%",
+                              left: 0,
+                              right: 0,
+                              maxHeight: "200px",
+                              overflowY: "auto",
+                              backgroundColor: "white",
+                              border: "1px solid #ccc",
+                              borderRadius: "4px",
+                              zIndex: 1000,
+                              boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+                            }}
+                          >
+                            {titleOptions
+                              .map((option) => (
+                                <div
+                                  key={option}
+                                  onClick={() => {
+                                    setGuestData(index, "guestTitle", option);
+                                    setIsTitleDropdownOpen(false);
+                                  }}
+                                  style={{
+                                    padding: "10px",
+                                    cursor: "pointer",
+                                    ":hover": {
+                                      backgroundColor: "#f5f5f5",
+                                    },
+                                  }}
+                                >
+                                  {option}
+                                </div>
+                              ))}
+                          </div>
+                        )}
                       </div>
                       <input
                         type="text"
@@ -795,16 +919,89 @@ const GuestDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
                     </div>
                     <div className="form-group" style={{ width: "50%" }}>
                       <label>Gender</label>
-                      <select
-                        name="guestGender"
-                        value={formData.guests[index].guestGender || ""}
-                        onChange={(e) => handleGuestInputChange(e, index)}
-                      >
-                        <option value="">Select Gender</option>
-                        <option value="M">Male</option>
-                        <option value="F">Female</option>
-                        <option value="O">Other</option>
-                      </select>
+                      <div className="custom-dropdown" style={{ position: "relative" }} ref={genderDropdownRef}>
+                        <div
+                          className="dropdown-header"
+                          onClick={() => {
+                            setIsGenderDropdownOpen(!isGenderDropdownOpen);
+                          }}
+                          style={{
+                            padding: "10px",
+                            border: "1px solid #515151",
+                            borderRadius: "4px",
+                            cursor: "pointer",
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "center",
+                            backgroundColor: "#fff",
+                          }}
+                        >
+                          <span>
+                            {formData.guests[index].guestGender === "M" ? "Male" :
+                              formData.guests[index].guestGender === "F" ? "Female" :
+                                formData.guests[index].guestGender === "O" ? "Other" :
+                                  "Select Gender"}
+                          </span>
+                          <svg
+                            width="16"
+                            height="16"
+                            viewBox="0 0 16 16"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                            style={{
+                              transform: isGenderDropdownOpen
+                                ? "rotate(180deg)"
+                                : "rotate(0deg)",
+                              transition: "transform 0.2s ease",
+                            }}
+                          >
+                            <path
+                              d="M4 6L8 10L12 6"
+                              stroke="#6B7280"
+                              strokeWidth="2"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            />
+                          </svg>
+                        </div>
+                        {isGenderDropdownOpen && (
+                          <div
+                            className="dropdown-options"
+                            style={{
+                              position: "absolute",
+                              top: "100%",
+                              left: 0,
+                              right: 0,
+                              maxHeight: "200px",
+                              overflowY: "auto",
+                              backgroundColor: "white",
+                              border: "1px solid #ccc",
+                              borderRadius: "4px",
+                              zIndex: 1000,
+                              boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+                            }}
+                          >
+                            {genderOptions.map((option) => (
+                              <div
+                                key={option}
+                                onClick={() => {
+                                  setGuestData(index, "guestGender", option === "Male" ? "M" : option === "Female" ? "F" : "O");
+                                  setIsGenderDropdownOpen(false);
+                                }}
+                                style={{
+                                  padding: "10px",
+                                  cursor: "pointer",
+                                  ":hover": {
+                                    backgroundColor: "#f5f5f5",
+                                  },
+                                }}
+                              >
+                                {option}
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
                       {errors[`guestGender${index}`] && (
                         <span className="error">
                           {errors[`guestGender${index}`]}
@@ -960,7 +1157,7 @@ const GuestDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
                         }}
                         style={{
                           padding: "10px",
-                          border: "1px solid #ccc",
+                          border: "1px solid #515151",
                           borderRadius: "4px",
                           cursor: "pointer",
                           display: "flex",
@@ -1133,21 +1330,94 @@ const GuestDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
 
                   <div className="form-group">
                     <label>Relation with Applicant</label>
-                    <select
-                      name="guestRelation"
-                      value={formData.guests[index].guestRelation || ""}
-                      onChange={(e) => handleGuestInputChange(e, index)}
-                    >
-                      <option value="">Select Relation</option>
-                      <option value="mother">Mother</option>
-                      <option value="father">Father</option>
-                      <option value="son">Son</option>
-                      <option value="daughter">Daughter</option>
-                      <option value="wife">Wife</option>
-                      <option value="aunt">Aunt</option>
-                      <option value="friend">Friend</option>
-                      <option value="other">Other</option>
-                    </select>
+                    <div className="custom-dropdown" style={{ position: "relative" }} ref={relationDropdownRef}>
+                      <div
+                        className="dropdown-header"
+                        onClick={() => {
+                          setIsRelationDropdownOpen(!isRelationDropdownOpen);
+                        }}
+                        style={{
+                          padding: "10px",
+                          border: "1px solid #515151",
+                          borderRadius: "4px",
+                          cursor: "pointer",
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "center",
+                          backgroundColor: "#fff",
+                        }}
+                      >
+                        <span>
+                          {formData.guests[index].guestRelation ?
+                            formData.guests[index].guestRelation.charAt(0).toUpperCase() +
+                            formData.guests[index].guestRelation.slice(1) :
+                            "Select Relation"}
+                        </span>
+                        <svg
+                          width="16"
+                          height="16"
+                          viewBox="0 0 16 16"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                          style={{
+                            transform: isRelationDropdownOpen
+                              ? "rotate(180deg)"
+                              : "rotate(0deg)",
+                            transition: "transform 0.2s ease",
+                          }}
+                        >
+                          <path
+                            d="M4 6L8 10L12 6"
+                            stroke="#6B7280"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                        </svg>
+                      </div>
+                      {isRelationDropdownOpen && (
+                        <div
+                          className="dropdown-options"
+                          style={{
+                            position: "absolute",
+                            top: "100%",
+                            left: 0,
+                            right: 0,
+                            maxHeight: "200px",
+                            overflowY: "auto",
+                            backgroundColor: "white",
+                            border: "1px solid #ccc",
+                            borderRadius: "4px",
+                            zIndex: 1000,
+                            boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+                          }}
+                        >
+                          {validRelations.map((option) => (
+                            <div
+                              key={option}
+                              onClick={() => {
+                                setGuestData(index, "guestRelation", option.toLowerCase());
+                                setIsRelationDropdownOpen(false);
+                              }}
+                              style={{
+                                padding: "10px",
+                                cursor: "pointer",
+                                ":hover": {
+                                  backgroundColor: "#f5f5f5",
+                                },
+                              }}
+                            >
+                              {option.charAt(0).toUpperCase() + option.slice(1)}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                    {errors[`guestRelation${index}`] && (
+                      <span className="error">
+                        {errors[`guestRelation${index}`]}
+                      </span>
+                    )}
                     {formData.guests[index].guestRelation === "other" && (
                       <input
                         type="text"
@@ -1157,11 +1427,6 @@ const GuestDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
                         placeholder="Please specify relation"
                         style={{ marginTop: "10px" }}
                       />
-                    )}
-                    {errors[`guestRelation${index}`] && (
-                      <span className="error">
-                        {errors[`guestRelation${index}`]}
-                      </span>
                     )}
                   </div>
                 </div>

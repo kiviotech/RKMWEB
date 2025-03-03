@@ -92,12 +92,18 @@ const DormitoryApplicationDetails = ({ goToNextStep, tabName }) => {
   const validateField = (name, value) => {
     switch (name) {
       case "institutionName":
+        const institutionNameRegex = /^[A-Za-z\s.,'-]+$/;
         if (!value) {
           handleSetError(name, "Institution name is required");
         } else if (value.length < 2) {
           handleSetError(
             name,
             "Institution name must be at least 2 characters long"
+          );
+        } else if (!institutionNameRegex.test(value)) {
+          handleSetError(
+            name,
+            "Institution name can only contain letters, spaces, and basic punctuation"
           );
         } else {
           handleSetError(name, "");
@@ -158,11 +164,12 @@ const DormitoryApplicationDetails = ({ goToNextStep, tabName }) => {
         break;
 
       case "email":
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        // Updated email regex to enforce stricter rules
+        const emailRegex = /^[a-zA-Z][\w.-]*[a-zA-Z0-9]@[a-zA-Z0-9][a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
         if (!value) {
           handleSetError(name, "Email is required");
         } else if (!emailRegex.test(value)) {
-          handleSetError(name, "Please enter a valid email address");
+          handleSetError(name, "Please enter a valid email address. Email should start with a letter and can contain letters, numbers, dots, and hyphens");
         } else {
           handleSetError(name, "");
         }
@@ -264,7 +271,14 @@ const DormitoryApplicationDetails = ({ goToNextStep, tabName }) => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    handleFormDataChange(name, value);
+    if (name === "institutionName") {
+      // Only update if the value matches the pattern or is empty
+      if (/^[A-Za-z\s.,'-]*$/.test(value)) {
+        handleFormDataChange(name, value);
+      }
+    } else {
+      handleFormDataChange(name, value);
+    }
     validateField(name, value);
   };
 

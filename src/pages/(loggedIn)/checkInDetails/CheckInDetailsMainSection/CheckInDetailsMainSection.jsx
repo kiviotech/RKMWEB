@@ -5,6 +5,7 @@ import {
   updateRoomAllocationStatus,
 } from "../../../../../services/src/services/roomAllocationService";
 import { toast } from "react-toastify";
+import { updateGuestDetailsById } from "../../../../../services/src/services/guestDetailsService";
 
 const CheckInDetailsMainSection = ({ selectedDate }) => {
   const [activeDropdown, setActiveDropdown] = React.useState(null);
@@ -50,21 +51,27 @@ const CheckInDetailsMainSection = ({ selectedDate }) => {
     setActiveDropdown(activeDropdown === index ? null : index);
   };
 
-  const handleStatusUpdate = async (allocationId, newStatus) => {
+  const handleStatusUpdate = async (allocation, newStatus) => {
     try {
-      await updateRoomAllocationStatus(allocationId, newStatus);
+      const guestId = allocation.attributes.guests.data[0]?.id;
+      if (!guestId) {
+        throw new Error("Guest ID not found");
+      }
 
-      // Update the local state to reflect the change
+      await updateGuestDetailsById(guestId, {
+        status: newStatus
+      });
+
       setAllocations(
-        allocations.map((allocation) => {
-          if (allocation.id === allocationId) {
+        allocations.map((currentAllocation) => {
+          if (currentAllocation.id === allocation.id) {
             return {
-              ...allocation,
+              ...currentAllocation,
               attributes: {
-                ...allocation.attributes,
+                ...currentAllocation.attributes,
                 guests: {
-                  ...allocation.attributes.guests,
-                  data: allocation.attributes.guests.data.map((guest, index) =>
+                  ...currentAllocation.attributes.guests,
+                  data: currentAllocation.attributes.guests.data.map((guest, index) =>
                     index === 0
                       ? {
                         ...guest,
@@ -79,18 +86,14 @@ const CheckInDetailsMainSection = ({ selectedDate }) => {
               },
             };
           }
-          return allocation;
+          return currentAllocation;
         })
       );
 
-      // Show success toast
       toast.success(`Guest status updated to ${newStatus}`);
-
-      // Close the dropdown
       setActiveDropdown(null);
     } catch (error) {
-      console.error("Error updating status:", error);
-      // Show error toast
+      console.error("Error updating guest status:", error);
       toast.error("Failed to update guest status");
     }
   };
@@ -207,7 +210,7 @@ const CheckInDetailsMainSection = ({ selectedDate }) => {
                           <button
                             className="dropdown-item arrived"
                             onClick={() =>
-                              handleStatusUpdate(allocation.id, "arrived")
+                              handleStatusUpdate(allocation, "Arrived")
                             }
                           >
                             <span className="check-icon">✔️</span>
@@ -216,7 +219,7 @@ const CheckInDetailsMainSection = ({ selectedDate }) => {
                           <button
                             className="dropdown-item not-arrived"
                             onClick={() =>
-                              handleStatusUpdate(allocation.id, "not arrived")
+                              handleStatusUpdate(allocation, "not arrived")
                             }
                           >
                             <span className="cross-icon">❌</span>

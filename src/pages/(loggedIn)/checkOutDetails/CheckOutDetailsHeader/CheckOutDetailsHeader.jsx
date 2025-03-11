@@ -26,27 +26,24 @@ const CheckOutDetailsHeader = ({ onTabChange }) => {
   return (
     <div className="check-in-details-header">
       <button
-        className={`tab-button ${
-          activeTab === "today" ? "active" : "inactive"
-        }`}
+        className={`tab-button ${activeTab === "today" ? "active" : "inactive"
+          }`}
         onClick={() => handleTabChange("today")}
       >
         Today's Leaving Guest
       </button>
       <button
-        className={`tab-button ${
-          activeTab === "tomorrow" ? "active" : "inactive"
-        }`}
+        className={`tab-button ${activeTab === "tomorrow" ? "active" : "inactive"
+          }`}
         onClick={() => handleTabChange("tomorrow")}
       >
         Tomorrow's Leaving Guest
       </button>
 
       <div className="print-section">
-        <select defaultValue="all">
+        {/* <select defaultValue="all">
           <option value="all">All</option>
-          {/* Add more options as needed */}
-        </select>
+        </select> */}
         <div className="print-dropdown-container" ref={dropdownRef}>
           <button
             className="print-button"

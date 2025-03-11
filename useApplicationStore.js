@@ -10,7 +10,7 @@ const useApplicationStore = create((set) => ({
     age: "",
     gender: "",
     email: "",
-    guestMembers: 1,
+    guestMembers: 0,
     occupation: "",
     deeksha: "",
     aadhaar: "",

@@ -219,7 +219,7 @@ const CheckInDetailsMainSection = ({ selectedDate }) => {
                           <button
                             className="dropdown-item not-arrived"
                             onClick={() =>
-                              handleStatusUpdate(allocation, "not arrived")
+                              handleStatusUpdate(allocation, "Not Arrived")
                             }
                           >
                             <span className="cross-icon">❌</span>

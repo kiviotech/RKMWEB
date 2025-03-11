@@ -12,7 +12,7 @@ import ApplicationFormFooter from "./ApplicationFormFooter";
 
 const ApplicationForm = () => {
   const { formData } = useApplicationStore();
-  const tabs = [
+  const [tabs, setTabs] = useState([
     {
       id: 1,
       tabName: "Application Details",
@@ -29,7 +29,7 @@ const ApplicationForm = () => {
       id: 4,
       tabName: "Verify Details",
     },
-  ];
+  ]);
   const [visited, setVisited] = useState(null);
   const [activeTab, setActiveTab] = useState("Guest 1");
   const [guestTabs, setGuestTabs] = useState(["Guest 1"]);
@@ -199,9 +199,16 @@ const ApplicationForm = () => {
     if (location.state?.activeTab) {
       const tabIndex = Number(location.state.activeTab);
       console.log('Setting active tab to:', tabIndex);
-      setActiveFormTab(tabIndex);
+
+      // Adjust the tab index if there are no guest members
+      if (formData.guestMembers === 0 && tabIndex > 1) {
+        // Subtract 1 from the index since we're skipping the guest details tab
+        setActiveFormTab(tabIndex - 1);
+      } else {
+        setActiveFormTab(tabIndex);
+      }
     }
-  }, [location.state]);
+  }, [location.state, formData.guestMembers]);
 
   useEffect(() => {
     if (location.state?.fromVisitDetails && activeFormTab === 3) {
@@ -211,6 +218,103 @@ const ApplicationForm = () => {
       }
     }
   }, [location.state, activeFormTab]);
+
+  // Add useEffect to update tabs based on guestMembers
+  useEffect(() => {
+    if (formData.guestMembers === 0) {
+      setTabs([
+        {
+          id: 1,
+          tabName: "Application Details",
+        },
+        {
+          id: 2,
+          tabName: "Visit Details",
+        },
+        {
+          id: 3,
+          tabName: "Verify Details",
+        },
+      ]);
+    } else {
+      setTabs([
+        {
+          id: 1,
+          tabName: "Application Details",
+        },
+        {
+          id: 2,
+          tabName: "Additional Member Details",
+        },
+        {
+          id: 3,
+          tabName: "Visit Details",
+        },
+        {
+          id: 4,
+          tabName: "Verify Details",
+        },
+      ]);
+    }
+  }, [formData.guestMembers]);
+
+  // Update the render logic to handle dynamic tabs
+  const renderTabContent = () => {
+    if (formData.guestMembers === 0) {
+      switch (activeFormTab) {
+        case 0:
+          return (
+            <ApplicationDetails
+              tabName={"Application Details"}
+              goToNextStep={goToNextStep}
+            />
+          );
+        case 1:
+          return (
+            <VisitDetails
+              tabName={"Visit Details"}
+              goToNextStep={goToNextStep}
+              goToPrevStep={goToPrevStep}
+            />
+          );
+        case 2:
+          return <VerifyDetails tabName={"Verify Details"} />;
+        default:
+          return null;
+      }
+    } else {
+      // Original tab rendering logic
+      switch (activeFormTab) {
+        case 0:
+          return (
+            <ApplicationDetails
+              tabName={"Application Details"}
+              goToNextStep={goToNextStep}
+            />
+          );
+        case 1:
+          return (
+            <GuestDetails
+              tabName={"Guest Details"}
+              goToNextStep={goToNextStep}
+              goToPrevStep={goToPrevStep}
+            />
+          );
+        case 2:
+          return (
+            <VisitDetails
+              tabName={"Visit Details"}
+              goToNextStep={goToNextStep}
+              goToPrevStep={goToPrevStep}
+            />
+          );
+        case 3:
+          return <VerifyDetails tabName={"Verify Details"} />;
+        default:
+          return null;
+      }
+    }
+  };
 
   return (
     <div style={{ backgroundColor: "#fff2ea" }}>
@@ -233,28 +337,7 @@ const ApplicationForm = () => {
           </ul>
         </div>
 
-        {activeFormTab === 0 && (
-          <ApplicationDetails
-            tabName={"Application Details"}
-            goToNextStep={goToNextStep}
-          />
-        )}
-        {activeFormTab === 1 && (
-          <GuestDetails
-            tabName={"Guest Details"}
-            goToNextStep={goToNextStep}
-            goToPrevStep={goToPrevStep}
-          />
-        )}
-
-        {activeFormTab === 2 && (
-          <VisitDetails
-            tabName={"Visit Details"}
-            goToPrevStep={goToPrevStep}
-          />
-        )}
-
-        {activeFormTab === 3 && <VerifyDetails tabName={"Verify Details"} />}
+        {renderTabContent()}
       </div>
       <ApplicationFormFooter />
     </div>

@@ -33,6 +33,15 @@ const DonorDetails = ({ activeTab }) => {
     "none",
   ];
 
+  // Add this new array for identity proof options
+  const identityProofOptions = [
+    "Aadhaar",
+    "PAN Card",
+    "Voter ID",
+    "Passport",
+    "Driving License"
+  ];
+
   const {
     donorTabs,
     activeTabId,
@@ -355,16 +364,9 @@ const DonorDetails = ({ activeTab }) => {
         break;
 
       case "Voter ID":
-        if (!/^[A-Z]{0,3}[0-9]{0,7}$/.test(value))
-          return "Invalid Voter ID format";
-        if (value.length < 10)
-          return (
-            "Voter ID must be 10 characters (currently: " + value.length + ")"
-          );
-        if (value.length > 10) return "Voter ID cannot exceed 10 characters";
-        if (value.length === 10 && !/^[A-Z]{3}[0-9]{7}$/.test(value)) {
-          return "Invalid Voter ID format (must be like ABC1234567)";
-        }
+        if (!/^[A-Z0-9/]*$/.test(value))
+          return "Invalid Voter ID format (only letters, numbers, and / allowed)";
+        if (value.length > 20) return "Voter ID cannot exceed 20 characters";
         break;
 
       case "Passport":
@@ -423,7 +425,6 @@ const DonorDetails = ({ activeTab }) => {
       case "PAN Card":
         if (/^[A-Z0-9]*$/.test(value) && value.length <= 10) {
           updateAndSyncDonorDetails({ identityNumber: value });
-          // Update PAN number in both math and mission donation details
           updateDonationDetails(activeTabId, "math", {
             panNumber: value,
           });
@@ -438,7 +439,7 @@ const DonorDetails = ({ activeTab }) => {
         }
         break;
       case "Voter ID":
-        if (/^[A-Z0-9]*$/.test(value) && value.length <= 10) {
+        if (/^[A-Z0-9/]*$/.test(value) && value.length <= 20) {
           updateAndSyncDonorDetails({ identityNumber: value });
         }
         break;
@@ -726,9 +727,8 @@ const DonorDetails = ({ activeTab }) => {
 
   return (
     <div
-      className={`donor-details ${
-        donorTabs[activeTabId].activeSection === "mission" ? "mission-bg" : ""
-      }`}
+      className={`donor-details ${donorTabs[activeTabId].activeSection === "mission" ? "mission-bg" : ""
+        }`}
     >
       <div className="donor-details__header">
         <h2>Donor Details</h2>
@@ -1178,11 +1178,11 @@ const DonorDetails = ({ activeTab }) => {
                   opacity: isCompleted || hasGuestData() ? 0.7 : 1,
                 }}
               >
-                <option>Aadhaar</option>
-                <option>PAN Card</option>
-                <option>Voter ID</option>
-                <option>Passport</option>
-                <option>Driving License</option>
+                {identityProofOptions.map((option) => (
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
+                ))}
               </select>
               <div
                 className="autocomplete-container"

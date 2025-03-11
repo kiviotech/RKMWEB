@@ -124,8 +124,8 @@ const CheckInDetailsHeader = ({ onTabChange }) => {
           </tr>
           <tr class="data-row">
             <td colspan="6" style="text-align: center !important;">Date:- ${new Date().toLocaleDateString(
-              "en-GB"
-            )}</td>
+        "en-GB"
+      )}</td>
             <td rowspan="2" style="text-align: center !important;">No. of Guests</td>
             <td colspan="2" style="text-align: center !important;">Donation Details</td>
           </tr>
@@ -140,43 +140,40 @@ const CheckInDetailsHeader = ({ onTabChange }) => {
             <td style="text-align: center !important;">Amount</td>
           </tr>
           ${todayAllocations
-            .map((allocation, index) => {
-              const arrivalDate = new Date(
-                allocation.attributes.guests.data[0]?.attributes?.arrival_date
-              );
-              const departureDate = new Date(
-                allocation.attributes.guests.data[0]?.attributes?.departure_date
-              );
-              const stayDuration = Math.ceil(
-                (departureDate - arrivalDate) / (1000 * 60 * 60 * 24)
-              );
+          .map((allocation, index) => {
+            const arrivalDate = new Date(
+              allocation.attributes.guests.data[0]?.attributes?.arrival_date
+            );
+            const departureDate = new Date(
+              allocation.attributes.guests.data[0]?.attributes?.departure_date
+            );
+            const stayDuration = Math.ceil(
+              (departureDate - arrivalDate) / (1000 * 60 * 60 * 24)
+            );
 
-              return `
+            return `
               <tr class="data-row">
                 <td style="text-align: center !important;">${index + 1}</td>
-                <td style="text-align: center !important;">${
-                  allocation.attributes.room.data.attributes.room_number
-                }</td>
-                <td style="text-align: center !important;">${
-                  allocation.attributes.guests.data[0]?.attributes?.name ||
-                  "N/A"
-                }</td>
+                <td style="text-align: center !important;">${allocation.attributes.room.data.attributes.room_number
+              }</td>
+                <td style="text-align: center !important;">${allocation.attributes.guests.data[0]?.attributes?.name ||
+              "N/A"
+              }</td>
                 <td style="text-align: center !important;"></td>
                 <td style="text-align: center !important;">${arrivalDate.toLocaleDateString(
-                  "en-GB"
-                )}</td>
+                "en-GB"
+              )}</td>
                 <td style="text-align: center !important;">${departureDate.toLocaleDateString(
-                  "en-GB"
-                )}</td>
-                <td style="text-align: center !important;">${
-                  allocation.attributes.guests.data?.length || 0
-                }</td>
+                "en-GB"
+              )}</td>
+                <td style="text-align: center !important;">${allocation.attributes.guests.data?.length || 0
+              }</td>
                 <td style="text-align: center !important;"></td>
                 <td style="text-align: center !important;"></td>
               </tr>
             `;
-            })
-            .join("")}
+          })
+          .join("")}
         </table>
       `;
 
@@ -298,8 +295,8 @@ const CheckInDetailsHeader = ({ onTabChange }) => {
           </tr>
           <tr class="data-row">
             <td colspan="6" style="text-align: center !important;">Date:- ${new Date(
-              tomorrow
-            ).toLocaleDateString("en-GB")}</td>
+        tomorrow
+      ).toLocaleDateString("en-GB")}</td>
             <td rowspan="2" style="text-align: center !important;">No. of Guests</td>
             <td colspan="2" style="text-align: center !important;">Donation Details</td>
           </tr>
@@ -314,43 +311,40 @@ const CheckInDetailsHeader = ({ onTabChange }) => {
             <td style="text-align: center !important;">Amount</td>
           </tr>
           ${tomorrowAllocations
-            .map((allocation, index) => {
-              const arrivalDate = new Date(
-                allocation.attributes.guests.data[0]?.attributes?.arrival_date
-              );
-              const departureDate = new Date(
-                allocation.attributes.guests.data[0]?.attributes?.departure_date
-              );
-              const stayDuration = Math.ceil(
-                (departureDate - arrivalDate) / (1000 * 60 * 60 * 24)
-              );
+          .map((allocation, index) => {
+            const arrivalDate = new Date(
+              allocation.attributes.guests.data[0]?.attributes?.arrival_date
+            );
+            const departureDate = new Date(
+              allocation.attributes.guests.data[0]?.attributes?.departure_date
+            );
+            const stayDuration = Math.ceil(
+              (departureDate - arrivalDate) / (1000 * 60 * 60 * 24)
+            );
 
-              return `
+            return `
               <tr class="data-row">
                 <td style="text-align: center !important;">${index + 1}</td>
-                <td style="text-align: center !important;">${
-                  allocation.attributes.room.data.attributes.room_number
-                }</td>
-                <td style="text-align: center !important;">${
-                  allocation.attributes.guests.data[0]?.attributes?.name ||
-                  "N/A"
-                }</td>
+                <td style="text-align: center !important;">${allocation.attributes.room.data.attributes.room_number
+              }</td>
+                <td style="text-align: center !important;">${allocation.attributes.guests.data[0]?.attributes?.name ||
+              "N/A"
+              }</td>
                 <td style="text-align: center !important;"></td>
                 <td style="text-align: center !important;">${arrivalDate.toLocaleDateString(
-                  "en-GB"
-                )}</td>
+                "en-GB"
+              )}</td>
                 <td style="text-align: center !important;">${departureDate.toLocaleDateString(
-                  "en-GB"
-                )}</td>
-                <td style="text-align: center !important;">${
-                  allocation.attributes.guests.data?.length || 0
-                }</td>
+                "en-GB"
+              )}</td>
+                <td style="text-align: center !important;">${allocation.attributes.guests.data?.length || 0
+              }</td>
                 <td style="text-align: center !important;"></td>
                 <td style="text-align: center !important;"></td>
               </tr>
             `;
-            })
-            .join("")}
+          })
+          .join("")}
         </table>
       `;
 
@@ -371,27 +365,24 @@ const CheckInDetailsHeader = ({ onTabChange }) => {
   return (
     <div className="check-in-details-header">
       <button
-        className={`tab-button ${
-          activeTab === "today" ? "active" : "inactive"
-        }`}
+        className={`tab-button ${activeTab === "today" ? "active" : "inactive"
+          }`}
         onClick={() => handleTabChange("today")}
       >
         Today's Arrival Guest
       </button>
       <button
-        className={`tab-button ${
-          activeTab === "tomorrow" ? "active" : "inactive"
-        }`}
+        className={`tab-button ${activeTab === "tomorrow" ? "active" : "inactive"
+          }`}
         onClick={() => handleTabChange("tomorrow")}
       >
         Tomorrow's Arrival Guest
       </button>
 
       <div className="print-section">
-        <select defaultValue="all">
+        {/* <select defaultValue="all">
           <option value="all">All</option>
-          {/* Add more options as needed */}
-        </select>
+        </select> */}
         <div className="print-dropdown-container" ref={dropdownRef}>
           <button
             className="print-button"

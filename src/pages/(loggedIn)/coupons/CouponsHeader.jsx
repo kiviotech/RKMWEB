@@ -6,42 +6,56 @@ const CouponsHeader = () => {
   const { selectedDate, setSelectedDate } = useCouponStore();
 
   return (
-    <div className="coupons-header">
-      {/* Date Container */}
-      <div className="coupons-header__container">
-        <input
-          type="date"
-          className="coupons-header__date"
-          value={selectedDate}
-          onChange={(e) => {
-            setSelectedDate(e.target.value);
-          }}
-          style={{ padding: "8px 12px", fontSize: "24px" }}
-        />
-      </div>
+    <>
+      <div className="coupons-header">
+        {/* Date Container */}
+        <div className="coupons-header__container">
+          <input
+            type="date"
+            className="coupons-header__date"
+            value={selectedDate}
+            onChange={(e) => {
+              setSelectedDate(e.target.value);
+            }}
+            style={{ padding: "8px 12px", fontSize: "24px" }}
+          />
+        </div>
 
-      {/* Reminder Container */}
-      <div className="coupons-header__container">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="20"
-          height="20"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="#3B82F6"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
-          <path d="M13.73 21a2 2 0 0 1-3.46 0" />
-        </svg>
-        <span className="coupons-header__reminder-label">Reminder:</span>
-        <span className="coupons-header__reminder-text">
-          26th Aug is Janmashtami
-        </span>
+        {/* Reminder Container */}
+        <div className="coupons-header__container">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="#3B82F6"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+            <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+          </svg>
+          <span className="coupons-header__reminder-label">Reminder:</span>
+          <span className="coupons-header__reminder-text">
+            26th Aug is Janmashtami
+          </span>
+        </div>
+
+        {/* General Devotees / Visitor Container */}
       </div>
-    </div>
+      <div className="coupons-container_guest">
+        <div className="coupon-row">
+          <span className="coupon-label">Guest House:</span>
+          <input
+            type="number"
+            className="coupon-input"
+            defaultValue="0"
+          />
+        </div>
+      </div>
+    </>
   );
 };
 

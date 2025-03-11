@@ -45,8 +45,15 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
   }, []); // Empty dependency array means this runs once when component mounts
 
   const handleNext = () => {
+    // Get the current guestMembers count from formData
+    const { guestMembers } = useApplicationStore.getState().formData;
+
+    // If there are no guest members, verify details is at index 2
+    // If there are guest members, verify details is at index 3
+    const verifyDetailsIndex = guestMembers === 0 ? "2" : "3";
+
     navigate("/application-form", {
-      state: { activeTab: "3" },
+      state: { activeTab: verifyDetailsIndex },
     });
   };
 

@@ -63,16 +63,16 @@ const CalendarMainSection = ({ currentDate, startDate, endDate }) => {
             style={
               isToday
                 ? {
-                    backgroundColor: "#4F46E5", // Indigo color
-                    color: "white",
-                    borderRadius: "50%",
-                    width: "28px",
-                    height: "28px",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    fontWeight: "600",
-                  }
+                  backgroundColor: "#4F46E5", // Indigo color
+                  color: "white",
+                  borderRadius: "50%",
+                  width: "28px",
+                  height: "28px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontWeight: "600",
+                }
                 : undefined
             }
           >
@@ -88,8 +88,8 @@ const CalendarMainSection = ({ currentDate, startDate, endDate }) => {
                     event.attributes.event_type.toLowerCase() === "birthday"
                       ? "#fcdd81"
                       : event.attributes.event_type.toLowerCase() === "ekadashi"
-                      ? "#07d2ff"
-                      : "#8df1c7",
+                        ? "#07d2ff"
+                        : "#8df1c7",
                   borderRadius: "8px",
                   padding: "6px 10px",
                   margin: "2px 0",

@@ -46,10 +46,14 @@ const DormitoryAccommodationDetails = ({
 
   const validateField = (field, value, maleCount, femaleCount, totalCount) => {
     if (!value) {
-      return `${
-        field.charAt(0).toUpperCase() +
+      return `${field.charAt(0).toUpperCase() +
         field.slice(1).replace(/([A-Z])/g, " $1")
-      } is required`;
+        } is required`;
+    }
+
+    // Add validation for total people being greater than 0
+    if (field === "totalPeople" && parseInt(value) <= 0) {
+      return "Total number of people must be greater than 0";
     }
 
     // Add validation for total matching male + female
@@ -62,7 +66,7 @@ const DormitoryAccommodationDetails = ({
     if (
       (field === "maleDevotees" || field === "femaleDevotees") &&
       parseInt(maleCount || 0) + parseInt(femaleCount || 0) !==
-        parseInt(totalCount || 0)
+      parseInt(totalCount || 0)
     ) {
       return "Sum of male and female devotees must equal total people";
     }
@@ -257,7 +261,7 @@ const DormitoryAccommodationDetails = ({
     if (
       file &&
       file.type ===
-        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     ) {
       handleFileUpload(file);
     } else {

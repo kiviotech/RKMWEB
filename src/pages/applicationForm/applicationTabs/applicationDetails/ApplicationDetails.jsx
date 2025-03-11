@@ -4,6 +4,7 @@ import CommonButton from "../../../../components/ui/Button";
 import useApplicationStore from "../../../../../useApplicationStore";
 import { icons } from "../../../../constants";
 import ApplicationFormHeader from "../../ApplicationFormHeader";
+import { fetchGuestDetails } from "../../../../../services/src/services/guestDetailsService";
 
 const ApplicationDetails = ({ goToNextStep, tabName }) => {
   const {
@@ -22,6 +23,10 @@ const ApplicationDetails = ({ goToNextStep, tabName }) => {
   const [deekshaSearchQuery, setDeekshaSearchQuery] = useState("");
   const [showCustomDeeksha, setShowCustomDeeksha] = useState(false);
   const [customDeeksha, setCustomDeeksha] = useState("");
+  const [guestNames, setGuestNames] = useState([]);
+  const [isGuestSearchOpen, setIsGuestSearchOpen] = useState(false);
+  const [guestSearchQuery, setGuestSearchQuery] = useState("");
+  const guestSearchRef = useRef(null);
 
   const [isTitleDropdownOpen, setIsTitleDropdownOpen] = useState(false);
   const titleDropdownRef = useRef(null);
@@ -188,6 +193,89 @@ const ApplicationDetails = ({ goToNextStep, tabName }) => {
     };
   }, []);
 
+  // Add useEffect to fetch guest details
+  useEffect(() => {
+    const getGuestDetails = async () => {
+      try {
+        const response = await fetchGuestDetails();
+        const guestList = response.data.map(guest => ({
+          id: guest.id,
+          name: guest.attributes.name,
+          unique_no: guest.attributes.unique_no,
+          phone_number: guest.attributes.phone_number,
+          email: guest.attributes.email,
+          occupation: guest.attributes.occupation,
+          deeksha: guest.attributes.deeksha,
+          address: guest.attributes.address
+        }));
+        setGuestNames(guestList);
+        console.log("Fetched Guest Details:", response);
+      } catch (error) {
+        console.error("Error fetching guest details:", error);
+      }
+    };
+
+    getGuestDetails();
+  }, []);
+
+  // Filter guest names based on search query
+  const filteredGuestNames = guestNames.filter(guest =>
+    (guest.name?.toLowerCase() || '').includes(guestSearchQuery.toLowerCase()) ||
+    (guest.unique_no?.toLowerCase() || '').includes(guestSearchQuery.toLowerCase())
+  );
+
+  // Add click outside handler for guest search dropdown
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (guestSearchRef.current && !guestSearchRef.current.contains(event.target)) {
+        setIsGuestSearchOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  const handleGuestSelect = (guest) => {
+    // Split the full name into title and name parts
+    const fullName = guest.name || "";
+    const titleMatch = fullName.match(/^(Sri\.|Smt\.|Mr\.|Mrs\.|Swami|Dr\.|Prof\.|Kumari|Ms\.)\s*/);
+    const title = titleMatch ? titleMatch[1] : "";
+    const name = fullName.replace(title, "").trim();
+
+    // Update form data
+    setFormData("title", title || "");
+    setFormData("name", name || "");
+    setFormData("phoneNumber", guest.phone_number || "");
+    setFormData("email", guest.email || "");
+    setFormData("occupation", guest.occupation || "");
+    setFormData("deeksha", guest.deeksha || "");
+    setFormData("age", guest.age || "");
+    setFormData("gender", guest.gender || "");
+    setFormData("aadhaar", guest.identity_number || "");
+    setFormData("id", guest.id || "");
+    setFormData("uniqueNo", guest.unique_no || "");
+
+    // Update address data
+    if (guest.address) {
+      const addressParts = guest.address.split(',').map(part => part.trim());
+      setAddressData("address", guest.address);
+      setAddressData("state", addressParts[2] || "");
+      setAddressData("district", addressParts[1] || "");
+      setAddressData("pinCode", addressParts[3] || "");
+    }
+
+    // Update search query and close dropdown
+    setGuestSearchQuery(name || ""); // Update to show only the name part
+    setIsGuestSearchOpen(false);
+
+    // Log the updated state
+    console.log("Updated Form Data:", useApplicationStore.getState().formData);
+    console.log("Updated Address Data:", useApplicationStore.getState().addressData);
+  };
+
   const validateField = (name, value) => {
     switch (name) {
       case "title":
@@ -311,9 +399,10 @@ const ApplicationDetails = ({ goToNextStep, tabName }) => {
         break;
 
       case "pinCode":
-        if (!value) {
+        const trimmedValue = value.replace(/^\s+/, "");
+        if (!trimmedValue) {
           setErrors(name, "Pin Code is required");
-        } else if (!/^\d{6}$/.test(value)) {
+        } else if (!/^\d{6}$/.test(trimmedValue)) {
           setErrors(name, "Pin Code must be 6 digits long");
         } else {
           setErrors(name, "");
@@ -329,14 +418,23 @@ const ApplicationDetails = ({ goToNextStep, tabName }) => {
     const { name, value } = e.target;
 
     if (name === "name") {
-      const sanitizedValue = value.replace(/[^A-Za-z\s]/g, "");
+      // Remove any non-letter characters except spaces
+      // Then replace multiple spaces with a single space
+      // Finally remove leading spaces but keep trailing spaces
+      const sanitizedValue = value
+        .replace(/[^A-Za-z\s]/g, "")
+        .replace(/\s+/g, " ")
+        .replace(/^\s+/, "");
       setFormData(name, sanitizedValue);
       validateField(name, sanitizedValue);
       return;
     }
 
     if (name === "occupation") {
-      const sanitizedValue = value.replace(/[^A-Za-z\s]/g, "");
+      const sanitizedValue = value
+        .replace(/[^A-Za-z\s]/g, "")
+        .replace(/\s+/g, " ")
+        .replace(/^\s+/, "");
       setFormData(name, sanitizedValue);
       validateField(name, sanitizedValue);
       return;
@@ -363,19 +461,22 @@ const ApplicationDetails = ({ goToNextStep, tabName }) => {
 
   const handleAddressInputChange = async (e) => {
     const { name, value } = e.target;
-    setAddressData(name, value);
-    console.log("Address Input Change:", { field: name, value });
 
     if (name === "pinCode") {
+      // Remove leading spaces and any non-digit characters
+      const sanitizedValue = value.replace(/^\s+/, "").replace(/\D/g, "").slice(0, 6);
+      setAddressData(name, sanitizedValue);
+      console.log("Address Input Change:", { field: name, value: sanitizedValue });
+
       // Clear previous error first
       setErrors(name, "");
 
-      if (!value) {
+      if (!sanitizedValue) {
         setErrors(name, "Pin Code is required");
         setAddressData("state", "");
         setAddressData("district", "");
         setAddressData("postOffice", "");
-      } else if (!/^\d{6}$/.test(value)) {
+      } else if (!/^\d{6}$/.test(sanitizedValue)) {
         setErrors(name, "Pin Code must be 6 digits long");
         setAddressData("state", "");
         setAddressData("district", "");
@@ -383,7 +484,7 @@ const ApplicationDetails = ({ goToNextStep, tabName }) => {
       } else {
         try {
           const response = await fetch(
-            `https://api.postalpincode.in/pincode/${value}`
+            `https://api.postalpincode.in/pincode/${sanitizedValue}`
           );
           const data = await response.json();
 
@@ -503,12 +604,19 @@ const ApplicationDetails = ({ goToNextStep, tabName }) => {
               <div className="form-group">
                 <label>Name</label>
                 <div className="unified-input">
-                  <div className="custom-select" ref={titleDropdownRef}>
+                  <div
+                    className="custom-select"
+                    ref={titleDropdownRef}
+                    style={{
+                      position: "relative",
+                      minWidth: "120px",
+                      width: "120px",  // Add fixed width
+                      flexShrink: 0    // Prevent shrinking
+                    }}
+                  >
                     <div
                       className="selected-deeksha"
-                      onClick={() =>
-                        setIsTitleDropdownOpen(!isTitleDropdownOpen)
-                      }
+                      onClick={() => setIsTitleDropdownOpen(!isTitleDropdownOpen)}
                     >
                       <span>{formData.title || "Title"}</span>
                       <svg
@@ -549,13 +657,51 @@ const ApplicationDetails = ({ goToNextStep, tabName }) => {
                       </div>
                     )}
                   </div>
-                  <input
-                    type="text"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleInputChange}
-                    placeholder="John Doe"
-                  />
+                  <div className="guest-search-container" style={{ flex: 1 }} ref={guestSearchRef}>  {/* Add flex: 1 */}
+                    <input
+                      type="text"
+                      name="name"
+                      value={formData.name}
+                      onChange={(e) => {
+                        handleInputChange(e);
+                        setGuestSearchQuery(e.target.value);
+                        setIsGuestSearchOpen(true);
+                      }}
+                      onFocus={() => setIsGuestSearchOpen(true)}
+                      placeholder="Search or enter name"
+                      style={{ width: "100%" }}
+                    />
+                    {isGuestSearchOpen && guestSearchQuery && (
+                      <div className="guest-search-dropdown">
+                        {filteredGuestNames.length > 0 ? (
+                          filteredGuestNames.map((guest) => (
+                            <div
+                              key={guest.id}
+                              className="guest-option"
+                              onClick={() => handleGuestSelect(guest)}
+                            >
+                              <div className="guest-info">
+                                <div className="guest-name-row">
+                                  <span className="guest-name">{guest.name}</span>
+                                  <span className="guest-unique-no">({guest.unique_no})</span>
+                                </div>
+                                <div className="guest-details">
+                                  {guest.phone_number && (
+                                    <span className="guest-phone">📞 {guest.phone_number}</span>
+                                  )}
+                                  {guest.address && (
+                                    <span className="guest-address">📍 {guest.address}</span>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          ))
+                        ) : (
+                          <div className="no-results">No guests found</div>
+                        )}
+                      </div>
+                    )}
+                  </div>
                 </div>
                 {errors.title && <span className="error">{errors.title}</span>}
                 {errors.name && <span className="error">{errors.name}</span>}

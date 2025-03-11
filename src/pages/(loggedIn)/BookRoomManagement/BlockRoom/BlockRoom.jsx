@@ -5,7 +5,7 @@ import { toast } from "react-toastify";
 
 const BlockRoom = ({ selectedBlockId, onRoomBlocked }) => {
   const [rooms, setRooms] = useState([]);
-
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     roomId: "",
     reason: "",
@@ -38,7 +38,9 @@ const BlockRoom = ({ selectedBlockId, onRoomBlocked }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (isSubmitting) return;
 
+    setIsSubmitting(true);
     try {
       const blockingData = {
         room: formData.roomId,
@@ -64,8 +66,9 @@ const BlockRoom = ({ selectedBlockId, onRoomBlocked }) => {
         onRoomBlocked();
       }
     } catch (error) {
-      // console.error("Error blocking room:", error);
       toast.error("Failed to block room. Please try again.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -124,8 +127,12 @@ const BlockRoom = ({ selectedBlockId, onRoomBlocked }) => {
         />
       </div>
 
-      <button type="submit" className="booking-submit-btn">
-        Block Room
+      <button
+        type="submit"
+        className="booking-submit-btn"
+        disabled={isSubmitting}
+      >
+        {isSubmitting ? "Blocking..." : "Block Room"}
       </button>
     </form>
   );

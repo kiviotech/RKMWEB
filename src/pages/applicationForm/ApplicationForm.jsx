@@ -213,50 +213,50 @@ const ApplicationForm = () => {
   }, [location.state, activeFormTab]);
 
   return (
-    <div style={{backgroundColor: "#fff2ea"}}>
+    <div style={{ backgroundColor: "#fff2ea" }}>
       <ApplicationFormHeader />
-   <div className="application-form">
-      <div className="progress-bar-container">
-        <div className="progress-bar" style={{ width: `${progress}%` }}></div>
+      <div className="application-form">
+        <div className="progress-bar-container">
+          <div className="progress-bar" style={{ width: `${progress}%` }}></div>
+        </div>
+        <div className="form-tabs">
+          <ul>
+            {tabs.map((tab, index) => (
+              <li
+                key={tab.id}
+                className={`tab-item ${activeFormTab === index ? "active" : ""}`}
+                onClick={() => handleFormTabClick(index)}
+              >
+                <span className="tabIndex">{index + 1}</span> {tab.tabName}
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        {activeFormTab === 0 && (
+          <ApplicationDetails
+            tabName={"Application Details"}
+            goToNextStep={goToNextStep}
+          />
+        )}
+        {activeFormTab === 1 && (
+          <GuestDetails
+            tabName={"Guest Details"}
+            goToNextStep={goToNextStep}
+            goToPrevStep={goToPrevStep}
+          />
+        )}
+
+        {activeFormTab === 2 && (
+          <VisitDetails
+            tabName={"Visit Details"}
+            goToPrevStep={goToPrevStep}
+          />
+        )}
+
+        {activeFormTab === 3 && <VerifyDetails tabName={"Verify Details"} />}
       </div>
-      <div className="form-tabs">
-        <ul>
-          {tabs.map((tab, index) => (
-            <li
-              key={tab.id}
-              className={`tab-item ${activeFormTab === index ? "active" : ""}`}
-              onClick={() => handleFormTabClick(index)}
-            >
-              <span className="tabIndex">{index + 1}</span> {tab.tabName}
-            </li>
-          ))}
-        </ul>
-      </div>
-
-      {activeFormTab === 0 && (
-        <ApplicationDetails
-          tabName={"Application Details"}
-          goToNextStep={goToNextStep}
-        />
-      )}
-      {activeFormTab === 1 && (
-        <GuestDetails
-          tabName={"Guest Details"}
-          goToNextStep={goToNextStep}
-          goToPrevStep={goToPrevStep}
-        />
-      )}
-
-      {activeFormTab === 2 && (
-        <VisitDetails
-          tabName={"Visit Details"}
-          goToPrevStep={goToPrevStep}
-        />
-      )}
-
-      {activeFormTab === 3 && <VerifyDetails tabName={"Verify Details"} />}
-    </div>
-    <ApplicationFormFooter />
+      <ApplicationFormFooter />
     </div>
   );
 };

@@ -329,7 +329,7 @@ const DormitoryVerifyDetails = () => {
       </div>
 
       <div className="button-container">
-        <button className="save-button">Save for later</button>
+        {/* <button className="save-button">Save for later</button> */}
         <button className="submit-button" onClick={handleSubmit}>
           Submit
         </button>

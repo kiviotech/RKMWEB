@@ -14,6 +14,7 @@ import {
 export const fetchGuestDetails = async () => {
   try {
     const response = await getGuestDetails();
+    console.log("Guest Details Response:", response.data);
     return response.data;
   } catch (error) {
     console.error("Error fetching guest details:", error);

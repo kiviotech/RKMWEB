@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import CommonButton from "../../../../components/ui/Button";
 import useApplicationStore from "../../../../../useApplicationStore";
 import "./GuestDetails.scss";
+import { fetchGuestDetails } from "../../../../../services/src/services/guestDetailsService";
 
 // Define colors for each guest
 const guestColors = ["#C2F3D3", "#C2F3F2", "#ffcfb9"];
@@ -89,6 +90,96 @@ const GuestDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
     "Others",
     "none",
   ];
+
+  // Add new state for guest search
+  const [guestNames, setGuestNames] = useState([]);
+  const [isGuestSearchOpen, setIsGuestSearchOpen] = useState(false);
+  const [guestSearchQuery, setGuestSearchQuery] = useState("");
+  const guestSearchRef = useRef(null);
+
+  // Add useEffect to fetch guest details
+  useEffect(() => {
+    const getGuestDetails = async () => {
+      try {
+        const response = await fetchGuestDetails();
+        const guestList = response.data.map(guest => ({
+          id: guest.id,
+          name: guest.attributes.name,
+          unique_no: guest.attributes.unique_no,
+          phone_number: guest.attributes.phone_number,
+          email: guest.attributes.email,
+          occupation: guest.attributes.occupation,
+          deeksha: guest.attributes.deeksha,
+          address: guest.attributes.address
+        }));
+        setGuestNames(guestList);
+        console.log("Fetched Guest Details:", response);
+      } catch (error) {
+        console.error("Error fetching guest details:", error);
+      }
+    };
+
+    getGuestDetails();
+  }, []);
+
+  // Filter guest names based on search query
+  const filteredGuestNames = guestNames.filter(guest =>
+    (guest.name?.toLowerCase() || '').includes(guestSearchQuery.toLowerCase()) ||
+    (guest.unique_no?.toLowerCase() || '').includes(guestSearchQuery.toLowerCase())
+  );
+
+  // Add click outside handler for guest search dropdown
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (guestSearchRef.current && !guestSearchRef.current.contains(event.target)) {
+        setIsGuestSearchOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  const handleGuestSelect = (guest, index) => {
+    // Split the full name into title and name parts
+    const fullName = guest.name || "";
+    const titleMatch = fullName.match(/^(Sri\.|Smt\.|Mr\.|Mrs\.|Swami|Dr\.|Prof\.|Kumari|Ms\.)\s*/);
+    const title = titleMatch ? titleMatch[1] : "";
+    const name = fullName.replace(title, "").trim();
+
+    // Update guest data
+    setGuestData(index, "guestTitle", title || "");
+    setGuestData(index, "guestName", name || "");
+    setGuestData(index, "guestNumber", guest.phone_number || "");
+    setGuestData(index, "guestEmail", guest.email || "");
+    setGuestData(index, "guestOccupation", guest.occupation || "");
+    setGuestData(index, "guestDeeksha", guest.deeksha || "");
+    setGuestData(index, "guestAge", guest.age || "");
+    setGuestData(index, "guestGender", guest.gender || "");
+    setGuestData(index, "guestAadhaar", guest.identity_number || "");
+    setGuestData(index, "guestId", guest.id || "");
+    setGuestData(index, "guestUniqueNo", guest.unique_no || "");
+
+    // Update address data
+    if (guest.address) {
+      const addressParts = guest.address.split(',').map(part => part.trim());
+      setGuestData(index, "guestAddress.state", addressParts[2] || "");
+      setGuestData(index, "guestAddress.district", addressParts[1] || "");
+      setGuestData(index, "guestAddress.pinCode", addressParts[3] || "");
+    }
+
+    // Update search query and close dropdown
+    setGuestSearchQuery(name || ""); // Update to show only the name part
+    setIsGuestSearchOpen(false);
+
+    // Update the active tab with the new name
+    setActiveTab(name || `Guest ${index + 1}`);
+
+    // Log the updated state
+    console.log("Updated Guest Data:", useApplicationStore.getState().formData.guests[index]);
+  };
 
   useEffect(() => {
     // Initialize empty guests array if needed
@@ -413,8 +504,13 @@ const GuestDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
     }
 
     if (name === "guestName") {
-      // Only allow letters and spaces
-      const sanitizedValue = value.replace(/[^A-Za-z\s]/g, "");
+      // Remove any non-letter characters except spaces
+      // Then replace multiple spaces with a single space
+      // Finally remove leading spaces but keep trailing spaces
+      const sanitizedValue = value
+        .replace(/[^A-Za-z\s]/g, "")
+        .replace(/\s+/g, " ")
+        .replace(/^\s+/, "");
       setGuestData(index, name, sanitizedValue);
       console.log("Guest Input Change:", {
         guestIndex: index,
@@ -428,8 +524,13 @@ const GuestDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
     }
 
     if (name === "guestOccupation") {
-      // Only allow letters and spaces for occupation
-      const sanitizedValue = value.replace(/[^A-Za-z\s]/g, "");
+      // Remove any non-letter characters except spaces
+      // Then replace multiple spaces with a single space
+      // Finally remove leading spaces but keep trailing spaces
+      const sanitizedValue = value
+        .replace(/[^A-Za-z\s]/g, "")
+        .replace(/\s+/g, " ")
+        .replace(/^\s+/, "");
       setGuestData(index, name, sanitizedValue);
       console.log("Guest Input Change:", {
         guestIndex: index,
@@ -452,23 +553,30 @@ const GuestDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
       validateGuestField(index, name, value);
     } else if (name.includes(".")) {
       const [parent, child] = name.split(".");
+      let updatedValue = value;
+
+      if (child === "pinCode") {
+        // Remove leading spaces and any non-digit characters
+        updatedValue = value.replace(/^\s+/, "").replace(/\D/g, "").slice(0, 6);
+      }
+
       const updatedAddress = {
         ...(formData.guests[index][parent] || {}),
-        [child]: value,
+        [child]: updatedValue,
       };
       setGuestData(index, parent, updatedAddress);
       console.log("Guest Input Change:", {
         guestIndex: index,
         field: name,
-        value,
+        value: updatedValue,
         currentGuest: formData.guests[index],
       });
-      validateGuestField(index, name, value);
+      validateGuestField(index, name, updatedValue);
 
-      if (child === "pinCode" && value.length === 6) {
+      if (child === "pinCode" && updatedValue.length === 6) {
         try {
           const response = await fetch(
-            `https://api.postalpincode.in/pincode/${value}`
+            `https://api.postalpincode.in/pincode/${updatedValue}`
           );
           const data = await response.json();
 
@@ -800,7 +908,16 @@ const GuestDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
                   <div className="form-group">
                     <label>Name</label>
                     <div className="unified-input">
-                      <div className="custom-dropdown" style={{ position: "relative", minWidth: "120px" }} ref={titleDropdownRef}>
+                      <div
+                        className="custom-dropdown"
+                        style={{
+                          position: "relative",
+                          minWidth: "120px",
+                          width: "120px",
+                          flexShrink: 0
+                        }}
+                        ref={titleDropdownRef}
+                      >
                         <div
                           className="dropdown-header"
                           onClick={() => {
@@ -881,13 +998,51 @@ const GuestDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
                           </div>
                         )}
                       </div>
-                      <input
-                        type="text"
-                        name="guestName"
-                        value={formData.guests[index].guestName || ""}
-                        onChange={(e) => handleGuestInputChange(e, index)}
-                        placeholder="John Doe"
-                      />
+                      <div className="guest-search-container" style={{ flex: 1 }}>
+                        <input
+                          type="text"
+                          name="guestName"
+                          value={formData.guests[index].guestName || ""}
+                          onChange={(e) => {
+                            handleGuestInputChange(e, index);
+                            setGuestSearchQuery(e.target.value);
+                            setIsGuestSearchOpen(true);
+                          }}
+                          onFocus={() => setIsGuestSearchOpen(true)}
+                          placeholder="Search or enter name"
+                          style={{ width: "100%" }}
+                        />
+                        {isGuestSearchOpen && guestSearchQuery && (
+                          <div className="guest-search-dropdown">
+                            {filteredGuestNames.length > 0 ? (
+                              filteredGuestNames.map((guest) => (
+                                <div
+                                  key={guest.id}
+                                  className="guest-option"
+                                  onClick={() => handleGuestSelect(guest, index)}
+                                >
+                                  <div className="guest-info">
+                                    <div className="guest-name-row">
+                                      <span className="guest-name">{guest.name}</span>
+                                      <span className="guest-unique-no">({guest.unique_no})</span>
+                                    </div>
+                                    <div className="guest-details">
+                                      {guest.phone_number && (
+                                        <span className="guest-phone">📞 {guest.phone_number}</span>
+                                      )}
+                                      {guest.address && (
+                                        <span className="guest-address">📍 {guest.address}</span>
+                                      )}
+                                    </div>
+                                  </div>
+                                </div>
+                              ))
+                            ) : (
+                              <div className="no-results">No guests found</div>
+                            )}
+                          </div>
+                        )}
+                      </div>
                     </div>
                     {errors[`guestTitle${index}`] && (
                       <span className="error">

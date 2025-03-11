@@ -7,6 +7,7 @@ import { toast } from "react-toastify";
 
 const BookRoom = ({ selectedBlockId, onRoomAllocated }) => {
   const [rooms, setRooms] = useState([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     guestName: "",
     phoneNumber: "",
@@ -96,6 +97,9 @@ const BookRoom = ({ selectedBlockId, onRoomAllocated }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (isSubmitting) return;
+
+    setIsSubmitting(true);
     try {
       // Create booking request
       const bookingData = {
@@ -173,6 +177,8 @@ const BookRoom = ({ selectedBlockId, onRoomAllocated }) => {
         pauseOnHover: true,
         draggable: true,
       });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -244,8 +250,12 @@ const BookRoom = ({ selectedBlockId, onRoomAllocated }) => {
         />
       </div>
 
-      <button type="submit" className="booking-submit-btn">
-        Book Room
+      <button
+        type="submit"
+        className="booking-submit-btn"
+        disabled={isSubmitting}
+      >
+        {isSubmitting ? "Booking..." : "Book Room"}
       </button>
     </form>
   );

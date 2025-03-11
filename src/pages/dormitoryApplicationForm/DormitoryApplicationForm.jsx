@@ -6,6 +6,8 @@ import DormitoryApplicationDetails from "./dormitoryApplicationTabs/DormitoryApp
 import DormitoryVerifyDetails from "./dormitoryApplicationTabs/DormitoryVerifyDetails/DormitoryVerifyDetails";
 import DormitoryVisitDetails from "./dormitoryApplicationTabs/DormitoryVisitDetails/DormitoryVisitDetails";
 import { useLocation } from "react-router-dom";
+import ApplicationFormHeader from "../applicationForm/ApplicationFormHeader";
+import ApplicationFormFooter from "../applicationForm/ApplicationFormFooter";
 
 const DormitoryApplicationForm = () => {
   const { formData } = useDormitoryStore();
@@ -200,49 +202,53 @@ const DormitoryApplicationForm = () => {
   };
 
   return (
-    <div className="application-form">
-      <div className="progress-bar-container">
-        <div className="progress-bar" style={{ width: `${progress}%` }}></div>
+    <div style={{ backgroundColor: "#fff2ea" }}>
+      <ApplicationFormHeader />
+      <div className="application-form">
+        <div className="progress-bar-container">
+          <div className="progress-bar" style={{ width: `${progress}%` }}></div>
+        </div>
+        <div className="form-tabs">
+          <ul>
+            {tabs.map((tab, index) => (
+              <li
+                key={tab.id}
+                className={`tab-item ${activeFormTab === index ? "active" : ""}`}
+                onClick={() => handleFormTabClick(index)}
+              >
+                <span className="tabIndex">{index + 1}</span> {tab.tabName}
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        {activeFormTab === 0 && (
+          <DormitoryApplicationDetails
+            tabName={"Application Details"}
+            goToNextStep={goToNextStep}
+          />
+        )}
+        {activeFormTab === 1 && (
+          <DormitoryAccommodationDetails
+            tabName={"Accommodation details"}
+            goToNextStep={goToNextStep}
+            goToPrevStep={goToPrevStep}
+          />
+        )}
+
+        {activeFormTab === 2 && (
+          <DormitoryVisitDetails
+            tabName={"Visit Details"}
+            goToNextStep={goToNextStep}
+            goToPrevStep={goToPrevStep}
+          />
+        )}
+
+        {activeFormTab === 3 && (
+          <DormitoryVerifyDetails tabName={"Verify Details"} />
+        )}
       </div>
-      <div className="form-tabs">
-        <ul>
-          {tabs.map((tab, index) => (
-            <li
-              key={tab.id}
-              className={`tab-item ${activeFormTab === index ? "active" : ""}`}
-              onClick={() => handleFormTabClick(index)}
-            >
-              <span className="tabIndex">{index + 1}</span> {tab.tabName}
-            </li>
-          ))}
-        </ul>
-      </div>
-
-      {activeFormTab === 0 && (
-        <DormitoryApplicationDetails
-          tabName={"Application Details"}
-          goToNextStep={goToNextStep}
-        />
-      )}
-      {activeFormTab === 1 && (
-        <DormitoryAccommodationDetails
-          tabName={"Accommodation details"}
-          goToNextStep={goToNextStep}
-          goToPrevStep={goToPrevStep}
-        />
-      )}
-
-      {activeFormTab === 2 && (
-        <DormitoryVisitDetails
-          tabName={"Visit Details"}
-          goToNextStep={goToNextStep}
-          goToPrevStep={goToPrevStep}
-        />
-      )}
-
-      {activeFormTab === 3 && (
-        <DormitoryVerifyDetails tabName={"Verify Details"} />
-      )}
+      <ApplicationFormFooter />
     </div>
   );
 };

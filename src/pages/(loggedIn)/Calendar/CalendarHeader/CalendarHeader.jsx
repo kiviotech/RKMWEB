@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { toast } from "react-toastify";
 import "./CalendarHeader.scss";
 import { createNewCelebration } from "../../../../../services/src/services/celebrationsService";
@@ -19,15 +19,56 @@ const CalendarHeader = ({
     event_type: "",
     event_name: "",
   });
+  const [isEventTypeDropdownOpen, setIsEventTypeDropdownOpen] = useState(false);
+  const eventTypeRef = useRef(null);
+  const [eventNameError, setEventNameError] = useState("");
+
+  // Define event type options
+  const eventTypeOptions = [
+    "Birthday",
+    "Puja",
+    "Ekadashi",
+  ];
+
+  // Add click outside handler for event type dropdown
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (eventTypeRef.current && !eventTypeRef.current.contains(event.target)) {
+        setIsEventTypeDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  // Get today's date in YYYY-MM-DD format for the min attribute
+  const today = new Date().toISOString().split('T')[0];
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
+
+    // Add validation for event_name
+    if (name === "event_name") {
+      // Only allow letters and hyphen
+      if (!/^[A-Za-z\s-]*$/.test(value)) {
+        setEventNameError("Event name can only contain letters and hyphens");
+        return;
+      } else {
+        setEventNameError("");
+      }
+    }
+
     setFormData((prev) => {
       if (name === "gregorian_date_from") {
+        // When from date changes, ensure to date is not before it
         return {
           ...prev,
           [name]: value,
-          gregorian_date_to: value,
+          // Reset to date if it's before the new from date
+          gregorian_date_to: prev.gregorian_date_to < value ? value : prev.gregorian_date_to,
         };
       }
       return {
@@ -181,6 +222,7 @@ const CalendarHeader = ({
                   name="gregorian_date_from"
                   value={formData.gregorian_date_from}
                   onChange={handleInputChange}
+                  min={today}
                   required
                 />
               </div>
@@ -191,22 +233,60 @@ const CalendarHeader = ({
                   name="gregorian_date_to"
                   value={formData.gregorian_date_to}
                   onChange={handleInputChange}
+                  min={formData.gregorian_date_from || today}
                   required
                 />
               </div>
               <div className="athithi-form-group">
                 <label>Event Type</label>
-                <select
-                  name="event_type"
-                  value={formData.event_type}
-                  onChange={handleInputChange}
-                  required
-                >
-                  <option value="">Select Event type</option>
-                  <option value="Birthday">Birthday</option>
-                  <option value="Puja">Puja</option>
-                  <option value="Ekadashi">Ekadashi</option>
-                </select>
+                <div className="custom-select" ref={eventTypeRef}>
+                  <div
+                    className="selected-deeksha"
+                    onClick={() => setIsEventTypeDropdownOpen(!isEventTypeDropdownOpen)}
+                    style={{ border: '1px solid #e0e0e0', borderRadius: '4px' }}
+                  >
+                    <span>{formData.event_type || "Select Event type"}</span>
+                    <svg
+                      className={`dropdown-icon ${isEventTypeDropdownOpen ? "open" : ""}`}
+                      width="14"
+                      height="8"
+                      viewBox="0 0 14 8"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M1 1L7 7L13 1"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  </div>
+                  {isEventTypeDropdownOpen && (
+                    <div
+                      className="deeksha-dropdown"
+                      style={{ border: '1px solid #e0e0e0', marginTop: '4px' }}
+                    >
+                      <div className="deeksha-list">
+                        {eventTypeOptions.map((option) => (
+                          <div
+                            key={option}
+                            className="deeksha-option"
+                            onClick={() => {
+                              handleInputChange({
+                                target: { name: "event_type", value: option },
+                              });
+                              setIsEventTypeDropdownOpen(false);
+                            }}
+                          >
+                            {option}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
               <div className="athithi-form-group">
                 <label>Event Name</label>
@@ -216,8 +296,20 @@ const CalendarHeader = ({
                   value={formData.event_name}
                   onChange={handleInputChange}
                   placeholder="Enter the event name"
+                  pattern="[A-Za-z\s-]+"
+                  title="Event name can only contain letters and hyphens"
                   required
                 />
+                {eventNameError && (
+                  <span className="error-message" style={{
+                    color: 'red',
+                    fontSize: '12px',
+                    marginTop: '4px',
+                    display: 'block'
+                  }}>
+                    {eventNameError}
+                  </span>
+                )}
               </div>
               <button type="submit" className="athithi-modal__submit-btn">
                 Add

@@ -660,7 +660,21 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
                     (Max size: 2MB, Formats: JPEG, PNG, SVG)
                   </span>
                 </label>
-                <div className="upload-container">
+                <div
+                  className="upload-container"
+                  onDrop={handleDrop}
+                  onDragOver={handleDragOver}
+                  onDragEnter={(e) => {
+                    e.preventDefault();
+                    e.currentTarget.style.backgroundColor = '#f0f0f0';
+                    e.currentTarget.style.border = '2px dashed #EA7704';
+                  }}
+                  onDragLeave={(e) => {
+                    e.preventDefault();
+                    e.currentTarget.style.backgroundColor = '';
+                    e.currentTarget.style.border = '';
+                  }}
+                >
                   <input
                     id="file-upload"
                     type="file"
@@ -799,7 +813,7 @@ const VisitDetails = ({ goToNextStep, goToPrevStep, tabName }) => {
                   name="previousVisitDate"
                   value={formData.previousVisitDate || ""}
                   onChange={handleInputChange}
-                  max={new Date().toISOString().split("T")[0]}
+                  max={new Date(Date.now() - 86400000).toISOString().split("T")[0]}
                 />
                 {errors.previousVisitDate && (
                   <span className="error">{errors.previousVisitDate}</span>

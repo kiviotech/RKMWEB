@@ -90,8 +90,8 @@ const Header = ({ hideElements }) => {
 
       <ul className={`nav-links ${isMobileMenuOpen ? "show" : ""}`}>
         {location.pathname === "/newDonation" ||
-        location.pathname === "/allDonationDetails" ||
-        location.pathname === "/donation" ? (
+          location.pathname === "/allDonationDetails" ||
+          location.pathname === "/donation" ? (
           // New donation and Donation path navigation items
           <>
             <li>
@@ -115,12 +115,12 @@ const Header = ({ hideElements }) => {
                 to="/donation#tomorrows-guests"
                 className={({ isActive }) =>
                   (isActive && location.hash === "#tomorrows-guests") ||
-                  (location.pathname === "/donation" &&
-                    location.hash === "#tomorrows-guests")
+                    (location.pathname === "/donation" &&
+                      location.hash === "#tomorrows-guests")
                     ? "active"
                     : location.pathname === "/donation"
-                    ? "active"
-                    : ""
+                      ? "active"
+                      : ""
                 }
                 onClick={(e) => {
                   e.preventDefault();
@@ -141,9 +141,9 @@ const Header = ({ hideElements }) => {
                 to="/donation#recent-donations"
                 className={({ isActive }) =>
                   (isActive && location.hash === "#recent-donations") ||
-                  (location.pathname === "/donation" &&
-                    location.hash === "#recent-donations") ||
-                  location.pathname === "/allDonationDetails"
+                    (location.pathname === "/donation" &&
+                      location.hash === "#recent-donations") ||
+                    location.pathname === "/allDonationDetails"
                     ? "active"
                     : ""
                 }
@@ -166,14 +166,14 @@ const Header = ({ hideElements }) => {
           location.pathname === "/calendar" ? (
           // Settings section navigation items
           <>
-            <li>
+            {/* <li>
               <NavLink
                 to="/"
                 className={({ isActive }) => (isActive ? "active" : "")}
               >
                 Profile
               </NavLink>
-            </li>
+            </li> */}
             <li>
               <NavLink
                 to="/book-room-management"
@@ -249,8 +249,8 @@ const Header = ({ hideElements }) => {
                   to="/book-room"
                   className={({ isActive }) =>
                     isActive ||
-                    location.pathname === "/approve-guests" ||
-                    location.pathname === "/book-room"
+                      location.pathname === "/approve-guests" ||
+                      location.pathname === "/book-room"
                       ? "active"
                       : ""
                   }
@@ -258,13 +258,13 @@ const Header = ({ hideElements }) => {
                   Allocate rooms
                   {(location.pathname === "/approve-guests" ||
                     location.pathname === "/book-room") && (
-                    <button
-                      className="close-button"
-                      style={{ fontSize: "18px" }}
-                    >
-                      &times;
-                    </button>
-                  )}
+                      <button
+                        className="close-button"
+                        style={{ fontSize: "18px" }}
+                      >
+                        &times;
+                      </button>
+                    )}
                 </NavLink>
               </li>
             )}

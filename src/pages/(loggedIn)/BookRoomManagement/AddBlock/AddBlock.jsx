@@ -14,6 +14,15 @@ const AddBlock = ({ onClose, onBlockCreated }) => {
 
   const handleNext = async () => {
     if (currentStep === 1) {
+      // Validate required fields
+      if (!blockData.blockName.trim()) {
+        toast.error("Please enter the Block Name");
+        return;
+      }
+      if (!blockData.numberOfRooms) {
+        toast.error("Please enter the Number of Rooms");
+        return;
+      }
       // Initialize rooms array with empty values based on numberOfRooms
       const initialRooms = Array(parseInt(blockData.numberOfRooms) || 0)
         .fill()
@@ -25,6 +34,16 @@ const AddBlock = ({ onClose, onBlockCreated }) => {
       }));
       setCurrentStep(2);
     } else {
+      // Validate all room details before proceeding
+      const emptyRooms = blockData.rooms.findIndex(
+        (room) => !room.roomNumber.trim() || !room.numberOfBeds
+      );
+
+      if (emptyRooms !== -1) {
+        toast.error(`Please fill all details for Room ${emptyRooms + 1}`);
+        return;
+      }
+
       try {
         // Create rooms sequentially and collect their IDs
         const createdRoomIds = [];
@@ -69,9 +88,8 @@ const AddBlock = ({ onClose, onBlockCreated }) => {
   return (
     <div className="add-block-overlay">
       <div
-        className={`add-block-content ${
-          currentStep === 1 ? "add-block-step" : "room-details-step"
-        }`}
+        className={`add-block-content ${currentStep === 1 ? "add-block-step" : "room-details-step"
+          }`}
       >
         <div className="add-block-header">
           <h2>{currentStep === 1 ? "Add New Building" : "Room Details"}</h2>
@@ -88,6 +106,7 @@ const AddBlock = ({ onClose, onBlockCreated }) => {
                 type="text"
                 placeholder="Enter the Block Name"
                 value={blockData.blockName}
+                required
                 onChange={(e) =>
                   setBlockData({ ...blockData, blockName: e.target.value })
                 }
@@ -111,6 +130,7 @@ const AddBlock = ({ onClose, onBlockCreated }) => {
                 type="number"
                 placeholder="Enter the no. of rooms"
                 value={blockData.numberOfRooms}
+                required
                 onChange={(e) =>
                   setBlockData({ ...blockData, numberOfRooms: e.target.value })
                 }
@@ -142,6 +162,7 @@ const AddBlock = ({ onClose, onBlockCreated }) => {
                     type="text"
                     placeholder="Enter the room number"
                     value={room.roomNumber}
+                    required
                     onChange={(e) =>
                       handleInputChange(index, "roomNumber", e.target.value)
                     }
@@ -150,6 +171,8 @@ const AddBlock = ({ onClose, onBlockCreated }) => {
                     type="number"
                     placeholder="Enter the no. of beds"
                     value={room.numberOfBeds}
+                    required
+                    min="1"
                     onChange={(e) =>
                       handleInputChange(index, "numberOfBeds", e.target.value)
                     }

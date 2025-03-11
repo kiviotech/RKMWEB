@@ -3,6 +3,8 @@ import { fetchGuestUniqueNo } from "./services/src/services/guestDetailsService"
 
 const useApplicationStore = create((set) => ({
   formData: {
+    id: "",
+    uniqueNo: "",
     title: "",
     name: "",
     age: "",
@@ -24,6 +26,8 @@ const useApplicationStore = create((set) => ({
     },
     guests: [
       {
+        guestId: "",
+        guestUniqueNo: "",
         guestTitle: "",
         guestName: "",
         guestAge: "",

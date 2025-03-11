@@ -57,17 +57,15 @@ const BookRoomManagementSetting = ({
       <div className="booking-management-form">
         <div className="booking-tab-controls">
           <button
-            className={`booking-tab-btn ${
-              activeTab === "block" ? "active" : ""
-            }`}
+            className={`booking-tab-btn ${activeTab === "block" ? "active" : ""
+              }`}
             onClick={() => setActiveTab("block")}
           >
             Block Room
           </button>
           <button
-            className={`booking-tab-btn ${
-              activeTab === "book" ? "active" : ""
-            }`}
+            className={`booking-tab-btn ${activeTab === "book" ? "active" : ""
+              }`}
             onClick={() => setActiveTab("book")}
           >
             Allocate Room

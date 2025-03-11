@@ -23,6 +23,17 @@ const AddRoom = ({ onClose, selectedBlockId, onRoomAdded }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Validate all room details before proceeding
+    const emptyRooms = rooms.findIndex(
+      (room) => !room.roomNumber.trim() || !room.beds
+    );
+
+    if (emptyRooms !== -1) {
+      toast.error(`Please fill all details for Room ${emptyRooms + 1}`);
+      return;
+    }
+
     try {
       // Get current block data to preserve existing room IDs
       const currentBlock = await fetchBlockById(selectedBlockId);
@@ -89,6 +100,7 @@ const AddRoom = ({ onClose, selectedBlockId, onRoomAdded }) => {
                       type="text"
                       placeholder="Enter the room number"
                       value={room.roomNumber}
+                      required
                       onChange={(e) =>
                         handleInputChange(index, "roomNumber", e.target.value)
                       }
@@ -99,6 +111,8 @@ const AddRoom = ({ onClose, selectedBlockId, onRoomAdded }) => {
                       type="number"
                       placeholder="Enter the no. of beds"
                       value={room.beds}
+                      required
+                      min="1"
                       onChange={(e) =>
                         handleInputChange(index, "beds", e.target.value)
                       }

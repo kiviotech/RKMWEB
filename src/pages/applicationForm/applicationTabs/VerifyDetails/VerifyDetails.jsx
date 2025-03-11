@@ -65,49 +65,60 @@ const VerifyDetails = () => {
 
   const handleSubmit = async () => {
     try {
-      // Create main applicant guest details with unique_no
-      const applicantData = {
-        name: `${formData.title} ${formData.name}`.trim(),
-        unique_no: uniqueNo, // Add unique number for main applicant
-        phone_number: `+${formData.countryCode}${formData.phoneNumber}`,
-        identity_proof: "Aadhaar",
-        identity_number: formData.aadhaar,
-        occupation: formData.occupation,
-        address: `${formData.address.houseNumber}, ${formData.address.streetName}, ${formData.address.postOffice}, ${formData.address.district}, ${formData.address.state}, ${formData.address.pinCode}`,
-        age: parseInt(formData.age),
-        gender: formData.gender,
-        status: "Not Arrived",
-        deeksha: formData.deeksha,
-        email:
-          formData.email ||
-          `${formData.name.toLowerCase().replace(/\s+/g, "")}@gmail.com`,
-        relationship: "applicant",
-        arrival_date: formData.visitDate,
-        departure_date: formData.departureDate,
-      };
+      let mainGuestId;
 
-      // Create main applicant guest record
-      const mainGuestResponse = await createNewGuestDetails(applicantData);
-      const mainGuestId = mainGuestResponse.data.id;
+      // Only create main applicant guest details if no ID exists
+      if (!formData.id) {
+        const applicantData = {
+          name: `${formData.title} ${formData.name}`.trim(),
+          unique_no: uniqueNo,
+          phone_number: `+${formData.countryCode}${formData.phoneNumber}`,
+          identity_proof: "Aadhaar",
+          identity_number: formData.aadhaar,
+          occupation: formData.occupation,
+          address: `${formData.address.houseNumber}, ${formData.address.streetName}, ${formData.address.postOffice}, ${formData.address.district}, ${formData.address.state}, ${formData.address.pinCode}`,
+          age: parseInt(formData.age),
+          gender: formData.gender,
+          status: "Not Arrived",
+          deeksha: formData.deeksha,
+          email: formData.email || `${formData.name.toLowerCase().replace(/\s+/g, "")}@gmail.com`,
+          relationship: "applicant",
+          arrival_date: formData.visitDate,
+          departure_date: formData.departureDate,
+        };
 
-      // Create guest details for additional guests with incremented unique numbers
+        // Create main applicant guest record
+        const mainGuestResponse = await createNewGuestDetails(applicantData);
+        mainGuestId = mainGuestResponse.data.id;
+      } else {
+        // Use existing ID if available
+        mainGuestId = formData.id;
+      }
+
+      // Create guest details only for guests without IDs
       const guestResponses = await Promise.all(
-        formData.guests.map((guest, index) => {
+        formData.guests.map(async (guest, index) => {
+          // Skip creating guest if guestId exists
+          if (guest.guestId) {
+            return { data: { id: guest.guestId } };
+          }
+
+          const baseNumber = parseInt(formData.uniqueNo?.substring(1) || uniqueNo?.substring(1) || "0");
           const guestData = {
             name: `${guest.guestTitle} ${guest.guestName}`.trim(),
-            unique_no: `C${parseInt(uniqueNo?.substring(1)) + index + 1}`, // Add incremented unique number for each guest
+            unique_no: `C${baseNumber + index + 1}`,
             phone_number: `+${guest.countryCode}${guest.guestNumber}`,
             identity_proof: "Aadhaar",
             identity_number: guest.guestAadhaar,
             occupation: guest.guestOccupation,
-            address: `${guest.guestAddress.houseNumber}, ${guest.guestAddress.streetName}, ${guest.guestAddress.postOffice}, ${guest.guestAddress.district}, ${guest.guestAddress.state}, ${guest.guestAddress.pinCode}`,
+            address: guest.sameAsApplicant
+              ? `${formData.address.houseNumber}, ${formData.address.streetName}, ${formData.address.postOffice}, ${formData.address.district}, ${formData.address.state}, ${formData.address.pinCode}`
+              : `${guest.guestAddress.houseNumber}, ${guest.guestAddress.streetName}, ${guest.guestAddress.postOffice}, ${guest.guestAddress.district}, ${guest.guestAddress.state}, ${guest.guestAddress.pinCode}`,
             age: parseInt(guest.guestAge),
             gender: guest.guestGender,
             status: "Not Arrived",
             deeksha: guest.guestDeeksha,
-            email:
-              guest.guestEmail ||
-              `${guest.guestName.toLowerCase().replace(/\s+/g, "")}@gmail.com`,
+            email: guest.guestEmail || `${guest.guestName.toLowerCase().replace(/\s+/g, "")}@gmail.com`,
             relationship: guest.guestRelation || "guest",
             arrival_date: formData.visitDate,
             departure_date: formData.departureDate,
@@ -116,10 +127,10 @@ const VerifyDetails = () => {
         })
       );
 
-      // Collect all guest IDs from the correct response path
+      // Collect all guest IDs
       const guestIds = guestResponses.map((response) => response.data.id);
 
-      // Create booking request with updated schema
+      // Create booking request with all guest IDs
       const bookingData = {
         status: "awaiting",
         name: `${formData.title} ${formData.name}`.trim(),
@@ -129,7 +140,6 @@ const VerifyDetails = () => {
         phone_number: `+${formData.countryCode}${formData.phoneNumber}`,
         occupation: formData.occupation,
         aadhaar_number: formData.aadhaar,
-        // number_of_guest_members: formData.guests.length.toString(),
         reason_for_revisit: formData.reason || "",
         address: `${formData.address.houseNumber}, ${formData.address.district}, ${formData.address.state}, ${formData.address.pinCode}`,
         arrival_date: formData.visitDate,
@@ -137,15 +147,11 @@ const VerifyDetails = () => {
         deeksha: formData.deeksha,
         guests: [mainGuestId, ...guestIds],
         recommendation_letter: formData.file ? [formData.file] : [],
-        // Add default values for required fields
         number_of_male_devotees: "0",
         number_of_female_devotees: "0",
       };
 
       await createNewBookingRequest(bookingData);
-
-      // Handle successful submission
-      // alert("Application submitted successfully!");
       navigate("/thank-you");
     } catch (error) {
       console.error("Error submitting application:", error);
@@ -194,7 +200,7 @@ const VerifyDetails = () => {
             {/* Applicant Row */}
             <tr>
               <td>1</td>
-              <td>{uniqueNo}</td>
+              <td>{formData.uniqueNo ? formData.uniqueNo : uniqueNo}</td>
               <td>{`${formData.title} ${formData.name}`}</td>
               <td style={{ textAlign: "center" }}>{formData.age}</td>
               <td style={{ textAlign: "center" }}>{formData.gender}</td>
@@ -215,21 +221,26 @@ const VerifyDetails = () => {
               </td>
             </tr>
             {/* Guest Rows */}
-            {formData.guests.map((guest, index) => (
-              <tr key={index}>
-                <td>{index + 2}</td>
-                <td>{`C${parseInt(uniqueNo?.substring(1)) + index + 1}`}</td>
-                <td>{`${guest.guestTitle} ${guest.guestName}`}</td>
-                <td style={{ textAlign: "center" }}>{guest.guestAge}</td>
-                <td style={{ textAlign: "center" }}>{guest.guestGender}</td>
-                <td>{guest.guestOccupation}</td>
-                <td>{guest.guestDeeksha || "Not specified"}</td>
-                <td>{`+${guest.countryCode} ${guest.guestNumber}`}</td>
-                <td>{guest.guestAadhaar}</td>
-                <td>
-                  {guest.sameAsApplicant
-                    ? "Same as applicant"
-                    : [
+            {formData.guests.map((guest, index) => {
+              // Get the base number from the main applicant's unique number
+              const baseNumber = parseInt(formData.uniqueNo?.substring(1) || uniqueNo?.substring(1) || "0");
+              // Calculate the next unique number in sequence
+              const nextUniqueNo = `C${baseNumber + index + 1}`;
+              return (
+                <tr key={index}>
+                  <td>{index + 2}</td>
+                  <td>{guest.guestUniqueNo ? guest.guestUniqueNo : nextUniqueNo}</td>
+                  <td>{`${guest.guestTitle} ${guest.guestName}`}</td>
+                  <td style={{ textAlign: "center" }}>{guest.guestAge}</td>
+                  <td style={{ textAlign: "center" }}>{guest.guestGender}</td>
+                  <td>{guest.guestOccupation}</td>
+                  <td>{guest.guestDeeksha || "Not specified"}</td>
+                  <td>{`+${guest.countryCode} ${guest.guestNumber}`}</td>
+                  <td>{guest.guestAadhaar}</td>
+                  <td>
+                    {guest.sameAsApplicant
+                      ? "Same as applicant"
+                      : [
                         guest.guestAddress.houseNumber,
                         guest.guestAddress.streetName,
                         guest.guestAddress.postOffice,
@@ -238,9 +249,10 @@ const VerifyDetails = () => {
                       ]
                         .filter(Boolean)
                         .join(", ")}
-                </td>
-              </tr>
-            ))}
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>

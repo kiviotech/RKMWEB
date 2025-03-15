@@ -11,6 +11,7 @@ const BookRoomManagement = () => {
   const [allocatedGuestCount, setAllocatedGuestCount] = useState(0);
   const [arrivalDate, setArrivalDate] = useState(null);
   const [departureDate, setDepartureDate] = useState(null);
+  const [totalGuestCount, setTotalGuestCount] = useState(0);
 
   const handleRefresh = () => {
     setRefreshTrigger((prev) => prev + 1);
@@ -40,7 +41,8 @@ const BookRoomManagement = () => {
   };
 
   useEffect(() => {
-    if (selectedGuestDetails?.guests?.[0]) {
+    if (selectedGuestDetails?.guests) {
+      setTotalGuestCount(selectedGuestDetails.guests.length);
       setArrivalDate(selectedGuestDetails.guests[0].arrivalDate);
       setDepartureDate(selectedGuestDetails.guests[0].departureDate);
     }
@@ -66,6 +68,8 @@ const BookRoomManagement = () => {
               console.log('Selected room:', roomNumber, details);
               // Add your room selection logic here
             }}
+            selectedGuests={selectedGuestDetails?.guests}
+            maxSelections={totalGuestCount}
           />
         </div>
         <div style={{ width: "30%" }}>

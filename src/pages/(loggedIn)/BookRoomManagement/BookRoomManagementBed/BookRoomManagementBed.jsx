@@ -4,7 +4,7 @@ import { icons } from "../../../../constants";
 import * as blockService from "../../../../../services/src/services/blockService";
 import { useNavigate } from "react-router-dom";
 
-const BookRoomManagementBed = ({ blockId, refreshTrigger, viewMode, arrivalDate, departureDate, onRoomSelect, selectedGuests, onGuestClick }) => {
+const BookRoomManagementBed = ({ blockId, refreshTrigger, viewMode, arrivalDate, departureDate, onRoomSelect, selectedGuests, onGuestClick, maxSelections }) => {
   const [rooms, setRooms] = useState([]);
   const [dates, setDates] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -13,11 +13,16 @@ const BookRoomManagementBed = ({ blockId, refreshTrigger, viewMode, arrivalDate,
   const [selectedBeds, setSelectedBeds] = useState({});
   const [selectedBedCounts, setSelectedBedCounts] = useState({});
   const [allocatedGuestCount, setAllocatedGuestCount] = useState(0);
+  const [totalSelections, setTotalSelections] = useState(0);
+  const [currentGuestId, setCurrentGuestId] = useState(null);
 
   // Add effect to reset selections when refreshTrigger changes
   useEffect(() => {
     setSelectedBeds({});
     setSelectedBedCounts({});
+    setTotalSelections(0);
+    setAllocatedGuestCount(0);
+    setCurrentGuestId(null);
   }, [refreshTrigger]);
 
   // Modify the date generation useEffect
@@ -69,10 +74,16 @@ const BookRoomManagementBed = ({ blockId, refreshTrigger, viewMode, arrivalDate,
 
   const handleBedManagementClick = (allocation) => {
     if (allocation) {
-      // If onGuestClick prop exists, call it with the guest details
+      // Clear previous selections when clicking on a new guest
+      setSelectedBeds({});
+      setSelectedBedCounts({});
+      setTotalSelections(0);
+      setAllocatedGuestCount(0);
+
       if (onGuestClick && allocation.attributes.guests?.data?.length > 0) {
         const guestDetails = {
           guests: allocation.attributes.guests.data.map(guest => ({
+            id: guest.id, // Make sure to include guest ID
             name: guest.attributes?.name,
             arrivalDate: guest.attributes?.arrival_date,
             departureDate: guest.attributes?.departure_date,
@@ -82,6 +93,9 @@ const BookRoomManagementBed = ({ blockId, refreshTrigger, viewMode, arrivalDate,
           roomNumber: allocation.attributes?.room?.data?.attributes?.room_number,
           blockId: allocation.attributes?.room?.data?.attributes?.block?.data?.id
         };
+
+        // Set current guest ID
+        setCurrentGuestId(allocation.attributes.guests.data[0].id);
         onGuestClick(guestDetails);
         return;
       }
@@ -147,7 +161,10 @@ const BookRoomManagementBed = ({ blockId, refreshTrigger, viewMode, arrivalDate,
 
   // Modified handleBedCountClick to properly handle guest allocation
   const handleBedCountClick = (roomId, roomNumber, dateIndex, totalBeds) => {
-    if (!selectedGuests?.length) return;
+    if (!currentGuestId) {
+      alert("Please select a guest first by clicking on their details.");
+      return;
+    }
 
     // Find the room object
     const room = rooms.find(r => r.id === roomId);
@@ -161,6 +178,12 @@ const BookRoomManagementBed = ({ blockId, refreshTrigger, viewMode, arrivalDate,
     const dateKey = `${roomId}-${dateIndex}`;
     const currentCount = selectedBedCounts[dateKey] || 0;
     const newCount = currentCount < totalBeds ? currentCount + 1 : 0;
+
+    // Check if new selection would exceed maximum
+    if (totalSelections - currentCount + newCount > maxSelections) {
+      alert(`Maximum ${maxSelections} bed(s) can be selected based on number of guests.`);
+      return;
+    }
 
     setSelectedBedCounts(prev => {
       const updates = {};
@@ -185,10 +208,25 @@ const BookRoomManagementBed = ({ blockId, refreshTrigger, viewMode, arrivalDate,
 
       return { ...prev, ...updates };
     });
+
+    // Update total selections
+    setTotalSelections(prev => prev - currentCount + newCount);
   };
 
   // Modified handleBedClick to properly sync with list view
   const handleBedClick = (roomId, roomNumber, dateIndex, bedIndex) => {
+    // If no current guest is selected, don't allow selection
+    if (!currentGuestId) {
+      alert("Please select a guest first by clicking on their details.");
+      return;
+    }
+
+    // Check if we've reached the maximum selections
+    if (totalSelections >= maxSelections && !selectedBeds[`${roomId}-${dateIndex}-${bedIndex}`]) {
+      alert(`Maximum ${maxSelections} bed(s) can be selected based on number of guests.`);
+      return;
+    }
+
     // Find the room object
     const room = rooms.find(r => r.id === roomId);
 
@@ -245,6 +283,13 @@ const BookRoomManagementBed = ({ blockId, refreshTrigger, viewMode, arrivalDate,
         roomId: roomId
       });
     }
+
+    // Update total selections
+    if (newValue) {
+      setTotalSelections(prev => prev + 1);
+    } else {
+      setTotalSelections(prev => prev - 1);
+    }
   };
 
   // Helper function to get selected count for a room and date
@@ -275,7 +320,8 @@ const BookRoomManagementBed = ({ blockId, refreshTrigger, viewMode, arrivalDate,
       roomBlockings,
       roomAllocations,
       currentDate,
-      handleBedManagementClick
+      handleBedManagementClick,
+      currentGuestId
     );
 
     // Check both blockings and allocations
@@ -729,7 +775,8 @@ const BookRoomManagementBed = ({ blockId, refreshTrigger, viewMode, arrivalDate,
                   room.attributes?.room_blockings?.data,
                   room.attributes?.room_allocations,
                   date,
-                  handleBedManagementClick
+                  handleBedManagementClick,
+                  currentGuestId
                 );
 
                 const isBlocked = room.attributes?.room_blockings?.data?.some(
@@ -946,7 +993,8 @@ const getTooltipContent = (
   roomBlockings,
   roomAllocations,
   currentDate,
-  onBedManagementClick
+  onBedManagementClick,
+  currentGuestId
 ) => {
   const allocation = roomAllocations?.data?.find((allocation) => {
     const checkDate = new Date(
@@ -980,14 +1028,17 @@ const getTooltipContent = (
         <div
           className="tooltip-content"
           onClick={(e) => {
-            e.stopPropagation(); // Prevent event bubbling
+            e.stopPropagation();
             onBedManagementClick?.(allocation);
           }}
           style={{ cursor: "pointer" }}
         >
           <h4>Room Allocation Details:</h4>
           {guests.map((guest, index) => (
-            <div key={index} className="guest-details">
+            <div
+              key={index}
+              className={`guest-details ${guest.id === currentGuestId ? 'selected-guest' : ''}`}
+            >
               <p><strong>Guest {index + 1}:</strong></p>
               <p>Name: {guest.attributes?.name}</p>
               <p>From: {guest.attributes?.arrival_date}</p>

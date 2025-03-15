@@ -125,10 +125,22 @@ const BookRoomManagementSetting = ({
     );
   };
 
+  // Add this function to get the number of guests
+  const getGuestCount = () => {
+    return guestDetails?.guests?.length || 0;
+  };
+
   return (
     <div className="booking-management-wrapper">
       {/* Show guest details panel if available */}
       {renderGuestDetailsPanel()}
+
+      {/* Pass the guest count to the parent component */}
+      {guestDetails && (
+        <div className="guest-count-info">
+          <span>Total Guests: {getGuestCount()}</span>
+        </div>
+      )}
 
       {/* Only show these elements if there are no guest details */}
       {!guestDetails && (

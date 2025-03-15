@@ -53,6 +53,12 @@ const BookRoomManagementSetting = ({
     e.stopPropagation();
   };
 
+  // Add this function to handle bed selection
+  const handleBedSelection = (roomNumber, details) => {
+    // You can add logic here to handle the bed selection
+    console.log('Selected bed in room:', roomNumber, details);
+  };
+
   const renderGuestDetailsPanel = () => {
     if (!guestDetails) return null;
 

@@ -189,10 +189,6 @@ const BookRoomManagementBed = ({ blockId, refreshTrigger, viewMode, arrivalDate,
 
   // Modified handleBedClick to properly sync with list view
   const handleBedClick = (roomId, roomNumber, dateIndex, bedIndex) => {
-    if (!selectedGuests?.length || allocatedGuestCount >= selectedGuests.length) {
-      return; // Don't allow selection if all guests are allocated
-    }
-
     // Find the room object
     const room = rooms.find(r => r.id === roomId);
 
@@ -241,15 +237,13 @@ const BookRoomManagementBed = ({ blockId, refreshTrigger, viewMode, arrivalDate,
       ...countUpdates
     }));
 
-    // If selecting, call onRoomSelect and increment allocated guest count
-    if (newValue) {
+    // Call onRoomSelect with the room details
+    if (newValue && onRoomSelect) {
       onRoomSelect(roomNumber, {
         startDate: arrivalDate,
         endDate: departureDate,
-        guest: selectedGuests[allocatedGuestCount],
         roomId: roomId
       });
-      setAllocatedGuestCount(prev => prev + 1);
     }
   };
 
@@ -444,21 +438,23 @@ const BookRoomManagementBed = ({ blockId, refreshTrigger, viewMode, arrivalDate,
     // Modify the img tag rendering to include onClick handler with roomNumber
     const renderBedIcon = (bedIndex) => {
       const icon = getBedIcon(bedIndex, roomId, dateIndex);
-      const isClickable = !isBlocked && isInRange && selectedGuests?.length > 0 && (icon === icons.Group2 || icon === icons.selectedImage);
+      // Remove the selectedImage check since we want to allow clicking on Group2 icons
+      const isClickable = !isBlocked && isInRange && icon === icons.Group2;
 
       return (
         <img
           src={icon}
           alt="bed"
           className={`bed-icon ${isInRange ? 'in-range' : ''}`}
-          onClick={() => {
+          onClick={(e) => {
+            e.stopPropagation(); // Add this to prevent event bubbling
             if (isClickable) {
               handleBedClick(roomId, roomNumber, dateIndex, bedIndex);
             }
           }}
           style={{
             cursor: isClickable ? 'pointer' : 'default',
-            opacity: 1 // Remove opacity change
+            opacity: 1
           }}
         />
       );

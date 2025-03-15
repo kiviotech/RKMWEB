@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import BookRoomManagementHeader from "./BookRoomManagementHeader/BookRoomManagementHeader";
 import BookRoomManagementBed from "./BookRoomManagementBed/BookRoomManagementBed";
 import BookRoomManagementSetting from "./BookRoomManagementSetting/BookRoomManagementSetting";
@@ -9,6 +9,8 @@ const BookRoomManagement = () => {
   const [viewMode, setViewMode] = useState("dashboard");
   const [selectedGuestDetails, setSelectedGuestDetails] = useState(null);
   const [allocatedGuestCount, setAllocatedGuestCount] = useState(0);
+  const [arrivalDate, setArrivalDate] = useState(null);
+  const [departureDate, setDepartureDate] = useState(null);
 
   const handleRefresh = () => {
     setRefreshTrigger((prev) => prev + 1);
@@ -37,6 +39,13 @@ const BookRoomManagement = () => {
     }
   };
 
+  useEffect(() => {
+    if (selectedGuestDetails?.guests?.[0]) {
+      setArrivalDate(selectedGuestDetails.guests[0].arrivalDate);
+      setDepartureDate(selectedGuestDetails.guests[0].departureDate);
+    }
+  }, [selectedGuestDetails]);
+
   return (
     <div>
       <BookRoomManagementHeader
@@ -51,6 +60,12 @@ const BookRoomManagement = () => {
             refreshTrigger={refreshTrigger}
             viewMode={viewMode}
             onGuestClick={handleGuestClick}
+            arrivalDate={arrivalDate}
+            departureDate={departureDate}
+            onRoomSelect={(roomNumber, details) => {
+              console.log('Selected room:', roomNumber, details);
+              // Add your room selection logic here
+            }}
           />
         </div>
         <div style={{ width: "30%" }}>

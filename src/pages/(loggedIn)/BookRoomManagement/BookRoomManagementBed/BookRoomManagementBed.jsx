@@ -4,7 +4,7 @@ import { icons } from "../../../../constants";
 import * as blockService from "../../../../../services/src/services/blockService";
 import { useNavigate } from "react-router-dom";
 
-const BookRoomManagementBed = ({ blockId, refreshTrigger, viewMode, arrivalDate, departureDate, onRoomSelect, selectedGuests }) => {
+const BookRoomManagementBed = ({ blockId, refreshTrigger, viewMode, arrivalDate, departureDate, onRoomSelect, selectedGuests, onGuestClick }) => {
   const [rooms, setRooms] = useState([]);
   const [dates, setDates] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -12,6 +12,7 @@ const BookRoomManagementBed = ({ blockId, refreshTrigger, viewMode, arrivalDate,
   const navigate = useNavigate();
   const [selectedBeds, setSelectedBeds] = useState({});
   const [selectedBedCounts, setSelectedBedCounts] = useState({});
+  const [allocatedGuestCount, setAllocatedGuestCount] = useState(0);
 
   // Add effect to reset selections when refreshTrigger changes
   useEffect(() => {
@@ -68,11 +69,26 @@ const BookRoomManagementBed = ({ blockId, refreshTrigger, viewMode, arrivalDate,
 
   const handleBedManagementClick = (allocation) => {
     if (allocation) {
-      // Get the booking request ID from the first guest's booking request
+      // If onGuestClick prop exists, call it with the guest details
+      if (onGuestClick && allocation.attributes.guests?.data?.length > 0) {
+        const guestDetails = {
+          guests: allocation.attributes.guests.data.map(guest => ({
+            name: guest.attributes?.name,
+            arrivalDate: guest.attributes?.arrival_date,
+            departureDate: guest.attributes?.departure_date,
+            phoneNumber: guest.attributes?.phone_number,
+            bookingRequestId: guest.attributes?.booking_request?.data?.id
+          })),
+          roomNumber: allocation.attributes?.room?.data?.attributes?.room_number,
+          blockId: allocation.attributes?.room?.data?.attributes?.block?.data?.id
+        };
+        onGuestClick(guestDetails);
+        return;
+      }
+
+      // Fallback to original navigation behavior if onGuestClick is not provided
       const bookingRequestId =
-        allocation.attributes.guests.data[0]?.attributes?.booking_request?.data
-          ?.id;
-      // console.log("Booking Request ID:", allocation);
+        allocation.attributes.guests.data[0]?.attributes?.booking_request?.data?.id;
       if (bookingRequestId) {
         navigate("/requests", {
           state: {
@@ -81,8 +97,6 @@ const BookRoomManagementBed = ({ blockId, refreshTrigger, viewMode, arrivalDate,
             requestId: bookingRequestId,
           },
         });
-      } else {
-        console.warn("No booking request ID found for this allocation");
       }
     }
   };
@@ -175,7 +189,9 @@ const BookRoomManagementBed = ({ blockId, refreshTrigger, viewMode, arrivalDate,
 
   // Modified handleBedClick to properly sync with list view
   const handleBedClick = (roomId, roomNumber, dateIndex, bedIndex) => {
-    if (!selectedGuests?.length) return;
+    if (!selectedGuests?.length || allocatedGuestCount >= selectedGuests.length) {
+      return; // Don't allow selection if all guests are allocated
+    }
 
     // Find the room object
     const room = rooms.find(r => r.id === roomId);
@@ -186,7 +202,6 @@ const BookRoomManagementBed = ({ blockId, refreshTrigger, viewMode, arrivalDate,
       return;
     }
 
-    const clickedDate = dates[dateIndex];
     const bedKey = `${roomId}-${dateIndex}-${bedIndex}`;
 
     // If bed is already selected, don't allow deselection
@@ -195,14 +210,13 @@ const BookRoomManagementBed = ({ blockId, refreshTrigger, viewMode, arrivalDate,
     // Create all updates first
     const bedUpdates = {};
     const countUpdates = {};
-    const newValue = true; // Always set to true, no toggling
+    const newValue = true;
 
     // Calculate updates for all dates in range
     dates.forEach((date, idx) => {
       if (isDateInRange(date, arrivalDate, departureDate)) {
         bedUpdates[`${roomId}-${idx}-${bedIndex}`] = newValue;
 
-        // Calculate count for this date
         let selectedCount = 0;
         for (let i = 0; i < 4; i++) {
           const isBedSelected = i === bedIndex ?
@@ -227,14 +241,15 @@ const BookRoomManagementBed = ({ blockId, refreshTrigger, viewMode, arrivalDate,
       ...countUpdates
     }));
 
-    // If selecting, call onRoomSelect
+    // If selecting, call onRoomSelect and increment allocated guest count
     if (newValue) {
       onRoomSelect(roomNumber, {
         startDate: arrivalDate,
         endDate: departureDate,
-        guest: selectedGuests[0],
+        guest: selectedGuests[allocatedGuestCount],
         roomId: roomId
       });
+      setAllocatedGuestCount(prev => prev + 1);
     }
   };
 
@@ -629,7 +644,9 @@ const BookRoomManagementBed = ({ blockId, refreshTrigger, viewMode, arrivalDate,
 
   // Modified handleListViewBedSelection to include room parameter
   const handleListViewBedSelection = (roomId, date, totalAvailableBeds, room) => {
-    if (!selectedGuests?.length) return;
+    if (!selectedGuests?.length || allocatedGuestCount >= selectedGuests.length) {
+      return; // Don't allow selection if all guests are allocated
+    }
 
     // Check for allocation conflicts
     if (hasAllocationInDateRange(room, arrivalDate, departureDate)) {
@@ -673,9 +690,10 @@ const BookRoomManagementBed = ({ blockId, refreshTrigger, viewMode, arrivalDate,
       onRoomSelect(room.attributes.room_number, {
         startDate: arrivalDate,
         endDate: departureDate,
-        guest: selectedGuests[0],
+        guest: selectedGuests[allocatedGuestCount],
         roomId: room.id
       });
+      setAllocatedGuestCount(prev => prev + 1);
     }
   };
 
@@ -961,12 +979,14 @@ const getTooltipContent = (
 
   if (allocation) {
     if (allocation.attributes.guests?.data?.length > 0) {
-      // Show guest details as before
       const guests = allocation.attributes.guests.data;
       return (
         <div
           className="tooltip-content"
-          onClick={() => onBedManagementClick?.(allocation)}
+          onClick={(e) => {
+            e.stopPropagation(); // Prevent event bubbling
+            onBedManagementClick?.(allocation);
+          }}
           style={{ cursor: "pointer" }}
         >
           <h4>Room Allocation Details:</h4>
@@ -979,6 +999,7 @@ const getTooltipContent = (
               <p>Phone: {guest.attributes?.phone_number}</p>
             </div>
           ))}
+          <p className="click-info">Click to view details</p>
         </div>
       );
     } else if (allocation.attributes.booking_request?.data) {
@@ -987,7 +1008,10 @@ const getTooltipContent = (
       return (
         <div
           className="tooltip-content"
-          onClick={() => onBedManagementClick?.(allocation)}
+          onClick={(e) => {
+            e.stopPropagation(); // Prevent event bubbling
+            onBedManagementClick?.(allocation);
+          }}
           style={{ cursor: "pointer" }}
         >
           <h4>Room Allocation Details:</h4>

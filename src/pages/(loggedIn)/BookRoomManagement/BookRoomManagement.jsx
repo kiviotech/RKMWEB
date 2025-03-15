@@ -7,6 +7,8 @@ const BookRoomManagement = () => {
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [selectedBlockId, setSelectedBlockId] = useState(null);
   const [viewMode, setViewMode] = useState("dashboard");
+  const [selectedGuestDetails, setSelectedGuestDetails] = useState(null);
+  const [allocatedGuestCount, setAllocatedGuestCount] = useState(0);
 
   const handleRefresh = () => {
     setRefreshTrigger((prev) => prev + 1);
@@ -28,6 +30,13 @@ const BookRoomManagement = () => {
     setViewMode(view);
   };
 
+  const handleGuestClick = (guestDetails) => {
+    setSelectedGuestDetails(guestDetails);
+    if (guestDetails) {
+      setAllocatedGuestCount(0);
+    }
+  };
+
   return (
     <div>
       <BookRoomManagementHeader
@@ -41,6 +50,7 @@ const BookRoomManagement = () => {
             blockId={selectedBlockId}
             refreshTrigger={refreshTrigger}
             viewMode={viewMode}
+            onGuestClick={handleGuestClick}
           />
         </div>
         <div style={{ width: "30%" }}>
@@ -49,6 +59,7 @@ const BookRoomManagement = () => {
             selectedBlockId={selectedBlockId}
             onRoomAdded={handleRefresh}
             onRoomAllocated={handleRefresh}
+            guestDetails={selectedGuestDetails}
           />
         </div>
       </div>

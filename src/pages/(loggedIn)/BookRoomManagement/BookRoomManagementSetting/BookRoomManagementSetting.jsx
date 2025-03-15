@@ -1,19 +1,38 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import BlockRoom from "../BlockRoom/BlockRoom";
 import BookRoom from "../BookRoom/BookRoom";
 import AddBlock from "../AddBlock/AddBlock";
 import AddRoom from "../AddRoom/AddRoom";
 import "./BookRoomManagementSetting.scss";
+import { fetchBookingRequestById } from "../../../../../services/src/services/bookingRequestService";
 
 const BookRoomManagementSetting = ({
   onBlockCreated,
   selectedBlockId,
   onRoomAdded,
   onRoomAllocated,
+  guestDetails
 }) => {
   const [activeTab, setActiveTab] = useState("block"); // "block" or "book"
   const [showAddBlock, setShowAddBlock] = useState(false);
   const [showAddRoom, setShowAddRoom] = useState(false);
+  const [guestFullDetails, setGuestFullDetails] = useState(null);
+
+  useEffect(() => {
+    const fetchGuestDetails = async () => {
+      if (guestDetails?.guests?.[0]?.bookingRequestId) {
+        try {
+          const response = await fetchBookingRequestById(guestDetails.guests[0].bookingRequestId);
+          console.log("Booking Request Details:", response);
+          setGuestFullDetails(response);
+        } catch (error) {
+          console.error("Error fetching guest details:", error);
+        }
+      }
+    };
+
+    fetchGuestDetails();
+  }, [guestDetails]);
 
   const handleAddBlockClick = () => {
     setShowAddBlock(true);
@@ -29,61 +48,138 @@ const BookRoomManagementSetting = ({
     setShowAddBlock(false);
   };
 
+  // Add this function to prevent click propagation
+  const handleGuestDetailsPanelClick = (e) => {
+    e.stopPropagation();
+  };
+
+  const renderGuestDetailsPanel = () => {
+    if (!guestDetails) return null;
+
+    return (
+      <div className="guest-details-panel" onClick={handleGuestDetailsPanelClick}>
+        {guestDetails.guests.map((guest, index) => {
+          const roomNumber = guestFullDetails?.data?.attributes?.guests?.data?.[0]?.attributes?.room_allocations?.data?.[0]?.attributes?.room?.data?.attributes?.room_number || "GH-22";
+
+          return (
+            <div key={index} className="guest-card">
+              <div className="guest-header">
+                <h3>Mr. {guest.name}</h3>
+                <span className="room-number">{roomNumber}</span>
+              </div>
+
+              <div className="guest-info-grid">
+                <div className="info-row">
+                  <div className="info-item">
+                    <span className="label">Age :</span>
+                    <span className="value">
+                      {guestFullDetails?.data?.attributes?.age || "34"}
+                    </span>
+                  </div>
+                  <div className="info-item">
+                    <span className="label">Ph. No.:</span>
+                    <span className="value">{guest.phoneNumber}</span>
+                  </div>
+                </div>
+
+                <div className="info-row">
+                  <div className="info-item">
+                    <span className="label">Gender :</span>
+                    <span className="value">
+                      {guestFullDetails?.data?.attributes?.gender || "M"}
+                    </span>
+                  </div>
+                  <div className="info-item">
+                    <span className="label">Email :</span>
+                    <span className="value email-value">
+                      {guestFullDetails?.data?.attributes?.email || guest.email || 'john.dee@gmail.com'}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="dates-row">
+                  <div className="date-item">
+                    <span className="date-label">Arrival Date:</span>
+                    <span className="date-value">
+                      {new Date(guest.arrivalDate).toLocaleDateString('en-GB') || '00/00/0000'}
+                    </span>
+                  </div>
+                  <div className="date-item">
+                    <span className="date-label">Departure Date:</span>
+                    <span className="date-value">
+                      {new Date(guest.departureDate).toLocaleDateString('en-GB') || '00/00/0000'}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    );
+  };
+
   return (
     <div className="booking-management-wrapper">
-      {showAddBlock && (
-        <AddBlock
-          onClose={handleCloseAddBlock}
-          onBlockCreated={onBlockCreated}
-        />
+      {/* Show guest details panel if available */}
+      {renderGuestDetailsPanel()}
+
+      {/* Only show these elements if there are no guest details */}
+      {!guestDetails && (
+        <>
+          <div className="action-buttons">
+            <button className="add-block-btn" onClick={handleAddBlockClick}>
+              Add New Building
+            </button>
+            <button className="add-room-btn" onClick={() => setShowAddRoom(true)}>
+              Add Room
+            </button>
+          </div>
+
+          {showAddBlock && (
+            <AddBlock
+              onClose={handleCloseAddBlock}
+              onBlockCreated={onBlockCreated}
+            />
+          )}
+          {showAddRoom && (
+            <AddRoom
+              onClose={() => setShowAddRoom(false)}
+              selectedBlockId={selectedBlockId}
+              onRoomAdded={onRoomAdded}
+            />
+          )}
+
+          <div className="booking-management-form">
+            <div className="booking-tab-controls">
+              <button
+                className={`booking-tab-btn ${activeTab === "block" ? "active" : ""}`}
+                onClick={() => setActiveTab("block")}
+              >
+                Block Room
+              </button>
+              <button
+                className={`booking-tab-btn ${activeTab === "book" ? "active" : ""}`}
+                onClick={() => setActiveTab("book")}
+              >
+                Allocate Room
+              </button>
+            </div>
+
+            {activeTab === "block" ? (
+              <BlockRoom
+                selectedBlockId={selectedBlockId}
+                onRoomBlocked={onBlockCreated}
+              />
+            ) : (
+              <BookRoom
+                selectedBlockId={selectedBlockId}
+                onRoomAllocated={onRoomAllocated}
+              />
+            )}
+          </div>
+        </>
       )}
-      {showAddRoom && (
-        <AddRoom
-          onClose={() => setShowAddRoom(false)}
-          selectedBlockId={selectedBlockId}
-          onRoomAdded={onRoomAdded}
-        />
-      )}
-
-      <div className="action-buttons">
-        <button className="add-block-btn" onClick={handleAddBlockClick}>
-          Add New Building
-        </button>
-        <button className="add-room-btn" onClick={() => setShowAddRoom(true)}>
-          Add Room
-        </button>
-      </div>
-
-      <div className="booking-management-form">
-        <div className="booking-tab-controls">
-          <button
-            className={`booking-tab-btn ${activeTab === "block" ? "active" : ""
-              }`}
-            onClick={() => setActiveTab("block")}
-          >
-            Block Room
-          </button>
-          <button
-            className={`booking-tab-btn ${activeTab === "book" ? "active" : ""
-              }`}
-            onClick={() => setActiveTab("book")}
-          >
-            Allocate Room
-          </button>
-        </div>
-
-        {activeTab === "block" ? (
-          <BlockRoom
-            selectedBlockId={selectedBlockId}
-            onRoomBlocked={onBlockCreated}
-          />
-        ) : (
-          <BookRoom
-            selectedBlockId={selectedBlockId}
-            onRoomAllocated={onRoomAllocated}
-          />
-        )}
-      </div>
     </div>
   );
 };

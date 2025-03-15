@@ -1,6 +1,9 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const ApplicationFormHeader = () => {
+  const navigate = useNavigate();
+
   return (
     <div style={{
       width: '100%',
@@ -15,16 +18,18 @@ const ApplicationFormHeader = () => {
         justifyContent: 'space-between'
       }}>
         <div>
-          <img 
-            src="https://kamarpukur.rkmm.org/Logo%201-2.png" 
-            alt="School Logo" 
+          <img
+            src="https://kamarpukur.rkmm.org/Logo%201-2.png"
+            alt="School Logo"
             style={{
               height: '3rem',
-              width: '3rem'
+              width: '3rem',
+              cursor: 'pointer'
             }}
+            onClick={() => navigate('/dashboard')}
           />
         </div>
-        
+
         <h1 style={{
           color: 'white',
           fontSize: '1.5rem',
@@ -34,7 +39,7 @@ const ApplicationFormHeader = () => {
         }}>
           Ramakrishna Math, Kamarpukur
         </h1>
-        
+
         <div style={{ width: '3rem' }}></div>
       </div>
     </div>

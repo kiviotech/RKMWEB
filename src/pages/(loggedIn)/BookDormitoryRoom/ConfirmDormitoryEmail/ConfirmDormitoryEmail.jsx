@@ -87,7 +87,7 @@ const ConfirmDormitoryEmail = ({
         <div className="allocation-email-form">
           <div className="allocation-form-group">
             <label>From:</label>
-            <span className="allocation-from-email">rck4043@gmail.com</span>
+            <span className="allocation-from-email">guesthouse@kamarpukurmath.org</span>
           </div>
 
           <div className="allocation-form-group">

@@ -45,7 +45,14 @@ const Graph = ({ series, colors, width, height, labels }) => {
                 const value = series[seriesIndex];
                 const percentage = ((value / total) * 100).toFixed(1);
                 const label = labels ? labels[seriesIndex] : `Series ${seriesIndex + 1}`;
-                return `<div class="custom-tooltip">
+                return `<div class="custom-tooltip" style="
+                    background: rgba(255, 255, 255, 0.7);
+                    backdrop-filter: blur(10px);
+                    -webkit-backdrop-filter: blur(10px);
+                    border: 1px solid rgba(255, 255, 255, 0.3);
+                    border-radius: 8px;
+                    padding: 8px 12px;
+                    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
                     <span>${label}: ${value}</span><br/>
                     <span>${percentage}%</span>
                 </div>`;

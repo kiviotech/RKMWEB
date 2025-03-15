@@ -8,7 +8,7 @@ import { useNavigate } from "react-router-dom";
 import { MEDIA_BASE_URL } from "../../../../../services/apiClient";
 
 const VerifyDetails = () => {
-  const { formData, uniqueNo, fetchLatestUniqueNumber } = useApplicationStore();
+  const { formData, uniqueNo, fetchLatestUniqueNumber, resetForm } = useApplicationStore();
   const navigate = useNavigate();
   const [showPreview, setShowPreview] = useState(false);
 
@@ -95,40 +95,44 @@ const VerifyDetails = () => {
         mainGuestId = formData.id;
       }
 
-      // Create guest details only for guests without IDs
-      const guestResponses = await Promise.all(
-        formData.guests.map(async (guest, index) => {
-          // Skip creating guest if guestId exists
-          if (guest.guestId) {
-            return { data: { id: guest.guestId } };
-          }
+      let guestIds = [];
+      // Only process guests if there are any
+      if (formData.guestMembers > 0 && formData.guests.length > 0) {
+        // Create guest details only for guests without IDs
+        const guestResponses = await Promise.all(
+          formData.guests.map(async (guest, index) => {
+            // Skip creating guest if guestId exists
+            if (guest.guestId) {
+              return { data: { id: guest.guestId } };
+            }
 
-          const baseNumber = parseInt(formData.uniqueNo?.substring(1) || uniqueNo?.substring(1) || "0");
-          const guestData = {
-            name: `${guest.guestTitle} ${guest.guestName}`.trim(),
-            unique_no: `C${baseNumber + index + 1}`,
-            phone_number: `+${guest.countryCode}${guest.guestNumber}`,
-            identity_proof: "Aadhaar",
-            identity_number: guest.guestAadhaar,
-            occupation: guest.guestOccupation,
-            address: guest.sameAsApplicant
-              ? `${formData.address.houseNumber}, ${formData.address.streetName}, ${formData.address.postOffice}, ${formData.address.district}, ${formData.address.state}, ${formData.address.pinCode}`
-              : `${guest.guestAddress.houseNumber}, ${guest.guestAddress.streetName}, ${guest.guestAddress.postOffice}, ${guest.guestAddress.district}, ${guest.guestAddress.state}, ${guest.guestAddress.pinCode}`,
-            age: parseInt(guest.guestAge),
-            gender: guest.guestGender,
-            status: "Not Arrived",
-            deeksha: guest.guestDeeksha,
-            email: guest.guestEmail || `${guest.guestName.toLowerCase().replace(/\s+/g, "")}@gmail.com`,
-            relationship: guest.guestRelation || "guest",
-            arrival_date: formData.visitDate,
-            departure_date: formData.departureDate,
-          };
-          return createNewGuestDetails(guestData);
-        })
-      );
+            const baseNumber = parseInt(formData.uniqueNo?.substring(1) || uniqueNo?.substring(1) || "0");
+            const guestData = {
+              name: `${guest.guestTitle} ${guest.guestName}`.trim(),
+              unique_no: `C${baseNumber + index + 1}`,
+              phone_number: `+${guest.countryCode}${guest.guestNumber}`,
+              identity_proof: "Aadhaar",
+              identity_number: guest.guestAadhaar,
+              occupation: guest.guestOccupation,
+              address: guest.sameAsApplicant
+                ? `${formData.address.houseNumber}, ${formData.address.streetName}, ${formData.address.postOffice}, ${formData.address.district}, ${formData.address.state}, ${formData.address.pinCode}`
+                : `${guest.guestAddress.houseNumber}, ${guest.guestAddress.streetName}, ${guest.guestAddress.postOffice}, ${guest.guestAddress.district}, ${guest.guestAddress.state}, ${guest.guestAddress.pinCode}`,
+              age: parseInt(guest.guestAge),
+              gender: guest.guestGender,
+              status: "Not Arrived",
+              deeksha: guest.guestDeeksha,
+              email: guest.guestEmail || `${guest.guestName.toLowerCase().replace(/\s+/g, "")}@gmail.com`,
+              relationship: guest.guestRelation || "guest",
+              arrival_date: formData.visitDate,
+              departure_date: formData.departureDate,
+            };
+            return createNewGuestDetails(guestData);
+          })
+        );
 
-      // Collect all guest IDs
-      const guestIds = guestResponses.map((response) => response.data.id);
+        // Collect all guest IDs
+        guestIds = guestResponses.map((response) => response.data.id);
+      }
 
       // Create booking request with all guest IDs
       const bookingData = {
@@ -152,6 +156,7 @@ const VerifyDetails = () => {
       };
 
       await createNewBookingRequest(bookingData);
+      resetForm();
       navigate("/thank-you");
     } catch (error) {
       console.error("Error submitting application:", error);
@@ -221,7 +226,7 @@ const VerifyDetails = () => {
               </td>
             </tr>
             {/* Guest Rows */}
-            {formData.guests.map((guest, index) => {
+            {formData.guestMembers > 0 && formData.guests.map((guest, index) => {
               // Get the base number from the main applicant's unique number
               const baseNumber = parseInt(formData.uniqueNo?.substring(1) || uniqueNo?.substring(1) || "0");
               // Calculate the next unique number in sequence

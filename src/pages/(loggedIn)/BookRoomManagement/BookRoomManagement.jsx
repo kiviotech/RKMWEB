@@ -12,6 +12,7 @@ const BookRoomManagement = () => {
   const [arrivalDate, setArrivalDate] = useState(null);
   const [departureDate, setDepartureDate] = useState(null);
   const [totalGuestCount, setTotalGuestCount] = useState(0);
+  const [selectedRooms, setSelectedRooms] = useState([]);
 
   const handleRefresh = () => {
     setRefreshTrigger((prev) => prev + 1);
@@ -33,10 +34,25 @@ const BookRoomManagement = () => {
     setViewMode(view);
   };
 
+  const handleRoomSelect = (roomNumber, details) => {
+    console.log('Selected room:', roomNumber, details);
+    setSelectedRooms(prev => [...prev, {
+      roomNumber,
+      guestName: details.guest?.name,
+      arrivalDate: details.startDate,
+      departureDate: details.endDate
+    }]);
+  };
+
+  const clearRoomSelections = () => {
+    setSelectedRooms([]);
+  };
+
   const handleGuestClick = (guestDetails) => {
     setSelectedGuestDetails(guestDetails);
     if (guestDetails) {
       setAllocatedGuestCount(0);
+      clearRoomSelections();
     }
   };
 
@@ -64,10 +80,7 @@ const BookRoomManagement = () => {
             onGuestClick={handleGuestClick}
             arrivalDate={arrivalDate}
             departureDate={departureDate}
-            onRoomSelect={(roomNumber, details) => {
-              console.log('Selected room:', roomNumber, details);
-              // Add your room selection logic here
-            }}
+            onRoomSelect={handleRoomSelect}
             selectedGuests={selectedGuestDetails?.guests}
             maxSelections={totalGuestCount}
           />
@@ -79,6 +92,8 @@ const BookRoomManagement = () => {
             onRoomAdded={handleRefresh}
             onRoomAllocated={handleRefresh}
             guestDetails={selectedGuestDetails}
+            selectedRooms={selectedRooms}
+            onClearSelections={clearRoomSelections}
           />
         </div>
       </div>

@@ -11,7 +11,9 @@ const BookRoomManagementSetting = ({
   selectedBlockId,
   onRoomAdded,
   onRoomAllocated,
-  guestDetails
+  guestDetails,
+  selectedRooms,
+  onClearSelections
 }) => {
   const [activeTab, setActiveTab] = useState("block"); // "block" or "book"
   const [showAddBlock, setShowAddBlock] = useState(false);
@@ -65,7 +67,11 @@ const BookRoomManagementSetting = ({
     return (
       <div className="guest-details-panel" onClick={handleGuestDetailsPanelClick}>
         {guestDetails.guests.map((guest, index) => {
-          const roomNumber = guestFullDetails?.data?.attributes?.guests?.data?.[0]?.attributes?.room_allocations?.data?.[0]?.attributes?.room?.data?.attributes?.room_number || "GH-22";
+          // Find the selected room for this guest
+          const selectedRoom = selectedRooms[index];
+          const roomNumber = selectedRoom?.roomNumber ||
+            guestFullDetails?.data?.attributes?.guests?.data?.[0]?.attributes?.room_allocations?.data?.[0]?.attributes?.room?.data?.attributes?.room_number ||
+            "Not Assigned";
 
           return (
             <div key={index} className="guest-card">
@@ -121,6 +127,19 @@ const BookRoomManagementSetting = ({
             </div>
           );
         })}
+
+        {/* Add a summary of selected rooms if any */}
+        {selectedRooms.length > 0 && (
+          <div className="selected-rooms-summary">
+            <h4>Selected Rooms:</h4>
+            {selectedRooms.map((room, index) => (
+              <div key={index} className="selected-room-item">
+                <span>Room {room.roomNumber}</span>
+                {room.guestName && <span> - {room.guestName}</span>}
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     );
   };

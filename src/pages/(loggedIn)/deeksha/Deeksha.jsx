@@ -288,16 +288,16 @@ const Deeksha = () => {
       <div className="deeksha-container">
         <div className="left-section">
           {/* Statistics Cards */}
-          <div className="stats-container">
-            <div className="stat-card purple">
+          <div className="stats-container-main">
+            <div className="stats-card purple">
               <h2>{stats.total}</h2>
               <p>Total Applications</p>
             </div>
-            <div className="stat-card orange">
+            <div className="stats-card orange">
               <h2>{stats.pending}</h2>
               <p>Pending Applications</p>
             </div>
-            <div className="stat-card green">
+            <div className="stats-card green">
               <h2>{stats.approved}</h2>
               <p>Approved Applications</p>
             </div>

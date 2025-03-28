@@ -5,6 +5,9 @@ import AddBlock from "../AddBlock/AddBlock";
 import AddRoom from "../AddRoom/AddRoom";
 import "./BookRoomManagementSetting.scss";
 import { fetchBookingRequestById } from "../../../../../services/src/services/bookingRequestService";
+import { updateRoomAllocationById } from "../../../../../services/src/services/roomAllocationService";
+import { toast } from 'react-toastify';
+import { useNavigate } from 'react-router-dom';
 
 const BookRoomManagementSetting = ({
   onBlockCreated,
@@ -13,12 +16,15 @@ const BookRoomManagementSetting = ({
   onRoomAllocated,
   guestDetails,
   selectedRooms,
-  onClearSelections
+  onClearSelections,
+  onClearGuestDetails
 }) => {
   const [activeTab, setActiveTab] = useState("block"); // "block" or "book"
   const [showAddBlock, setShowAddBlock] = useState(false);
   const [showAddRoom, setShowAddRoom] = useState(false);
   const [guestFullDetails, setGuestFullDetails] = useState(null);
+  const [originalRoomNumbers, setOriginalRoomNumbers] = useState({});
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchGuestDetails = async () => {
@@ -35,6 +41,18 @@ const BookRoomManagementSetting = ({
 
     fetchGuestDetails();
   }, [guestDetails]);
+
+  useEffect(() => {
+    // Store original room numbers when guest details are loaded
+    if (guestDetails?.guests) {
+      const originals = {};
+      guestDetails.guests.forEach((guest, index) => {
+        const originalRoom = guestFullDetails?.data?.attributes?.guests?.data?.[0]?.attributes?.room_allocations?.data?.[0]?.attributes?.room?.data?.attributes?.room_number || "Not Assigned";
+        originals[index] = originalRoom;
+      });
+      setOriginalRoomNumbers(originals);
+    }
+  }, [guestFullDetails, guestDetails]);
 
   const handleAddBlockClick = () => {
     setShowAddBlock(true);
@@ -64,20 +82,31 @@ const BookRoomManagementSetting = ({
   const renderGuestDetailsPanel = () => {
     if (!guestDetails) return null;
 
+    const hasNewAllocations = selectedRooms.some(room => room?.roomNumber);
+    // Add this check to see if all guests have been assigned rooms
+    const allGuestsAssigned = selectedRooms.length >= guestDetails.guests.length;
+
     return (
       <div className="guest-details-panel" onClick={handleGuestDetailsPanelClick}>
         {guestDetails.guests.map((guest, index) => {
-          // Find the selected room for this guest
           const selectedRoom = selectedRooms[index];
-          const roomNumber = selectedRoom?.roomNumber ||
-            guestFullDetails?.data?.attributes?.guests?.data?.[0]?.attributes?.room_allocations?.data?.[0]?.attributes?.room?.data?.attributes?.room_number ||
-            "Not Assigned";
+          const originalRoomNumber = originalRoomNumbers[index] || "Not Assigned";
 
           return (
             <div key={index} className="guest-card">
               <div className="guest-header">
-                <h3>Mr. {guest.name}</h3>
-                <span className="room-number">{roomNumber}</span>
+                <h3>{guest.name}</h3>
+                <span className="room-number">
+                  {selectedRoom?.roomNumber ? (
+                    <>
+                      <span className="previous-room">{originalRoomNumber}</span>
+                      <span className="arrow"> → </span>
+                      <span className="new-room">{selectedRoom.roomNumber}</span>
+                    </>
+                  ) : (
+                    originalRoomNumber
+                  )}
+                </span>
               </div>
 
               <div className="guest-info-grid">
@@ -128,16 +157,84 @@ const BookRoomManagementSetting = ({
           );
         })}
 
-        {/* Add a summary of selected rooms if any */}
-        {selectedRooms.length > 0 && (
-          <div className="selected-rooms-summary">
-            <h4>Selected Rooms:</h4>
-            {selectedRooms.map((room, index) => (
-              <div key={index} className="selected-room-item">
-                <span>Room {room.roomNumber}</span>
-                {room.guestName && <span> - {room.guestName}</span>}
-              </div>
-            ))}
+        {/* Modify the action buttons section */}
+        {hasNewAllocations && (
+          <div className="allocation-actions">
+            <button
+              className="clear-btn"
+              onClick={() => {
+                onClearSelections();
+                if (onBlockCreated) {
+                  onBlockCreated();
+                }
+              }}
+            >
+              Clear
+            </button>
+            <button
+              className="reallocate-btn"
+              disabled={!allGuestsAssigned}
+              title={!allGuestsAssigned ? "Please assign rooms to all guests before reallocating" : ""}
+              onClick={async () => {
+                // Log guest and room allocation details before clearing
+                const allocationDetails = guestDetails.guests.map((guest, index) => {
+                  const selectedRoom = selectedRooms[index];
+                  const roomAllocationId = guestFullDetails?.data?.attributes?.guests?.data?.[index]?.attributes?.room_allocations?.data?.[0]?.id;
+
+                  return {
+                    guestId: guest.id,
+                    guestName: guest.name,
+                    bookingRequestId: guest.bookingRequestId,
+                    newRoomId: selectedRoom?.roomId,
+                    newRoomNumber: selectedRoom?.roomNumber,
+                    roomAllocationId: roomAllocationId || 'No previous allocation'
+                  };
+                });
+
+                try {
+                  // Get all guest IDs
+                  const guestIds = guestDetails.guests.map(guest => guest.id);
+
+                  // For each allocation that needs to be updated
+                  for (const allocation of allocationDetails) {
+                    if (allocation.roomAllocationId && allocation.roomAllocationId !== 'No previous allocation') {
+                      const updateData = {
+                        room_status: "allocated",
+                        guests: guestIds,
+                        booking_request: {
+                          id: allocation.bookingRequestId
+                        },
+                        room: {
+                          id: allocation.newRoomId
+                        }
+                      }
+
+                      await updateRoomAllocationById(allocation.roomAllocationId, updateData);
+                    }
+                  }
+
+                  // Clear selections and guest details
+                  onClearSelections();
+                  onClearGuestDetails();
+                  setActiveTab('block');
+
+                  // Scroll to top of the page
+                  window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                  });
+
+                  if (onBlockCreated) {
+                    onBlockCreated();
+                  }
+                } catch (error) {
+                  console.error("Error updating room allocations:", error);
+                  toast.error('Failed to reallocate rooms. Please try again.');
+                }
+              }}
+            >
+              Reallocate Room
+            </button>
           </div>
         )}
       </div>
@@ -153,13 +250,6 @@ const BookRoomManagementSetting = ({
     <div className="booking-management-wrapper">
       {/* Show guest details panel if available */}
       {renderGuestDetailsPanel()}
-
-      {/* Pass the guest count to the parent component */}
-      {guestDetails && (
-        <div className="guest-count-info">
-          <span>Total Guests: {getGuestCount()}</span>
-        </div>
-      )}
 
       {/* Only show these elements if there are no guest details */}
       {!guestDetails && (

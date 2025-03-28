@@ -7,6 +7,7 @@ import BookRoomDevoteeDetails from "./BookDormitoryRoomDevoteeDetails/BookDormit
 const BookDormitoryRoom = () => {
   const [selectedBlockId, setSelectedBlockId] = useState(null);
   const [viewMode, setViewMode] = useState("dashboard");
+  const [roomType, setRoomType] = useState("");
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const location = useLocation();
   const [selectedGuests, setSelectedGuests] = useState([]);
@@ -22,6 +23,10 @@ const BookDormitoryRoom = () => {
 
   const handleViewChange = (view) => {
     setViewMode(view);
+  };
+
+  const handleRoomTypeChange = (type) => {
+    setRoomType(type);
   };
 
   // Add function to handle room allocation
@@ -43,6 +48,7 @@ const BookDormitoryRoom = () => {
         arrivalDate={location.state?.arrivalDate}
         departureDate={location.state?.departureDate}
         onViewChange={handleViewChange}
+        onRoomTypeChange={handleRoomTypeChange}
       />
       <div style={{ display: "flex" }}>
         <div style={{ width: "70%" }}>
@@ -55,6 +61,7 @@ const BookDormitoryRoom = () => {
             selectedGuests={selectedGuests}
             setSelectedGuests={setSelectedGuests}
             refreshTrigger={refreshTrigger}
+            roomType={roomType}
           />
         </div>
         <div style={{ width: "30%" }}>

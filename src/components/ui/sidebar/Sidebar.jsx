@@ -26,9 +26,8 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
         )}
       </div>
       <div
-        className={`sidebar ${isDashboard ? "dashboard" : ""} ${
-          isOpen ? "open" : ""
-        }`}
+        className={`sidebar ${isDashboard ? "dashboard" : ""} ${isOpen ? "open" : ""
+          }`}
       >
         <div className="close-btn" onClick={toggleSidebar}>
           <i className="fas fa-times"></i>
@@ -55,6 +54,16 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
           to="/book-room-management"
           className="settings"
           activeclassname="active"
+          onClick={(e) => {
+            e.preventDefault();
+            if (location.pathname === "/book-room-management") {
+              if (typeof window.refreshBookRoomManagement === 'function') {
+                window.refreshBookRoomManagement();
+              }
+            } else {
+              navigate("/book-room-management");
+            }
+          }}
         >
           <img src={icons.settings} alt="settings" />
           <span className="label">Settings</span>

@@ -4,7 +4,7 @@ import { icons } from "../../../../constants";
 import * as blockService from "../../../../../services/src/services/blockService";
 import { useNavigate } from "react-router-dom";
 
-const BookRoomBed = ({ blockId, refreshTrigger, viewMode, arrivalDate, departureDate, onRoomSelect, selectedGuests }) => {
+const BookRoomBed = ({ blockId, refreshTrigger, viewMode, arrivalDate, departureDate, onRoomSelect, selectedGuests, roomType }) => {
   const [rooms, setRooms] = useState([]);
   const [dates, setDates] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -47,14 +47,15 @@ const BookRoomBed = ({ blockId, refreshTrigger, viewMode, arrivalDate, departure
       if (blockId) {
         try {
           setIsLoading(true);
-          const blockData = await blockService.fetchBlockById(blockId);
+          const blockData = await blockService.fetchBlockById(blockId, roomType);
           const roomsData = blockData.data.attributes.rooms.data;
-          setRooms(roomsData);
-          // Add console log to see room allocations
-          // console.log("Rooms with allocations:", roomsData.map(room => ({
-          //   roomNumber: room.attributes.room_number,
-          //   allocations: room.attributes.room_allocations?.data
-          // })));
+
+          // Filter rooms based on roomType if specified
+          const filteredRooms = roomType
+            ? roomsData.filter(room => room.attributes.room_type === roomType)
+            : roomsData;
+
+          setRooms(filteredRooms);
         } catch (error) {
           console.error("Error fetching block details:", error);
         } finally {
@@ -64,7 +65,7 @@ const BookRoomBed = ({ blockId, refreshTrigger, viewMode, arrivalDate, departure
     };
 
     fetchBlockDetails();
-  }, [blockId, refreshTrigger]);
+  }, [blockId, refreshTrigger, roomType]); // Add roomType as dependency
 
   const handleBedManagementClick = (allocation) => {
     if (allocation) {
@@ -354,7 +355,26 @@ const BookRoomBed = ({ blockId, refreshTrigger, viewMode, arrivalDate, departure
 
     // Get background color based on conditions
     const getBackgroundColor = () => {
-      if (isBlocked) return "#FFFF00";
+      if (isBlocked) {
+        // Check blocking type and return appropriate color
+        const blocking = roomBlockings?.find(blocking =>
+          isDateInRange(currentDate, blocking.attributes.from_date, blocking.attributes.to_date)
+        );
+
+        if (blocking) {
+          switch (blocking.attributes.room_block) {
+            case "Maintenance":
+              return "#808080"; // gray
+            case "Secretary Maharaji Request":
+              return "#ADD8E6"; // light blue
+            case "Hospital/ Dispensary":
+              return "#90EE90"; // light green
+            default:
+              return "#FFFF00"; // default yellow
+          }
+        }
+        return "#FFFF00"; // default yellow for other blocks
+      }
       if (hasRecommendationLetter) return "orange";
       if (occupiedBeds > 0) return "#F28E86";
       return "inherit";
@@ -381,12 +401,12 @@ const BookRoomBed = ({ blockId, refreshTrigger, viewMode, arrivalDate, departure
         });
 
         if (blocking) {
-          switch (blocking.attributes.room_block_status) {
-            case "blocked":
-              return icons.Group_4;
-            case "maintenance":
+          switch (blocking.attributes.room_block) {
+            case "Maintenance":
               return icons.Group_3;
-            case "reserved":
+            case "Secretary Maharaji Request":
+              return icons.Group_7;
+            case "Hospital/ Dispensary":
               return icons.Group_5;
             default:
               return icons.filledBed;
@@ -483,7 +503,12 @@ const BookRoomBed = ({ blockId, refreshTrigger, viewMode, arrivalDate, departure
           <div className={`bed-count-box ${isInRange ? 'in-range' : ''}`}>
             <span className="bed-number">
               {isInRange && selectedCount > 0
-                ? `${selectedCount}/${availableBeds}`
+                ? <>
+                  {availableBeds - selectedCount}
+                  <div className="beds-occupied">
+                    {selectedCount} beds occupied
+                  </div>
+                </>
                 : availableBeds
               }
             </span>
@@ -772,7 +797,26 @@ const BookRoomBed = ({ blockId, refreshTrigger, viewMode, arrivalDate, departure
                 const isInRange = isDateInRange(date, arrivalDate, departureDate);
 
                 const getBackgroundColor = () => {
-                  if (isBlocked) return "#FFFF00";
+                  if (isBlocked) {
+                    // Check blocking type and return appropriate color
+                    const blocking = room.attributes?.room_blockings?.data?.find(blocking =>
+                      isDateInBlockingRange(blocking, date)
+                    );
+
+                    if (blocking) {
+                      switch (blocking.attributes.room_block) {
+                        case "Maintenance":
+                          return "#808080"; // gray
+                        case "Secretary Maharaji Request":
+                          return "#ADD8E6"; // light blue
+                        case "Hospital/ Dispensary":
+                          return "#90EE90"; // light green
+                        default:
+                          return "#FFFF00"; // default yellow
+                      }
+                    }
+                    return "#FFFF00"; // default yellow for other blocks
+                  }
                   if (hasRecommendationLetter) return "orange";
                   if (hasAllocation || availableBeds < totalBeds) return "#F28E86";
                   return "inherit";
@@ -807,12 +851,29 @@ const BookRoomBed = ({ blockId, refreshTrigger, viewMode, arrivalDate, departure
                     <div className={`bed-count ${isInRange ? 'in-range' : ''}`}>
                       {isInRange
                         ? (selectedCount > 0
-                          ? `${selectedCount}/${availableBeds}`
-                          : availableBeds)
-                        : availableBeds
+                          ? <>
+                            {availableBeds - selectedCount}
+                            <div className="availability-label">
+                              Available
+                            </div>
+                            <div className="beds-occupied">
+                              {selectedCount} Beds Occupied
+                            </div>
+                          </>
+                          : <>
+                            {availableBeds}
+                            <div className="availability-label">
+                              Available
+                            </div>
+                          </>)
+                        : <>
+                          {availableBeds}
+                          <div className="availability-label">
+                            Available
+                          </div>
+                        </>
                       }
                     </div>
-                    <div className="availability-label">Available</div>
                     {tooltipContent && (
                       <div className="custom-tooltip">{tooltipContent}</div>
                     )}

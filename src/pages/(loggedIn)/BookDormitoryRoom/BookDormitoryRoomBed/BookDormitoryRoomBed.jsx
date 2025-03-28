@@ -4,7 +4,7 @@ import { icons } from "../../../../constants";
 import * as blockService from "../../../../../services/src/services/blockService";
 import { useNavigate } from "react-router-dom";
 
-const BookDormitoryRoomBed = ({ blockId, refreshTrigger, viewMode, arrivalDate, departureDate, onRoomSelect, selectedGuests, setSelectedGuests }) => {
+const BookDormitoryRoomBed = ({ blockId, refreshTrigger, viewMode, arrivalDate, departureDate, onRoomSelect, selectedGuests, setSelectedGuests, roomType }) => {
   const [rooms, setRooms] = useState([]);
   const [dates, setDates] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -46,9 +46,15 @@ const BookDormitoryRoomBed = ({ blockId, refreshTrigger, viewMode, arrivalDate, 
       if (blockId) {
         try {
           setIsLoading(true);
-          const blockData = await blockService.fetchBlockById(blockId);
+          const blockData = await blockService.fetchBlockById(blockId, roomType);
           const roomsData = blockData.data.attributes.rooms.data;
-          setRooms(roomsData);
+
+          // Filter rooms based on roomType if specified
+          const filteredRooms = roomType
+            ? roomsData.filter(room => room.attributes.room_type === roomType)
+            : roomsData;
+
+          setRooms(filteredRooms);
         } catch (error) {
           console.error("Error fetching block details:", error);
         } finally {
@@ -58,7 +64,7 @@ const BookDormitoryRoomBed = ({ blockId, refreshTrigger, viewMode, arrivalDate, 
     };
 
     fetchBlockDetails();
-  }, [blockId, refreshTrigger]);
+  }, [blockId, refreshTrigger, roomType]); // Add roomType as dependency
 
   const handleBedManagementClick = (allocation) => {
     if (allocation) {
@@ -394,10 +400,26 @@ const BookDormitoryRoomBed = ({ blockId, refreshTrigger, viewMode, arrivalDate, 
     }
   };
 
-  // Add this function before renderBeds
+  // Add this helper function to get the block icon based on block type
+  const getBlockIcon = (blocking) => {
+    if (!blocking?.attributes) return icons.blockedImage;
+
+    switch (blocking.attributes.room_block) {
+      case "Maintenance":
+        return icons.Group_3;
+      case "Secretary Maharaji Request":
+        return icons.Group_7;
+      case "Hospital/ Dispensary":
+        return icons.Group_5;
+      default:
+        return icons.blockedImage;
+    }
+  };
+
+  // Modify the renderBedIcon function
   const renderBedIcon = (bedIndex, roomId, dateIndex, totalBeds, roomBlockings, roomAllocations, currentDate) => {
     // Check for blockings
-    const isBlocked = roomBlockings?.some((blocking) => {
+    const blocking = roomBlockings?.find((blocking) => {
       if (!blocking?.attributes) return false;
 
       const fromDate = new Date(blocking.attributes.from_date);
@@ -415,11 +437,11 @@ const BookDormitoryRoomBed = ({ blockId, refreshTrigger, viewMode, arrivalDate, 
       return checkDate >= fromDate && checkDate <= toDate;
     });
 
-    if (isBlocked) {
-      return icons.blockedImage;
+    if (blocking) {
+      return getBlockIcon(blocking);
     }
 
-    // Find active allocation for this date
+    // Rest of the existing logic for allocation checks
     const allocation = roomAllocations?.data?.find((allocation) => {
       const checkDate = new Date(
         currentDate.year,
@@ -619,7 +641,22 @@ const BookDormitoryRoomBed = ({ blockId, refreshTrigger, viewMode, arrivalDate, 
           }}
           style={{
             cursor: (!isBlocked && isInRange) ? 'pointer' : 'default',
-            backgroundColor: getBackgroundColor(isBlocked, !!allocation, allocation),
+            backgroundColor: getBackgroundColor(isBlocked, !!allocation, allocation, roomBlockings?.find((blocking) => {
+              if (!blocking?.attributes) return false;
+              const fromDate = new Date(blocking.attributes.from_date);
+              const toDate = new Date(blocking.attributes.to_date);
+              const checkDate = new Date(
+                currentDate.year,
+                new Date(Date.parse(`01 ${currentDate.month} 2000`)).getMonth(),
+                currentDate.day,
+                0,
+                0,
+                0
+              );
+              fromDate.setHours(0, 0, 0, 0);
+              toDate.setHours(0, 0, 0, 0);
+              return checkDate >= fromDate && checkDate <= toDate;
+            })),
             borderRadius: "8px"
           }}
         >
@@ -629,7 +666,12 @@ const BookDormitoryRoomBed = ({ blockId, refreshTrigger, viewMode, arrivalDate, 
           <div className={`bed-count-box ${isInRange ? 'in-range' : ''}`}>
             <span className="bed-number">
               {isInRange && selectedCount > 0
-                ? `${selectedCount}/${availableBeds}`
+                ? <>
+                  {availableBeds - selectedCount}
+                  <div className="beds-occupied">
+                    {selectedCount} beds occupied
+                  </div>
+                </>
                 : availableBeds
               }
             </span>
@@ -859,7 +901,7 @@ const BookDormitoryRoomBed = ({ blockId, refreshTrigger, viewMode, arrivalDate, 
                   return false;
                 });
 
-                const isBlocked = room.attributes?.room_blockings?.data?.some(
+                const blocking = room.attributes?.room_blockings?.data?.find(
                   (blocking) => {
                     if (!blocking?.attributes) return false;
 
@@ -895,8 +937,8 @@ const BookDormitoryRoomBed = ({ blockId, refreshTrigger, viewMode, arrivalDate, 
                     className={`availability-box ${isInRange ? 'in-range' : ''}`}
                     data-tooltip={tooltipContent ? "true" : undefined}
                     style={{
-                      backgroundColor: getBackgroundColor(isBlocked, hasAllocation, allocation),
-                      cursor: (!isBlocked && !hasAllocation && isInRange && availableBeds > 0) ? 'pointer' : 'default',
+                      backgroundColor: getBackgroundColor(!!blocking, hasAllocation, allocation, blocking),
+                      cursor: (!blocking && !hasAllocation && isInRange && availableBeds > 0) ? 'pointer' : 'default',
                     }}
                     onClick={(e) => {
                       // Prevent bed selection if clicking on tooltip
@@ -907,18 +949,36 @@ const BookDormitoryRoomBed = ({ blockId, refreshTrigger, viewMode, arrivalDate, 
                         alert("Please select devotees first before selecting a bed.");
                         return;
                       }
-                      if (!isBlocked && !hasAllocation && isInRange && availableBeds > 0) {
+                      if (!blocking && !hasAllocation && isInRange && availableBeds > 0) {
                         handleListViewBedSelection(room.id, room.attributes.room_number, date, availableBeds);
                       }
                     }}
                   >
                     <div className={`bed-count ${isInRange ? 'in-range' : ''}`}>
-                      {isInRange && selectedCount > 0
-                        ? `${selectedCount}/${availableBeds}`
-                        : availableBeds}
-                    </div>
-                    <div className="availability-label">
-                      {isBlocked ? "Blocked" : hasAllocation ? "Available" : "Available"}
+                      {isInRange
+                        ? (selectedCount > 0
+                          ? <>
+                            {availableBeds - selectedCount}
+                            <div className="availability-label">
+                              Available
+                            </div>
+                            <div className="beds-occupied">
+                              {selectedCount} Beds Occupied
+                            </div>
+                          </>
+                          : <>
+                            {availableBeds}
+                            <div className="availability-label">
+                              Available
+                            </div>
+                          </>)
+                        : <>
+                          {availableBeds}
+                          <div className="availability-label">
+                            Available
+                          </div>
+                        </>
+                      }
                     </div>
                     {tooltipContent && (
                       <div className="custom-tooltip">{tooltipContent}</div>
@@ -933,10 +993,23 @@ const BookDormitoryRoomBed = ({ blockId, refreshTrigger, viewMode, arrivalDate, 
     );
   };
 
-  // Update the getBackgroundColor function
-  const getBackgroundColor = (isBlocked, hasAllocation, allocation) => {
+  // Update the getBackgroundColor function to handle different block types
+  const getBackgroundColor = (isBlocked, hasAllocation, allocation, blocking) => {
     if (isBlocked) {
-      return "#FFFF00"; // Yellow for blocked rooms
+      // Check blocking type and return appropriate color
+      if (blocking) {
+        switch (blocking.attributes.room_block) {
+          case "Maintenance":
+            return "#808080"; // gray
+          case "Secretary Maharaji Request":
+            return "#ADD8E6"; // light blue
+          case "Hospital/ Dispensary":
+            return "#90EE90"; // light green
+          default:
+            return "#FFFF00"; // default yellow
+        }
+      }
+      return "#FFFF00"; // default yellow for other blocks
     }
     if (hasAllocation) {
       // Check for recommendation letter

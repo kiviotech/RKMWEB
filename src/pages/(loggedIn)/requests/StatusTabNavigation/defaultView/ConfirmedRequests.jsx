@@ -6,12 +6,14 @@ import { getBookingRequestsByStatus } from "../../../../../../services/src/api/r
 import { deleteRoomAllocationById } from "../../../../../../services/src/services/roomAllocationService";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { useNavigate } from "react-router-dom";
 
 const ConfirmedRequests = ({ selectedDate, searchQuery, label }) => {
   const [selectedGuest, setSelectedGuest] = useState(null);
   const [isGuestDetailsPopupOpen, setIsGuestDetailsPopupOpen] = useState(false);
   const [requests, setRequests] = useState([]);
   const [filteredRequests, setFilteredRequests] = useState([]);
+  const navigate = useNavigate();
 
   // Fetch the booking requests
   useEffect(() => {
@@ -221,6 +223,16 @@ const ConfirmedRequests = ({ selectedDate, searchQuery, label }) => {
     }
   };
 
+  const handleReschedule = (e, request) => {
+    e.stopPropagation();
+    navigate('/book-room-management', {
+      state: {
+        bookingRequestId: request.id,
+        isRescheduling: true
+      }
+    });
+  };
+
   return (
     <div className="Requests-main-container">
       <ToastContainer position="top-right" autoClose={3000} />
@@ -302,10 +314,7 @@ const ConfirmedRequests = ({ selectedDate, searchQuery, label }) => {
               }}
             >
               <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  // Add reschedule logic here
-                }}
+                onClick={(e) => handleReschedule(e, request)}
                 style={{
                   padding: "8px 16px",
                   backgroundColor: "#FFA500",

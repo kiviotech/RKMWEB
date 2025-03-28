@@ -5,8 +5,8 @@ import blockEndpoints from "../endpoints/blockEndpoints";
 export const getBlocks = () => apiClient.get(blockEndpoints.getBlocks);
 
 // Fetch a specific block by ID
-export const getBlockById = (id) =>
-  apiClient.get(blockEndpoints.getBlockById(id));
+export const getBlockById = (id, room_type) =>
+  apiClient.get(blockEndpoints.getBlockById(id, room_type));
 
 // Create a new block
 export const createBlock = (data) =>

@@ -4,7 +4,7 @@ import { icons } from "../../../../constants";
 import * as blockService from "../../../../../services/src/services/blockService";
 import { useNavigate } from "react-router-dom";
 
-const BookRoomManagementBed = ({ blockId, refreshTrigger, viewMode, arrivalDate, departureDate, onRoomSelect, selectedGuests, onGuestClick, maxSelections }) => {
+const BookRoomManagementBed = ({ blockId, roomType, refreshTrigger, viewMode, arrivalDate, departureDate, onRoomSelect, selectedGuests, onGuestClick, maxSelections, startDate }) => {
   const [rooms, setRooms] = useState([]);
   const [dates, setDates] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -29,13 +29,15 @@ const BookRoomManagementBed = ({ blockId, refreshTrigger, viewMode, arrivalDate,
   useEffect(() => {
     const generateDates = () => {
       const datesArray = [];
-      // Use arrival date as the start date, or current date if no arrival date
-      const startDate = arrivalDate ? new Date(arrivalDate) : new Date();
+      // Use startDate if provided, otherwise use arrival date or current date
+      const initialDate = startDate ? new Date(startDate) :
+        arrivalDate ? new Date(arrivalDate) :
+          new Date();
 
-      // Generate dates for next 365 days starting from arrival date
+      // Generate dates for next 365 days starting from initial date
       for (let i = 0; i < 365; i++) {
-        const date = new Date(startDate);
-        date.setDate(startDate.getDate() + i);
+        const date = new Date(initialDate);
+        date.setDate(initialDate.getDate() + i);
         datesArray.push({
           day: date.getDate(),
           month: date.toLocaleString("default", { month: "short" }),
@@ -46,14 +48,14 @@ const BookRoomManagementBed = ({ blockId, refreshTrigger, viewMode, arrivalDate,
     };
 
     generateDates();
-  }, [arrivalDate]); // Add arrivalDate as dependency
+  }, [arrivalDate, startDate]); // Add startDate as dependency
 
   useEffect(() => {
     const fetchBlockDetails = async () => {
       if (blockId) {
         try {
           setIsLoading(true);
-          const blockData = await blockService.fetchBlockById(blockId);
+          const blockData = await blockService.fetchBlockById(blockId, roomType);
           const roomsData = blockData.data.attributes.rooms.data;
           setRooms(roomsData);
           // Add console log to see room allocations
@@ -70,39 +72,16 @@ const BookRoomManagementBed = ({ blockId, refreshTrigger, viewMode, arrivalDate,
     };
 
     fetchBlockDetails();
-  }, [blockId, refreshTrigger]);
+  }, [blockId, roomType, refreshTrigger]);
 
   const handleBedManagementClick = (allocation) => {
+
     if (allocation) {
-      // Clear previous selections when clicking on a new guest
-      setSelectedBeds({});
-      setSelectedBedCounts({});
-      setTotalSelections(0);
-      setAllocatedGuestCount(0);
-
-      if (onGuestClick && allocation.attributes.guests?.data?.length > 0) {
-        const guestDetails = {
-          guests: allocation.attributes.guests.data.map(guest => ({
-            id: guest.id, // Make sure to include guest ID
-            name: guest.attributes?.name,
-            arrivalDate: guest.attributes?.arrival_date,
-            departureDate: guest.attributes?.departure_date,
-            phoneNumber: guest.attributes?.phone_number,
-            bookingRequestId: guest.attributes?.booking_request?.data?.id
-          })),
-          roomNumber: allocation.attributes?.room?.data?.attributes?.room_number,
-          blockId: allocation.attributes?.room?.data?.attributes?.block?.data?.id
-        };
-
-        // Set current guest ID
-        setCurrentGuestId(allocation.attributes.guests.data[0].id);
-        onGuestClick(guestDetails);
-        return;
-      }
-
-      // Fallback to original navigation behavior if onGuestClick is not provided
+      // Get the booking request ID from the first guest's booking request
       const bookingRequestId =
-        allocation.attributes.guests.data[0]?.attributes?.booking_request?.data?.id;
+        allocation.attributes.guests.data[0]?.attributes?.booking_request?.data
+          ?.id;
+      // console.log("Booking Request ID:", allocation);
       if (bookingRequestId) {
         navigate("/requests", {
           state: {
@@ -111,6 +90,8 @@ const BookRoomManagementBed = ({ blockId, refreshTrigger, viewMode, arrivalDate,
             requestId: bookingRequestId,
           },
         });
+      } else {
+        console.warn("No booking request ID found for this allocation");
       }
     }
   };
@@ -403,7 +384,26 @@ const BookRoomManagementBed = ({ blockId, refreshTrigger, viewMode, arrivalDate,
 
     // Get background color based on conditions
     const getBackgroundColor = () => {
-      if (isBlocked) return "#FFFF00";
+      if (isBlocked) {
+        // Check blocking type and return appropriate color
+        const blocking = roomBlockings?.find(blocking =>
+          isDateInRange(currentDate, blocking.attributes.from_date, blocking.attributes.to_date)
+        );
+
+        if (blocking) {
+          switch (blocking.attributes.room_block) {
+            case "Maintenance":
+              return "#808080"; // gray
+            case "Secretary Maharaji Request":
+              return "#ADD8E6"; // light blue
+            case "Hospital/ Dispensary":
+              return "#90EE90"; // light green
+            default:
+              return "#FFFF00"; // default yellow
+          }
+        }
+        return "#FFFF00"; // default yellow for other blocks
+      }
       if (hasRecommendationLetter) return "orange";
       if (occupiedBeds > 0) return "#F28E86";
       return "inherit";
@@ -430,12 +430,12 @@ const BookRoomManagementBed = ({ blockId, refreshTrigger, viewMode, arrivalDate,
         });
 
         if (blocking) {
-          switch (blocking.attributes.room_block_status) {
-            case "blocked":
-              return icons.Group_4;
-            case "maintenance":
+          switch (blocking.attributes.room_block) {
+            case "Maintenance":
               return icons.Group_3;
-            case "reserved":
+            case "Secretary Maharaji Request":
+              return icons.Group_7;
+            case "Hospital/ Dispensary":
               return icons.Group_5;
             default:
               return icons.filledBed;
@@ -534,7 +534,12 @@ const BookRoomManagementBed = ({ blockId, refreshTrigger, viewMode, arrivalDate,
           <div className={`bed-count-box ${isInRange ? 'in-range' : ''}`}>
             <span className="bed-number">
               {isInRange && selectedCount > 0
-                ? `${selectedCount}/${availableBeds}`
+                ? <>
+                  {availableBeds - selectedCount}
+                  <div className="beds-occupied">
+                    {selectedCount} beds occupied
+                  </div>
+                </>
                 : availableBeds
               }
             </span>
@@ -826,7 +831,26 @@ const BookRoomManagementBed = ({ blockId, refreshTrigger, viewMode, arrivalDate,
 
                 // Get background color based on conditions
                 const getBackgroundColor = () => {
-                  if (isBlocked) return "#FFFF00";
+                  if (isBlocked) {
+                    // Check blocking type and return appropriate color
+                    const blocking = room.attributes?.room_blockings?.data?.find(blocking =>
+                      isDateInBlockingRange(blocking, date)
+                    );
+
+                    if (blocking) {
+                      switch (blocking.attributes.room_block) {
+                        case "Maintenance":
+                          return "#808080"; // gray
+                        case "Secretary Maharaji Request":
+                          return "#ADD8E6"; // light blue
+                        case "Hospital/ Dispensary":
+                          return "#90EE90"; // light green
+                        default:
+                          return "#FFFF00"; // default yellow
+                      }
+                    }
+                    return "#FFFF00"; // default yellow for other blocks
+                  }
                   if (hasRecommendationLetter) return "orange";
                   if (hasAllocation || availableBeds < totalBeds) return "#F28E86";
                   return "inherit";
@@ -858,13 +882,28 @@ const BookRoomManagementBed = ({ blockId, refreshTrigger, viewMode, arrivalDate,
                     <div className={`bed-count ${isInRange ? 'in-range' : ''}`}>
                       {isInRange
                         ? (selectedCount > 0
-                          ? `${selectedCount}/${availableBeds}`
-                          : availableBeds)
-                        : availableBeds
+                          ? <>
+                            {availableBeds - selectedCount}
+                            <div className="availability-label">
+                              Available
+                            </div>
+                            <div className="beds-occupied">
+                              {selectedCount} Beds Occupied
+                            </div>
+                          </>
+                          : <>
+                            {availableBeds}
+                            <div className="availability-label">
+                              Available
+                            </div>
+                          </>)
+                        : <>
+                          {availableBeds}
+                          <div className="availability-label">
+                            Available
+                          </div>
+                        </>
                       }
-                    </div>
-                    <div className="availability-label">
-                      {isBlocked ? "Blocked" : hasAllocation ? "Available" : "Available"}
                     </div>
                     {tooltipContent && (
                       <div className="custom-tooltip">{tooltipContent}</div>
@@ -1095,16 +1134,13 @@ const getTooltipContent = (
       <div className="tooltip-content">
         <h4>Room Blocking Details:</h4>
         <p>
-          <strong>Status:</strong> {blocking.attributes.room_block_status}
+          <strong>Status:</strong> {blocking.attributes.room_block}
         </p>
         <p>
           <strong>From:</strong> {blocking.attributes.from_date}
         </p>
         <p>
           <strong>To:</strong> {blocking.attributes.to_date}
-        </p>
-        <p>
-          <strong>Reason:</strong> {blocking.attributes.reason_for_blocking}
         </p>
         <p>
           <strong>Created:</strong>{" "}

@@ -8,11 +8,11 @@ import { toast } from "react-toastify";
 import "./AddRoom.scss";
 
 const AddRoom = ({ onClose, selectedBlockId, onRoomAdded }) => {
-  const [rooms, setRooms] = useState([{ roomNumber: "", beds: "" }]);
+  const [rooms, setRooms] = useState([{ roomNumber: "", beds: "", roomType: "" }]);
 
   const handleAddRoom = (e) => {
     e.preventDefault();
-    setRooms([...rooms, { roomNumber: "", beds: "" }]);
+    setRooms([...rooms, { roomNumber: "", beds: "", roomType: "" }]);
   };
 
   const handleInputChange = (index, field, value) => {
@@ -26,7 +26,7 @@ const AddRoom = ({ onClose, selectedBlockId, onRoomAdded }) => {
 
     // Validate all room details before proceeding
     const emptyRooms = rooms.findIndex(
-      (room) => !room.roomNumber.trim() || !room.beds
+      (room) => !room.roomNumber.trim() || !room.beds || !room.roomType
     );
 
     if (emptyRooms !== -1) {
@@ -46,6 +46,7 @@ const AddRoom = ({ onClose, selectedBlockId, onRoomAdded }) => {
         const response = await createNewRoom({
           room_number: room.roomNumber,
           no_of_beds: parseInt(room.beds),
+          room_type: room.roomType,
           blockId: selectedBlockId,
         });
         const roomId = response.data.id;
@@ -117,6 +118,20 @@ const AddRoom = ({ onClose, selectedBlockId, onRoomAdded }) => {
                         handleInputChange(index, "beds", e.target.value)
                       }
                     />
+                  </div>
+                  <div className="input-group">
+                    <select
+                      value={room.roomType}
+                      onChange={(e) =>
+                        handleInputChange(index, "roomType", e.target.value)
+                      }
+                      required
+                      className="room-type-select"
+                    >
+                      <option value="" disabled>Select Room type</option>
+                      <option value="AC">AC</option>
+                      <option value="NON-AC">Non-AC</option>
+                    </select>
                   </div>
                 </div>
               </div>

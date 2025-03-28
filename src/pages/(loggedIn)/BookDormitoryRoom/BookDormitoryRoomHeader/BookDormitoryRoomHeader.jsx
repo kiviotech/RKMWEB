@@ -8,7 +8,8 @@ const BookDormitoryRoomHeader = ({
   onBlockSelect,
   onViewChange,
   arrivalDate,
-  departureDate
+  departureDate,
+  onRoomTypeChange
 }) => {
   const [blocks, setBlocks] = useState([]);
   const [activeBlock, setActiveBlock] = useState("");
@@ -92,7 +93,10 @@ const BookDormitoryRoomHeader = ({
         </div>
         <div className="sort-by">
           <span>Sort by</span>
-          <select className="sort-select">
+          <select
+            className="sort-select"
+            onChange={(e) => onRoomTypeChange(e.target.value)}
+          >
             <option value="">All Types</option>
             <option value="AC">AC</option>
             <option value="Non AC">Non AC</option>

@@ -30,9 +30,9 @@ export const fetchBlocksWithRooms = async () => {
 };
 
 // Fetch a specific block by ID
-export const fetchBlockById = async (id) => {
+export const fetchBlockById = async (id, room_type) => {
   try {
-    const response = await getBlockById(id);
+    const response = await getBlockById(id, room_type);
     return response.data;
   } catch (error) {
     console.error(`Error fetching block by ID ${id}:`, error);

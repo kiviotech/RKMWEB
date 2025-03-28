@@ -26,7 +26,7 @@ const AddBlock = ({ onClose, onBlockCreated }) => {
       // Initialize rooms array with empty values based on numberOfRooms
       const initialRooms = Array(parseInt(blockData.numberOfRooms) || 0)
         .fill()
-        .map(() => ({ roomNumber: "", numberOfBeds: "" }));
+        .map(() => ({ roomNumber: "", numberOfBeds: "", roomType: "" }));
 
       setBlockData((prev) => ({
         ...prev,
@@ -36,7 +36,7 @@ const AddBlock = ({ onClose, onBlockCreated }) => {
     } else {
       // Validate all room details before proceeding
       const emptyRooms = blockData.rooms.findIndex(
-        (room) => !room.roomNumber.trim() || !room.numberOfBeds
+        (room) => !room.roomNumber.trim() || !room.numberOfBeds || !room.roomType
       );
 
       if (emptyRooms !== -1) {
@@ -51,6 +51,7 @@ const AddBlock = ({ onClose, onBlockCreated }) => {
           const response = await createNewRoom({
             room_number: room.roomNumber,
             no_of_beds: room.numberOfBeds,
+            room_type: room.roomType,
             block_name: blockData.blockName,
           });
           createdRoomIds.push(response.data.id);
@@ -177,6 +178,18 @@ const AddBlock = ({ onClose, onBlockCreated }) => {
                       handleInputChange(index, "numberOfBeds", e.target.value)
                     }
                   />
+                  <select
+                    value={room.roomType}
+                    onChange={(e) =>
+                      handleInputChange(index, "roomType", e.target.value)
+                    }
+                    required
+                    className="room-type-select"
+                  >
+                    <option value="" disabled>Select Room type</option>
+                    <option value="AC">AC</option>
+                    <option value="NON-AC">Non-AC</option>
+                  </select>
                 </div>
               </div>
             ))}

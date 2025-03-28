@@ -8,13 +8,13 @@
     flex: 1;
     max-width: 50%;
 
-    .stats-container {
+    .stats-container-main {
       display: flex;
       flex-direction: row;
       gap: 16px;
       margin-bottom: 24px;
 
-      .stat-card {
+      .stats-card {
         flex: 1;
         padding: 16px;
         text-align: center;

@@ -7,10 +7,12 @@ const BookRoomManagementHeader = ({
   refreshTrigger,
   onBlockSelect,
   onViewChange,
+  onDateChange,
 }) => {
   const [blocks, setBlocks] = useState([]);
   const [activeBlock, setActiveBlock] = useState("");
   const [activeToggler, setActiveToggler] = useState("dashboard");
+  const [selectedRoomType, setSelectedRoomType] = useState("");
 
   useEffect(() => {
     const getBlocks = async () => {
@@ -21,7 +23,7 @@ const BookRoomManagementHeader = ({
         // Only set first block as active if no block is currently selected
         if (blocksData.length > 0 && !activeBlock) {
           setActiveBlock(blocksData[0].id);
-          onBlockSelect(blocksData[0].id);
+          onBlockSelect(blocksData[0].id, selectedRoomType);
         }
       } catch (error) {
         console.error("Error fetching blocks:", error);
@@ -29,7 +31,7 @@ const BookRoomManagementHeader = ({
     };
 
     getBlocks();
-  }, [refreshTrigger, onBlockSelect, activeBlock]);
+  }, [refreshTrigger, onBlockSelect, activeBlock, selectedRoomType]);
 
   const getStyle = (view) => ({
     cursor: "pointer",
@@ -42,6 +44,19 @@ const BookRoomManagementHeader = ({
     onViewChange(view);
   };
 
+  const handleRoomTypeChange = (event) => {
+    const roomType = event.target.value;
+    setSelectedRoomType(roomType);
+    if (activeBlock) {
+      onBlockSelect(activeBlock, roomType);
+    }
+  };
+
+  const handleDateChange = (event) => {
+    const selectedDate = event.target.value;
+    onDateChange(selectedDate);
+  };
+
   return (
     <div className="book-room-header">
       <div className="filter-options">
@@ -51,7 +66,7 @@ const BookRoomManagementHeader = ({
             className={`filter-btn ${activeBlock === block.id ? "active" : ""}`}
             onClick={() => {
               setActiveBlock(block.id);
-              onBlockSelect(block.id);
+              onBlockSelect(block.id, selectedRoomType);
             }}
           >
             {block.attributes.block_name}
@@ -90,14 +105,23 @@ const BookRoomManagementHeader = ({
         </div>
         <div className="sort-by">
           <span>Sort by</span>
-          <select className="sort-select">
+          <select
+            className="sort-select"
+            value={selectedRoomType}
+            onChange={handleRoomTypeChange}
+          >
             <option value="">All Types</option>
             <option value="AC">AC</option>
             <option value="Non AC">Non AC</option>
           </select>
         </div>
         <div className="date-picker">
-          <input type="date" className="date-input" placeholder="dd-mm-yyyy" />
+          <input
+            type="date"
+            className="date-input"
+            placeholder="dd-mm-yyyy"
+            onChange={handleDateChange}
+          />
         </div>
       </div>
     </div>

@@ -207,6 +207,16 @@ const GuestDetailsPopup = ({ isOpen, onClose, onStatusChange, requestId }) => {
       .replace(/\//g, "-");
   };
 
+  const handleReschedule = (e) => {
+    e.stopPropagation();
+    navigate('/book-room-management', {
+      state: {
+        bookingRequestId: bookingRequestDetails.data.id,
+        isRescheduling: true
+      }
+    });
+  };
+
   const handleButtonClick = () => {
     const guestData = {
       requestId: bookingRequestDetails.data.id,
@@ -301,10 +311,7 @@ const GuestDetailsPopup = ({ isOpen, onClose, onStatusChange, requestId }) => {
               borderRadius: "4px",
               cursor: "pointer",
             }}
-            onClick={() => {
-              // Add reschedule logic here
-              console.log("Reschedule clicked");
-            }}
+            onClick={handleReschedule}
           >
             Reschedule
           </button>
@@ -466,23 +473,17 @@ const GuestDetailsPopup = ({ isOpen, onClose, onStatusChange, requestId }) => {
                             <span className="label">Assigned Room</span>
                             <span className="value">
                               <strong>
-                                {bookingRequestDetails?.data?.attributes?.guests?.data.map(
-                                  (room, index) => (
-                                    <span key={index}>
-                                      {
-                                        room?.attributes?.room_allocations
-                                          ?.data?.[0]?.attributes?.room?.data
-                                          ?.attributes?.room_number
-                                      }
-                                      {index <
-                                        bookingRequestDetails.data.attributes.guests
-                                          .data.length -
-                                        1
-                                        ? ", "
-                                        : ""}
-                                    </span>
-                                  )
-                                ) || "N/A"}
+                                {(() => {
+                                  const rooms = bookingRequestDetails?.data?.attributes?.guests?.data
+                                    .map(room => room?.attributes?.room_allocations?.data?.[0]?.attributes?.room?.data?.attributes?.room_number)
+                                    .filter(room => room); // Filter out undefined/null
+
+                                  const uniqueRooms = [...new Set(rooms)]; // Get unique room numbers
+
+                                  return uniqueRooms.length > 0
+                                    ? uniqueRooms.join(", ")
+                                    : "N/A";
+                                })()}
                               </strong>
                             </span>
                           </div>

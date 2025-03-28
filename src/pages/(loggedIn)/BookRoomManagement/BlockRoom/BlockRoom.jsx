@@ -6,6 +6,14 @@ import { toast } from "react-toastify";
 const BlockRoom = ({ selectedBlockId, onRoomBlocked }) => {
   const [rooms, setRooms] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Add reasons array
+  const reasons = [
+    "Maintenance",
+    "Secretary Maharaji Request",
+    "Hospital/ Dispensary"
+  ];
+
   const [formData, setFormData] = useState({
     roomId: "",
     reason: "",
@@ -44,8 +52,7 @@ const BlockRoom = ({ selectedBlockId, onRoomBlocked }) => {
     try {
       const blockingData = {
         room: formData.roomId,
-        reason_for_blocking: formData.reason,
-        room_block_status: "blocked",
+        room_block: formData.reason,
         from_date: formData.fromDate,
         to_date: formData.toDate,
       };
@@ -95,14 +102,22 @@ const BlockRoom = ({ selectedBlockId, onRoomBlocked }) => {
 
       <div className="booking-input-group">
         <label>Reason</label>
-        <input
-          type="text"
+        <select
           name="reason"
           value={formData.reason}
           onChange={handleInputChange}
-          placeholder="Enter reason"
+          placeholder="Select Reason"
           required
-        />
+        >
+          <option value="" disabled>
+            Select Reason
+          </option>
+          {reasons.map((reason, index) => (
+            <option key={index} value={reason}>
+              {reason}
+            </option>
+          ))}
+        </select>
       </div>
 
       <div className="booking-input-group">

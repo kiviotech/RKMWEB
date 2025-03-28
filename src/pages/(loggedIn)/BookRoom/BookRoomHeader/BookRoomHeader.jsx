@@ -8,7 +8,8 @@ const BookRoomHeader = ({
   onBlockSelect,
   onViewChange,
   arrivalDate,
-  departureDate
+  departureDate,
+  onRoomTypeChange
 }) => {
   const [blocks, setBlocks] = useState([]);
   const [activeBlock, setActiveBlock] = useState("");
@@ -42,6 +43,10 @@ const BookRoomHeader = ({
   const handleTogglerClick = (view) => {
     setActiveToggler(view);
     onViewChange(view);
+  };
+
+  const handleRoomTypeChange = (e) => {
+    onRoomTypeChange(e.target.value);
   };
 
   return (
@@ -92,24 +97,27 @@ const BookRoomHeader = ({
         </div>
         <div className="sort-by">
           <span>Sort by</span>
-          <select className="sort-select">
+          <select
+            className="sort-select"
+            onChange={handleRoomTypeChange}
+          >
             <option value="">All Types</option>
             <option value="AC">AC</option>
             <option value="Non AC">Non AC</option>
           </select>
         </div>
         <div className="arrival-date-picker">
-          <input 
-            type="date" 
-            className="date-input" 
+          <input
+            type="date"
+            className="date-input"
             value={arrivalDate || ''}
             disabled
           />
         </div>
         <div className="departure-date-picker">
-          <input 
-            type="date" 
-            className="date-input" 
+          <input
+            type="date"
+            className="date-input"
             value={departureDate || ''}
             disabled
           />

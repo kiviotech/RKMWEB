@@ -7,6 +7,7 @@ import BookRoomDevoteeDetails from "./BookRoomDevoteeDetails/BookRoomDevoteeDeta
 const BookRoom = () => {
   const [selectedBlockId, setSelectedBlockId] = useState(null);
   const [viewMode, setViewMode] = useState("dashboard");
+  const [roomType, setRoomType] = useState("");
   const location = useLocation();
   const [selectedGuests, setSelectedGuests] = useState([]);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
@@ -22,6 +23,10 @@ const BookRoom = () => {
 
   const handleViewChange = (view) => {
     setViewMode(view);
+  };
+
+  const handleRoomTypeChange = (type) => {
+    setRoomType(type);
   };
 
   // Modify handleRoomAllocation to include roomId
@@ -55,6 +60,7 @@ const BookRoom = () => {
         arrivalDate={location.state?.arrivalDate}
         departureDate={location.state?.departureDate}
         onViewChange={handleViewChange}
+        onRoomTypeChange={handleRoomTypeChange}
       />
       <div style={{ display: "flex" }}>
         <div style={{ width: "70%" }}>
@@ -66,6 +72,7 @@ const BookRoom = () => {
             onRoomSelect={handleRoomAllocation}
             selectedGuests={selectedGuests}
             refreshTrigger={refreshTrigger}
+            roomType={roomType}
           />
         </div>
         <div style={{ width: "30%" }}>

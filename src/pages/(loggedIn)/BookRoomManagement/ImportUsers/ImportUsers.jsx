@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import './ImportUsers.scss';
-import { createUser } from '../../../../services/userServices';
+import { createUser } from '../../../../services/src/services/userServices';
 
 const ImportUsers = () => {
   const [importProgress, setImportProgress] = useState(0);

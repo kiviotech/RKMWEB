@@ -3,6 +3,7 @@ import BlockRoom from "../BlockRoom/BlockRoom";
 import BookRoom from "../BookRoom/BookRoom";
 import AddBlock from "../AddBlock/AddBlock";
 import AddRoom from "../AddRoom/AddRoom";
+import ImportUsers from "../ImportUsers/ImportUsers";
 import "./BookRoomManagementSetting.scss";
 import { fetchBookingRequestById } from "../../../../../services/src/services/bookingRequestService";
 import { updateRoomAllocationById } from "../../../../../services/src/services/roomAllocationService";
@@ -19,7 +20,7 @@ const BookRoomManagementSetting = ({
   onClearSelections,
   onClearGuestDetails
 }) => {
-  const [activeTab, setActiveTab] = useState("block"); // "block" or "book"
+  const [activeTab, setActiveTab] = useState("block"); // "block", "book", or "import"
   const [showAddBlock, setShowAddBlock] = useState(false);
   const [showAddRoom, setShowAddRoom] = useState(false);
   const [guestFullDetails, setGuestFullDetails] = useState(null);
@@ -291,6 +292,12 @@ const BookRoomManagementSetting = ({
               >
                 Allocate Room
               </button>
+              <button
+                className={`booking-tab-btn ${activeTab === "import" ? "active" : ""}`}
+                onClick={() => setActiveTab("import")}
+              >
+                Import Users
+              </button>
             </div>
 
             {activeTab === "block" ? (
@@ -298,11 +305,13 @@ const BookRoomManagementSetting = ({
                 selectedBlockId={selectedBlockId}
                 onRoomBlocked={onBlockCreated}
               />
-            ) : (
+            ) : activeTab === "book" ? (
               <BookRoom
                 selectedBlockId={selectedBlockId}
                 onRoomAllocated={onRoomAllocated}
               />
+            ) : (
+              <ImportUsers />
             )}
           </div>
         </>

@@ -1,18 +1,27 @@
 
 import React, { useState } from "react";
-import "./ImportUsers.scss";
 import { createNewUser } from "../../../../../services/src/services/userServices";
 import * as XLSX from "xlsx";
+import "./ImportUsers.scss";
 
 const ImportUsers = () => {
-  const [importProgress, setImportProgress] = useState(0);
-  const [uploading, setUploading] = useState(false);
   const [file, setFile] = useState(null);
-  const [totalUsers, setTotalUsers] = useState(0);
+  const [uploading, setUploading] = useState(false);
+  const [importProgress, setImportProgress] = useState(0);
   const [processedUsers, setProcessedUsers] = useState(0);
+  const [totalUsers, setTotalUsers] = useState(0);
   const [successList, setSuccessList] = useState([]);
   const [errorsList, setErrorsList] = useState([]);
   const [importComplete, setImportComplete] = useState(false);
+
+  const validateUser = (user) => {
+    const errors = [];
+    if (!user.name || user.name.length < 2) errors.push('Invalid name');
+    if (!user.phone_number || !/^\d{10}$/.test(user.phone_number)) errors.push('Invalid phone number');
+    if (user.pan_number && !/^[A-Z]{5}[0-9]{4}[A-Z]$/.test(user.pan_number)) errors.push('Invalid PAN');
+    if (user.identity_number && !/^\d{12}$/.test(user.identity_number)) errors.push('Invalid Aadhaar');
+    return errors;
+  };
 
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
@@ -31,6 +40,7 @@ const ImportUsers = () => {
 
     try {
       setUploading(true);
+      setImportComplete(false);
 
       const reader = new FileReader();
 
@@ -48,16 +58,18 @@ const ImportUsers = () => {
 
         for (let i = 0; i < jsonData.length; i++) {
           const user = jsonData[i];
+          
+          // Validate the user data
+          const validationErrors = validateUser(user);
 
-          // Validate required fields
-          if (!user.name || !user.phone_number || !user.identity_number) {
+          if (validationErrors.length > 0) {
             errorsList.push({
               user: user.name || "Unknown",
-              error:
-                "Missing required fields (name, phone number, or identity number)",
+              error: validationErrors.join(", "),
             });
           } else {
             try {
+              // Create the user
               await createNewUser(user);
               successList.push({
                 name: user.name,
@@ -65,7 +77,7 @@ const ImportUsers = () => {
               });
             } catch (error) {
               errorsList.push({
-                user: user.name,
+                user: user.name || "Unknown",
                 error: error.message || "Failed to create user",
               });
             }
@@ -112,57 +124,57 @@ const ImportUsers = () => {
 
   return (
     <div className="import-users-container">
-      <div className="import-header">
-        <h3>Import Users</h3>
-        <p>Upload an Excel file to bulk import users into the system</p>
-      </div>
+      <h3 className="import-title">Import Users</h3>
+      <p className="import-description">Upload an Excel file to bulk import users into the system</p>
 
-      <div className="import-actions">
-        <div className="file-upload-section">
-          <label htmlFor="userFile" className="file-label">
-            {file ? file.name : "Choose Excel File"}
-          </label>
-          <input
-            type="file"
-            id="userFile"
-            accept=".xlsx, .xls"
-            className="file-input"
-            onChange={handleFileChange}
-            disabled={uploading}
-          />
-          <button
-            className="import-button"
-            onClick={processExcelFile}
-            disabled={!file || uploading}
-          >
-            {uploading ? "Importing..." : "Import Users"}
-          </button>
-        </div>
-
-        <div className="template-section">
-          <p>Not sure about the format?</p>
-          <button className="template-button" onClick={downloadSampleTemplate}>
-            Download Sample Template
-          </button>
-        </div>
-      </div>
-
-      {uploading && (
-        <div className="progress-section">
-          <div className="progress-info">
-            <span>
-              Importing users: {processedUsers} of {totalUsers}
-            </span>
-            <span className="percentage">{importProgress}%</span>
+      <div className="import-panel">
+        <div className="upload-section">
+          <div className="file-selection">
+            <input
+              type="file"
+              id="file-upload"
+              accept=".xlsx,.xls"
+              onChange={handleFileChange}
+              disabled={uploading}
+              className="file-input"
+            />
+            <label htmlFor="file-upload" className="file-label">
+              {file ? file.name : "Choose Excel File"}
+            </label>
+            <button
+              className="import-button"
+              onClick={processExcelFile}
+              disabled={!file || uploading}
+            >
+              {uploading ? "Importing..." : "Import Users"}
+            </button>
           </div>
-          <div className="progress-bar">
-            <div
-              className="progress-fill"
-              style={{ width: `${importProgress}%` }}
-            ></div>
+
+          <div className="template-section">
+            <p>Not sure about the format?</p>
+            <button className="template-button" onClick={downloadSampleTemplate}>
+              Download Sample Template
+            </button>
           </div>
         </div>
-      )}
+
+        {uploading && (
+          <div className="progress-section">
+            <div className="progress-info">
+              <span>
+                Importing users: {processedUsers} of {totalUsers}
+              </span>
+              <span className="percentage">{importProgress}%</span>
+            </div>
+            <div className="progress-bar">
+              <div
+                className="progress-fill"
+                style={{ width: `${importProgress}%` }}
+              ></div>
+            </div>
+          </div>
+        )}
+      </div>
 
       {importComplete && (
         <div className="import-results">
@@ -177,35 +189,33 @@ const ImportUsers = () => {
             </div>
           </div>
 
-          <div className="results-details">
-            {errorsList.length > 0 && (
-              <div className="errors-section">
-                <h4>Import Errors</h4>
-                <div className="errors-list">
-                  {errorsList.map((error, index) => (
-                    <div className="error-item" key={index}>
-                      <span className="error-user">{error.user}</span>
-                      <span className="error-message">{error.error}</span>
-                    </div>
-                  ))}
-                </div>
+          {errorsList.length > 0 && (
+            <div className="errors-section">
+              <h4>Import Errors</h4>
+              <div className="errors-list">
+                {errorsList.map((error, index) => (
+                  <div className="error-item" key={index}>
+                    <span className="error-user">{error.user}</span>
+                    <span className="error-message">{error.error}</span>
+                  </div>
+                ))}
               </div>
-            )}
+            </div>
+          )}
 
-            {successList.length > 0 && (
-              <div className="success-section">
-                <h4>Successfully Imported Users</h4>
-                <div className="success-list">
-                  {successList.map((user, index) => (
-                    <div className="success-item" key={index}>
-                      <span className="success-name">{user.name}</span>
-                      <span className="success-phone">{user.phone}</span>
-                    </div>
-                  ))}
-                </div>
+          {successList.length > 0 && (
+            <div className="success-section">
+              <h4>Successfully Imported Users</h4>
+              <div className="success-list">
+                {successList.map((user, index) => (
+                  <div className="success-item" key={index}>
+                    <span className="success-name">{user.name}</span>
+                    <span className="success-phone">{user.phone}</span>
+                  </div>
+                ))}
               </div>
-            )}
-          </div>
+            </div>
+          )}
         </div>
       )}
     </div>

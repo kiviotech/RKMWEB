@@ -1,8 +1,11 @@
 import axios from "axios";
 import { getToken } from "../utils/storage";
 
-export const BASE_URL = "http://localhost:1338/api";
-export const MEDIA_BASE_URL = "http://localhost:1338";
+// export const BASE_URL = "http://localhost:1338/api";
+// export const MEDIA_BASE_URL = "http://localhost:1338";
+
+export const BASE_URL = "https://api.kamarpukurmath.org/api";
+export const MEDIA_BASE_URL = "https://api.kamarpukurmath.org";
 
 const apiClient = axios.create({
   baseURL: BASE_URL,
@@ -31,7 +34,7 @@ apiClient.interceptors.request.use(
 
     return config;
   },
-  (error) => Promise.reject(error)
+  (error) => Promise.reject(error),
 );
 
 export default apiClient;

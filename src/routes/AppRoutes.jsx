@@ -48,26 +48,7 @@ import Calendar from "../pages/(loggedIn)/Calendar/Calendar";
 import BookDormitoryRoom from "../pages/(loggedIn)/BookDormitoryRoom/BookDormitoryRoom";
 
 //Added Components
-const UtilityTabs = () => {
-  return (
-    <div>
-      <h1>Utility Tabs</h1>
-      {/* Add other utility tabs here */}
-      <ImportUsers />
-    </div>
-  );
-};
-
-
-const ImportUsers = () => {
-  return (
-    <div>
-      <h1>Import Users</h1>
-      {/* Implement user import logic here */}
-      <p>Placeholder for user import functionality.</p>
-    </div>
-  );
-};
+import UtilityTabs from "../pages/(loggedIn)/utilities/UtilityTabs";
 
 
 const AppRoutes = () => {

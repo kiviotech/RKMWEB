@@ -1,13 +1,12 @@
-
 import React, { useState } from 'react';
 import './ImportUsers.scss';
-import { createUser } from '../../../../services/src/services/userServices';
+import { createUser } from '../../../../services/userServices'; // Corrected import path
 
 const ImportUsers = () => {
   const [importProgress, setImportProgress] = useState(0);
   const [errors, setErrors] = useState([]);
   const [isImporting, setIsImporting] = useState(false);
-  
+
   const validateUser = (user) => {
     const errors = [];
     if (!user.name || user.name.length < 2) errors.push('Invalid name');
@@ -35,7 +34,7 @@ const ImportUsers = () => {
 
         for (const user of users) {
           const validationErrors = validateUser(user);
-          
+
           if (validationErrors.length > 0) {
             errorsList.push({
               user: user.name,
@@ -51,7 +50,7 @@ const ImportUsers = () => {
               });
             }
           }
-          
+
           processed++;
           setImportProgress((processed / totalUsers) * 100);
         }
@@ -86,7 +85,7 @@ const ImportUsers = () => {
           </div>
         )}
       </div>
-      
+
       {errors.length > 0 && (
         <div className="error-section">
           <h3>Import Errors</h3>

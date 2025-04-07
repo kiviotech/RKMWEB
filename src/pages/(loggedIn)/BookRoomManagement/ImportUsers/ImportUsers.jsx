@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import './ImportUsers.scss';
-import { createUser } from '../../../../services/src/services/userServices';
+import { createNewUser } from '../../../../services/src/services/userServices';
 
 const ImportUsers = () => {
   const [importProgress, setImportProgress] = useState(0);
@@ -42,7 +42,7 @@ const ImportUsers = () => {
             });
           } else {
             try {
-              await createUser(user);
+              await createNewUser(user);
             } catch (error) {
               errorsList.push({
                 user: user.name,

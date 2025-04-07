@@ -323,7 +323,13 @@ const Dashboard = () => {
                 className="standard-button"
                 onClick={() => navigateToPage("/book-room-management")}
               >
-                Room availability
+                Room Management
+              </button>
+              <button
+                className="standard-button"
+                onClick={() => navigateToPage("/utilities")}
+              >
+                Utilities
               </button>
             </div>
           </div>

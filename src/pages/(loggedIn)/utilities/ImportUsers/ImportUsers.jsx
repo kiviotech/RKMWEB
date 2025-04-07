@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import "./ImportUsers.scss";
 import { createNewUser } from "../../../../../services/src/services/userServices";
@@ -118,6 +119,9 @@ const ImportUsers = () => {
 
       <div className="import-actions">
         <div className="file-upload-section">
+          <label htmlFor="userFile" className="file-label">
+            {file ? file.name : "Choose Excel File"}
+          </label>
           <input
             type="file"
             id="userFile"
@@ -126,9 +130,6 @@ const ImportUsers = () => {
             onChange={handleFileChange}
             disabled={uploading}
           />
-          <label htmlFor="userFile" className="file-label">
-            {file ? file.name : "Choose Excel File"}
-          </label>
           <button
             className="import-button"
             onClick={processExcelFile}

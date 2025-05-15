@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { icons } from "../../../constants";
 import { useAuthStore } from "../../../../store/authStore";
@@ -6,7 +6,22 @@ import PermissionGuard from "../../guards/PermissionGuard";
 import RoleGuard from "../../guards/RoleGuard";
 import "./RoleBasedSidebar.scss";
 
-const RoleBasedSidebar = ({ isOpen, toggleSidebar }) => {
+const SIDEBAR_COLLAPSED_WIDTH = 60;
+const SIDEBAR_EXPANDED_WIDTH = 220;
+
+const RoleBasedSidebar = ({ onSidebarHover }) => {
+  const [hovered, setHovered] = useState(false);
+
+  const handleMouseEnter = () => {
+    setHovered(true);
+    if (onSidebarHover) onSidebarHover(true);
+  };
+
+  const handleMouseLeave = () => {
+    setHovered(false);
+    if (onSidebarHover) onSidebarHover(false);
+  };
+
   const location = useLocation();
   const navigate = useNavigate();
   const isDashboard = location.pathname === "/dashboard";
@@ -101,78 +116,67 @@ const RoleBasedSidebar = ({ isOpen, toggleSidebar }) => {
   ];
 
   return (
-    <>
-      <div className="hamburger" onClick={toggleSidebar}>
-        {isOpen ? (
-          <i className="fas fa-times"></i>
-        ) : (
-          <i className="fas fa-bars"></i>
-        )}
-      </div>
-      <div
-        className={`sidebar ${isDashboard ? "dashboard" : ""} ${isOpen ? "open" : ""}`}
-      >
-        <div className="close-btn" onClick={toggleSidebar}>
-          <i className="fas fa-times"></i>
-        </div>
-        
-        {/* User info section */}
-        {user && (
-          <div className="user-info">
-            <div className="user-avatar">
-              <img src={icons.userAvatar || icons.settings} alt="User" />
-            </div>
-            <div className="user-details">
-              <div className="user-name">{user.username}</div>
-              <div className="user-role">{user.role?.name || user.user_role}</div>
-            </div>
+    <div
+      className={`sidebar ${hovered ? "sidebar-expanded" : "sidebar-collapsed"}`}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+    >
+      {/* User info section */}
+      {user && (
+        <div className="user-info">
+          <div className="user-avatar">
+            <img src={icons.userAvatar || icons.settings} alt="User" />
           </div>
-        )}
+          <div className="user-details">
+            <div className="user-name">{user.username}</div>
+            <div className="user-role">{user.role?.name || user.user_role}</div>
+          </div>
+        </div>
+      )}
 
-        {/* Navigation items based on permissions/roles */}
-        <div className="nav-items">
-          {navigationItems.map((item, index) => (
+      {/* Navigation items based on permissions/roles */}
+      <div className="nav-items">
+        {navigationItems.map((item, index) => (
+          <RoleGuard key={index} roles={item.roles}>
+            <PermissionGuard permission={item.permission}>
+              <NavLink 
+                to={item.path} 
+                activeclassname="active"
+                onClick={item.onClick}
+              >
+                <img src={item.icon} alt={item.label.toLowerCase()} />
+                {hovered && <span className="label">{item.label}</span>}
+              </NavLink>
+            </PermissionGuard>
+          </RoleGuard>
+        ))}
+      </div>
+
+      {/* Admin settings section */}
+      <RoleGuard roles={["super-admin", "admin"]}>
+        <div className="admin-section">
+          <div className="section-title">Administration</div>
+          {adminSettings.map((item, index) => (
             <RoleGuard key={index} roles={item.roles}>
               <PermissionGuard permission={item.permission}>
-                <NavLink 
-                  to={item.path} 
-                  activeclassname="active"
-                  onClick={item.onClick}
-                >
+                <NavLink to={item.path} activeclassname="active">
                   <img src={item.icon} alt={item.label.toLowerCase()} />
-                  <span className="label">{item.label}</span>
+                  {hovered && <span className="label">{item.label}</span>}
                 </NavLink>
               </PermissionGuard>
             </RoleGuard>
           ))}
         </div>
+      </RoleGuard>
 
-        {/* Admin settings section */}
-        <RoleGuard roles={["super-admin", "admin"]}>
-          <div className="admin-section">
-            <div className="section-title">Administration</div>
-            {adminSettings.map((item, index) => (
-              <RoleGuard key={index} roles={item.roles}>
-                <PermissionGuard permission={item.permission}>
-                  <NavLink to={item.path} activeclassname="active">
-                    <img src={item.icon} alt={item.label.toLowerCase()} />
-                    <span className="label">{item.label}</span>
-                  </NavLink>
-                </PermissionGuard>
-              </RoleGuard>
-            ))}
-          </div>
-        </RoleGuard>
-
-        {/* Logout button */}
-        <div className="logout-section">
-          <button className="logout-button" onClick={handleLogout}>
-            <img src={icons.logout || icons.settings} alt="logout" />
-            <span>Logout</span>
-          </button>
-        </div>
+      {/* Logout button */}
+      <div className="logout-section">
+        <button className="logout-button" onClick={handleLogout}>
+          <img src={icons.logout || icons.settings} alt="logout" />
+          {hovered && <span>Logout</span>}
+        </button>
       </div>
-    </>
+    </div>
   );
 };
 

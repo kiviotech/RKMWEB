@@ -7,11 +7,38 @@ import { useLocation } from "react-router-dom";
 import ExportDonations from "./ExportDonations";
 import DDFExport from "./DDFExport";
 import { useAuthStore } from "../../../../store/authStore";
+import { useOtpVerificationStore } from "../../../../store/otpVerificationStore";
+import OtpVerificationModal from "../../../components/OtpVerificationModal";
+import { ROLES, PERMISSIONS } from "../../../constants/permissions";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const AllDonationDetails = () => {
   const location = useLocation();
   const donationData = location.state?.donationData;
-  const { user } = useAuthStore();
+  // Using individual selectors to prevent infinite re-renders
+  const user = useAuthStore(state => state.user);
+  const hasRole = useAuthStore(state => state.hasRole);
+  const hasPermission = useAuthStore(state => state.hasPermission);
+  
+  // OTP verification state
+  const { isSessionValid, requestOtp } = useOtpVerificationStore();
+  const [showOtpModal, setShowOtpModal] = useState(false);
+  const [editModeEnabled, setEditModeEnabled] = useState(false);
+  
+  // Check if user can modify donations
+  // Allow account-admin with proper permissions and donation-related roles
+  const canModifyDonations = 
+    (hasRole(ROLES.ACCOUNT_ADMIN) && hasPermission(PERMISSIONS.DONATION_RECEIPT_EDIT)) ||
+    hasRole(ROLES.DONATION) ||
+    hasRole(ROLES.DONATION_ADMIN); // Added donation_admin role check
+  
+  // Debug role information
+  console.log("[DONATION DETAILS DEBUG] User:", user?.username);
+  console.log("[DONATION DETAILS DEBUG] Role info:", {
+    role_object: user?.role,
+    legacy_user_role: user?.user_role
+  });
 
   const [searchTerm, setSearchTerm] = useState("");
   const [dateRange, setDateRange] = useState({
@@ -58,6 +85,13 @@ const AllDonationDetails = () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
+  
+  // Check if user has valid OTP session and enable edit mode if so
+  useEffect(() => {
+    if (isSessionValid()) {
+      setEditModeEnabled(true);
+    }
+  }, [isSessionValid]);
 
   const handleSearch = (e) => {
     setSearchTerm(e.target.value);
@@ -134,12 +168,38 @@ const AllDonationDetails = () => {
         startDate: today,
         endDate: today,
       });
+    } else if (filter === "yesterday") {
+      const today = new Date();
+      const yesterday = new Date(today);
+      yesterday.setDate(yesterday.getDate() - 1);
+      const yesterdayStr = yesterday.toISOString().split("T")[0];
+      setDateRange({
+        startDate: yesterdayStr,
+        endDate: yesterdayStr,
+      });
     } else {
       setDateRange({
         startDate: "",
         endDate: "",
       });
     }
+  };
+
+  // Handle modify donations button click
+  const handleModifyDonations = () => {
+    if (isSessionValid()) {
+      // Already verified, enable edit mode
+      setEditModeEnabled(true);
+    } else {
+      // Need to verify with OTP first
+      setShowOtpModal(true);
+    }
+  };
+
+  // Handle OTP verification
+  const handleOtpVerified = () => {
+    setEditModeEnabled(true);
+    toast.success("Verification successful. You can now edit donations.");
   };
 
   return (
@@ -149,7 +209,12 @@ const AllDonationDetails = () => {
           {timeFilter === "today" ? "Today Donations" : "All Donations"}
         </h1>
         <div className="export-buttons">
-          {user?.user_role === "superadmin" && <DDFExport />}
+          {hasRole(ROLES.SUPER_ADMIN) && (
+            <>
+              {console.log("[DONATION DETAILS DEBUG] Super admin role check result:", hasRole(ROLES.SUPER_ADMIN))}
+              <DDFExport />
+            </>
+          )}
           <ExportDonations timeFilter={timeFilter} dateRange={dateRange} />
         </div>
       </div>
@@ -194,6 +259,17 @@ const AllDonationDetails = () => {
         </div>
 
         <div className="right-section">
+          {canModifyDonations && (
+            <div className="modify-donations-wrapper">
+              <button
+                className="modify-donations-btn"
+                onClick={handleModifyDonations}
+                disabled={editModeEnabled}
+              >
+                {editModeEnabled ? "Edit Mode Active" : "Modify Donations"}
+              </button>
+            </div>
+          )}
           {timeFilter !== "today" && (
             <div className="date-range">
               <span>From</span>
@@ -283,6 +359,14 @@ const AllDonationDetails = () => {
         currentPage={currentPage}
         itemsPerPage={itemsPerPage}
         setTotalPages={setTotalPages}
+        editModeEnabled={editModeEnabled}
+      />
+      
+      {/* OTP Verification Modal */}
+      <OtpVerificationModal
+        isOpen={showOtpModal}
+        onClose={() => setShowOtpModal(false)}
+        onVerified={handleOtpVerified}
       />
 
       {totalPages > 1 && (

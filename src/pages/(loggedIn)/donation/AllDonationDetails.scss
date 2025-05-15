@@ -63,6 +63,34 @@
       display: flex;
       gap: 16px;
       align-items: center;
+      
+      .modify-donations-wrapper {
+        display: flex;
+        align-items: center;
+      }
+      
+      .modify-donations-btn {
+        background-color: #ea7704;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        padding: 8px 16px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background-color 0.2s;
+        white-space: nowrap;
+        
+        &:hover:not(:disabled) {
+          background-color: #d96c00;
+        }
+        
+        &:disabled {
+          background-color: #e0e0e0;
+          color: #666;
+          cursor: default;
+        }
+      }
 
       .date-range {
         display: flex;

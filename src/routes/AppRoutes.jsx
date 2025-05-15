@@ -2,6 +2,9 @@ import React from "react";
 import { Route, Routes } from "react-router-dom";
 import Login from "../pages/(auth)/login/Login";
 import Signup from "../pages/(auth)/signup/Signup";
+import ForgotPassword from "../pages/(auth)/login/ForgotPassword";
+import UserActivityLogs from "../pages/(loggedIn)/admin/UserActivityLogs";
+import UserActivityDashboard from "../pages/(loggedIn)/admin/UserActivityDashboard";
 import CheckInDetails from "../pages/(loggedIn)/checkInDetails/CheckInDetails";
 import CheckOutDetails from "../pages/(loggedIn)/checkOutDetails/CheckOutDetails";
 import Layout from "../components/layout/Layout";
@@ -22,6 +25,8 @@ import {
   SharedRoute,
   SubAdminRoute,
   SuperAdminRoute,
+  DonationRoute,
+  GuestHouseRoute,
 } from "../components/ProtectedRoute";
 import { PublicRoute } from "../components/AuthMiddleware";
 
@@ -49,6 +54,10 @@ import BookDormitoryRoom from "../pages/(loggedIn)/BookDormitoryRoom/BookDormito
 
 //Added Components
 import UtilityTabs from "../pages/(loggedIn)/utilities/UtilityTabs";
+import UserManagement from "../pages/(loggedIn)/UserManagement/UserManagement";
+import DonationAuditDashboard from "../pages/(loggedIn)/DonationAuditDashboard/DonationAuditDashboard";
+import Notifications from "../pages/(loggedIn)/Notifications/Notifications";
+import SuperAdminDashboard from "../pages/(loggedIn)/SuperAdminDashboard/SuperAdminDashboard";
 
 
 const AppRoutes = () => {
@@ -70,15 +79,23 @@ const AppRoutes = () => {
           </PublicRoute>
         }
       />
+      <Route
+        path="/forgot-password"
+        element={
+          <PublicRoute>
+            <ForgotPassword />
+          </PublicRoute>
+        }
+      />
 
       {/* Admin Only Routes */}
       <Route element={<Layout />}>
         <Route
           path="/dashboard"
           element={
-            <SuperAdminRoute>
+            <GuestHouseRoute>
               <Dashboard />
-            </SuperAdminRoute>
+            </GuestHouseRoute>
           }
         />
         <Route
@@ -114,19 +131,19 @@ const AppRoutes = () => {
           }
         />
         <Route
-          path="/allocate-rooms"
+          path="/allocate-room"
           element={
-            <SuperAdminRoute>
+            <GuestHouseRoute>
               <AllocateRoom />
-            </SuperAdminRoute>
+            </GuestHouseRoute>
           }
         />
         <Route
-          path="/approve-guests"
+          path="/approveGuests"
           element={
-            <SuperAdminRoute>
+            <GuestHouseRoute>
               <ApproveGuests />
-            </SuperAdminRoute>
+            </GuestHouseRoute>
           }
         />
         <Route
@@ -146,11 +163,11 @@ const AppRoutes = () => {
           }
         />
         <Route
-          path="/room-availability"
+          path="/check-room-availability"
           element={
-            <SuperAdminRoute>
+            <GuestHouseRoute>
               <CheckRoomAvailability />
-            </SuperAdminRoute>
+            </GuestHouseRoute>
           }
         />
         <Route
@@ -188,12 +205,19 @@ const AppRoutes = () => {
         <Route
           path="/newDonation"
           element={
-            <SubAdminRoute>
+            <DonationRoute>
               <NewDonation />
-            </SubAdminRoute>
+            </DonationRoute>
           }
         />
-        <Route path="/allDonationDetails" element={<AllDonationDetails />} />
+        <Route
+          path="/allDonationDetails"
+          element={
+            <DonationRoute>
+              <AllDonationDetails />
+            </DonationRoute>
+          }
+        />
 
         <Route
           path="/donationdetail"
@@ -207,84 +231,132 @@ const AppRoutes = () => {
         <Route
           path="/deeksha"
           element={
-            <SharedRoute>
+            <DeekshaRoute>
               <Deeksha />
-            </SharedRoute>
+            </DeekshaRoute>
           }
         />
         <Route path="/utilities" element={<UtilityTabs />} /> {/* Added Route */}
+        <Route
+          path="/user-management"
+          element={
+            <SuperAdminRoute>
+              <UserManagement />
+            </SuperAdminRoute>
+          }
+        />
+        <Route
+          path="/donation-audit-dashboard"
+          element={
+            <SuperAdminRoute>
+              <DonationAuditDashboard />
+            </SuperAdminRoute>
+          }
+        />
+        <Route
+          path="/user-activity-logs"
+          element={
+            <SuperAdminRoute>
+              <UserActivityLogs />
+            </SuperAdminRoute>
+          }
+        />
+        <Route
+          path="/user-activity-dashboard"
+          element={
+            <SuperAdminRoute>
+              <UserActivityDashboard />
+            </SuperAdminRoute>
+          }
+        />
+        <Route
+          path="/notifications"
+          element={
+            <SuperAdminRoute>
+              <Notifications />
+            </SuperAdminRoute>
+          }
+        />
+        <Route
+          path="/super-admin-dashboard"
+          element={
+            <SuperAdminRoute>
+              <SuperAdminDashboard />
+            </SuperAdminRoute>
+          }
+        />
       </Route>
       <Route
         path="/deeksha-form"
         element={
-          <SharedRoute>
+          <DeekshaRoute>
             <DeekshaForm />
-          </SharedRoute>
+          </DeekshaRoute>
         }
       />
       <Route
         path="/deekshaAdress-form"
         element={
-          <SharedRoute>
+          <DeekshaRoute>
             <DeekshaAddressForm />
-          </SharedRoute>
+          </DeekshaRoute>
         }
       />
       <Route
         path="/deekshaContact-form"
         element={
-          <SharedRoute>
+          <DeekshaRoute>
             <DeekshaContactForm />
-          </SharedRoute>
+          </DeekshaRoute>
         }
       />
       <Route
         path="/deekshaEducation-form"
         element={
-          <SharedRoute>
+          <DeekshaRoute>
             <DeekshaEducationForm />
-          </SharedRoute>
+          </DeekshaRoute>
         }
       />
       <Route
         path="/deekshaConsent-form"
         element={
-          <SharedRoute>
+          <DeekshaRoute>
             <DeekshaConsentForm />
-          </SharedRoute>
+          </DeekshaRoute>
         }
       />
       <Route
         path="/deekshaRelation-form"
         element={
-          <SharedRoute>
+          <DeekshaRoute>
             <DeekshaRelationForm />
-          </SharedRoute>
+          </DeekshaRoute>
         }
       />
       <Route
         path="/deekshaDuration-form"
         element={
-          <SharedRoute>
+          <DeekshaRoute>
             <DeekshaDurationForm />
-          </SharedRoute>
+          </DeekshaRoute>
         }
       />
       <Route
         path="/deekshaBooks-form"
         element={
-          <SharedRoute>
+          <DeekshaRoute>
             <DeekshaBooksForm />
-          </SharedRoute>
+          </DeekshaRoute>
         }
       />
 
       <Route
         path="/deekshaUpasana-form"
         element={
-          <SharedRoute>
+          <DeekshaRoute>
             <DeekshaUpasanaForm />
-          </SharedRoute>
+          </DeekshaRoute>
         }
       />
 

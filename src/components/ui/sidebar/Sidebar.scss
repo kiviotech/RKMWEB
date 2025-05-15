@@ -8,6 +8,34 @@
   border-radius: 16px;
   position: relative;
   transition: width 0.3s ease;
+  
+  .user-info {
+    padding: 10px 0;
+    text-align: center;
+    margin-bottom: 15px;
+    border-bottom: 1px solid #eaeaea;
+    
+    .user-name {
+      font-size: 14px;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      padding: 0 10px;
+      display: none;
+    }
+    
+    .user-role {
+      font-size: 12px;
+      color: #6a6a6a;
+      margin-top: 4px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      padding: 0 10px;
+      display: none;
+    }
+  }
 
   &.dashboard {
     &:hover {
@@ -20,6 +48,12 @@
       /* For Safari */
       a .label {
         display: inline;
+      }
+      
+      .user-info {
+        .user-name, .user-role {
+          display: block;
+        }
       }
     }
   }

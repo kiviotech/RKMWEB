@@ -660,15 +660,48 @@ const BookRoomBed = ({ blockId, refreshTrigger, viewMode, arrivalDate, departure
 
   // Modified handleListViewBedSelection to include room parameter
   const handleListViewBedSelection = (roomId, date, totalAvailableBeds, room) => {
+    // DEBUG LOGGING START
+    console.log('[Dormitory Selection] roomId:', roomId, 'room:', room);
+    console.log('[Dormitory Selection] arrivalDate:', arrivalDate, 'departureDate:', departureDate);
+    const debugBedsPerDate = dates
+      .filter(d => isDateInRange(d, arrivalDate, departureDate))
+      .map(d => ({
+        date: d,
+        availableBeds: getAvailableBedsForDate(room, d)
+      }));
+    console.log('[Dormitory Selection] Available beds per date in range:', debugBedsPerDate);
+    // DEBUG LOGGING END
+
+    // For dormitory rooms, only block if any date in the range has 0 available beds
+    if (room.attributes.no_of_beds > 10) {
+      const isFullyBooked = dates.some(d => {
+        const inRange = isDateInRange(d, arrivalDate, departureDate);
+        const beds = getAvailableBedsForDate(room, d);
+        console.log('[isFullyBooked debug]', {
+          date: d,
+          inRange,
+          availableBeds: beds,
+          fullyBookedOnThisDate: inRange && beds === 0
+        });
+        return beds === 0 && inRange;
+      });
+      if (isFullyBooked) {
+        alert("No beds available for some dates in your selected range. Please choose another room or date.");
+        return;
+      }
+    }
+
     if (!selectedGuests?.length) {
       alert("Please select a guest first before allocating a room");
       return;
     }
 
-    // Check for allocation conflicts
-    if (hasAllocationInDateRange(room, arrivalDate, departureDate)) {
-      alert("This room is already allocated for some dates in your selected range. Please choose another room.");
-      return;
+    // Only check for allocation conflicts for non-dormitory rooms
+    if (!(room.attributes.no_of_beds > 10)) {
+      if (hasAllocationInDateRange(room, arrivalDate, departureDate)) {
+        alert("This room is already allocated for some dates in your selected range. Please choose another room.");
+        return;
+      }
     }
 
     // Calculate all updates first
@@ -823,7 +856,9 @@ const BookRoomBed = ({ blockId, refreshTrigger, viewMode, arrivalDate, departure
                 };
 
                 const allBedsSelected = selectedCount >= availableBeds;
-                const isClickable = !isBlocked && !hasAllocation && isInRange && availableBeds > 0 && !allBedsSelected;
+                // Updated logic: allow clicking dormitory cells if availableBeds > 0, regardless of allocations
+const isDormitory = room.attributes.no_of_beds > 10;
+const isClickable = !isBlocked && isInRange && availableBeds > 0 && !allBedsSelected && (isDormitory || !hasAllocation);
 
                 return (
                   <div
@@ -1012,14 +1047,15 @@ const getTooltipContent = (
   currentDate,
   onBedManagementClick
 ) => {
-  const allocation = roomAllocations?.data?.find((allocation) => {
-    const checkDate = new Date(
-      currentDate.year,
-      new Date(Date.parse(`01 ${currentDate.month} 2000`)).getMonth(),
-      currentDate.day
-    );
-    checkDate.setHours(0, 0, 0, 0);
+  // Find all allocations for this date
+  const checkDate = new Date(
+    currentDate.year,
+    new Date(Date.parse(`01 ${currentDate.month} 2000`)).getMonth(),
+    currentDate.day
+  );
+  checkDate.setHours(0, 0, 0, 0);
 
+  const allocationsForDate = (roomAllocations?.data || []).filter((allocation) => {
     // Check dates from either guests or booking request
     if (allocation.attributes.guests?.data?.length > 0) {
       const fromDate = new Date(allocation.attributes.guests.data[0].attributes.arrival_date);
@@ -1037,47 +1073,37 @@ const getTooltipContent = (
     return false;
   });
 
-  if (allocation) {
-    if (allocation.attributes.guests?.data?.length > 0) {
-      // Show guest details as before
-      const guests = allocation.attributes.guests.data;
-      return (
-        <div
-          className="tooltip-content"
-          onClick={() => onBedManagementClick?.(allocation)}
-          style={{ cursor: "pointer" }}
-        >
-          <h4>Room Allocation Details:</h4>
-          {guests.map((guest, index) => (
-            <div key={index} className="guest-details">
-              <p><strong>Guest {index + 1}:</strong></p>
-              <p>Name: {guest.attributes?.name}</p>
-              <p>From: {guest.attributes?.arrival_date}</p>
-              <p>To: {guest.attributes?.departure_date}</p>
-              <p>Phone: {guest.attributes?.phone_number}</p>
-            </div>
-          ))}
-        </div>
-      );
-    } else if (allocation.attributes.booking_request?.data) {
-      // Show booking request details with occupancy
-      const request = allocation.attributes.booking_request.data.attributes;
-      return (
-        <div
-          className="tooltip-content"
-          onClick={() => onBedManagementClick?.(allocation)}
-          style={{ cursor: "pointer" }}
-        >
-          <h4>Room Allocation Details:</h4>
-          <p><strong>Booking Request:</strong></p>
-          <p>Name: {request.name}</p>
-          <p>From: {request.arrival_date}</p>
-          <p>To: {request.departure_date}</p>
-          <p>Occupancy: {allocation.attributes.occupancy}</p>
-          <p>Phone: {request.phone_number}</p>
-        </div>
-      );
-    }
+  if (allocationsForDate.length > 0) {
+    return (
+      <div className="tooltip-content">
+        <h4>Bookings for this date:</h4>
+        {allocationsForDate.map((allocation, allocIdx) => (
+          <div key={allocIdx} className="booking-details" style={{marginBottom:8}}>
+            <div style={{fontWeight:'bold', marginBottom:4}}>Booking {allocIdx + 1}:</div>
+            {allocation.attributes.guests?.data?.length > 0 ? (
+              <div>
+                {allocation.attributes.guests.data.map((guest, guestIdx) => (
+                  <div key={guestIdx} className="guest-details" style={{marginLeft:12, marginBottom:4}}>
+                    <span>👤 <b>{guest.attributes?.name}</b></span><br />
+                    <span>From: {guest.attributes?.arrival_date}</span><br />
+                    <span>To: {guest.attributes?.departure_date}</span><br />
+                    <span>Phone: {guest.attributes?.phone_number}</span>
+                  </div>
+                ))}
+              </div>
+            ) : allocation.attributes.booking_request?.data ? (
+              <div style={{marginLeft:12}}>
+                <span><b>Booking Request:</b> {allocation.attributes.booking_request.data.attributes.name}</span><br />
+                <span>From: {allocation.attributes.booking_request.data.attributes.arrival_date}</span><br />
+                <span>To: {allocation.attributes.booking_request.data.attributes.departure_date}</span><br />
+                <span>Occupancy: {allocation.attributes.occupancy}</span><br />
+                <span>Phone: {allocation.attributes.booking_request.data.attributes.phone_number}</span>
+              </div>
+            ) : null}
+          </div>
+        ))}
+      </div>
+    );
   }
 
   // Check for blockings if no allocation

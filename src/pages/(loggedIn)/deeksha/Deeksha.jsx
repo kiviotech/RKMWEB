@@ -222,86 +222,131 @@ const Deeksha = () => {
     };
   }, []);
 
-  const handleExport = () => {
-    // Prepare data for export with all applications
-    const exportData = allApplications.map((app, index) => ({
-      "Sl No.": index + 1,
-      Name: app.name,
-      "Mobile Number": app.mobile,
-      "E-mail": app.email,
-      Address: app.address,
-      Status: app.status,
-      "Aadhar Number": app.aadharNo,
-      "PAN Number": app.panNo,
-      Gender: app.gender,
-      Education: app.education,
-      Occupation: app.occupation,
-      "Marital Status": app.maritalStatus,
-      State: app.state,
-      District: app.district,
-      Pincode: app.pincode,
-      Country: app.country,
-      "Languages Known": app.languagesKnown,
-      "Booklet Language": app.bookletLanguage,
-      "Has Disabilities": app.disabilities ? "Yes" : "No",
-      "Has Hearing Problems": app.hearingProblems ? "Yes" : "No",
-      "Waiting for Deeksha (Years)": app.waitingForDeeksha,
-    }));
+const handleExport = () => {
+  if (allApplications.length === 0) {
+    alert("No applications available to export");
+    return;
+  }
 
-    // Create worksheet with custom column widths
-    const worksheet = XLSX.utils.json_to_sheet(exportData);
+  // Show loading indicator
+  setLoading(true);
+  
+  setTimeout(() => {
+    try {
+      // Header rows as in your screenshot (customize event/date/location/guru as needed)
+      const header1 = [
+        '11/11/23', 'KOLKATA', 'SWAMI SUHITANANDA MAHARAJ', '', '', '', '', '', '', '', '', '', '', '', ''
+      ];
+      const header2 = [
+        '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''
+      ];
+      const columns = [
+        'SL.No', 'Initiation Number', 'Devotees Name', 'Gender/ Age', 'Qualification', 'Phone', 'Email',
+        'ID Proof Type', 'Mailing Language', 'Email', 'SMS', 'Postal', 'Address', 'Diksha Book Language'
+      ];
 
-    // Set column widths
-    const columnWidths = Object.keys(exportData[0]).map((key) => ({
-      wch: Math.max(key.length, 15), // minimum width of 15 characters
-    }));
-    worksheet["!cols"] = columnWidths;
+      // Map data to match columns (fill with blanks or 0 as needed)
+      const dataRows = allApplications.map((app, idx) => [
+        idx + 1,
+        app.initiationNumber || '',
+        app.name || '',
+        app.genderAge || '',
+        app.qualification || '',
+        app.mobile || '',
+        app.email || '',
+        app.idProofType || '',
+        app.mailingLanguage || '',
+        '0', // Email (preference, as in screenshot)
+        '0', // SMS (preference)
+        '0', // Postal (preference)
+        app.address || '',
+        app.bookLanguage || ''
+      ]);
 
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Deeksha Applications");
+      // Combine all rows
+      const sheetData = [header1, header2, columns, ...dataRows];
 
-    // Generate Excel file with current date in filename
-    const date = new Date().toISOString().split("T")[0];
-    XLSX.writeFile(workbook, `Deeksha_Applications_${date}.xlsx`);
-  };
+      // Create worksheet and workbook
+      const ws = XLSX.utils.aoa_to_sheet(sheetData);
 
-  const handleSendReminder = (data) => {
-    setModalData(data);
-    setIsModalOpen(true);
+      // Merge header cells for event/date/location/guru row (A1:O1)
+      ws['!merges'] = [
+        { s: { r: 0, c: 0 }, e: { r: 0, c: 14 } }
+      ];
 
-    // Auto close after 3 seconds
-    setTimeout(() => {
-      setIsModalOpen(false);
-      setModalData(null);
-    }, 3000);
-  };
+      // Set column widths for readability
+      ws['!cols'] = [
+        { wch: 8 },  // SL.No
+        { wch: 18 }, // Initiation Number
+        { wch: 24 }, // Devotees Name
+        { wch: 12 }, // Gender/ Age
+        { wch: 16 }, // Qualification
+        { wch: 15 }, // Phone
+        { wch: 28 }, // Email
+        { wch: 18 }, // ID Proof Type
+        { wch: 18 }, // Mailing Language
+        { wch: 8 },  // Email (pref)
+        { wch: 8 },  // SMS (pref)
+        { wch: 8 },  // Postal (pref)
+        { wch: 40 }, // Address
+        { wch: 18 }  // Diksha Book Language
+      ];
 
-  const handleFormClick = (guruName) => {
-    // Update the store with the selected guru's name
-    updatePersonalDetails({ guruji: guruName });
-    // Navigate to the form page
-    navigate("/deeksha-form");
-  };
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'Deeksha Report');
 
-  return (
-    <div className="deeksha-page">
-      <div className="deeksha-container">
-        <div className="left-section">
-          {/* Statistics Cards */}
-          <div className="stats-container-main">
-            <div className="stats-card purple">
-              <h2>{stats.total}</h2>
-              <p>Total Applications</p>
-            </div>
-            <div className="stats-card orange">
-              <h2>{stats.pending}</h2>
-              <p>Pending Applications</p>
-            </div>
-            <div className="stats-card green">
-              <h2>{stats.approved}</h2>
-              <p>Approved Applications</p>
-            </div>
+      // Generate filename with current date
+      const today = new Date();
+      const date = today.toISOString().split('T')[0];
+      const filename = `Deeksha_Report_${date}.xlsx`;
+
+      XLSX.writeFile(wb, filename);
+    } catch (error) {
+      console.error('Error exporting to Excel:', error);
+      alert('Failed to export data. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  }, 300);
+};
+
+const handleSendReminder = (data) => {
+  setModalData(data);
+  setIsModalOpen(true);
+
+  // Auto close after 3 seconds
+  setTimeout(() => {
+    setIsModalOpen(false);
+    setModalData(null);
+  }, 3000);
+};
+
+const handleFormClick = (guruName) => {
+  // Update the store with the selected guru's name
+  updatePersonalDetails({ guruji: guruName });
+  // Navigate to the form page
+  navigate("/deeksha-form");
+};
+
+return (
+  <div className="deeksha-page">
+    <div className="deeksha-container">
+      <div className="left-section">
+        {/* Statistics Cards */}
+        <div className="stats-container-main">
+          <div className="stats-card purple">
+            <h2>{stats.total}</h2>
+            <p>Total Applications</p>
           </div>
+          <div className="stats-card orange">
+            <h2>{stats.pending}</h2>
+            <p>Pending Applications</p>
+          </div>
+          <div className="stats-card green">
+            <h2>{stats.approved}</h2>
+            <p>Approved Applications</p>
+          </div>
+        </div>
 
           {/* Upcoming Diksha Section */}
           <div className="upcoming-diksha">

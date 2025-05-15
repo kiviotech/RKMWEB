@@ -15,7 +15,7 @@ export const createDonation = (data) =>
 
 // Update a donation by ID
 export const updateDonation = (id, data) =>
-  apiClient.put(donationsEndpoints.updateDonation(id), data);
+  apiClient.put(donationsEndpoints.updateDonation(id), { data });
 
 // Delete a donation by ID
 export const deleteDonation = (id) =>

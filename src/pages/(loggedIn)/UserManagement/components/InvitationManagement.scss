@@ -1,0 +1,227 @@
+.invitation-management {
+  .criteria-section {
+    margin-bottom: 25px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border-color);
+
+    h3 {
+      margin-bottom: 15px;
+      font-size: 18px;
+      font-weight: 500;
+    }
+    
+    .criteria-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 15px;
+      margin-bottom: 20px;
+      
+      .criteria-item {
+        label {
+          display: block;
+          margin-bottom: 5px;
+          font-weight: 500;
+          
+          input[type="number"],
+          input[type="date"] {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            margin-top: 5px;
+          }
+        }
+        
+        .checkbox-label {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          cursor: pointer;
+          
+          input[type="checkbox"] {
+            margin: 0;
+          }
+        }
+      }
+    }
+    
+    .criteria-actions {
+      display: flex;
+      justify-content: flex-end;
+    }
+  }
+  
+  .users-section {
+    margin-bottom: 25px;
+    
+    .users-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+      
+      h3 {
+        font-size: 18px;
+        font-weight: 500;
+      }
+      
+      .search-input-wrapper {
+        position: relative;
+        width: 250px;
+        
+        svg {
+          position: absolute;
+          left: 10px;
+          top: 50%;
+          transform: translateY(-50%);
+          color: var(--muted-foreground);
+        }
+        
+        .search-input {
+          width: 100%;
+          padding: 8px 8px 8px 35px;
+          border: 1px solid var(--border-color);
+          border-radius: 4px;
+          font-size: 14px;
+        }
+      }
+    }
+    
+    .users-list {
+      max-height: 400px;
+      overflow-y: auto;
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      
+      .users-table {
+        width: 100%;
+        border-collapse: collapse;
+        
+        th, td {
+          padding: 10px;
+          text-align: left;
+          border-bottom: 1px solid var(--border-color);
+        }
+        
+        th {
+          background-color: var(--muted);
+          position: sticky;
+          top: 0;
+          z-index: 1;
+        }
+        
+        tbody tr:hover {
+          background-color: var(--accent);
+        }
+        
+        .address-text {
+          max-width: 300px;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+      }
+    }
+  }
+  
+  .action-section {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    
+    @media (max-width: 768px) {
+      grid-template-columns: 1fr;
+    }
+    
+    .export-section,
+    .invitation-section {
+      h3 {
+        margin-bottom: 15px;
+        font-size: 18px;
+        font-weight: 500;
+      }
+      
+      .export-options,
+      .invitation-options {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        
+        .option-item {
+          display: flex;
+          flex-direction: column;
+          gap: 5px;
+          
+          &.full-width {
+            grid-column: 1 / -1;
+          }
+          
+          label {
+            font-weight: 500;
+          }
+          
+          select {
+            padding: 8px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            background-color: var(--background);
+          }
+          
+          textarea {
+            padding: 8px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            resize: vertical;
+            font-family: inherit;
+          }
+          
+          .hint-text {
+            font-size: 0.85em;
+            color: var(--muted-foreground);
+            margin-top: 5px;
+          }
+          
+          .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            
+            input[type="checkbox"] {
+              margin: 0;
+            }
+          }
+        }
+      }
+    }
+  }
+  
+  .feedback-message {
+    margin-top: 20px;
+    padding: 15px;
+    border-radius: 4px;
+    font-weight: 500;
+    
+    &.success {
+      background-color: rgba(0, 192, 115, 0.1);
+      border: 1px solid rgba(0, 192, 115, 0.2);
+      color: #00c073;
+    }
+    
+    &.error {
+      background-color: rgba(255, 71, 87, 0.1);
+      border: 1px solid rgba(255, 71, 87, 0.2);
+      color: #ff4757;
+    }
+  }
+  
+  .no-users-found {
+    padding: 30px;
+    text-align: center;
+    color: var(--muted-foreground);
+    
+    p {
+      font-size: 16px;
+    }
+  }
+}

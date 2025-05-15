@@ -79,7 +79,8 @@ const VerifyDetails = () => {
           address: `${formData.address.houseNumber}, ${formData.address.streetName}, ${formData.address.postOffice}, ${formData.address.district}, ${formData.address.state}, ${formData.address.pinCode}`,
           age: parseInt(formData.age),
           gender: formData.gender,
-          status: "Not Arrived",
+          status: "pending", // Updated to use valid status value for workflow status
+          arrival_status: "Not Arrived", // Added new field for tracking physical arrival
           deeksha: formData.deeksha,
           email: formData.email || `${formData.name.toLowerCase().replace(/\s+/g, "")}@gmail.com`,
           relationship: "applicant",
@@ -119,7 +120,8 @@ const VerifyDetails = () => {
                 : `${guest.guestAddress.houseNumber}, ${guest.guestAddress.streetName}, ${guest.guestAddress.postOffice}, ${guest.guestAddress.district}, ${guest.guestAddress.state}, ${guest.guestAddress.pinCode}`,
               age: parseInt(guest.guestAge),
               gender: guest.guestGender,
-              status: "Not Arrived",
+              status: "pending", // Updated to use valid status value for workflow status
+              arrival_status: "Not Arrived", // Added new field for tracking physical arrival
               deeksha: guest.guestDeeksha,
               email: guest.guestEmail || `${guest.guestName.toLowerCase().replace(/\s+/g, "")}@gmail.com`,
               relationship: guest.guestRelation || "guest",

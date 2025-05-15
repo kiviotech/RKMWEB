@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import {
   fetchDonations,
   updateDonationById,
@@ -11,6 +11,7 @@ import { useAuthStore } from "../../../../store/authStore";
 import useDonationStore from "../../../../donationStore";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import DonationEditModal from "../../../components/DonationEditModal";
 
 const AllDonation = ({
   searchTerm = "",
@@ -20,6 +21,7 @@ const AllDonation = ({
   currentPage = 1,
   itemsPerPage = 10,
   setTotalPages = () => { }, // Provide default empty function
+  editModeEnabled = false, // Whether edit mode is enabled after OTP verification
   filterOptions = {
     receiptNumber: true,
     donorName: true,
@@ -41,73 +43,99 @@ const AllDonation = ({
   const [selectedDonationId, setSelectedDonationId] = useState(null);
   const user = useAuthStore((state) => state.user);
   const [showPassword, setShowPassword] = useState(false);
+  
+  // State for donation edit modal
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [selectedDonation, setSelectedDonation] = useState(null);
 
+  // Handle edit button click
+  const handleEditClick = (donation) => {
+    setSelectedDonation(donation);
+    setShowEditModal(true);
+  };
+  
+  // Handle edit modal close
+  const handleEditModalClose = (refreshData = false) => {
+    setShowEditModal(false);
+    setSelectedDonation(null);
+    
+    // Reload donations if changes were made
+    if (refreshData) {
+      loadDonations();
+    }
+  };
+  
+  // Load donations function (extracted for reuse)
+  const loadDonations = async () => {
+    try {
+      setLoading(true);
+      const response = await fetchDonations();
+      setDonations(response.data || []);
+    } catch (err) {
+      setError("Failed to load donations");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Load donations on component mount
   useEffect(() => {
-    const loadDonations = async () => {
-      try {
-        const response = await fetchDonations();
-        // console.log("Raw API Response:", response);
-        // console.log("Donations Data:", response.data);
-        setDonations(response.data || []);
-      } catch (err) {
-        // console.error("API Error:", err);
-        setError("Failed to load donations");
-      } finally {
-        setLoading(false);
-      }
-    };
-
     loadDonations();
   }, []);
 
-  const filteredDonations = donations.filter((donation) => {
-    const searchString = (searchTerm || "").toLowerCase();
-    const donationDate =
-      donation.attributes.receipt_detail?.data?.attributes?.donation_date ||
-      donation.attributes.updatedAt;
+  // Use useMemo to prevent recalculating filtered donations on every render
+  const filteredDonations = useMemo(() => {
+    return donations.filter((donation) => {
+      const searchString = (searchTerm || "").toLowerCase();
+      const donationDate =
+        donation.attributes.receipt_detail?.data?.attributes?.donation_date ||
+        donation.attributes.updatedAt;
 
-    // Search term filter
-    const matchesSearch =
-      donation.attributes.guest?.data?.attributes?.name
-        ?.toLowerCase()
-        .includes(searchString) ||
-      donation.attributes.guest?.data?.attributes?.phone_number?.includes(
-        searchString
+      // Search term filter
+      const matchesSearch =
+        donation.attributes.guest?.data?.attributes?.name
+          ?.toLowerCase()
+          .includes(searchString) ||
+        donation.attributes.guest?.data?.attributes?.phone_number?.includes(
+          searchString
+        );
+
+      // Date range filter
+      let matchesDateRange = true;
+      if (dateRange.startDate && dateRange.endDate) {
+        const donationDateTime = new Date(donationDate).setHours(0, 0, 0, 0);
+        const startDateTime = new Date(dateRange.startDate).setHours(0, 0, 0, 0);
+        const endDateTime = new Date(dateRange.endDate).setHours(23, 59, 59, 999);
+
+        matchesDateRange =
+          donationDateTime >= startDateTime && donationDateTime <= endDateTime;
+      }
+
+      // Updated status filter
+      const matchesStatus =
+        selectedStatus === "ALL" ||
+        donation.attributes.status.toUpperCase() === selectedStatus;
+
+      // Add donatedFor filter
+      const matchesDonatedFor =
+        donatedFor === "ALL" ||
+        donation.attributes.donationFor?.toUpperCase() === donatedFor;
+
+      return (
+        matchesSearch && matchesDateRange && matchesStatus && matchesDonatedFor
       );
-
-    // Date range filter
-    let matchesDateRange = true;
-    if (dateRange.startDate && dateRange.endDate) {
-      const donationDateTime = new Date(donationDate).setHours(0, 0, 0, 0);
-      const startDateTime = new Date(dateRange.startDate).setHours(0, 0, 0, 0);
-      const endDateTime = new Date(dateRange.endDate).setHours(23, 59, 59, 999);
-
-      matchesDateRange =
-        donationDateTime >= startDateTime && donationDateTime <= endDateTime;
-    }
-
-    // Updated status filter
-    const matchesStatus =
-      selectedStatus === "ALL" ||
-      donation.attributes.status.toUpperCase() === selectedStatus;
-
-    // Add donatedFor filter
-    const matchesDonatedFor =
-      donatedFor === "ALL" ||
-      donation.attributes.donationFor?.toUpperCase() === donatedFor;
-
-    return (
-      matchesSearch && matchesDateRange && matchesStatus && matchesDonatedFor
-    );
-  });
+    });
+  }, [donations, searchTerm, dateRange, selectedStatus, donatedFor]);
 
   // Calculate total pages whenever filtered data changes
+  // We use a separate useEffect with a more stable dependency to avoid render loops
   useEffect(() => {
-    if (filteredDonations && typeof setTotalPages === "function") {
+    if (typeof setTotalPages === "function") {
       const total = Math.ceil(filteredDonations.length / itemsPerPage);
-      setTotalPages(total);
+      // Only update if total has changed to prevent unnecessary re-renders
+      setTotalPages(prev => prev !== total ? total : prev);
     }
-  }, [filteredDonations, itemsPerPage, setTotalPages]);
+  }, [filteredDonations.length, itemsPerPage]);  // filteredDonations.length is more stable than the whole array
 
   // Add logging for filtered donations
   // useEffect(() => {
@@ -571,6 +599,17 @@ const AllDonation = ({
                     )}
                     {filterOptions.action && (
                       <td className="action-cell">
+                        {/* Edit button shown when edit mode is enabled */}
+                        {editModeEnabled && (
+                          <button
+                            className="edit-btn"
+                            onClick={() => handleEditClick(donation)}
+                          >
+                            Edit
+                          </button>
+                        )}
+                        
+                        {/* Regular action buttons */}
                         {(donation.attributes.status.toLowerCase() ===
                           "pending" ||
                           donation.attributes.status.toLowerCase() ===
@@ -624,6 +663,14 @@ const AllDonation = ({
           )}
         </div>
       </div>
+      {/* Donation Edit Modal */}
+      {showEditModal && selectedDonation && (
+        <DonationEditModal
+          isOpen={showEditModal}
+          onClose={handleEditModalClose}
+          donation={selectedDonation}
+        />
+      )}
     </div>
   );
 };

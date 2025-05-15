@@ -5,8 +5,75 @@ import useApplicationStore from "../../../../../useApplicationStore";
 import { icons } from "../../../../constants";
 import ApplicationFormHeader from "../../ApplicationFormHeader";
 import { fetchGuestDetails } from "../../../../../services/src/services/guestDetailsService";
+import { checkGuestByAadhaar, fetchGuestDetailsById } from "./guestDetailsApi";
+import OtpVerificationModal from "../../../../components/OtpVerificationModal";
 
 const ApplicationDetails = ({ goToNextStep, tabName }) => {
+  // ...existing state
+  const [aadhaarDuplicate, setAadhaarDuplicate] = useState(false);
+  const [aadhaarGuestId, setAadhaarGuestId] = useState(null);
+  const [showAadhaarModal, setShowAadhaarModal] = useState(false);
+  const [showOtpModal, setShowOtpModal] = useState(false);
+  const [aadhaarCheckLoading, setAadhaarCheckLoading] = useState(false);
+  const [aadhaarCheckError, setAadhaarCheckError] = useState("");
+
+  // Modal handlers
+  const handleAadhaarModalClose = () => setShowAadhaarModal(false);
+  const handleOtpModalClose = () => setShowOtpModal(false);
+
+  // Autofill details after OTP
+  const autofillGuestDetails = async (guestId) => {
+    try {
+      const data = await fetchGuestDetailsById(guestId);
+      if (data && data.data && data.data.attributes) {
+        const guest = data.data.attributes;
+        setFormData("title", guest.title || "");
+        setFormData("name", guest.name || "");
+        setFormData("phoneNumber", guest.phone_number || "");
+        setFormData("email", guest.email || "");
+        setFormData("occupation", guest.occupation || "");
+        setFormData("deeksha", guest.deeksha || "");
+        setFormData("aadhaar", guest.unique_no || "");
+        setFormData("id", data.data.id || "");
+        // Address
+        if (guest.address) {
+          setAddressData("address", guest.address);
+        }
+      }
+    } catch (error) {
+      alert("Failed to autofill details.");
+    }
+  };
+
+  // Aadhaar check on blur
+  const handleAadhaarBlur = async (e) => {
+    const aadhaar = e.target.value;
+    if (/^\d{12}$/.test(aadhaar)) {
+      setAadhaarCheckLoading(true);
+      setAadhaarCheckError("");
+      try {
+        const res = await checkGuestByAadhaar(aadhaar);
+        if (res && res.exists && res.guestId) {
+          setAadhaarDuplicate(true);
+          setAadhaarGuestId(res.guestId);
+          setShowAadhaarModal(true);
+        } else {
+          setAadhaarDuplicate(false);
+          setAadhaarGuestId(null);
+        }
+      } catch (err) {
+        if (err.response && err.response.status === 404) {
+          setAadhaarDuplicate(false);
+          setAadhaarGuestId(null);
+        } else {
+          setAadhaarCheckError("Error checking Aadhaar. Try again.");
+        }
+      } finally {
+        setAadhaarCheckLoading(false);
+      }
+    }
+  };
+
   const {
     formData,
     errors,
@@ -962,18 +1029,17 @@ const ApplicationDetails = ({ goToNextStep, tabName }) => {
                   name="aadhaar"
                   value={formData.aadhaar}
                   onChange={(e) => {
-                    const value = e.target.value
-                      .replace(/\D/g, "")
-                      .slice(0, 12);
+                    const value = e.target.value.replace(/\D/g, "").slice(0, 12);
                     handleInputChange({
-                      target: {
-                        name: "aadhaar",
-                        value,
-                      },
+                      target: { name: "aadhaar", value },
                     });
                   }}
+                  onBlur={handleAadhaarBlur}
                   placeholder="••••••••••••"
+                  disabled={aadhaarCheckLoading}
                 />
+                {aadhaarCheckLoading && <span className="info">Checking...</span>}
+                {aadhaarCheckError && <span className="error">{aadhaarCheckError}</span>}
                 {errors.aadhaar && (
                   <span className="error">{errors.aadhaar}</span>
                 )}
@@ -1144,6 +1210,49 @@ const ApplicationDetails = ({ goToNextStep, tabName }) => {
           </div>
         )}
       </form>
+      {/* Aadhaar Duplicate Modal */}
+      {showAadhaarModal && (
+        <div className="modal-overlay">
+          <div className="modal aadhaar-duplicate-modal">
+            <h3>Aadhaar Already Registered</h3>
+            <p>This Aadhaar number is already registered. Do you want to use your existing details?</p>
+            <div className="modal-actions">
+              <button
+                className="use-old-details-btn"
+                style={{ background: "#EA7704", color: "#fff" }}
+                onClick={() => {
+                  setShowAadhaarModal(false);
+                  setShowOtpModal(true);
+                }}
+              >
+                Use Old Details
+              </button>
+              <button
+                className="cancel-btn"
+                style={{ marginLeft: 12, background: "#fff", color: "#EA7704", border: "1px solid #EA7704" }}
+                onClick={() => {
+                  setShowAadhaarModal(false);
+                  setAadhaarDuplicate(false);
+                  setAadhaarGuestId(null);
+                }}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* OTP Modal */}
+      {showOtpModal && (
+        <OtpVerificationModal
+          isOpen={showOtpModal}
+          onClose={() => setShowOtpModal(false)}
+          onVerified={async () => {
+            setShowOtpModal(false);
+            if (aadhaarGuestId) await autofillGuestDetails(aadhaarGuestId);
+          }}
+        />
+      )}
     </div>
   );
 };

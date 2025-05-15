@@ -101,3 +101,67 @@ export const updateCouponAmountCollected = async (
     throw error;
   }
 };
+
+// Fetch coupon statistics for dashboard
+export const fetchCouponStats = async () => {
+  try {
+    // Fetch all coupons
+    const response = await getCoupons();
+    const coupons = response.data.data || [];
+    
+    if (!coupons.length) {
+      return {
+        totalCoupons: 0,
+        activeCoupons: 0,
+        redeemedCoupons: 0,
+        expiredCoupons: 0,
+        usageByType: {}
+      };
+    }
+    
+    const currentDate = new Date();
+    
+    // Calculate coupon statistics
+    let activeCoupons = 0;
+    let redeemedCoupons = 0;
+    let expiredCoupons = 0;
+    const usageByType = {};
+    
+    coupons.forEach(coupon => {
+      // Count by status
+      const expiryDate = new Date(coupon.attributes.expiry_date);
+      const isRedeemed = coupon.attributes.is_redeemed === true;
+      const isExpired = expiryDate < currentDate;
+      const isActive = !isRedeemed && !isExpired;
+      
+      if (isActive) activeCoupons++;
+      if (isRedeemed) redeemedCoupons++;
+      if (isExpired && !isRedeemed) expiredCoupons++;
+      
+      // Count by type
+      const couponType = coupon.attributes.type || 'Other';
+      if (!usageByType[couponType]) {
+        usageByType[couponType] = 0;
+      }
+      usageByType[couponType]++;
+    });
+    
+    return {
+      totalCoupons: coupons.length,
+      activeCoupons,
+      redeemedCoupons,
+      expiredCoupons,
+      usageByType
+    };
+  } catch (error) {
+    console.error("Error fetching coupon statistics:", error);
+    // Return default values if there's an error
+    return {
+      totalCoupons: 0,
+      activeCoupons: 0,
+      redeemedCoupons: 0,
+      expiredCoupons: 0,
+      usageByType: {}
+    };
+  }
+};

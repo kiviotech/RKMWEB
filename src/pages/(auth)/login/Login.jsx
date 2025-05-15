@@ -4,6 +4,7 @@ import CommonButton from "../../../components/ui/Button";
 import { useNavigate } from "react-router-dom";
 import { loginUser } from "../../../../services/auth";
 import { useAuthStore } from "../../../../store/authStore";
+import { ROLES } from "../../../constants/permissions";
 
 const Login = () => {
   const [formValues, setFormValues] = useState({ username: "", password: "" });
@@ -82,27 +83,88 @@ const Login = () => {
     } else {
       try {
         setIsLoading(true);
-        const response = await loginUser({
-          identifier: formValues.username.trim(),
-          password: formValues.password,
-        });
+        // Clear any previous errors
+        setFormErrors({})
+        
+        // Get browser and device information for logging
+        const userAgent = navigator.userAgent;
+        const browserInfo = {
+          userAgent,
+          platform: navigator.platform,
+          language: navigator.language,
+          screenSize: `${window.screen.width}x${window.screen.height}`
+        };
+        
+        console.log('[LOGIN] Login attempt from browser:', browserInfo);
 
+        // Check if user needs to verify OTP
+        let response;
+        try {
+          response = await loginUser({ 
+            identifier: formValues.username, 
+            password: formValues.password,
+            // Pass additional info for logging
+            browserInfo 
+          });
+        } catch (err) {
+          console.error("Error during login:", err);
+          setIsLoading(false);
+          setFormErrors({
+            ...formErrors,
+            password: err.message || "Failed to login",
+          });
+          return;
+        }
+
+        // User and token are already set in the loginUser function
+        // This is redundant but kept for backward compatibility
         setUser(response.user);
         setToken(response.jwt);
-
-        if (response.user.user_role === "superadmin") {
+        
+        console.log("[LOGIN DEBUG] Login successful, determining redirect");
+        console.log("[LOGIN DEBUG] User role info:", {
+          role_type: response.user.role?.type,
+          user_role: response.user.user_role
+        });
+        
+        // Use the same hasRole function as the rest of the app
+        const hasRole = useAuthStore.getState().hasRole;
+        
+        // Special handling for donation_admin since it's a common case
+        if (response.user?.role?.type === 'donation_admin' || response.user?.user_role === 'donation_admin') {
+          console.log("[LOGIN DEBUG] Donation Admin role detected directly, redirecting to donations");
           navigate("/newDonation");
-        } else if (response.user.user_role === "subadmin") {
+        }
+        // Standard role checks
+        else if (hasRole(ROLES.SUPER_ADMIN)) {
+          console.log("[LOGIN DEBUG] Super Admin role detected, redirecting to Super Admin Dashboard");
+          navigate("/super-admin-dashboard");
+        } else if (hasRole(ROLES.ADMIN)) {
+          console.log("[LOGIN DEBUG] Admin role detected, redirecting to donations");
           navigate("/newDonation");
-        } else if (response.user.user_role === "deeksha") {
+        } else if (hasRole(ROLES.DEEKSHA) || hasRole('deeksha')) {
+          console.log("[LOGIN DEBUG] Deeksha role detected, redirecting to deeksha");
           navigate("/deeksha");
+        } else if (hasRole(ROLES.DONATION) || hasRole(ROLES.DONATION_ADMIN)) {
+          console.log("[LOGIN DEBUG] Donation role detected, redirecting to donations");
+          navigate("/newDonation");
+        } else if (hasRole(ROLES.GUEST_HOUSE)) {
+          console.log("[LOGIN DEBUG] Guest House role detected, redirecting to dashboard");
+          navigate("/dashboard");
         } else {
+          console.log("[LOGIN DEBUG] Unknown role, showing error"); 
+          console.log("[LOGIN DEBUG] Role data:", {
+            role_object: response.user?.role,
+            user_role: response.user?.user_role,
+            has_donation_admin: hasRole(ROLES.DONATION_ADMIN)
+          });
           setFormErrors({
             ...formErrors,
             password: "Invalid user role or permissions",
           });
         }
       } catch (error) {
+        console.error("[LOGIN DEBUG] Login failed:", error);
         setFormErrors({
           ...formErrors,
           password: "Invalid username or password",
@@ -152,7 +214,24 @@ const Login = () => {
                 onChange={handleChange}
                 placeholder="Password"
                 disabled={isLoading}
+                autocomplete="current-password"
               />
+              <div className="forgot-password-link">
+                <span
+                  onClick={() => !isLoading && navigate('/forgot-password')}
+                  style={{
+                    cursor: isLoading ? 'default' : 'pointer',
+                    color: '#ea7704',
+                    fontSize: '14px',
+                    textAlign: 'right',
+                    display: 'block',
+                    marginTop: '8px',
+                    opacity: isLoading ? 0.6 : 1
+                  }}
+                >
+                  Forgot Password?
+                </span>
+              </div>
               <button
                 type="button"
                 className="show-password-btn"

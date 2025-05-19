@@ -9,6 +9,8 @@ const bookingRequestEndpoints = {
   createBookingRequest: "/booking-requests", // POST a new booking request
   updateBookingRequest: (id) => `/booking-requests/${id}`, // PUT to update a booking request by ID
   deleteBookingRequest: (id) => `/booking-requests/${id}`, // DELETE a booking request by ID
+  getLastBookingByGuestId: (guestId) =>
+    `/booking-requests?filters[guests][id][$eq]=${guestId}&sort[0]=createdAt:desc&populate=guests&pagination[limit]=1`,
 };
 
 export default bookingRequestEndpoints;

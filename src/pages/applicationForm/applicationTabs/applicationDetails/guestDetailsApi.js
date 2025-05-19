@@ -1,4 +1,5 @@
 import apiClient, { BASE_URL } from "../../../../../services/apiClient";
+import { fetchLastBookingByGuestId as fetchLastBookingByGuestIdService } from '../../../../../services/src/services/bookingRequestService';
 
 // Check if guest exists by Aadhaar (unique_no)
 export async function checkGuestByAadhaar(aadhaar) {
@@ -21,4 +22,8 @@ export async function fetchGuestDetailsById(guestId) {
   } catch (error) {
     throw error;
   }
+}
+
+export async function fetchLastBookingByGuestId(guestId) {
+  return fetchLastBookingByGuestIdService(guestId);
 }

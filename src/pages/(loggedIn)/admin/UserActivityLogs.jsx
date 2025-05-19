@@ -82,13 +82,19 @@ const UserActivityLogs = () => {
     setPage(newPage);
   };
 
+  const SORT_FIELD_MAP = {
+    timestamp: "timestamp",
+    username: "username",
+    action: "action",
+    ipAddress: "ipAddress"
+  };
+
   const handleSortChange = (field) => {
-    if (sortBy === field) {
-      // Toggle sort order if the same field is clicked
+    const backendField = SORT_FIELD_MAP[field] || field;
+    if (sortBy === backendField) {
       setSortOrder(sortOrder === "asc" ? "desc" : "asc");
     } else {
-      // Set new sort field and default to descending
-      setSortBy(field);
+      setSortBy(backendField);
       setSortOrder("desc");
     }
   };
@@ -241,25 +247,25 @@ const UserActivityLogs = () => {
                         className="sortable-header"
                         onClick={() => handleSortChange("timestamp")}
                       >
-                        Timestamp {sortBy === "timestamp" && (sortOrder === "asc" ? "↑" : "↓")}
+                        Timestamp {sortBy === SORT_FIELD_MAP.timestamp && (sortOrder === "asc" ? "↑" : "↓")}
                       </th>
                       <th 
                         className="sortable-header"
                         onClick={() => handleSortChange("username")}
                       >
-                        User {sortBy === "username" && (sortOrder === "asc" ? "↑" : "↓")}
+                        User {sortBy === SORT_FIELD_MAP.username && (sortOrder === "asc" ? "↑" : "↓")}
                       </th>
                       <th 
                         className="sortable-header"
                         onClick={() => handleSortChange("action")}
                       >
-                        Action {sortBy === "action" && (sortOrder === "asc" ? "↑" : "↓")}
+                        Action {sortBy === SORT_FIELD_MAP.action && (sortOrder === "asc" ? "↑" : "↓")}
                       </th>
                       <th 
                         className="sortable-header"
                         onClick={() => handleSortChange("ipAddress")}
                       >
-                        IP Address {sortBy === "ipAddress" && (sortOrder === "asc" ? "↑" : "↓")}
+                        IP Address {sortBy === SORT_FIELD_MAP.ipAddress && (sortOrder === "asc" ? "↑" : "↓")}
                       </th>
                       <th>User Agent</th>
                       <th>Details</th>

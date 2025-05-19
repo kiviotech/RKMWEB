@@ -5,7 +5,7 @@ import useApplicationStore from "../../../../../useApplicationStore";
 import { icons } from "../../../../constants";
 import ApplicationFormHeader from "../../ApplicationFormHeader";
 import { fetchGuestDetails } from "../../../../../services/src/services/guestDetailsService";
-import { checkGuestByAadhaar, fetchGuestDetailsById } from "./guestDetailsApi";
+import { checkGuestByAadhaar, fetchGuestDetailsById, fetchLastBookingByGuestId } from "./guestDetailsApi";
 import OtpVerificationModal from "../../../../components/OtpVerificationModal";
 
 const ApplicationDetails = ({ goToNextStep, tabName }) => {
@@ -16,6 +16,9 @@ const ApplicationDetails = ({ goToNextStep, tabName }) => {
   const [showOtpModal, setShowOtpModal] = useState(false);
   const [aadhaarCheckLoading, setAadhaarCheckLoading] = useState(false);
   const [aadhaarCheckError, setAadhaarCheckError] = useState("");
+  const [aadhaarGuestDetails, setAadhaarGuestDetails] = useState(null);
+  const [lastBookingGuests, setLastBookingGuests] = useState([]);
+  const [selectedAdditionalGuests, setSelectedAdditionalGuests] = useState([]);
 
   // Modal handlers
   const handleAadhaarModalClose = () => setShowAadhaarModal(false);
@@ -56,15 +59,46 @@ const ApplicationDetails = ({ goToNextStep, tabName }) => {
         if (res && res.exists && res.guestId) {
           setAadhaarDuplicate(true);
           setAadhaarGuestId(res.guestId);
+          // Fetch guest details for preview
+          try {
+            const details = await fetchGuestDetailsById(res.guestId);
+            setAadhaarGuestDetails(details?.data?.attributes || null);
+          } catch (fetchErr) {
+            setAadhaarGuestDetails(null);
+          }
+          // Fetch last booking and additional guests using guestId
+          try {
+            const bookingRes = await fetchLastBookingByGuestId(res.guestId);
+            const booking = bookingRes?.data?.[0];
+            if (booking && booking.guests && Array.isArray(booking.guests)) {
+              // Main guest is the one whose id matches guestId
+              const mainGuestId = res.guestId;
+              const additionalGuests = booking.guests.filter(g => g.id !== mainGuestId && g.id !== undefined);
+              setLastBookingGuests(additionalGuests);
+              setSelectedAdditionalGuests([]);
+            } else {
+              setLastBookingGuests([]);
+              setSelectedAdditionalGuests([]);
+            }
+          } catch (err) {
+            setLastBookingGuests([]);
+            setSelectedAdditionalGuests([]);
+          }
           setShowAadhaarModal(true);
         } else {
           setAadhaarDuplicate(false);
           setAadhaarGuestId(null);
+          setAadhaarGuestDetails(null);
+          setLastBookingGuests([]);
+          setSelectedAdditionalGuests([]);
         }
       } catch (err) {
         if (err.response && err.response.status === 404) {
           setAadhaarDuplicate(false);
           setAadhaarGuestId(null);
+          setAadhaarGuestDetails(null);
+          setLastBookingGuests([]);
+          setSelectedAdditionalGuests([]);
         } else {
           setAadhaarCheckError("Error checking Aadhaar. Try again.");
         }
@@ -81,6 +115,7 @@ const ApplicationDetails = ({ goToNextStep, tabName }) => {
     setAddressData,
     setErrors,
     setCountryCode,
+    setGuestData,
   } = useApplicationStore();
 
   const [countryCodes, setCountryCodes] = useState([]);
@@ -1214,19 +1249,104 @@ const ApplicationDetails = ({ goToNextStep, tabName }) => {
       {showAadhaarModal && (
         <div className="modal-overlay">
           <div className="modal aadhaar-duplicate-modal">
-            <h3>Aadhaar Already Registered</h3>
-            <p>This Aadhaar number is already registered. Do you want to use your existing details?</p>
+            <h3 style={{ color: '#EA7704', marginBottom: 8 }}>Aadhaar Already Registered</h3>
+            <p style={{ color: '#333', marginBottom: 12 }}>This Aadhaar number is already registered. Do you want to use your existing details?</p>
+            {aadhaarGuestDetails && (
+              <div className="guest-details-preview" style={{marginBottom: 16, background: '#fff7ed', borderRadius: 8, padding: 12, color: '#333'}}>
+                <div><b>Name:</b> {aadhaarGuestDetails.name}</div>
+                <div><b>Phone:</b> {aadhaarGuestDetails.phone_number}</div>
+                <div><b>Email:</b> {aadhaarGuestDetails.email}</div>
+                <div><b>Deeksha:</b> {aadhaarGuestDetails.deeksha}</div>
+                <div><b>Address:</b> {aadhaarGuestDetails.address}</div>
+              </div>
+            )}
+            {lastBookingGuests.length > 0 && (
+              <div style={{marginBottom: 16, width: '100%'}}>
+                <div style={{fontWeight: 600, marginBottom: 6}}>Additional Guests from Last Booking:</div>
+                <div style={{maxHeight: 120, overflowY: 'auto'}}>
+                  {lastBookingGuests.map((guest, idx) => (
+                    <label key={guest.id || idx} style={{display: 'block', marginBottom: 4, cursor: 'pointer'}}>
+                      <input
+                        type="checkbox"
+                        checked={selectedAdditionalGuests.includes(guest.id)}
+                        onChange={e => {
+                          if (e.target.checked) {
+                            setSelectedAdditionalGuests(prev => [...prev, guest.id]);
+                          } else {
+                            setSelectedAdditionalGuests(prev => prev.filter(id => id !== guest.id));
+                          }
+                        }}
+                        style={{marginRight: 8}}
+                      />
+                      {guest.name} ({guest.aadhaar || guest.unique_no})
+                    </label>
+                  ))}
+                </div>
+              </div>
+            )}
+            {lastBookingGuests.length === 0 && (
+              <div style={{marginBottom: 16, width: '100%', color: '#888', textAlign: 'center'}}>
+                No additional guests found from last booking.
+              </div>
+            )}
             <div className="modal-actions">
               <button
                 className="use-old-details-btn"
                 style={{ background: "#EA7704", color: "#fff" }}
-                onClick={() => {
+                onClick={async () => {
                   setShowAadhaarModal(false);
-                  setShowOtpModal(true);
+                  setAadhaarGuestDetails(null);
+                  if (aadhaarGuestId) await autofillGuestDetails(aadhaarGuestId);
                 }}
               >
                 Use Old Details
               </button>
+              {lastBookingGuests.length > 0 && (
+                <button
+                  className="add-guests-btn"
+                  style={{ background: "#EA7704", color: "#fff", marginRight: 8 }}
+                  onClick={async () => {
+                    // Fetch full details for each selected guest and add to Zustand store
+                    const guestsToAdd = lastBookingGuests.filter(g => selectedAdditionalGuests.includes(g.id));
+                    // Get current guests array and guestMembers count
+                    const currentGuests = [...formData.guests];
+                    let guestIndex = currentGuests.length;
+                    for (const guest of guestsToAdd) {
+                      // Fetch full guest details if needed (optional, if guest object is complete)
+                      // const guestDetails = await fetchGuestDetailsById(guest.id);
+                      // const g = guestDetails?.data?.attributes || guest;
+                      const g = guest; // Use guest as is
+                      // Fill all fields as per GuestDetails.jsx
+                      setFormData("guestMembers", guestIndex + 1);
+                      setGuestData(guestIndex, "guestTitle", g.title || "");
+                      setGuestData(guestIndex, "guestName", g.name || "");
+                      setGuestData(guestIndex, "guestNumber", g.phone_number || "");
+                      setGuestData(guestIndex, "guestEmail", g.email || "");
+                      setGuestData(guestIndex, "guestOccupation", g.occupation || "");
+                      setGuestData(guestIndex, "guestDeeksha", g.deeksha || "");
+                      setGuestData(guestIndex, "guestAge", g.age || "");
+                      setGuestData(guestIndex, "guestGender", g.gender || "");
+                      setGuestData(guestIndex, "guestAadhaar", g.aadhaar || g.unique_no || "");
+                      setGuestData(guestIndex, "guestId", g.id || "");
+                      setGuestData(guestIndex, "guestUniqueNo", g.unique_no || "");
+                      // Address
+                      if (g.address) {
+                        const addressParts = g.address.split(',').map(part => part.trim());
+                        setGuestData(guestIndex, "guestAddress.state", addressParts[2] || "");
+                        setGuestData(guestIndex, "guestAddress.district", addressParts[1] || "");
+                        setGuestData(guestIndex, "guestAddress.pinCode", addressParts[3] || "");
+                      }
+                      guestIndex++;
+                    }
+                    setShowAadhaarModal(false);
+                    setAadhaarGuestDetails(null);
+                    setLastBookingGuests([]);
+                    setSelectedAdditionalGuests([]);
+                  }}
+                >
+                  Add Guest(s)
+                </button>
+              )}
               <button
                 className="cancel-btn"
                 style={{ marginLeft: 12, background: "#fff", color: "#EA7704", border: "1px solid #EA7704" }}
@@ -1234,6 +1354,7 @@ const ApplicationDetails = ({ goToNextStep, tabName }) => {
                   setShowAadhaarModal(false);
                   setAadhaarDuplicate(false);
                   setAadhaarGuestId(null);
+                  setAadhaarGuestDetails(null);
                 }}
               >
                 Cancel

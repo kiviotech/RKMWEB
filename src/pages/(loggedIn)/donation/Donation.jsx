@@ -18,6 +18,14 @@ import ExportReport from "./ExportReport";
 
 const Donation = () => {
   const navigate = useNavigate();
+  // Add refresh trigger state
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
+  
+  // Add refresh function
+  const refreshData = () => {
+    setRefreshTrigger(prev => prev + 1);
+  };
+
   // Data for the donut chart
   const [distributionData, setDistributionData] = useState([
     { name: "Math Donation", value: 0, color: "#8b5cf6" },
@@ -66,6 +74,7 @@ const Donation = () => {
     setLeavingGuestsTotalPages(Math.ceil(filteredData.length / itemsPerPage));
   }, [guestData, tomorrowGuestSearchTerm]); // Add dependencies
 
+  // Update useEffect for fetching guest details to depend on refreshTrigger
   useEffect(() => {
     const getGuestDetails = async () => {
       try {
@@ -160,7 +169,7 @@ const Donation = () => {
     };
 
     getGuestDetails();
-  }, []);
+  }, [refreshTrigger]); // Add dependency on refreshTrigger
 
   // Add state for tracking which dropdown is open
   const [openActionId, setOpenActionId] = useState(null);
@@ -469,7 +478,7 @@ const Donation = () => {
     };
 
     getAllDonations();
-  }, []);
+  }, [refreshTrigger]); // Add dependency on refreshTrigger
 
   // Function to calculate percentages
   const calculatePercentages = (math, mission) => {
@@ -533,16 +542,46 @@ const Donation = () => {
     }
   }, [location]); // Depend on location to handle navigation changes
 
+  // Add effect for page visibility changes to refresh data when tab becomes visible
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        setRefreshTrigger(prev => prev + 1); // Increment to trigger refresh
+      }
+    };
+    
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, []);
+
   return (
     <div className="donation-container">
       <div className="header">
         <h2>Donations</h2>
-        <button
-          className="add-donation-btn"
-          onClick={() => navigate("/newDonation")}
-        >
-          <span>+</span> Add New Donation
-        </button>
+        <div style={{display: 'flex', gap: '10px', alignItems: 'center'}}>
+          <button 
+            onClick={() => setRefreshTrigger(prev => prev + 1)}
+            style={{
+              background: 'transparent',
+              border: 'none',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center'
+            }}
+            title="Refresh Data"
+          >
+            <span className="material-icons">refresh</span>
+          </button>
+          <button
+            className="add-donation-btn"
+            onClick={() => navigate("/newDonation")}
+          >
+            <span>+</span> Add New Donation
+          </button>
+        </div>
       </div>
 
       <div className="dashboard-grid">

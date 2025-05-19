@@ -106,7 +106,12 @@ const Details = ({ activeTab, onTransactionTypeChange }) => {
 
     const donorDetails = donorTabs[activeTabId][currentSection].donorDetails;
     if (donorDetails.guestData) {
-      // console.log("Clearing guest data due to manual PAN edit");
+      console.log("Clearing guest data due to manual PAN edit. Previous data:", {
+        guestId: donorDetails.guestId,
+        name: donorDetails.name,
+        phone: donorDetails.phone
+      });
+      
       updateDonorDetails(activeTabId, currentSection, {
         guestId: null,
         guestData: null,
@@ -174,6 +179,13 @@ const Details = ({ activeTab, onTransactionTypeChange }) => {
 
   useEffect(() => {
     const donorDetails = donorTabs[activeTabId][currentSection].donorDetails;
+    
+    console.log("Auto-fill check - Donor Details:", {
+      name: donorDetails.name,
+      phone: donorDetails.phone,
+      guestId: donorDetails.guestId,
+      hasGuestData: !!donorDetails.guestData
+    });
 
     const hasPanNumber =
       donorDetails.guestData?.attributes?.pan_number ||
@@ -189,6 +201,8 @@ const Details = ({ activeTab, onTransactionTypeChange }) => {
         (donorDetails.identityType === "PAN Card"
           ? donorDetails.identityNumber
           : "");
+          
+      console.log("Auto-filling PAN number:", panNumber, "from guest data:", !!donorDetails.guestData?.attributes?.pan_number);
 
       updateDonationDetails(activeTabId, currentSection, {
         panNumber: panNumber,
@@ -212,8 +226,24 @@ const Details = ({ activeTab, onTransactionTypeChange }) => {
   }, [activeTabId, currentSection, activeTab]);
 
   const hasGuestData = () => {
-    return !!donorTabs[activeTabId][currentSection].donorDetails.guestData;
+    const hasData = !!donorTabs[activeTabId][currentSection].donorDetails.guestData;
+    if (hasData) {
+      console.log("Guest data found for form:", {
+        guestId: donorTabs[activeTabId][currentSection].donorDetails.guestId,
+        name: donorTabs[activeTabId][currentSection].donorDetails.name,
+        phone: donorTabs[activeTabId][currentSection].donorDetails.phone,
+        hasPAN: !!donorTabs[activeTabId][currentSection].donorDetails.guestData?.attributes?.pan_number
+      });
+    }
+    return hasData;
   };
+
+  console.log("Details component rendering with donation data:", {
+    section: currentSection,
+    amount: currentDonationDetails.amount,
+    panNumber: currentDonationDetails.panNumber,
+    hasGuestData: hasGuestData()
+  });
 
   return (
     <div
@@ -330,38 +360,19 @@ const Details = ({ activeTab, onTransactionTypeChange }) => {
             <label className="donation-form__label">
               PAN Number <span className="donation-form__required">*</span>
             </label>
-            <select
-              className="donation-form__select"
-              value={currentDonationDetails.panNumber ? "enter" : "None"}
-              onChange={handlePanSelectionChange}
+            <input
+              className="donation-form__input"
+              type="text"
+              placeholder="Enter PAN Number"
+              value={currentDonationDetails.panNumber}
+              onChange={handlePanNumberChange}
               disabled={isCompleted || hasGuestData()}
               style={{
                 backgroundColor:
                   isCompleted || hasGuestData() ? "#f5f5f5" : "white",
                 opacity: isCompleted || hasGuestData() ? 0.7 : 1,
               }}
-            >
-              <option value="None">None</option>
-              <option value="enter">Enter PAN Number</option>
-            </select>
-
-            {(currentDonationDetails.panNumber || showPanInput) && (
-              <input
-                className="donation-form__input"
-                type="text"
-                placeholder="Enter PAN Number"
-                value={currentDonationDetails.panNumber}
-                onChange={handlePanNumberChange}
-                disabled={isCompleted || hasGuestData()}
-                style={{
-                  marginTop: "10px",
-                  backgroundColor:
-                    isCompleted || hasGuestData() ? "#f5f5f5" : "white",
-                  opacity: isCompleted || hasGuestData() ? 0.7 : 1,
-                }}
-              />
-            )}
-
+            />
             {panError && (
               <span
                 className="error-message"

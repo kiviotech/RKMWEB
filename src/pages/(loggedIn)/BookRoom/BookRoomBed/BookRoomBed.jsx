@@ -354,29 +354,19 @@ const BookRoomBed = ({ blockId, refreshTrigger, viewMode, arrivalDate, departure
     }, 0) || 0;
 
     // Get background color based on conditions
-    const getBackgroundColor = () => {
+    const getBackgroundColor = (isBlocked, hasAllocation, blocking) => {
       if (isBlocked) {
-        // Check blocking type and return appropriate color
-        const blocking = roomBlockings?.find(blocking =>
-          isDateInRange(currentDate, blocking.attributes.from_date, blocking.attributes.to_date)
-        );
-
-        if (blocking) {
-          switch (blocking.attributes.room_block) {
-            case "Maintenance":
-              return "#808080"; // gray
-            case "Secretary Maharaji Request":
-              return "#ADD8E6"; // light blue
-            case "Hospital/ Dispensary":
-              return "#90EE90"; // light green
-            default:
-              return "#FFFF00"; // default yellow
-          }
+        // If blocking object is provided, check for block_color
+        if (blocking && blocking.attributes.block_color) {
+          console.log("BookRoomBed Global - Using block_color:", blocking.attributes.block_color);
+          return blocking.attributes.block_color;
         }
-        return "#FFFF00"; // default yellow for other blocks
+        console.log("BookRoomBed Global - No block_color, using default yellow");
+        return "#FFFF00"; // default yellow for blocks without color
       }
-      if (hasRecommendationLetter) return "orange";
-      if (occupiedBeds > 0) return "#F28E86";
+      if (hasAllocation) {
+        return "#F28E86"; // or whatever color you use for allocated rooms
+      }
       return "inherit";
     };
 
@@ -493,7 +483,9 @@ const BookRoomBed = ({ blockId, refreshTrigger, viewMode, arrivalDate, departure
           }}
           style={{
             cursor: (!isBlocked && isInRange && selectedGuests?.length > 0 && availableBeds > 0 && !allBedsSelected) ? 'pointer' : 'default',
-            backgroundColor: getBackgroundColor(),
+            backgroundColor: getBackgroundColor(isBlocked, hasRecommendationLetter, roomBlockings?.find((blocking) =>
+              isDateInRange(currentDate, blocking.attributes.from_date, blocking.attributes.to_date)
+            )),
             borderRadius: "8px",
           }}
         >
@@ -829,29 +821,19 @@ const BookRoomBed = ({ blockId, refreshTrigger, viewMode, arrivalDate, departure
                   : (selectedBedCounts[dateKey] || 0);
                 const isInRange = isDateInRange(date, arrivalDate, departureDate);
 
-                const getBackgroundColor = () => {
+                const getBackgroundColor = (isBlocked, hasAllocation, blocking) => {
                   if (isBlocked) {
-                    // Check blocking type and return appropriate color
-                    const blocking = room.attributes?.room_blockings?.data?.find(blocking =>
-                      isDateInBlockingRange(blocking, date)
-                    );
-
-                    if (blocking) {
-                      switch (blocking.attributes.room_block) {
-                        case "Maintenance":
-                          return "#808080"; // gray
-                        case "Secretary Maharaji Request":
-                          return "#ADD8E6"; // light blue
-                        case "Hospital/ Dispensary":
-                          return "#90EE90"; // light green
-                        default:
-                          return "#FFFF00"; // default yellow
-                      }
+                    // If blocking object is provided, check for block_color
+                    if (blocking && blocking.attributes.block_color) {
+                      console.log("BookRoomBed Global - Using block_color:", blocking.attributes.block_color);
+                      return blocking.attributes.block_color;
                     }
-                    return "#FFFF00"; // default yellow for other blocks
+                    console.log("BookRoomBed Global - No block_color, using default yellow");
+                    return "#FFFF00"; // default yellow for blocks without color
                   }
-                  if (hasRecommendationLetter) return "orange";
-                  if (hasAllocation || availableBeds < totalBeds) return "#F28E86";
+                  if (hasAllocation) {
+                    return "#F28E86"; // or whatever color you use for allocated rooms
+                  }
                   return "inherit";
                 };
 
@@ -866,7 +848,9 @@ const isClickable = !isBlocked && isInRange && availableBeds > 0 && !allBedsSele
                     className={`availability-box ${isInRange ? 'in-range' : ''}`}
                     data-tooltip={tooltipContent ? "true" : undefined}
                     style={{
-                      backgroundColor: getBackgroundColor(),
+                      backgroundColor: getBackgroundColor(isBlocked, hasAllocation, room.attributes?.room_blockings?.data?.find((blocking) =>
+                        isDateInRange(date, blocking.attributes.from_date, blocking.attributes.to_date)
+                      )),
                       cursor: isClickable ? 'pointer' : 'default',
                       opacity: 1
                     }}
@@ -920,17 +904,6 @@ const isClickable = !isBlocked && isInRange && availableBeds > 0 && !allBedsSele
         </div>
       </div>
     );
-  };
-
-  // Helper function to get background color
-  const getBackgroundColor = (isBlocked, hasAllocation) => {
-    if (isBlocked) {
-      return "#FFFF00"; // or whatever color you use for blocked rooms
-    }
-    if (hasAllocation) {
-      return "#F28E86"; // or whatever color you use for allocated rooms
-    }
-    return "inherit";
   };
 
   // Helper functions for date checks

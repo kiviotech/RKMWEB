@@ -6,6 +6,7 @@ import {
   updateBookingRequest,
   deleteBookingRequest,
   getBookingRequestsStatus,
+  getLastBookingByGuestId,
 } from "../api/repositories/bookingRequestRepository";
 
 export const fetchBookingRequests = async () => {
@@ -71,6 +72,16 @@ export const deleteBookingRequestById = async (id) => {
 export const fetchBookingRequestsStatus = async () => {
   try {
     const response = await getBookingRequestsStatus();
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+// Fetch the last booking request for a guest by guestId, with all guests populated
+export const fetchLastBookingByGuestId = async (guestId) => {
+  try {
+    const response = await getLastBookingByGuestId(guestId);
     return response.data;
   } catch (error) {
     throw error;

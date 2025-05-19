@@ -8,8 +8,14 @@ const DonationsHistory = ({ openPopup, openPopup1, limit }) => {
   const [guestDetails, setGuestDetails] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   const setSelectedGuest = useGuestStore((state) => state.setSelectedGuest);
+
+  const refreshData = () => {
+    setLoading(true);
+    setRefreshTrigger(prev => prev + 1);
+  };
 
   useEffect(() => {
     const getGuests = async () => {
@@ -32,6 +38,17 @@ const DonationsHistory = ({ openPopup, openPopup1, limit }) => {
       }
     };
     getGuests();
+  }, [refreshTrigger]);
+
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        refreshData();
+      }
+    };
+    
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
   }, []);
 
   const data = limit || 4;
@@ -47,6 +64,16 @@ const DonationsHistory = ({ openPopup, openPopup1, limit }) => {
     return <div>Loading...</div>;
   }
 
+  const handleOpenPopup = (guest) => {
+    openPopup(guest);
+  };
+
+  const handleOpenPopup1 = (guest) => {
+    setSelectedGuest(guest);
+    refreshData();
+    openPopup1();
+  };
+
   return (
     <div className="donations-history">
       <div className="header">
@@ -61,6 +88,13 @@ const DonationsHistory = ({ openPopup, openPopup1, limit }) => {
           <button className="sort-btn">
             <img src={icons.sort} alt="sort" />
             Sort by
+          </button>
+          <button 
+            className="refresh-btn" 
+            onClick={refreshData}
+            title="Refresh data"
+          >
+            <img src={icons.refresh || icons.reload || icons.update || "https://img.icons8.com/material-outlined/24/000000/refresh.png"} alt="refresh" />
           </button>
           <button className="filter-btn">
             <img src={icons.filter} alt="filter" />
@@ -96,10 +130,7 @@ const DonationsHistory = ({ openPopup, openPopup1, limit }) => {
                     {guest.donations?.data?.length > 0 ? (
                       <button
                         className="eye-donation"
-                        onClick={() => {
-                          setSelectedGuest(guest);
-                          openPopup1();
-                        }}
+                        onClick={() => handleOpenPopup1(guest)}
                       >
                         <span>Donated</span>
                         <img src={icons.eyeIcon} alt="View" />
@@ -107,7 +138,7 @@ const DonationsHistory = ({ openPopup, openPopup1, limit }) => {
                     ) : (
                       <button
                         className="add-donation"
-                        onClick={() => openPopup(guest)}
+                        onClick={() => handleOpenPopup(guest)}
                       >
                         <img src={icons.plus} alt="Add" />
                       </button>

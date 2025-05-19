@@ -1036,3 +1036,53 @@
   color: #666;
   font-style: italic;
 }
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: white; // More opaque dark overlay
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal, .aadhaar-duplicate-modal {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+  min-width: 340px;
+  max-width: 400px;
+  min-height: 220px;
+  max-height: 90vh;
+  overflow-y: auto;
+  display: relative;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 28px 24px 28px;
+}
+
+.aadhaar-duplicate-modal {
+  /* Remove width: 100% to avoid stretching */
+  width: auto;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 12px;
+}
+
+@media (max-width: 600px) {
+  .modal, .aadhaar-duplicate-modal {
+    min-width: 0;
+    width: 98vw;
+    max-width: 98vw;
+    padding: 18px 6vw 18px 6vw;
+  }
+}

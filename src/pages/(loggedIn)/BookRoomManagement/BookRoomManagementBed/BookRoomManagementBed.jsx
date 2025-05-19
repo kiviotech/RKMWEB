@@ -55,14 +55,36 @@ const BookRoomManagementBed = ({ blockId, roomType, refreshTrigger, viewMode, ar
       if (blockId) {
         try {
           setIsLoading(true);
+          console.log("Fetching block details for blockId:", blockId, "roomType:", roomType);
           const blockData = await blockService.fetchBlockById(blockId, roomType);
+          console.log("Block data received:", blockData);
           const roomsData = blockData.data.attributes.rooms.data;
+          console.log("Rooms data:", roomsData);
+          
+          // Add debug logs for room blockings data
+          console.log("Room data loaded. Checking for blocked rooms:");
+          const blockedRooms = roomsData.filter(room => 
+            room.attributes?.room_blockings?.data?.length > 0
+          );
+          
+          if (blockedRooms.length > 0) {
+            console.log(`Found ${blockedRooms.length} blocked rooms:`);
+            blockedRooms.forEach(room => {
+              const blockings = room.attributes?.room_blockings?.data || [];
+              console.log(`Room ${room.attributes.room_number} has ${blockings.length} blockings:`, 
+                blockings.map(blocking => ({
+                  reason: blocking.attributes.room_block,
+                  color: blocking.attributes.block_color,
+                  from: blocking.attributes.from_date,
+                  to: blocking.attributes.to_date
+                }))
+              );
+            });
+          } else {
+            console.log("No blocked rooms found.");
+          }
+          
           setRooms(roomsData);
-          // Add console log to see room allocations
-          // console.log("Rooms with allocations:", roomsData.map(room => ({
-          //   roomNumber: room.attributes.room_number,
-          //   allocations: room.attributes.room_allocations?.data
-          // })));
         } catch (error) {
           console.error("Error fetching block details:", error);
         } finally {
@@ -293,6 +315,9 @@ const BookRoomManagementBed = ({ blockId, roomType, refreshTrigger, viewMode, ar
     dateIndex,
     roomNumber
   ) => {
+    console.log(`renderBeds called for Room ${roomNumber}, Date ${currentDate.day} ${currentDate.month}`);
+    console.log(`Room blockings:`, roomBlockings);
+    
     const isInRange = isDateInRange(currentDate, arrivalDate, departureDate);
     const beds = [];
 
@@ -307,20 +332,25 @@ const BookRoomManagementBed = ({ blockId, roomType, refreshTrigger, viewMode, ar
 
     // Check both blockings and allocations
     const isBlocked = roomBlockings?.some((blocking) => {
-      const fromDate = new Date(blocking.attributes.from_date);
-      const toDate = new Date(blocking.attributes.to_date);
-      const checkDate = new Date(
-        currentDate.year,
-        new Date(Date.parse(`01 ${currentDate.month} 2000`)).getMonth(),
-        currentDate.day,
-        0,
-        0,
-        0
-      );
-      fromDate.setHours(0, 0, 0, 0);
-      toDate.setHours(0, 0, 0, 0);
-      return checkDate >= fromDate && checkDate <= toDate;
+      const result = isDateInBlockingRange(blocking, currentDate);
+      console.log(`Checking blocking for Room ${roomNumber}: date=${currentDate.day} ${currentDate.month}, from=${blocking.attributes.from_date}, to=${blocking.attributes.to_date}, isBlocked=${result}`);
+      return result;
     });
+
+    if (isBlocked) {
+      const blocking = roomBlockings?.find(blocking => 
+        isDateInBlockingRange(blocking, currentDate)
+      );
+      
+      console.log(`Room ${roomNumber} is BLOCKED on ${currentDate.day} ${currentDate.month}`);
+      console.log(`Blocking details:`, blocking ? {
+        id: blocking.id,
+        reason: blocking.attributes.room_block,
+        color: blocking.attributes.block_color,
+        from: blocking.attributes.from_date,
+        to: blocking.attributes.to_date
+      } : 'No blocking found');
+    }
 
     // Check for recommendation letter
     const hasRecommendationLetter = roomAllocations?.data?.some(allocation => {
@@ -383,29 +413,20 @@ const BookRoomManagementBed = ({ blockId, roomType, refreshTrigger, viewMode, ar
     }, 0) || 0;
 
     // Get background color based on conditions
-    const getBackgroundColor = () => {
+    const getBackgroundColor = (isBlocked, hasAllocation, blocking) => {
+      console.log("renderBeds - isBlocked:", isBlocked, "blocking:", blocking);
       if (isBlocked) {
-        // Check blocking type and return appropriate color
-        const blocking = roomBlockings?.find(blocking =>
-          isDateInRange(currentDate, blocking.attributes.from_date, blocking.attributes.to_date)
-        );
-
-        if (blocking) {
-          switch (blocking.attributes.room_block) {
-            case "Maintenance":
-              return "#808080"; // gray
-            case "Secretary Maharaji Request":
-              return "#ADD8E6"; // light blue
-            case "Hospital/ Dispensary":
-              return "#90EE90"; // light green
-            default:
-              return "#FFFF00"; // default yellow
-          }
+        // If blocking object is provided, check for block_color
+        if (blocking && blocking.attributes.block_color) {
+          console.log("renderBeds - Using block_color:", blocking.attributes.block_color);
+          return blocking.attributes.block_color;
         }
-        return "#FFFF00"; // default yellow for other blocks
+        console.log("renderBeds - No block_color, using default yellow");
+        return "#FFFF00"; // default yellow for blocks without color
       }
-      if (hasRecommendationLetter) return "orange";
-      if (occupiedBeds > 0) return "#F28E86";
+      if (hasAllocation) {
+        return "#F28E86"; // or whatever color you use for allocated rooms
+      }
       return "inherit";
     };
 
@@ -512,6 +533,19 @@ const BookRoomManagementBed = ({ blockId, roomType, refreshTrigger, viewMode, ar
       const availableBeds = numberOfBeds - occupiedBeds;
       const allBedsSelected = selectedCount >= availableBeds;
 
+      const originalBlocking = roomBlockings?.find(blocking => 
+        isDateInBlockingRange(blocking, currentDate)
+      );
+      
+      // Get the background color
+      const calculatedColor = getBackgroundColor(isBlocked, roomAllocations?.data?.some((allocation) => {
+        if (!allocation?.attributes?.guests?.data?.[0]?.attributes)
+          return false;
+        return isDateInAllocationRange(allocation, currentDate);
+      }), originalBlocking);
+      
+      console.log(`Applying color to bed-count-layout for Room ${roomNumber}: ${calculatedColor}`);
+
       beds.push(
         <div
           key="bed-count-layout"
@@ -524,7 +558,18 @@ const BookRoomManagementBed = ({ blockId, roomType, refreshTrigger, viewMode, ar
           }}
           style={{
             cursor: (!isBlocked && isInRange && selectedGuests?.length > 0 && availableBeds > 0 && !allBedsSelected) ? 'pointer' : 'default',
-            backgroundColor: getBackgroundColor(),
+            backgroundColor: (() => {
+              const color = getBackgroundColor(isBlocked, roomAllocations?.data?.some((allocation) => {
+                if (!allocation?.attributes?.guests?.data?.[0]?.attributes)
+                  return false;
+                return isDateInAllocationRange(allocation, currentDate);
+              }), roomBlockings?.find((blocking) => {
+                if (!blocking?.attributes) return false;
+                return isDateInBlockingRange(blocking, currentDate);
+              }));
+              console.log("Bed count layout - Applied color:", color);
+              return color;
+            })(),
             borderRadius: "8px",
           }}
         >
@@ -745,18 +790,22 @@ const BookRoomManagementBed = ({ blockId, roomType, refreshTrigger, viewMode, ar
   };
 
   const renderListView = () => {
+    console.log("Rendering List View with rooms:", rooms);
     return (
       <div className="list-view-container">
         <div className="room-numbers-column">
           <div className="list-header fixed-column">Room No.</div>
-          {rooms.map((room) => (
-            <div key={room.id} className="room-info">
-              <div className="room-number">
-                {room.attributes.room_number}
-                <span className="capacity">({room.attributes.no_of_beds})</span>
+          {rooms.map((room) => {
+            console.log("Room in map:", room.id, room.attributes?.room_number);
+            return (
+              <div key={room.id} className="room-info">
+                <div className="room-number">
+                  {room.attributes.room_number}
+                  <span className="capacity">({room.attributes.no_of_beds})</span>
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
 
         <div className="scrollable-content" ref={scrollContainerRef}>
@@ -787,9 +836,25 @@ const BookRoomManagementBed = ({ blockId, roomType, refreshTrigger, viewMode, ar
                 const isBlocked = room.attributes?.room_blockings?.data?.some(
                   (blocking) => {
                     if (!blocking?.attributes) return false;
-                    return isDateInBlockingRange(blocking, date);
+                    const result = isDateInBlockingRange(blocking, date);
+                    console.log(
+                      `Checking if room ${room.attributes.room_number} is blocked on ${date.day} ${date.month}: blocking=${!!blocking}, attributes=${!!blocking?.attributes}, in range=${result}`
+                    );
+                    return result;
                   }
                 );
+
+                // Detailed debugging for room blockings
+                if (room.attributes?.room_blockings?.data?.length > 0) {
+                  console.log(
+                    `Room ${room.attributes.room_number} has ${room.attributes.room_blockings.data.length} blockings on ${date.day} ${date.month}:`,
+                    room.attributes.room_blockings.data.map(b => ({
+                      from: b.attributes.from_date,
+                      to: b.attributes.to_date,
+                      color: b.attributes.block_color
+                    }))
+                  );
+                }
 
                 // Check for recommendation letter
                 const hasRecommendationLetter = room.attributes?.room_allocations?.data?.some(allocation => {
@@ -831,13 +896,30 @@ const BookRoomManagementBed = ({ blockId, roomType, refreshTrigger, viewMode, ar
 
                 // Get background color based on conditions
                 const getBackgroundColor = () => {
+                  console.log("renderListView - isBlocked:", isBlocked);
                   if (isBlocked) {
                     // Check blocking type and return appropriate color
                     const blocking = room.attributes?.room_blockings?.data?.find(blocking =>
                       isDateInBlockingRange(blocking, date)
                     );
+                    console.log("renderListView - found blocking:", blocking);
 
                     if (blocking) {
+                      console.log("blocking details:", {
+                        id: blocking.id,
+                        reason: blocking.attributes.room_block,
+                        color: blocking.attributes.block_color,
+                        from: blocking.attributes.from_date,
+                        to: blocking.attributes.to_date
+                      });
+                      // Use the block_color property if available, otherwise fallback to default colors
+                      if (blocking.attributes.block_color) {
+                        console.log("renderListView - Using block_color:", blocking.attributes.block_color);
+                        return blocking.attributes.block_color;
+                      }
+                      console.log("renderListView - No block_color, using switch case fallback");
+                      
+                      // Fallback to switch case for backwards compatibility
                       switch (blocking.attributes.room_block) {
                         case "Maintenance":
                           return "#808080"; // gray
@@ -865,7 +947,28 @@ const BookRoomManagementBed = ({ blockId, roomType, refreshTrigger, viewMode, ar
                     className={`availability-box ${isInRange ? 'in-range' : ''}`}
                     data-tooltip={tooltipContent ? "true" : undefined}
                     style={{
-                      backgroundColor: getBackgroundColor(),
+                      backgroundColor: (() => {
+                        const blocking = room.attributes?.room_blockings?.data?.find(blocking => isDateInBlockingRange(blocking, date));
+                        console.log("Background color determination for room:", room.attributes.room_number);
+                        console.log("isBlocked:", isBlocked);
+                        console.log("blocking found:", blocking);
+                        if (blocking) {
+                          console.log("blocking details:", {
+                            id: blocking.id,
+                            reason: blocking.attributes.room_block,
+                            color: blocking.attributes.block_color,
+                            from: blocking.attributes.from_date,
+                            to: blocking.attributes.to_date
+                          });
+                        }
+                        const color = getBackgroundColor(
+                          isBlocked, 
+                          hasAllocation || availableBeds < totalBeds, 
+                          blocking
+                        );
+                        console.log("Availability box - Room:", room.attributes.room_number, "Date:", `${date.day} ${date.month}`, "Applied color:", color, "Blocking:", blocking);
+                        return color;
+                      })(),
                       cursor: (!isBlocked && !hasAllocation && isInRange && availableBeds > 0 && selectedGuests?.length > 0 && !allBedsSelected) ? 'pointer' : 'default',
                       opacity: 1
                     }}
@@ -919,9 +1022,16 @@ const BookRoomManagementBed = ({ blockId, roomType, refreshTrigger, viewMode, ar
   };
 
   // Helper function to get background color
-  const getBackgroundColor = (isBlocked, hasAllocation) => {
+  const getBackgroundColor = (isBlocked, hasAllocation, blocking) => {
+    console.log("Global - isBlocked:", isBlocked, "blocking:", blocking);
     if (isBlocked) {
-      return "#FFFF00"; // or whatever color you use for blocked rooms
+      // If blocking object is provided, check for block_color
+      if (blocking && blocking.attributes.block_color) {
+        console.log("Global - Using block_color:", blocking.attributes.block_color);
+        return blocking.attributes.block_color;
+      }
+      console.log("Global - No block_color, using default yellow");
+      return "#FFFF00"; // default yellow for blocks without color
     }
     if (hasAllocation) {
       return "#F28E86"; // or whatever color you use for allocated rooms
@@ -943,6 +1053,10 @@ const BookRoomManagementBed = ({ blockId, roomType, refreshTrigger, viewMode, ar
     );
     fromDate.setHours(0, 0, 0, 0);
     toDate.setHours(0, 0, 0, 0);
+    
+    // Debug date comparison
+    console.log(`Date comparison: checkDate=${checkDate.toISOString()}, fromDate=${fromDate.toISOString()}, toDate=${toDate.toISOString()}, inRange=${checkDate >= fromDate && checkDate <= toDate}`);
+    
     return checkDate >= fromDate && checkDate <= toDate;
   };
 
@@ -997,29 +1111,70 @@ const BookRoomManagementBed = ({ blockId, roomType, refreshTrigger, viewMode, ar
               </div>
             </div>
 
-            {rooms.map((room) => (
-              <div key={room.id} className="room-row">
-                <div className="scrollable-beds">
-                  {dates.map((date, dateIndex) => (
-                    <div
-                      key={dateIndex}
-                      className="bed-cell"
-                      style={{ padding: room.attributes.no_of_beds <= 4 ? "10px" : "0px" }}
-                    >
-                      {renderBeds(
-                        room.attributes.no_of_beds,
-                        room.attributes.room_blockings?.data,
-                        room.attributes.room_allocations,
-                        date,
-                        room.id,
-                        dateIndex,
-                        room.attributes.room_number
-                      )}
-                    </div>
-                  ))}
+            {rooms.map((room) => {
+              console.log(`Grid View: Rendering row for room ${room.attributes.room_number}`);
+              console.log(`Room has blockings:`, room.attributes?.room_blockings?.data);
+              
+              // Debug all blockings for this room
+              if (room.attributes?.room_blockings?.data?.length > 0) {
+                room.attributes.room_blockings.data.forEach(blocking => {
+                  console.log(`Grid View: Room ${room.attributes.room_number} blocking:`, {
+                    id: blocking.id,
+                    reason: blocking.attributes.room_block,
+                    color: blocking.attributes.block_color,
+                    from: blocking.attributes.from_date,
+                    to: blocking.attributes.to_date
+                  });
+                });
+              }
+              
+              return (
+                <div key={room.id} className="room-row">
+                  <div className="scrollable-beds">
+                    {dates.map((date, dateIndex) => {
+                      // Check if room is blocked for this date
+                      const isBlocked = room.attributes?.room_blockings?.data?.some(blocking => 
+                        isDateInBlockingRange(blocking, date)
+                      );
+                      
+                      // Get the blocking object if blocked
+                      const blocking = isBlocked ? room.attributes?.room_blockings?.data?.find(b => 
+                        isDateInBlockingRange(b, date)
+                      ) : null;
+                      
+                      console.log(`Grid View: Room ${room.attributes.room_number}, Date ${date.day} ${date.month}, isBlocked: ${isBlocked}`);
+                      if (blocking) {
+                        console.log(`Grid View: Blocking details:`, {
+                          id: blocking.id,
+                          reason: blocking.attributes.room_block,
+                          color: blocking.attributes.block_color,
+                          from: blocking.attributes.from_date,
+                          to: blocking.attributes.to_date
+                        });
+                      }
+                      
+                      return (
+                        <div
+                          key={dateIndex}
+                          className="bed-cell"
+                          style={{ padding: room.attributes.no_of_beds <= 4 ? "10px" : "0px" }}
+                        >
+                          {renderBeds(
+                            room.attributes.no_of_beds,
+                            room.attributes.room_blockings?.data,
+                            room.attributes.room_allocations,
+                            date,
+                            room.id,
+                            dateIndex,
+                            room.attributes.room_number
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       )}

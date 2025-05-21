@@ -29,3 +29,9 @@ export const getGuestDetailsByUser = (userId) =>
 
 export const getGuestUniqueNo = () =>
   apiClient.get(guestDetailsEndpoints.getGuestUniqueNo);
+
+export const searchGuestsByName = (name) =>
+  apiClient.get(guestDetailsEndpoints.searchGuestsByName(name));
+
+export const searchGuestsByPhone = (phone) =>
+  apiClient.get(guestDetailsEndpoints.searchGuestsByPhone(phone));

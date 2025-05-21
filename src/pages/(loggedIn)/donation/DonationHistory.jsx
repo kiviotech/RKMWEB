@@ -102,7 +102,7 @@ const DonationHistory = () => {
   return (
     <div className="donation-container" style={{ backgroundColor: "#fff" }}>
       <div className="donation-history-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h2>Donation History</h2>
+      <h2>Donation History</h2>
         <button 
           className="refresh-btn" 
           onClick={refreshGuestData}

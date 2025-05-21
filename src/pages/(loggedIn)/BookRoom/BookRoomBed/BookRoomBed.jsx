@@ -496,12 +496,12 @@ const BookRoomBed = ({ blockId, refreshTrigger, viewMode, arrivalDate, departure
             <span className="bed-number">
               {isInRange && selectedCount > 0
                 ? <>
-                  {availableBeds - selectedCount}
+                  {availableBeds - selectedCount}/{numberOfBeds}
                   <div className="beds-occupied">
                     {selectedCount} beds occupied
                   </div>
                 </>
-                : availableBeds
+                : `${availableBeds}/${numberOfBeds}`
               }
             </span>
             <span className="bed-status">
@@ -871,7 +871,7 @@ const isClickable = !isBlocked && isInRange && availableBeds > 0 && !allBedsSele
                       {isInRange
                         ? (selectedCount > 0
                           ? <>
-                            {availableBeds - selectedCount}
+                            {availableBeds - selectedCount}/{totalBeds}
                             <div className="availability-label">
                               Available
                             </div>
@@ -880,13 +880,13 @@ const isClickable = !isBlocked && isInRange && availableBeds > 0 && !allBedsSele
                             </div>
                           </>
                           : <>
-                            {availableBeds}
+                            {availableBeds}/{totalBeds}
                             <div className="availability-label">
                               Available
                             </div>
                           </>)
                         : <>
-                          {availableBeds}
+                          {availableBeds}/{totalBeds}
                           <div className="availability-label">
                             Available
                           </div>

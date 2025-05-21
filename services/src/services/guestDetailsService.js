@@ -8,6 +8,8 @@ import {
   getGuestDetailsByUser,
   getGuestUniqueNo,
   getAllGuestDetails,
+  searchGuestsByName,
+  searchGuestsByPhone,
 } from "../api/repositories/guestDetailsRepository";
 
 // Fetch all guest details
@@ -109,6 +111,28 @@ export const fetchAllGuestDetails = async () => {
     return response.data;
   } catch (error) {
     console.error("Error fetching all guest details:", error);
+    throw error;
+  }
+};
+
+// Search guests by name
+export const searchGuestDetailsByName = async (name) => {
+  try {
+    const response = await searchGuestsByName(name);
+    return response.data;
+  } catch (error) {
+    console.error(`Error searching guests by name "${name}":`, error);
+    throw error;
+  }
+};
+
+// Search guests by phone
+export const searchGuestDetailsByPhone = async (phone) => {
+  try {
+    const response = await searchGuestsByPhone(phone);
+    return response.data;
+  } catch (error) {
+    console.error(`Error searching guests by phone "${phone}":`, error);
     throw error;
   }
 };

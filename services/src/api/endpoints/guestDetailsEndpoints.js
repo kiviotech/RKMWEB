@@ -7,6 +7,8 @@ const guestDetailsEndpoints = {
   updateGuestDetails: (id) => `/guest-details/${id}`,
   deleteGuestDetails: (id) => `/guest-details/${id}`,
   getGuestUniqueNo: "/guest-details?fields=unique_no",
+  searchGuestsByName: (name) => `/guest-details?filters[name][$containsi]=${name}&populate[donations][populate]=*`,
+  searchGuestsByPhone: (phone) => `/guest-details?filters[phone_number][$containsi]=${phone}&populate[donations][populate]=*`,
 };
 
 export default guestDetailsEndpoints;

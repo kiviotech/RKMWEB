@@ -580,12 +580,12 @@ const BookRoomManagementBed = ({ blockId, roomType, refreshTrigger, viewMode, ar
             <span className="bed-number">
               {isInRange && selectedCount > 0
                 ? <>
-                  {availableBeds - selectedCount}
+                  {availableBeds - selectedCount}/{numberOfBeds}
                   <div className="beds-occupied">
                     {selectedCount} beds occupied
                   </div>
                 </>
-                : availableBeds
+                : `${availableBeds}/${numberOfBeds}`
               }
             </span>
             <span className="bed-status">
@@ -798,12 +798,12 @@ const BookRoomManagementBed = ({ blockId, roomType, refreshTrigger, viewMode, ar
           {rooms.map((room) => {
             console.log("Room in map:", room.id, room.attributes?.room_number);
             return (
-              <div key={room.id} className="room-info">
-                <div className="room-number">
-                  {room.attributes.room_number}
-                  <span className="capacity">({room.attributes.no_of_beds})</span>
-                </div>
+            <div key={room.id} className="room-info">
+              <div className="room-number">
+                {room.attributes.room_number}
+                <span className="capacity">({room.attributes.no_of_beds})</span>
               </div>
+            </div>
             );
           })}
         </div>
@@ -986,7 +986,7 @@ const BookRoomManagementBed = ({ blockId, roomType, refreshTrigger, viewMode, ar
                       {isInRange
                         ? (selectedCount > 0
                           ? <>
-                            {availableBeds - selectedCount}
+                            {availableBeds - selectedCount}/{totalBeds}
                             <div className="availability-label">
                               Available
                             </div>
@@ -995,13 +995,13 @@ const BookRoomManagementBed = ({ blockId, roomType, refreshTrigger, viewMode, ar
                             </div>
                           </>
                           : <>
-                            {availableBeds}
+                            {availableBeds}/{totalBeds}
                             <div className="availability-label">
                               Available
                             </div>
                           </>)
                         : <>
-                          {availableBeds}
+                          {availableBeds}/{totalBeds}
                           <div className="availability-label">
                             Available
                           </div>
@@ -1129,8 +1129,8 @@ const BookRoomManagementBed = ({ blockId, roomType, refreshTrigger, viewMode, ar
               }
               
               return (
-                <div key={room.id} className="room-row">
-                  <div className="scrollable-beds">
+              <div key={room.id} className="room-row">
+                <div className="scrollable-beds">
                     {dates.map((date, dateIndex) => {
                       // Check if room is blocked for this date
                       const isBlocked = room.attributes?.room_blockings?.data?.some(blocking => 
@@ -1154,25 +1154,25 @@ const BookRoomManagementBed = ({ blockId, roomType, refreshTrigger, viewMode, ar
                       }
                       
                       return (
-                        <div
-                          key={dateIndex}
-                          className="bed-cell"
-                          style={{ padding: room.attributes.no_of_beds <= 4 ? "10px" : "0px" }}
-                        >
-                          {renderBeds(
-                            room.attributes.no_of_beds,
-                            room.attributes.room_blockings?.data,
-                            room.attributes.room_allocations,
-                            date,
-                            room.id,
-                            dateIndex,
-                            room.attributes.room_number
-                          )}
-                        </div>
+                    <div
+                      key={dateIndex}
+                      className="bed-cell"
+                      style={{ padding: room.attributes.no_of_beds <= 4 ? "10px" : "0px" }}
+                    >
+                      {renderBeds(
+                        room.attributes.no_of_beds,
+                        room.attributes.room_blockings?.data,
+                        room.attributes.room_allocations,
+                        date,
+                        room.id,
+                        dateIndex,
+                        room.attributes.room_number
+                      )}
+                    </div>
                       );
                     })}
-                  </div>
                 </div>
+              </div>
               );
             })}
           </div>

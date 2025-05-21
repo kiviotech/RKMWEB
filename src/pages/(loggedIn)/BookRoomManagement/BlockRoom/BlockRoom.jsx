@@ -167,67 +167,67 @@ const BlockRoom = ({ selectedBlockId, onRoomBlocked }) => {
         </div>
       )}
 
-      <form className="booking-form-container" onSubmit={handleSubmit}>
-        <div className="booking-input-group">
-          <label>Room Number</label>
-          <select
-            name="roomId"
-            value={formData.roomId}
-            onChange={handleInputChange}
-            required
-          >
-            <option value="" disabled>
-              Select Room
+    <form className="booking-form-container" onSubmit={handleSubmit}>
+      <div className="booking-input-group">
+        <label>Room Number</label>
+        <select
+          name="roomId"
+          value={formData.roomId}
+          onChange={handleInputChange}
+          required
+        >
+          <option value="" disabled>
+            Select Room
+          </option>
+          {rooms.map((room) => (
+            <option key={room.id} value={room.id}>
+              {room.attributes.room_number}
             </option>
-            {rooms.map((room) => (
-              <option key={room.id} value={room.id}>
-                {room.attributes.room_number}
-              </option>
-            ))}
-          </select>
-        </div>
+          ))}
+        </select>
+      </div>
 
-        <div className="booking-input-group">
-          <label>Reason</label>
-          <select
-            name="reason"
-            value={formData.reason}
-            onChange={handleInputChange}
-            placeholder="Select Reason"
-            required
-          >
-            <option value="" disabled>
-              Select Reason
+      <div className="booking-input-group">
+        <label>Reason</label>
+        <select
+          name="reason"
+          value={formData.reason}
+          onChange={handleInputChange}
+          placeholder="Select Reason"
+          required
+        >
+          <option value="" disabled>
+            Select Reason
+          </option>
+          {reasons.map((reason, index) => (
+            <option key={index} value={reason}>
+              {reason}
             </option>
-            {reasons.map((reason, index) => (
-              <option key={index} value={reason}>
-                {reason}
-              </option>
-            ))}
-          </select>
-        </div>
+          ))}
+        </select>
+      </div>
 
-        <div className="booking-input-group">
-          <label>From Date</label>
-          <input
-            type="date"
-            name="fromDate"
-            value={formData.fromDate}
-            onChange={handleInputChange}
-            required
-          />
-        </div>
+      <div className="booking-input-group">
+        <label>From Date</label>
+        <input
+          type="date"
+          name="fromDate"
+          value={formData.fromDate}
+          onChange={handleInputChange}
+          required
+        />
+      </div>
 
-        <div className="booking-input-group">
-          <label>Departure Date</label>
-          <input
-            type="date"
-            name="toDate"
-            value={formData.toDate}
-            onChange={handleInputChange}
-            required
-          />
-        </div>
+      <div className="booking-input-group">
+        <label>Departure Date</label>
+        <input
+          type="date"
+          name="toDate"
+          value={formData.toDate}
+          onChange={handleInputChange}
+          required
+        />
+      </div>
 
         {formData.reason && (
           <div className="booking-preview">
@@ -251,14 +251,14 @@ const BlockRoom = ({ selectedBlockId, onRoomBlocked }) => {
           </div>
         )}
 
-        <button
-          type="submit"
-          className="booking-submit-btn"
-          disabled={isSubmitting}
-        >
-          {isSubmitting ? "Blocking..." : "Block Room"}
-        </button>
-      </form>
+      <button
+        type="submit"
+        className="booking-submit-btn"
+        disabled={isSubmitting}
+      >
+        {isSubmitting ? "Blocking..." : "Block Room"}
+      </button>
+    </form>
     </div>
   );
 };

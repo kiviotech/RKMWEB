@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import "./DonorDetails.scss";
 import useDonationStore from "../../../../donationStore";
-import { fetchGuestDetails } from "../../../../services/src/services/guestDetailsService";
+import { fetchGuestDetails, searchGuestDetailsByName, searchGuestDetailsByPhone, updateGuestDetails } from "../../../../services/src/services/guestDetailsService";
 import { fetchReceiptDetails } from "../../../../services/src/services/receiptDetailsService";
 
 const DonorDetails = ({ activeTab }) => {
@@ -137,12 +137,34 @@ const DonorDetails = ({ activeTab }) => {
 
       if (data.Status === "Success") {
         const postOfficeData = data.PostOffice[0];
+        
+        // First update the donor details locally
         updateAndSyncDonorDetails({
           state: postOfficeData.State,
           district: postOfficeData.District,
           postOffice: postOfficeData.Name,
         });
         clearFieldError("pincode");
+        
+        // If this is an existing guest, update the backend as well
+        if (currentDonorDetails.guestId && currentDonorDetails.guestData) {
+          // Construct the full address with updated components
+          const addressComponents = [
+            currentDonorDetails.flatNo,
+            currentDonorDetails.streetName,
+            postOfficeData.Name, // New post office from API
+            postOfficeData.District, // New district from API
+            postOfficeData.State, // New state from API
+            pincode // New pincode
+          ].filter(Boolean);
+          
+          const updateData = { 
+            address: addressComponents.join(', ')
+          };
+          
+          // Call the function to update the backend
+          saveGuestDetailsToBackend(currentDonorDetails.guestId, updateData);
+        }
       } else {
         // Clear related fields and show error for invalid pincode
         updateAndSyncDonorDetails({
@@ -187,10 +209,10 @@ const DonorDetails = ({ activeTab }) => {
   const handleInputChange = (e) => {
     const { name, value } = e.target;
 
-    // Check if we have guest data
-    if (currentDonorDetails.guestData) {
-      // Clear all guest data and fields
-      // console.log("Clearing guest data due to manual edit");
+    // Check if we have guest data - only reset if editing name or phone
+    if (currentDonorDetails.guestData && (name === "name" || name === "phone")) {
+      // These are identity fields, so clear all guest data if they're changed
+      // console.log("Clearing guest data due to identity field edit");
       updateAndSyncDonorDetails({
         guestId: null,
         guestData: null,
@@ -221,9 +243,69 @@ const DonorDetails = ({ activeTab }) => {
       // Then set the current field value
       updateAndSyncDonorDetails({ [name]: value });
       return;
+    } else if (currentDonorDetails.guestData && currentDonorDetails.guestId) {
+      // For other fields, just update them without resetting the form
+      // When a guest record exists, we'll update their details in the backend
+      console.log(`Updating field ${name} for existing guest ${currentDonorDetails.guestId}`);
+      
+      // Update the field locally
+      updateAndSyncDonorDetails({ [name]: value });
+      
+      // Schedule backend update after a short delay to avoid too many API calls
+      // Only for certain fields that we allow editing for existing guests
+      if (['email', 'deeksha', 'flatNo', 'streetName', 'postOffice', 'roomNo'].includes(name)) {
+        // Prepare update data based on field being edited
+        let updateData = { [name]: value };
+        
+        // For address components, rebuild the full address
+        if (['flatNo', 'streetName', 'postOffice'].includes(name)) {
+          const addressComponents = [
+            name === 'flatNo' ? value : currentDonorDetails.flatNo,
+            name === 'streetName' ? value : currentDonorDetails.streetName,
+            name === 'postOffice' ? value : currentDonorDetails.postOffice,
+            currentDonorDetails.district,
+            currentDonorDetails.state,
+            currentDonorDetails.pincode
+          ].filter(Boolean);
+          
+          updateData = { address: addressComponents.join(', ') };
+        }
+        
+        // For room number, use the field name from the API
+        if (name === 'roomNo') {
+          updateData = { room_no: value };
+        }
+        
+        // Call the function to update backend
+        saveGuestDetailsToBackend(currentDonorDetails.guestId, updateData);
+      }
+      
+      // Handle validation and error clearing
+      if (name === "email") {
+        const error = validateEmail(value);
+        setEmailError(error);
+        if (error) {
+          setFieldErrors({
+            ...fieldErrors,
+            donor: {
+              ...fieldErrors.donor,
+              email: error,
+            },
+          });
+        } else {
+          clearFieldError("email");
+        }
+      }
+      
+      if (name === "roomNo" && !/^[a-zA-Z0-9]*$/.test(value)) {
+        return; // Don't update if special characters are entered
+      }
+      
+      clearFieldError(name);
+      return;
     }
 
-    // Original input handling logic
+    // Original input handling logic for new guests
     if (name === "email") {
       const error = validateEmail(value);
       setEmailError(error);
@@ -299,11 +381,17 @@ const DonorDetails = ({ activeTab }) => {
 
       // Filter suggestions based on input
       if (value.length > 0) {
-        const filtered = guestList.filter((guest) =>
-          guest.attributes.name.toLowerCase().includes(value.toLowerCase())
-        );
-        setNameSuggestions(filtered);
-        setShowNameSuggestions(true);
+        // Use the API to search guests by name instead of filtering locally
+        searchGuestDetailsByName(value)
+          .then(response => {
+            setNameSuggestions(response.data);
+            setShowNameSuggestions(response.data.length > 0);
+          })
+          .catch(error => {
+            console.error("Error searching guests by name:", error);
+            setNameSuggestions([]);
+            setShowNameSuggestions(false);
+          });
       } else {
         setNameSuggestions([]);
         setShowNameSuggestions(false);
@@ -332,10 +420,24 @@ const DonorDetails = ({ activeTab }) => {
     const value = e.target.value;
     updateAndSyncDonorDetails({ deeksha: value });
     clearFieldError("deeksha");
+    
+    // If this is an existing guest, update the backend as well
+    if (currentDonorDetails.guestId && currentDonorDetails.guestData) {
+      saveGuestDetailsToBackend(currentDonorDetails.guestId, { deeksha: value });
+    }
   };
 
   const handleOtherDeekshaChange = (e) => {
-    updateAndSyncDonorDetails({ otherDeeksha: e.target.value });
+    const value = e.target.value;
+    updateAndSyncDonorDetails({ otherDeeksha: value });
+    
+    // Also update the deeksha field for consistency
+    updateAndSyncDonorDetails({ deeksha: value });
+    
+    // If this is an existing guest, update the backend as well
+    if (currentDonorDetails.guestId && currentDonorDetails.guestData) {
+      saveGuestDetailsToBackend(currentDonorDetails.guestId, { deeksha: value });
+    }
   };
 
   const validateIdentityNumber = (type, value) => {
@@ -513,18 +615,24 @@ const DonorDetails = ({ activeTab }) => {
       });
     }
 
-    // Allow only numbers and limit to 10 digits
+    // Allow only numbers, and limit to 10 digits
     if (/^\d*$/.test(value) && value.length <= 10) {
       updateAndSyncDonorDetails({ phone: value });
       clearFieldError("phone");
 
       // Filter suggestions based on phone input
       if (value.length > 0) {
-        const filtered = guestList.filter((guest) =>
-          guest.attributes.phone_number.replace("+91", "").includes(value)
-        );
-        setPhoneSuggestions(filtered);
-        setShowPhoneSuggestions(filtered.length > 0);
+        // Use the API to search guests by phone instead of filtering locally
+        searchGuestDetailsByPhone(value)
+          .then(response => {
+            setPhoneSuggestions(response.data);
+            setShowPhoneSuggestions(response.data.length > 0);
+          })
+          .catch(error => {
+            console.error("Error searching guests by phone:", error);
+            setPhoneSuggestions([]);
+            setShowPhoneSuggestions(false);
+          });
 
         // Set error if length is not 10
         if (value.length !== 10) {
@@ -552,42 +660,57 @@ const DonorDetails = ({ activeTab }) => {
     }
   };
 
-  const handleFetchGuests = async () => {
-    try {
-      // console.log("Fetching guest details...");
-      const guests = await fetchGuestDetails();
-      // console.log("Fetched guest details:", guests);
-      // console.log("Guest data structure:", {
-      //   fullResponse: guests,
-      //   dataArray: guests.data,
-      //   firstGuest: guests.data?.[0],
-      //   firstGuestAttributes: guests.data?.[0]?.attributes,
-      // });
+  useEffect(() => {
+    // We don't need to load all guests at once anymore
+    // Only load receipt details initially for receipt numbers
+    const fetchReceiptDetailsData = async () => {
+      try {
+        const receipts = await fetchReceiptDetails();
+        // console.log("All Receipts:", receipts);
+      } catch (error) {
+        console.error("Error fetching receipt details:", error);
+      }
+    };
 
-      // Fetch and log receipt details
-      const receipts = await fetchReceiptDetails();
-      // console.log("All Receipts:", receipts);
+    fetchReceiptDetailsData();
 
-      setGuestList(guests.data);
-    } catch (error) {
-      console.error("Error fetching guest details:", error);
-    }
-  };
+    // Add click outside handlers (preserve this part)
+    const handleClickOutside = (event) => {
+      if (nameDropdownRef.current && !nameDropdownRef.current.contains(event.target)) {
+        setShowNameSuggestions(false);
+      }
+      if (phoneDropdownRef.current && !phoneDropdownRef.current.contains(event.target)) {
+        setShowPhoneSuggestions(false);
+      }
+      if (identityDropdownRef.current && !identityDropdownRef.current.contains(event.target)) {
+        setShowIdentitySuggestions(false);
+      }
+      if (deekshaDropdownRef.current && !deekshaDropdownRef.current.contains(event.target)) {
+        setIsDeekshaDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [fieldErrors]);
 
   const handleSuggestionClick = (guest) => {
     // console.log("Selected Guest Data:", guest);
 
     const {
-      name,
-      phone_number,
-      email,
-      deeksha,
-      identity_proof,
-      identity_number,
-      address,
-      unique_no,
-      pan_number,
-    } = guest.attributes;
+      name = "",
+      phone_number = "",
+      email = "",
+      deeksha = "",
+      identity_proof = "Aadhaar",
+      identity_number = "",
+      address = "",
+      unique_no = "",
+      pan_number = "",
+    } = guest.attributes || {};
 
     // Extract title and name
     const titleMatch = name.match(
@@ -600,15 +723,15 @@ const DonorDetails = ({ activeTab }) => {
     );
 
     // Split address by commas and trim whitespace
-    const addressParts = address.split(",").map((part) => part.trim());
+    const addressParts = (address || "").split(",").map((part) => part.trim());
 
     // Extract components based on position from the end
-    const pincode = addressParts[addressParts.length - 1] || ""; // Last
-    const state = addressParts[addressParts.length - 2] || ""; // 2nd last
-    const district = addressParts[addressParts.length - 3] || ""; // 3rd last
-    const postOffice = addressParts[addressParts.length - 4] || ""; // 4th last
-    const streetName = addressParts[addressParts.length - 5] || ""; // 5th last
-    const flatNo = addressParts[addressParts.length - 6] || ""; // 6th last
+    const pincode = addressParts.length > 0 ? addressParts[addressParts.length - 1] || "" : ""; // Last
+    const state = addressParts.length > 1 ? addressParts[addressParts.length - 2] || "" : ""; // 2nd last
+    const district = addressParts.length > 2 ? addressParts[addressParts.length - 3] || "" : ""; // 3rd last
+    const postOffice = addressParts.length > 3 ? addressParts[addressParts.length - 4] || "" : ""; // 4th last
+    const streetName = addressParts.length > 4 ? addressParts[addressParts.length - 5] || "" : ""; // 5th last
+    const flatNo = addressParts.length > 5 ? addressParts[addressParts.length - 6] || "" : ""; // 6th last
 
     // Update donor details
     updateAndSyncDonorDetails({
@@ -616,7 +739,7 @@ const DonorDetails = ({ activeTab }) => {
       guestData: guest,
       title: title,
       name: nameWithoutTitle,
-      phone: phone_number.replace("+91", ""),
+      phone: phone_number ? phone_number.replace("+91", "") : "",
       email,
       deeksha,
       identityType: identity_proof,
@@ -649,80 +772,24 @@ const DonorDetails = ({ activeTab }) => {
     setShowIdentitySuggestions(false);
   };
 
-  useEffect(() => {
-    // Add event listener for refresh
-    const handleRefresh = () => {
-      handleFetchGuests();
-    };
-    window.addEventListener("refreshDonorDetails", handleRefresh);
-
-    // Initial fetch with async function
-    const fetchData = async () => {
-      try {
-        const guests = await fetchGuestDetails();
-        // console.log("Fetched Guest Details:", guests.data);
-
-        setGuestList(guests.data);
-
-        // Fetch and log receipt details
-        const receipts = await fetchReceiptDetails();
-        // console.log("Fetched Receipt Details:", {
-        //   fullResponse: receipts,
-        //   totalReceipts: receipts.data?.length || 0,
-        //   sampleReceipt: receipts.data?.[0],
-        // });
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
-    };
-
-    fetchData();
-
-    // Cleanup
-    return () => {
-      window.removeEventListener("refreshDonorDetails", handleRefresh);
-    };
-  }, []);
-
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (
-        deekshaDropdownRef.current &&
-        !deekshaDropdownRef.current.contains(event.target)
-      ) {
-        setIsDeekshaDropdownOpen(false);
-      }
-
-      if (
-        nameDropdownRef.current &&
-        !nameDropdownRef.current.contains(event.target)
-      ) {
-        setShowNameSuggestions(false);
-      }
-
-      if (
-        phoneDropdownRef.current &&
-        !phoneDropdownRef.current.contains(event.target)
-      ) {
-        setShowPhoneSuggestions(false);
-      }
-
-      if (
-        identityDropdownRef.current &&
-        !identityDropdownRef.current.contains(event.target)
-      ) {
-        setShowIdentitySuggestions(false);
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
-
   const hasGuestData = () => {
     return !!currentDonorDetails.guestData;
+  };
+
+  // Add this new function after handleSuggestionClick
+  const saveGuestDetailsToBackend = async (guestId, updateData) => {
+    if (guestId) {
+      try {
+        // Call the API to update guest details
+        await updateGuestDetails(guestId, updateData);
+        console.log("Guest details updated successfully:", updateData);
+        
+        // We could add a toast notification here if desired
+      } catch (error) {
+        console.error("Error updating guest details:", error);
+        // We could add error handling/toast notification here
+      }
+    }
   };
 
   return (
@@ -833,19 +900,19 @@ const DonorDetails = ({ activeTab }) => {
                           (e.target.style.backgroundColor = "white")
                         }
                       >
-                        Name: <b>{guest.attributes.name}</b>
+                        Name: <b>{guest.attributes.name || ''}</b>
                         <br />
                         Phone:{" "}
                         <b>
-                          {guest.attributes.phone_number.replace("+91", "")}
+                          {guest.attributes.phone_number ? guest.attributes.phone_number.replace("+91", "") : ''}
                         </b>
                         <br />
                         Identity Proof:{" "}
-                        <b>{guest.attributes.identity_number}</b>
+                        <b>{guest.attributes.identity_number || ''}</b>
                         <br />
                         Address:{" "}
                         <b>
-                          {guest.attributes.address.replace(/^,\s*,\s*/, "")}
+                          {guest.attributes.address ? guest.attributes.address.replace(/^,\s*,\s*/, "") : ''}
                         </b>
                       </li>
                     ))}
@@ -913,15 +980,15 @@ const DonorDetails = ({ activeTab }) => {
                         (e.target.style.backgroundColor = "white")
                       }
                     >
-                      Name: <b>{guest.attributes.name}</b>
+                      Name: <b>{guest.attributes.name || ''}</b>
                       <br />
                       Phone:{" "}
-                      <b>{guest.attributes.phone_number.replace("+91", "")}</b>
+                      <b>{guest.attributes.phone_number ? guest.attributes.phone_number.replace("+91", "") : ''}</b>
                       <br />
-                      Identity Proof: <b>{guest.attributes.identity_number}</b>
+                      Identity Proof: <b>{guest.attributes.identity_number || ''}</b>
                       <br />
                       Address:{" "}
-                      <b>{guest.attributes.address.replace(/^,\s*,\s*/, "")}</b>
+                      <b>{guest.attributes.address ? guest.attributes.address.replace(/^,\s*,\s*/, "") : ''}</b>
                     </li>
                   ))}
                 </ul>
@@ -1237,19 +1304,19 @@ const DonorDetails = ({ activeTab }) => {
                           (e.target.style.backgroundColor = "white")
                         }
                       >
-                        Name: <b>{guest.attributes.name}</b>
+                        Name: <b>{guest.attributes.name || ''}</b>
                         <br />
                         Phone:{" "}
                         <b>
-                          {guest.attributes.phone_number.replace("+91", "")}
+                          {guest.attributes.phone_number ? guest.attributes.phone_number.replace("+91", "") : ''}
                         </b>
                         <br />
                         Identity Proof:{" "}
-                        <b>{guest.attributes.identity_number}</b>
+                        <b>{guest.attributes.identity_number || ''}</b>
                         <br />
                         Address:{" "}
                         <b>
-                          {guest.attributes.address.replace(/^,\s*,\s*/, "")}
+                          {guest.attributes.address ? guest.attributes.address.replace(/^,\s*,\s*/, "") : ''}
                         </b>
                       </li>
                     ))}

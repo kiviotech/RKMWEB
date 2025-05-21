@@ -661,4 +661,37 @@
       }
     }
   }
+
+  // Add styles for communication status indicators
+  .user-status-wrapper {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin-top: 8px;
+  }
+
+  .communication-stopped {
+    background-color: #ffeeee;
+    color: #d32f2f;
+    border: 1px solid #ffcdd2;
+  }
+
+  .communication-active {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+    border: 1px solid #c8e6c9;
+  }
+
+  // Add this to the existing .user-status-indicator class
+  .user-status-indicator {
+    &.communication-stopped, &.communication-active {
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      white-space: nowrap;
+      max-width: 200px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  }
 }

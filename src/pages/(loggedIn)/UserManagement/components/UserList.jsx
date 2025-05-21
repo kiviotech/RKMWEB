@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import Button from './ui/Button';
 import ViewToggle from './ui/ViewToggle';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/Card';
+import CommunicationBadge from './ui/CommunicationBadge';
 import '../components/ui/shadcn.scss';
 
 const UserList = ({ users, roles, onEdit, onDelete, currentUserId }) => {
@@ -14,7 +15,9 @@ const UserList = ({ users, roles, onEdit, onDelete, currentUserId }) => {
     return (
       user.username?.toLowerCase().includes(searchLower) ||
       user.email?.toLowerCase().includes(searchLower) ||
-      user.role?.name?.toLowerCase().includes(searchLower)
+      user.role?.name?.toLowerCase().includes(searchLower) ||
+      (user.stopCommunication && 'no communication'.includes(searchLower)) ||
+      (user.stopCommunication && user.communicationStopReason?.toLowerCase().includes(searchLower))
     );
   });
 
@@ -60,8 +63,11 @@ const UserList = ({ users, roles, onEdit, onDelete, currentUserId }) => {
               <div className="user-role">
                 {user.role?.name || getRoleName(user.role?.id) || 'N/A'}
               </div>
-              <div className={`user-status ${user.blocked ? 'blocked' : 'active'}`}>
-                {user.blocked ? 'Blocked' : 'Active'}
+              <div className="user-status-wrapper">
+                <div className={`user-status ${user.blocked ? 'blocked' : 'active'}`}>
+                  {user.blocked ? 'Blocked' : 'Active'}
+                </div>
+                <CommunicationBadge status={user.stopCommunication} reason={user.communicationStopReason} />
               </div>
             </CardContent>
             <div className="shadcn-card-footer">
@@ -103,6 +109,7 @@ const UserList = ({ users, roles, onEdit, onDelete, currentUserId }) => {
             <th>Email</th>
             <th>Role</th>
             <th>Status</th>
+            <th>Communication</th>
             <th>Created</th>
             <th>Actions</th>
           </tr>
@@ -126,6 +133,9 @@ const UserList = ({ users, roles, onEdit, onDelete, currentUserId }) => {
                 <span className={`user-status-indicator ${user.blocked ? 'blocked' : 'active'}`}>
                   {user.blocked ? 'Blocked' : 'Active'}
                 </span>
+              </td>
+              <td>
+                <CommunicationBadge status={user.stopCommunication} reason={user.communicationStopReason} />
               </td>
               <td>{formatDate(user.createdAt)}</td>
               <td>

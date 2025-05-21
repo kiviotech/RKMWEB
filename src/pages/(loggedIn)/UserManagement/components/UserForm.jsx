@@ -15,7 +15,9 @@ const UserForm = ({
     password: '',
     confirmPassword: '',
     role: user.role?.id || '',
-    blocked: user.blocked || false
+    blocked: user.blocked || false,
+    stopCommunication: user.stopCommunication || false,
+    communicationStopReason: user.communicationStopReason || ''
   });
   const [errors, setErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
@@ -68,6 +70,11 @@ const UserForm = ({
       newErrors.role = 'Role is required';
     }
     
+    // Add validation for communication stop reason
+    if (formData.stopCommunication && !formData.communicationStopReason) {
+      newErrors.communicationStopReason = 'Please select a reason for stopping communication';
+    }
+    
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -86,7 +93,9 @@ const UserForm = ({
         username: formData.username,
         email: formData.email,
         role: formData.role,
-        blocked: formData.blocked
+        blocked: formData.blocked,
+        stopCommunication: formData.stopCommunication,
+        communicationStopReason: formData.communicationStopReason
       };
       
       // Add password only if provided (for new users or when changing password)
@@ -110,7 +119,9 @@ const UserForm = ({
             password: '',
             confirmPassword: '',
             role: '',
-            blocked: false
+            blocked: false,
+            stopCommunication: false,
+            communicationStopReason: ''
           });
         }
       } else {
@@ -304,10 +315,11 @@ const UserForm = ({
             {errors.role && <div className="error">{errors.role}</div>}
           </div>
           
-          <div className="form-row">
-            <label className="checkbox-label">
+          <div className="form-row checkbox-row">
+            <label htmlFor="blocked" className="checkbox-label">
               <input
                 type="checkbox"
+                id="blocked"
                 name="blocked"
                 checked={formData.blocked}
                 onChange={handleChange}
@@ -315,7 +327,52 @@ const UserForm = ({
               />
               Block User
             </label>
+            <div className="helper-text">
+              If checked, this user will not be able to log in.
+            </div>
           </div>
+          
+          <div className="form-row checkbox-row">
+            <label htmlFor="stopCommunication">
+              <input
+                type="checkbox"
+                id="stopCommunication"
+                name="stopCommunication"
+                checked={formData.stopCommunication}
+                onChange={handleChange}
+                disabled={isSubmitting}
+              />
+              Stop Communication
+            </label>
+            <div className="helper-text">
+              If checked, this user will not receive any communications.
+            </div>
+          </div>
+          
+          {formData.stopCommunication && (
+            <div className="form-row">
+              <label htmlFor="communicationStopReason">Reason for Stopping Communication</label>
+              <select
+                id="communicationStopReason"
+                name="communicationStopReason"
+                value={formData.communicationStopReason}
+                onChange={handleChange}
+                disabled={isSubmitting}
+                required={formData.stopCommunication}
+              >
+                <option value="">Select a reason</option>
+                <option value="Unsubscribed">Unsubscribed</option>
+                <option value="Bounced Email">Bounced Email</option>
+                <option value="Complaint">Complaint</option>
+                <option value="Invalid Contact">Invalid Contact</option>
+                <option value="Requested Removal">Requested Removal</option>
+                <option value="Other">Other</option>
+              </select>
+              {errors.communicationStopReason && (
+                <div className="error">{errors.communicationStopReason}</div>
+              )}
+            </div>
+          )}
           
           <div className="form-buttons">
             <div className="left-buttons">

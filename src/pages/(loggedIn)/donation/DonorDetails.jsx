@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import "./DonorDetails.scss";
 import useDonationStore from "../../../../donationStore";
-import { fetchGuestDetails, searchGuestDetailsByName, searchGuestDetailsByPhone, updateGuestDetails } from "../../../../services/src/services/guestDetailsService";
+import { fetchGuestDetails, searchGuestDetailsByName, searchGuestDetailsByPhone, updateGuestDetailsById } from "../../../../services/src/services/guestDetailsService";
 import { fetchReceiptDetails } from "../../../../services/src/services/receiptDetailsService";
 
 const DonorDetails = ({ activeTab }) => {
@@ -776,12 +776,12 @@ const DonorDetails = ({ activeTab }) => {
     return !!currentDonorDetails.guestData;
   };
 
-  // Add this new function after handleSuggestionClick
+  // Update the saveGuestDetailsToBackend function to use updateGuestDetailsById
   const saveGuestDetailsToBackend = async (guestId, updateData) => {
     if (guestId) {
       try {
         // Call the API to update guest details
-        await updateGuestDetails(guestId, updateData);
+        await updateGuestDetailsById(guestId, updateData);
         console.log("Guest details updated successfully:", updateData);
         
         // We could add a toast notification here if desired

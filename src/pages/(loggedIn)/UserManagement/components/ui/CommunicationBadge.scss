@@ -1,0 +1,63 @@
+.communication-badge-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.communication-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  padding: 2px 8px;
+  font-size: 12px;
+  font-weight: 500;
+  
+  &.stopped {
+    background-color: #ffeeee;
+    color: #d32f2f;
+    border: 1px solid #ffcdd2;
+  }
+  
+  &.active {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+    border: 1px solid #c8e6c9;
+  }
+}
+
+.tooltip {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-bottom: 8px;
+  background-color: #424242;
+  color: white;
+  border-radius: 4px;
+  padding: 8px 12px;
+  font-size: 12px;
+  z-index: 1000;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  width: max-content;
+  max-width: 250px;
+  
+  &:after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: #424242 transparent transparent transparent;
+  }
+  
+  .tooltip-title {
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+  
+  .tooltip-content {
+    opacity: 0.8;
+  }
+} 

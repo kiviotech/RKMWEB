@@ -6,6 +6,7 @@ import { toast } from "react-toastify";
 import { updateCouponAmountCollected } from "../../../../services/src/services/couponService";
 import useCouponStore from "../../../../useCouponStore";
 import { handlePrintSeparate, handlePrintAll } from "./PrintHandlers";
+import { fetchPincodeDetails } from "../../../../services/src/services/miscService";
 
 const CouponsDetails = () => {
   const COUPON_PRICE = 40;
@@ -65,13 +66,12 @@ const CouponsDetails = () => {
     if (pincode.length === 6) {
       setLoading(true);
       try {
-        const response = await fetch(
-          `https://api.postalpincode.in/pincode/${pincode}`
-        );
-        const [data] = await response.json();
+        // Use our proxy API to avoid SSL certificate errors
+        const data = await fetchPincodeDetails(pincode);
+        const [firstResult] = data;
 
-        if (data.Status === "Success") {
-          const postOffice = data.PostOffice[0];
+        if (firstResult.Status === "Success") {
+          const postOffice = firstResult.PostOffice[0];
           const address = `${postOffice.Name}, ${postOffice.District}, ${postOffice.State}`;
           setFormData((prev) => ({
             ...prev,
@@ -86,7 +86,7 @@ const CouponsDetails = () => {
           setPincodeError("Invalid pincode. Please check and try again.");
         }
       } catch (error) {
-        // console.error("Error fetching address:", error);
+        console.error("Error fetching address:", error);
         setFormData((prev) => ({
           ...prev,
           address: "",

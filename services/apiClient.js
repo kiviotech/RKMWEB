@@ -1,9 +1,11 @@
 import axios from "axios";
 import { getToken } from "../utils/storage";
 
+// Use the standard port
 export const BASE_URL = "http://localhost:1338/api";
 export const MEDIA_BASE_URL = "http://localhost:1338";
 
+// Commented out production URLs
 // export const BASE_URL = "https://api.kamarpukurmath.org/api";
 // export const MEDIA_BASE_URL = "https://api.kamarpukurmath.org";
 

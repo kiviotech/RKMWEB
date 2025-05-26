@@ -7,6 +7,7 @@ import {
   getGuestDetailsByUserAndStatus,
   getGuestDetailsByUser,
   getGuestUniqueNo,
+  getNextUniqueNo,
   getAllGuestDetails,
   searchGuestsByName,
   searchGuestsByPhone,
@@ -100,6 +101,17 @@ export const fetchGuestUniqueNo = async () => {
     return response.data;
   } catch (error) {
     console.error("Error fetching guest unique numbers:", error);
+    throw error;
+  }
+};
+
+// Fetch next available unique number
+export const fetchNextUniqueNo = async () => {
+  try {
+    const response = await getNextUniqueNo();
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching next unique number:", error);
     throw error;
   }
 };

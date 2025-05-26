@@ -3,6 +3,7 @@ import "./DonorDetails.scss";
 import useDonationStore from "../../../../donationStore";
 import { fetchGuestDetails, searchGuestDetailsByName, searchGuestDetailsByPhone, updateGuestDetailsById } from "../../../../services/src/services/guestDetailsService";
 import { fetchReceiptDetails } from "../../../../services/src/services/receiptDetailsService";
+import { fetchPincodeDetails } from "../../../../services/src/services/miscService";
 
 const DonorDetails = ({ activeTab }) => {
   const deekshaOptions = [
@@ -130,13 +131,13 @@ const DonorDetails = ({ activeTab }) => {
 
     setLoading(true);
     try {
-      const response = await fetch(
-        `https://api.postalpincode.in/pincode/${pincode}`
-      );
-      const [data] = await response.json();
+      // Use our backend proxy service instead of calling the postal API directly
+      // This avoids the SSL certificate error issue
+      const data = await fetchPincodeDetails(pincode);
+      const [firstResult] = data;
 
-      if (data.Status === "Success") {
-        const postOfficeData = data.PostOffice[0];
+      if (firstResult.Status === "Success") {
+        const postOfficeData = firstResult.PostOffice[0];
         
         // First update the donor details locally
         updateAndSyncDonorDetails({
@@ -181,7 +182,7 @@ const DonorDetails = ({ activeTab }) => {
         });
       }
     } catch (error) {
-      // console.error("Error fetching pincode data:", error);
+      console.error("Error fetching pincode data:", error);
       // Clear related fields and show error for failed API call
       updateAndSyncDonorDetails({
         state: "",
@@ -800,7 +801,9 @@ const DonorDetails = ({ activeTab }) => {
       <div className="donor-details__header">
         <h2>Donor Details</h2>
         <span className="language-switch">
-          {donorTabs[activeTabId].uniqueNo}
+          {currentDonorDetails.guestData ? 
+            (currentDonorDetails.guestData.attributes.unique_no?.match(/\d+/)?.[0] || "") : 
+            (donorTabs[activeTabId].uniqueNo?.match(/\d+/)?.[0] || "")}
         </span>
       </div>
 

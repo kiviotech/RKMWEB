@@ -8,7 +8,7 @@ import { ShadcnInvitationTable } from '../../../../components/ui/ShadcnInvitatio
 
 const InvitationManagement = () => {
   const [criteria, setCriteria] = useState({
-    hasDeeksha: false,
+    hasDeeksha: "all", // Changed to string for dropdown
     minDonationAmount: 0,
     hasCapitalInvestment: false,
     startDate: '',
@@ -24,19 +24,44 @@ const InvitationManagement = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [templateMessage, setTemplateMessage] = useState('');
   const [actionFeedback, setActionFeedback] = useState({ type: '', message: '' });
+  
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize] = useState(10);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalUsers, setTotalUsers] = useState(0);
 
-  // Filter users by search term
+  // Client-side search is now used only for filtering the current page
+  // Server pagination is primary, search is secondary
   const filteredUsers = eligibleUsers.filter(user => {
     if (!searchTerm.trim()) return true;
     
     const searchLower = searchTerm.toLowerCase();
     return (
-      user.username?.toLowerCase().includes(searchLower) ||
-      user.email?.toLowerCase().includes(searchLower) ||
-      user.phone?.includes(searchTerm) ||
-      user.address?.toLowerCase().includes(searchLower)
+      (user.username || user.name || '')?.toLowerCase().includes(searchLower) ||
+      (user.email || '')?.toLowerCase().includes(searchLower) ||
+      (user.phone || '')?.includes(searchTerm) ||
+      (user.address || '')?.toLowerCase().includes(searchLower)
     );
   });
+  
+  // If search term changes, reset to first page
+  useEffect(() => {
+    if (searchTerm.trim()) {
+      setCurrentPage(1);
+    }
+  }, [searchTerm]);
+  
+  // Debug log when important state changes
+  useEffect(() => {
+    console.log('State updated:', { 
+      eligibleUsersCount: eligibleUsers.length,
+      filteredUsersCount: filteredUsers.length,
+      currentPage,
+      totalPages,
+      totalUsers
+    });
+  }, [eligibleUsers, currentPage, totalPages, totalUsers, filteredUsers.length]);
 
   const handleCriteriaChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -46,19 +71,46 @@ const InvitationManagement = () => {
     });
   };
 
-  const handleSearch = async (e) => {
-    e.preventDefault();
+  const handleSearch = async (e, newPage = 1) => {
+    if (e) e.preventDefault();
     setIsLoading(true);
     setActionFeedback({ type: '', message: '' });
     
     try {
+      // Ensure page is a number
+      const requestedPage = parseInt(newPage, 10);
+      console.log(`handleSearch called with page ${requestedPage}`);
+      
+      // Convert criteria for API call
+      const apiCriteria = {
+        ...criteria,
+        // Convert string dropdown value to boolean for API if it's not "all"
+        hasDeeksha: criteria.hasDeeksha === "all" ? null : (criteria.hasDeeksha === "true")
+      };
+      
       // The service will add default values for empty filters to ensure we fetch all users
-      const users = await fetchEligibleUsers(criteria);
-      setEligibleUsers(users);
-      setSelectedUsers([]);
+      const response = await fetchEligibleUsers(apiCriteria, requestedPage, pageSize);
+      
+      console.log(`API Response for page ${requestedPage}:`, response); // Debug log
+      
+      // Check if the response has the expected structure
+      if (!response.data || !response.pagination) {
+        throw new Error('Unexpected API response format');
+      }
+      
+      // Update the state with the new data
+      setEligibleUsers(response.data);
+      setSelectedUsers([]); // Clear selections when changing pages
+      
+      // Update pagination info using the requested page if the server doesn't return one
+      const { pagination } = response;
+      // Make sure we set the currentPage to the page we requested
+      setCurrentPage(pagination.page || requestedPage);
+      setTotalPages(pagination.pageCount || 1);
+      setTotalUsers(pagination.total || 0);
       
       // Show feedback about how many users were found
-      if (users.length === 0) {
+      if (response.data.length === 0) {
         setActionFeedback({ 
           type: 'info', 
           message: 'No users found matching your criteria.' 
@@ -66,7 +118,7 @@ const InvitationManagement = () => {
       } else {
         setActionFeedback({ 
           type: 'success', 
-          message: `Found ${users.length} user${users.length !== 1 ? 's' : ''} matching your criteria.` 
+          message: `Found ${pagination.total} user${pagination.total !== 1 ? 's' : ''} matching your criteria.` 
         });
       }
     } catch (error) {
@@ -76,8 +128,27 @@ const InvitationManagement = () => {
         message: error.message || 'Failed to fetch eligible users. Please try again.' 
       });
       setEligibleUsers([]);
+      setTotalPages(1);
+      setTotalUsers(0);
     } finally {
       setIsLoading(false);
+    }
+  };
+  
+  // Function to handle page changes
+  const handlePageChange = (newPage) => {
+    console.log(`Page change requested from ${currentPage} to ${newPage}`);
+    if (newPage !== currentPage) {
+      // First update the current page state
+      setCurrentPage(newPage);
+      
+      // Then fetch the data for that page
+      // Use setTimeout to ensure the state update has time to propagate
+      setTimeout(() => {
+        console.log(`Fetching data for page ${newPage}`);
+        // Pass the new page explicitly to make sure we're using the correct value
+        handleSearch(null, newPage);
+      }, 0);
     }
   };
 
@@ -176,6 +247,85 @@ const InvitationManagement = () => {
       day: 'numeric',
     });
   };
+  
+  // Pagination component
+  const Pagination = () => {
+    console.log('Rendering Pagination with:', { currentPage, totalPages, totalUsers });
+    
+    // If we only have one page or no pages, don't render pagination
+    if (totalPages <= 1) {
+      return null;
+    }
+    
+    // Direct click handler that doesn't depend on state closure
+    const onPageClick = (pageNum) => {
+      console.log(`Clicked page ${pageNum}`);
+      // Force the page number to be an integer
+      const page = parseInt(pageNum, 10);
+      if (page !== currentPage) {
+        handlePageChange(page);
+      }
+    };
+    
+    return (
+      <div className="pagination">
+        <button
+          className="pagination-btn"
+          onClick={() => onPageClick(currentPage - 1)}
+          disabled={currentPage === 1}
+        >
+          &lt;
+        </button>
+
+        {[...Array(totalPages)].map((_, index) => {
+          const pageNumber = index + 1;
+
+          // Always show first page, last page, current page, and pages around current page
+          if (
+            pageNumber === 1 ||
+            pageNumber === totalPages ||
+            (pageNumber >= currentPage - 1 && pageNumber <= currentPage + 1)
+          ) {
+            return (
+              <button
+                key={pageNumber}
+                onClick={() => onPageClick(pageNumber)}
+                className={`pagination-btn ${
+                  currentPage === pageNumber ? "active" : ""
+                }`}
+                data-page={pageNumber} // Add data attribute for debugging
+              >
+                {pageNumber}
+              </button>
+            );
+          }
+
+          // Show ellipsis for skipped pages
+          if (
+            pageNumber === currentPage - 2 ||
+            pageNumber === currentPage + 2
+          ) {
+            return (
+              <span key={pageNumber} className="ellipsis">
+                ...
+              </span>
+            );
+          }
+
+          return null;
+        })}
+
+        <button
+          className="pagination-btn"
+          onClick={() => onPageClick(currentPage + 1)}
+          disabled={currentPage === totalPages}
+          data-page={currentPage + 1} // Add data attribute for debugging
+        >
+          &gt;
+        </button>
+      </div>
+    );
+  };
 
   return (
     <div className="invitation-management">
@@ -189,14 +339,24 @@ const InvitationManagement = () => {
             <h3>Selection Criteria</h3>
             <div className="criteria-grid">
               <div className="criteria-item">
-                <label className="checkbox-label">
-                  <input
-                    type="checkbox"
+                <label>
+                  Deeksha Status
+                  <select
                     name="hasDeeksha"
-                    checked={criteria.hasDeeksha}
-                    onChange={handleCriteriaChange}
-                  />
-                  Has Taken Deeksha
+                    value={criteria.hasDeeksha}
+                    onChange={(e) => {
+                      // Keep the string value from the dropdown ("all", "true", "false")
+                      setCriteria({
+                        ...criteria,
+                        hasDeeksha: e.target.value
+                      });
+                    }}
+                    className="deeksha-select"
+                  >
+                    <option value="all">All Users</option>
+                    <option value="true">Has Taken Deeksha</option>
+                    <option value="false">Has Not Taken Deeksha</option>
+                  </select>
                 </label>
               </div>
               
@@ -265,7 +425,7 @@ const InvitationManagement = () => {
             <>
               <div className="users-section">
                 <div className="users-header">
-                  <h3>Eligible Users ({filteredUsers.length})</h3>
+                  <h3>Eligible Users ({totalUsers})</h3>
                   <div className="search-input-wrapper">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <circle cx="11" cy="11" r="8"></circle>
@@ -273,7 +433,7 @@ const InvitationManagement = () => {
                     </svg>
                     <input 
                       type="text" 
-                      placeholder="Search users..." 
+                      placeholder="Search users on this page..." 
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
                       className="search-input"
@@ -384,6 +544,16 @@ const InvitationManagement = () => {
     </table>
   </div>
 </div>
+
+                {/* Pagination controls */}
+                {eligibleUsers.length > 0 && (
+                  <div className="pagination-wrapper">
+                    <div className="pagination-info">
+                      Showing {((currentPage - 1) * pageSize) + 1} to {Math.min(currentPage * pageSize, totalUsers)} of {totalUsers} users
+                    </div>
+                    {totalPages > 1 && <Pagination />}
+                  </div>
+                )}
               </div>
               
               <div className="action-section">

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import "./DormitoryApplicationDetails.scss";
 import CommonButton from "../../../../components/ui/Button";
 import useDormitoryStore from "../../../../../dormitoryStore";
+import { fetchPincodeDetails } from "../../../../../services/src/services/miscService";
 
 const DormitoryApplicationDetails = ({ goToNextStep, tabName }) => {
   const { formData, updateFormData, updateAddress } = useDormitoryStore();
@@ -298,10 +299,8 @@ const DormitoryApplicationDetails = ({ goToNextStep, tabName }) => {
 
     if (name === "pinCode" && value.length === 6) {
       try {
-        const response = await fetch(
-          `https://api.postalpincode.in/pincode/${value}`
-        );
-        const data = await response.json();
+        // Use our proxy API to avoid SSL certificate errors
+        const data = await fetchPincodeDetails(value);
 
         if (data[0].Status === "Success") {
           const postOffice = data[0].PostOffice[0];
@@ -327,7 +326,7 @@ const DormitoryApplicationDetails = ({ goToNextStep, tabName }) => {
         updateAddress({
           state: "",
           district: "",
-          postOffice: "",
+            postOffice: "",
         });
       }
     }

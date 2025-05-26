@@ -1,539 +1,223 @@
-import apiClient from "./apiClient";
-import { useAuthStore } from "../store/authStore";
+import axios from 'axios';
+import { MEDIA_BASE_URL } from './apiClient';
+import { getToken } from '../utils/storage';
 
 /**
- * Service for tracking user activities like logins, password changes,
- * and system usage for security and audit purposes
+ * Service for interacting with the user activity log API
  */
 
+// Helper function to build API URL
+const getApiUrl = (endpoint) => {
+  return `${MEDIA_BASE_URL}${endpoint}`;
+};
+
+// Helper function to get auth headers
+const getAuthHeaders = async () => {
+  const token = await getToken();
+  return token ? { Authorization: `Bearer ${token}` } : {};
+};
+
 /**
- * Log a user login event
- * 
- * @param {Object} params - Login parameters
- * @param {string} params.userId - User ID of the user logging in
- * @param {string} params.username - Username of the user logging in
- * @param {string} params.userRole - Role of the user logging in
- * @param {string} params.method - Login method (e.g., 'password', 'otp')
- * @param {boolean} params.success - Whether the login was successful
- * @returns {Promise<Object>} - Response with success/error
+ * Log a user activity
+ *
+ * @param {Object} activity - The activity to log
+ * @returns {Promise} - A promise that resolves to the created activity log
  */
-export async function logUserLogin({ userId, username, userRole, method = 'password', success = true, details = {} }) {
+export const logActivity = async (activity) => {
   try {
-    // Get client IP address 
-    let ipAddress = '0.0.0.0';
-    try {
-      const ipResponse = await fetch('https://api.ipify.org?format=json');
-      const ipData = await ipResponse.json();
-      ipAddress = ipData.ip;
-    } catch (error) {
-      console.error('Failed to get IP address:', error);
-    }
-    
-    // Get browser and device information
-    const userAgent = navigator.userAgent;
-    
-    // Prepare and send the log
-    const payload = {
-      action: 'user.login',
-      userId,
-      username,
-      userRole,
-      ipAddress,
-      userAgent,
-      details: {
-        method,
-        success,
-        timestamp: new Date().toISOString(),
-        platform: details.platform || navigator.platform,
-        screenSize: details.screenSize || `${window.screen.width}x${window.screen.height}`,
-        language: details.language || navigator.language,
-        browserInfo: details.userAgent || userAgent,
-        ...details  // Include any other details passed in
+    const token = await getToken();
+    if (!token) return null;
+
+    const response = await axios.post(
+      getApiUrl('/api/user-activity-logs'),
+      {
+        data: {
+          ...activity,
+          publishedAt: new Date(),
+        }
       },
-      notes: success ? 'Successful login' : 'Failed login attempt'
-    };
-    
-    console.log('[USER ACTIVITY] Logging user login:', payload);
-    
-    // Use the dedicated user-activity-logs endpoint
-    // Note: This endpoint needs to be created on the backend
-    try {
-      const response = await apiClient.post('/user-activity-logs', { data: payload });
-      return { success: true, logId: response.data?.id };
-    } catch (error) {
-      console.error('[USER ACTIVITY] Error creating log:', error);
-      // Silent failure - don't interrupt the login flow
-      return { success: false, error: error.message };
-    }
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    return response.data;
   } catch (error) {
-    console.error('[USER ACTIVITY] Error logging user login:', error);
-    // Silent failure - don't interrupt the login flow
-    return { success: false, error: error.message };
+    console.error('Failed to log activity:', error);
+    return null;
   }
-}
+};
 
 /**
- * Log a password change event
+ * Log a view event
  * 
- * @param {Object} params - Password change parameters
- * @param {string} params.userId - User ID of the user changing password
- * @param {string} params.username - Username of the user changing password
- * @param {string} params.targetUserId - User ID of account whose password is being changed
- * @param {string} params.targetUsername - Username of account whose password is being changed
- * @param {boolean} params.success - Whether the password change was successful
- * @returns {Promise<Object>} - Response with success/error
+ * @param {string} resourceType - The type of resource being viewed (e.g., 'donation', 'guest-detail')
+ * @param {number} resourceId - The ID of the resource being viewed
+ * @param {string} notes - Additional notes about the view
+ * @returns {Promise} - A promise that resolves to the created activity log
  */
-export async function logPasswordChange({ 
-  userId, 
-  username, 
-  targetUserId, 
-  targetUsername, 
-  success = true 
-}) {
-  try {
-    // Get client IP address
-    let ipAddress = '0.0.0.0';
-    try {
-      const ipResponse = await fetch('https://api.ipify.org?format=json');
-      const ipData = await ipResponse.json();
-      ipAddress = ipData.ip;
-    } catch (error) {
-      console.error('Failed to get IP address:', error);
-    }
-    
-    // Fall back to current user if not provided
-    const user = useAuthStore.getState().user;
-    const actualUserId = userId || user?.id;
-    const actualUsername = username || user?.username;
-    
-    // Prepare and send the log
-    const payload = {
-      action: 'user.password_change',
-      userId: actualUserId,
-      username: actualUsername,
-      userRole: user?.role?.type || user?.user_role,
-      targetUserId,
-      targetUsername,
-      ipAddress,
-      userAgent: navigator.userAgent,
-      details: {
-        selfChange: actualUserId === targetUserId,
-        success,
-        timestamp: new Date().toISOString(),
-      },
-      notes: actualUserId === targetUserId 
-        ? 'Self password change' 
-        : `Admin password change for user: ${targetUsername}`
-    };
-    
-    console.log('[USER ACTIVITY] Logging password change:', payload);
-    
-    // Use the dedicated user-activity-logs endpoint
-    // Note: This endpoint needs to be created on the backend
-    try {
-      const response = await apiClient.post('/user-activity-logs', { data: payload });
-      return { success: true, logId: response.data?.id };
-    } catch (error) {
-      console.error('[USER ACTIVITY] Error creating log:', error);
-      return { success: false, error: error.message };
-    }
-  } catch (error) {
-    console.error('[USER ACTIVITY] Error logging password change:', error);
-    return { success: false, error: error.message };
-  }
-}
-
-/**
- * Log a user action in the system
- * 
- * @param {Object} params - Action parameters
- * @param {string} params.action - Action type (e.g., 'view_donation', 'export_data')
- * @param {string} params.resource - Resource being acted upon (e.g., 'donation', 'user')
- * @param {string} params.resourceId - ID of the resource (if applicable)
- * @param {Object} params.details - Additional details about the action
- * @returns {Promise<Object>} - Response with success/error
- */
-export async function logUserAction({ action, resource, resourceId, details = {} }) {
-  try {
-    const user = useAuthStore.getState().user;
-    
-    if (!user || !user.id) {
-      return { success: false, error: 'User not authenticated' };
-    }
-    
-    // Get client IP address
-    let ipAddress = '0.0.0.0';
-    try {
-      const ipResponse = await fetch('https://api.ipify.org?format=json');
-      const ipData = await ipResponse.json();
-      ipAddress = ipData.ip;
-    } catch (error) {
-      console.error('Failed to get IP address:', error);
-    }
-    
-    // Prepare and send the log
-    const payload = {
-      action,
-      userId: user.id,
-      username: user.username,
-      userRole: user.role?.type || user.user_role,
-      resource,
+export const logView = async (resourceType, resourceId, notes = '') => {
+  return logActivity({
+    action: `${resourceType}.view`,
+    details: {
       resourceId,
-      ipAddress,
-      userAgent: navigator.userAgent,
-      details: {
-        ...details,
-        timestamp: new Date().toISOString(),
-      }
-    };
-    
-    console.log('[USER ACTIVITY] Logging user action:', payload);
-    
-    // Use the dedicated user-activity-logs endpoint
-    // Note: This endpoint needs to be created on the backend
-    try {
-      const response = await apiClient.post('/user-activity-logs', { data: payload });
-      return { success: true, logId: response.data?.id };
-    } catch (error) {
-      console.error('[USER ACTIVITY] Error creating log:', error);
-      return { success: false, error: error.message };
-    }
-  } catch (error) {
-    console.error('[USER ACTIVITY] Error logging user action:', error);
-    return { success: false, error: error.message };
-  }
-}
+      timestamp: new Date().toISOString(),
+    },
+    notes: notes || `Viewed ${resourceType} ${resourceId}`,
+  });
+};
 
 /**
- * Get user activity logs for the admin dashboard
+ * Log a create event
  * 
- * @param {Object} params - Query parameters
- * @param {number} params.page - Page number (starts at 1)
- * @param {number} params.pageSize - Number of items per page
- * @param {string} params.sortBy - Field to sort by (default: timestamp)
- * @param {string} params.sortOrder - Sort order (asc or desc)
- * @param {Object} params.filters - Filters to apply (userId, action, etc.)
- * @returns {Promise<Object>} - Response with logs and pagination info
+ * @param {string} resourceType - The type of resource being created (e.g., 'donation', 'guest-detail')
+ * @param {number} resourceId - The ID of the created resource
+ * @param {Object} resourceData - The data of the created resource
+ * @param {string} notes - Additional notes about the creation
+ * @returns {Promise} - A promise that resolves to the created activity log
  */
+export const logCreate = async (resourceType, resourceId, resourceData = {}, notes = '') => {
+  return logActivity({
+    action: `${resourceType}.create`,
+    details: {
+      resourceId,
+      resourceData,
+      timestamp: new Date().toISOString(),
+    },
+    notes: notes || `Created ${resourceType} ${resourceId}`,
+  });
+};
+
 /**
- * Get analytics data from user activity logs
+ * Log an update event
  * 
- * @returns {Promise<Object>} - Analytics data for dashboard
+ * @param {string} resourceType - The type of resource being updated (e.g., 'donation', 'guest-detail')
+ * @param {number} resourceId - The ID of the updated resource
+ * @param {Object} changes - The changes made to the resource
+ * @param {string} notes - Additional notes about the update
+ * @returns {Promise} - A promise that resolves to the created activity log
  */
-export async function getUserActivityAnalytics() {
+export const logUpdate = async (resourceType, resourceId, changes = {}, notes = '') => {
+  return logActivity({
+    action: `${resourceType}.update`,
+    details: {
+      resourceId,
+      changes,
+      timestamp: new Date().toISOString(),
+    },
+    notes: notes || `Updated ${resourceType} ${resourceId}`,
+  });
+};
+
+/**
+ * Log a delete event
+ * 
+ * @param {string} resourceType - The type of resource being deleted (e.g., 'donation', 'guest-detail')
+ * @param {number} resourceId - The ID of the deleted resource
+ * @param {Object} deletedData - The data of the deleted resource
+ * @param {string} notes - Additional notes about the deletion
+ * @returns {Promise} - A promise that resolves to the created activity log
+ */
+export const logDelete = async (resourceType, resourceId, deletedData = {}, notes = '') => {
+  return logActivity({
+    action: `${resourceType}.delete`,
+    details: {
+      resourceId,
+      deletedData,
+      timestamp: new Date().toISOString(),
+    },
+    notes: notes || `Deleted ${resourceType} ${resourceId}`,
+  });
+};
+
+/**
+ * Log an export event
+ * 
+ * @param {string} resourceType - The type of resource being exported (e.g., 'donation', 'guest-detail')
+ * @param {string} format - The format of the export (e.g., 'csv', 'excel')
+ * @param {Object} filters - The filters used for the export
+ * @param {number} recordCount - The number of records exported
+ * @param {string} notes - Additional notes about the export
+ * @returns {Promise} - A promise that resolves to the created activity log
+ */
+export const logExport = async (resourceType, format = 'csv', filters = {}, recordCount = 0, notes = '') => {
+  return logActivity({
+    action: `${resourceType}.export`,
+    details: {
+      format,
+      filters,
+      recordCount,
+      timestamp: new Date().toISOString(),
+    },
+    notes: notes || `Exported ${recordCount} ${resourceType} records as ${format}`,
+  });
+};
+
+/**
+ * Log a custom action
+ * 
+ * @param {string} action - The custom action to log
+ * @param {Object} details - Additional details about the action
+ * @param {string} notes - Notes about the action
+ * @returns {Promise} - A promise that resolves to the created activity log
+ */
+export const logCustomAction = async (action, details = {}, notes = '') => {
+  return logActivity({
+    action,
+    details: {
+      ...details,
+      timestamp: new Date().toISOString(),
+    },
+    notes,
+  });
+};
+
+/**
+ * Get recent user activity logs
+ * 
+ * @param {number} limit - The number of logs to return
+ * @returns {Promise} - A promise that resolves to the fetched activity logs
+ */
+export const getRecentActivity = async (limit = 10) => {
   try {
-    // Make API request to get analytics data
-    // This endpoint would aggregate data on the server side
-    // If your backend doesn't support this, we can fetch all logs and calculate here
-    const response = await apiClient.get('/user-activity-logs/analytics');
-    
-    // If the analytics endpoint doesn't exist, fallback to calculating based on all logs
-    if (!response.data || response.status === 404) {
-      console.log('[USER ACTIVITY] Analytics endpoint not found, calculating client-side');
-      return await calculateClientSideAnalytics();
-    }
-    
-    return {
-      success: true,
-      data: response.data
-    };
+    const token = await getToken();
+    if (!token) return [];
+
+    const response = await axios.get(
+      getApiUrl(`/api/user-activity-logs?sort=timestamp:desc&pagination[limit]=${limit}`),
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    return response.data.data || [];
   } catch (error) {
-    console.error('[USER ACTIVITY] Error fetching analytics:', error);
-    return await calculateClientSideAnalytics();
+    console.error('Failed to fetch activity logs:', error);
+    return [];
   }
-}
+};
 
 /**
- * Calculate analytics on the client side by fetching logs
+ * Get user activity logs with pagination, sorting and filtering
  * 
- * @returns {Promise<Object>} - Calculated analytics data
+ * @param {Object} options - Options for fetching logs
+ * @param {number} options.page - The page number to fetch
+ * @param {number} options.pageSize - Number of records per page
+ * @param {string} options.sortBy - Field to sort by
+ * @param {string} options.sortOrder - Sort direction ('asc' or 'desc')
+ * @param {Object} options.filters - Filters to apply
+ * @returns {Promise} - A promise that resolves to the fetched activity logs with pagination data
  */
-async function calculateClientSideAnalytics() {
+export const getUserActivityLogs = async ({ page = 1, pageSize = 20, sortBy = 'timestamp', sortOrder = 'desc', filters = {} }) => {
   try {
-    // Get the last 7 days of logs with a larger page size
-    const response = await getUserActivityLogs({
-      page: 1,
-      pageSize: 1000, // Get more logs for better analytics
-      sortBy: 'timestamp',
-      sortOrder: 'desc',
-      filters: {
-        // Only get logs from the last 7 days if possible
-      }
-    });
-    
-    if (!response.success) {
-      throw new Error('Failed to fetch logs for analytics');
-    }
-    
-    const logs = response.data;
-    
-    // Calculate analytics data
-    const analytics = {
-      // Total counts
-      totalLogins: logs.filter(log => log.attributes.action === 'user.login' || log.attributes.action === 'auth.login').length,
-      totalFailedLogins: logs.filter(log => 
-        (log.attributes.action === 'user.login' || log.attributes.action === 'auth.login') && 
-        log.attributes.details?.success === false
-      ).length,
-      totalPasswordChanges: logs.filter(log => log.attributes.action === 'user.password_change').length,
-      
-      // Group by device type
-      deviceTypes: calculateDeviceTypes(logs),
-      
-      // Daily activity chart data
-      dailyActivity: calculateDailyActivity(logs),
-      
-      // Top users by activity
-      topUsers: calculateTopUsers(logs),
-      
-      // Suspicious activities
-      suspiciousActivities: detectSuspiciousActivities(logs)
-    };
-    
-    return {
-      success: true,
-      data: analytics
-    };
-  } catch (error) {
-    console.error('[USER ACTIVITY] Error calculating analytics:', error);
-    return {
-      success: false,
-      error: error.message,
-      data: {
-        totalLogins: 0,
-        totalFailedLogins: 0,
-        totalPasswordChanges: 0,
-        deviceTypes: [],
-        dailyActivity: [],
-        topUsers: [],
-        suspiciousActivities: []
-      }
-    };
-  }
-}
+    const token = await getToken();
+    if (!token) return { success: false, error: 'Authentication required', data: [], total: 0 };
 
-/**
- * Calculate distribution of device types from logs
- * 
- * @param {Array} logs - User activity logs
- * @returns {Array} - Device type distribution
- */
-function calculateDeviceTypes(logs) {
-  const deviceCounts = {};
-  
-  logs.forEach(log => {
-    let deviceType = 'Unknown';
-    const userAgent = log.attributes.userAgent || '';
-    
-    if (userAgent.includes('Android')) {
-      deviceType = 'Android';
-    } else if (userAgent.includes('iPhone') || userAgent.includes('iPad')) {
-      deviceType = 'iOS';
-    } else if (userAgent.includes('Windows')) {
-      deviceType = 'Windows';
-    } else if (userAgent.includes('Mac')) {
-      deviceType = 'Mac';
-    } else if (userAgent.includes('Linux')) {
-      deviceType = 'Linux';
-    }
-    
-    deviceCounts[deviceType] = (deviceCounts[deviceType] || 0) + 1;
-  });
-  
-  return Object.entries(deviceCounts).map(([name, count]) => ({ name, count }));
-}
-
-/**
- * Calculate daily activity counts for charting
- * 
- * @param {Array} logs - User activity logs
- * @returns {Array} - Daily activity data
- */
-function calculateDailyActivity(logs) {
-  // Create an object to store counts by date
-  const dailyCounts = {};
-  
-  // Get the last 7 days
-  const dates = [];
-  for (let i = 6; i >= 0; i--) {
-    const date = new Date();
-    date.setDate(date.getDate() - i);
-    const dateStr = date.toISOString().split('T')[0];
-    dates.push(dateStr);
-    dailyCounts[dateStr] = { date: dateStr, logins: 0, failedLogins: 0, otherActions: 0 };
-  }
-  
-  // Count activities by date
-  logs.forEach(log => {
-    const timestamp = log.attributes.timestamp || 
-                     (log.attributes.details?.timestamp) || 
-                     new Date().toISOString();
-    const date = timestamp.split('T')[0];
-    
-    // Only include logs from the last 7 days
-    if (dailyCounts[date]) {
-      const action = log.attributes.action;
-      const success = log.attributes.details?.success !== false; // Default to true if not specified
-      
-      if (action === 'user.login' || action === 'auth.login') {
-        if (success) {
-          dailyCounts[date].logins++;
-        } else {
-          dailyCounts[date].failedLogins++;
-        }
-      } else {
-        dailyCounts[date].otherActions++;
-      }
-    }
-  });
-  
-  // Convert to array for charting
-  return dates.map(date => dailyCounts[date]);
-}
-
-/**
- * Calculate the most active users
- * 
- * @param {Array} logs - User activity logs
- * @returns {Array} - Top users by activity
- */
-function calculateTopUsers(logs) {
-  const userCounts = {};
-  
-  logs.forEach(log => {
-    const username = log.attributes.username || 'Unknown';
-    userCounts[username] = (userCounts[username] || 0) + 1;
-  });
-  
-  return Object.entries(userCounts)
-    .map(([username, count]) => ({ username, count }))
-    .sort((a, b) => b.count - a.count)
-    .slice(0, 5); // Top 5 users
-}
-
-/**
- * Detect suspicious activities in logs
- * 
- * @param {Array} logs - User activity logs
- * @returns {Array} - Suspicious activities detected
- */
-function detectSuspiciousActivities(logs) {
-  const suspiciousActivities = [];
-  const userLastLogin = {};
-  const userFailedAttempts = {};
-  const ipAddresses = {};
-  
-  logs.forEach(log => {
-    const username = log.attributes.username || 'Unknown';
-    const timestamp = new Date(log.attributes.timestamp || log.attributes.details?.timestamp || new Date());
-    const action = log.attributes.action;
-    const success = log.attributes.details?.success !== false; // Default to true if not specified
-    const ipAddress = log.attributes.ipAddress || '0.0.0.0';
-    
-    // Track IP addresses
-    if (!ipAddresses[ipAddress]) {
-      ipAddresses[ipAddress] = [];
-    }
-    ipAddresses[ipAddress].push(username);
-    
-    // Check for multiple failed login attempts
-    if ((action === 'user.login' || action === 'auth.login') && !success) {
-      userFailedAttempts[username] = (userFailedAttempts[username] || 0) + 1;
-      
-      if (userFailedAttempts[username] >= 3) {
-        suspiciousActivities.push({
-          type: 'multiple_failed_logins',
-          username,
-          count: userFailedAttempts[username],
-          lastAttempt: timestamp,
-          severity: 'high',
-          message: `Multiple failed login attempts (${userFailedAttempts[username]}) for user ${username}`
-        });
-      }
-    }
-    
-    // Check for logins from new locations
-    if ((action === 'user.login' || action === 'auth.login') && success) {
-      if (userLastLogin[username] && userLastLogin[username].ipAddress !== ipAddress) {
-        const lastLoginTime = new Date(userLastLogin[username].timestamp);
-        const hoursSinceLastLogin = (timestamp - lastLoginTime) / (1000 * 60 * 60);
-        
-        // If the login is from a different IP and within 24 hours of the last login
-        if (hoursSinceLastLogin < 24) {
-          suspiciousActivities.push({
-            type: 'location_change',
-            username,
-            oldIp: userLastLogin[username].ipAddress,
-            newIp: ipAddress,
-            timestamp,
-            hoursSinceLastLogin,
-            severity: 'medium',
-            message: `Login from new location for ${username} within ${hoursSinceLastLogin.toFixed(1)} hours`
-          });
-        }
-      }
-      
-      userLastLogin[username] = { timestamp, ipAddress };
-    }
-    
-    // Check for shared IP addresses (multiple users from same IP)
-    if (ipAddresses[ipAddress] && ipAddresses[ipAddress].length > 3 && 
-        ipAddresses[ipAddress].filter(u => u !== username).length >= 3) {
-      const uniqueUsers = new Set(ipAddresses[ipAddress]);
-      if (uniqueUsers.size >= 3) {
-        suspiciousActivities.push({
-          type: 'shared_ip',
-          ipAddress,
-          users: [...uniqueUsers],
-          timestamp,
-          severity: 'low',
-          message: `Multiple users (${uniqueUsers.size}) logging in from same IP address ${ipAddress}`
-        });
-        
-        // Prevent duplicate alerts for the same IP
-        ipAddresses[ipAddress] = [];
-      }
-    }
-  });
-  
-  // Remove duplicate alerts (same type for the same user)
-  const uniqueAlerts = {};
-  suspiciousActivities.forEach(activity => {
-    const key = `${activity.type}_${activity.username || activity.ipAddress}`;
-    if (!uniqueAlerts[key] || new Date(activity.timestamp) > new Date(uniqueAlerts[key].timestamp)) {
-      uniqueAlerts[key] = activity;
-    }
-  });
-  
-  return Object.values(uniqueAlerts);
-}
-
-/**
- * Get user activity logs with pagination, sorting, and filtering
- * 
- * @param {Object} params - Query parameters
- * @param {number} params.page - Page number (starts at 1)
- * @param {number} params.pageSize - Number of items per page
- * @param {string} params.sortBy - Field to sort by (default: timestamp)
- * @param {string} params.sortOrder - Sort order (asc or desc)
- * @param {Object} params.filters - Filters to apply (userId, action, etc.)
- * @returns {Promise<Object>} - Response with logs and pagination info
- */
-export async function getUserActivityLogs({ 
-  page = 1, 
-  pageSize = 20, 
-  sortBy = 'timestamp', 
-  sortOrder = 'desc', 
-  filters = {} 
-}) {
-  try {
-    const user = useAuthStore.getState().user;
-    
-    if (!user || !user.id) {
-      throw new Error('User not authenticated');
-    }
-    
-    // Prepare query params
+    // Build query parameters
     const queryParams = new URLSearchParams();
     
     // Pagination
@@ -543,29 +227,168 @@ export async function getUserActivityLogs({
     // Sorting
     queryParams.append('sort', `${sortBy}:${sortOrder}`);
     
-    // Apply filters
+    // Filters
     Object.entries(filters).forEach(([key, value]) => {
-      if (value !== undefined && value !== null) {
-        queryParams.append(`filters[${key}][$eq]`, value);
+      if (value) {
+        queryParams.append(`filters[${key}][$containsi]`, value);
       }
     });
+
+    const apiUrl = getApiUrl(`/api/user-activity-logs?${queryParams.toString()}`);
+    console.log(`Making API request to: ${apiUrl}`);
+
+    const response = await axios.get(
+      apiUrl,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    console.log('API response:', response);
+
+    // Handle both possible response formats
+    if (response.data && response.data.success) {
+      // New format with success flag
+      return {
+        success: true,
+        data: response.data.data || [],
+        total: response.data.total || response.data.meta?.pagination?.total || 0,
+        meta: response.data.meta || {}
+      };
+    } else if (response.data) {
+      // Standard Strapi format without success flag
+      return {
+        success: true,
+        data: response.data.data || [],
+        total: response.data.meta?.pagination?.total || 0,
+        meta: response.data.meta || {}
+      };
+    } else {
+      throw new Error('Invalid response format');
+    }
+  } catch (error) {
+    console.error('Failed to fetch activity logs:', error);
     
-    // Make API request to the dedicated user-activity-logs endpoint
-    console.log('[USER ACTIVITY] Fetching logs with params:', queryParams.toString());
-    const response = await apiClient.get(`/user-activity-logs?${queryParams.toString()}`);
+    // Log detailed error information
+    if (error.response) {
+      // Server responded with an error
+      console.error('Error response:', {
+        status: error.response.status,
+        statusText: error.response.statusText,
+        data: error.response.data
+      });
+    } else if (error.request) {
+      // Request was made but no response received
+      console.error('No response received:', error.request);
+    } else {
+      // Something else happened
+      console.error('Error details:', error.message);
+    }
     
-    // Get all logs from response
-    const allLogs = response.data.data || [];
-    console.log('[USER ACTIVITY] Fetched logs count:', allLogs.length);
-    
+    return { 
+      success: false, 
+      error: error.message || "Failed to fetch activity logs", 
+      data: [], 
+      total: 0 
+    };
+  }
+};
+
+/**
+ * Get analytics data for user activity
+ * 
+ * @returns {Promise} - A promise that resolves to analytics data
+ */
+export const getUserActivityAnalytics = async () => {
+  try {
+    const token = await getToken();
+    if (!token) return { success: false, error: 'Authentication required', data: null };
+
+    const response = await axios.get(
+      getApiUrl('/api/user-activity-logs/analytics'),
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
     return {
       success: true,
-      data: allLogs,
-      meta: response.data.meta,
-      total: response.data.meta?.pagination?.total || allLogs.length
+      data: response.data
     };
   } catch (error) {
-    console.error('[USER ACTIVITY] Error fetching user activity logs:', error);
-    throw error;
+    console.error('Failed to fetch activity analytics:', error);
+    
+    // Add more detailed debugging
+    if (error.response) {
+      console.error('Response status:', error.response.status);
+      console.error('Response data:', error.response.data);
+    }
+    
+    return {
+      success: false,
+      error: error.message || 'Failed to fetch activity analytics',
+      data: null
+    };
   }
-}
+};
+
+/**
+ * Log a user login activity
+ * 
+ * @param {Object} loginData - Data about the login
+ * @returns {Promise} - A promise that resolves to the created activity log
+ */
+export const logUserLogin = async (loginData) => {
+  return logActivity({
+    action: 'user.login',
+    details: loginData.details || {
+      userId: loginData.userId,
+      method: loginData.method || 'password',
+      success: loginData.success !== false,
+      timestamp: new Date().toISOString()
+    },
+    notes: loginData.success !== false 
+      ? `User ${loginData.username || 'unknown'} logged in successfully` 
+      : `Failed login attempt for ${loginData.username || 'unknown'}`
+  });
+};
+
+/**
+ * Log a password change attempt
+ * 
+ * @param {Object} passwordChangeData - Data about the password change
+ * @returns {Promise} - A promise that resolves to the created activity log
+ */
+export const logPasswordChange = async (passwordChangeData) => {
+  return logActivity({
+    action: 'user.password_change',
+    details: {
+      userId: passwordChangeData.userId,
+      targetUserId: passwordChangeData.targetUserId,
+      success: passwordChangeData.success !== false,
+      timestamp: new Date().toISOString()
+    },
+    notes: passwordChangeData.success !== false 
+      ? `Password changed for ${passwordChangeData.targetUsername || 'unknown'} by ${passwordChangeData.username || 'system'}` 
+      : `Failed password change attempt for ${passwordChangeData.targetUsername || 'unknown'} by ${passwordChangeData.username || 'system'}`
+  });
+};
+
+export default {
+  logActivity,
+  logView,
+  logCreate,
+  logUpdate,
+  logDelete,
+  logExport,
+  logCustomAction,
+  getRecentActivity,
+  getUserActivityLogs,
+  getUserActivityAnalytics,
+  logUserLogin,
+  logPasswordChange,
+};

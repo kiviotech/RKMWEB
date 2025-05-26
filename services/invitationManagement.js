@@ -10,19 +10,69 @@ import apiClient from './apiClient';
  * @param {string} criteria.endDate - End date for filtering (YYYY-MM-DD)
  * @returns {Promise<Array>} - List of eligible users
  */
-export const fetchEligibleUsers = async (criteria = {}) => {
+export const fetchEligibleUsers = async (criteria = {}, page = 1, pageSize = 10) => {
   try {
+    // Ensure page is a number
+    const requestedPage = parseInt(page, 10) || 1;
+    console.log(`fetchEligibleUsers called with page ${requestedPage}`);
+    
     // Make sure every criteria has a default value to show all users if not selected
     const params = {
-      hasDeeksha: criteria.hasDeeksha || false,
+      hasDeeksha: criteria.hasDeeksha === null ? undefined : criteria.hasDeeksha,
       minDonationAmount: criteria.minDonationAmount || 0,
       hasCapitalInvestment: criteria.hasCapitalInvestment || false,
       startDate: criteria.startDate || '',
-      endDate: criteria.endDate || ''
+      endDate: criteria.endDate || '',
+      page: requestedPage,
+      pageSize: parseInt(pageSize, 10) || 10
     };
 
+    // Remove undefined values
+    Object.keys(params).forEach(key => {
+      if (params[key] === undefined) {
+        delete params[key];
+      }
+    });
+
+    console.log('Fetching eligible users with params:', params);
     const response = await apiClient.get('/invitation/eligible-users', { params });
-    return response.data;
+    console.log('Raw API response:', response.data);
+
+    // Ensure we have the expected data structure
+    let result;
+    if (response.data?.data && response.data?.pagination) {
+      // The backend is returning the expected structure
+      result = {
+        data: response.data.data,
+        pagination: response.data.pagination
+      };
+    } else if (Array.isArray(response.data)) {
+      // The backend is returning just an array (old format)
+      result = {
+        data: response.data,
+        pagination: {
+          page: parseInt(page, 10),
+          pageSize: parseInt(pageSize, 10),
+          pageCount: Math.ceil(response.data.length / pageSize) || 1,
+          total: response.data.length
+        }
+      };
+    } else {
+      // Unexpected response format
+      console.error('[INVITATION] Unexpected response format:', response.data);
+      result = {
+        data: [],
+        pagination: {
+          page: 1,
+          pageSize,
+          pageCount: 1, 
+          total: 0
+        }
+      };
+    }
+
+    console.log('Processed response:', result);
+    return result;
   } catch (error) {
     console.error('[INVITATION] Error fetching eligible users:', error);
     throw error;

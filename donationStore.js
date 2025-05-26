@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { fetchReceiptDetails } from "./services/src/services/receiptDetailsService";
-import { fetchGuestUniqueNo } from "./services/src/services/guestDetailsService";
+import { fetchGuestUniqueNo, fetchNextUniqueNo } from "./services/src/services/guestDetailsService";
 
 const initialDonorDetails = {
   guestId: "",
@@ -290,11 +290,15 @@ const useDonationStore = create((set) => ({
   // Add this new action
   fetchLatestReceiptNumbers: async () => {
     try {
-      const [receiptDetails, guestDetails] = await Promise.all([
+      // Get receipt data and unique number in parallel
+      const [receiptDetailsResult, nextUniqueNoResult] = await Promise.all([
         fetchReceiptDetails(),
-        fetchGuestUniqueNo(),
+        fetchNextUniqueNo().catch(() => null)
       ]);
-
+      
+      const receiptDetails = receiptDetailsResult;
+      
+      // Process receipt numbers
       const mtNumbers = receiptDetails.data
         .filter((item) => item.attributes.Receipt_number?.startsWith("MT"))
         .map((item) => parseInt(item.attributes.Receipt_number.split(" ")[1]));
@@ -302,10 +306,6 @@ const useDonationStore = create((set) => ({
       const msnNumbers = receiptDetails.data
         .filter((item) => item.attributes.Receipt_number?.startsWith("MSN"))
         .map((item) => parseInt(item.attributes.Receipt_number.split(" ")[1]));
-
-      const uniqueNumbers = guestDetails.data
-        .filter((item) => item.attributes.unique_no)
-        .map((item) => parseInt(item.attributes.unique_no.substring(1)));
 
       // Get last MT and MSN numbers
       const lastMT = mtNumbers.length > 0 ? Math.max(...mtNumbers) : 0;
@@ -320,9 +320,24 @@ const useDonationStore = create((set) => ({
       console.log("Next MT Number:", `MT ${nextMT}`);
       console.log("Last MSN Number:", `MSN ${lastMSN}`);
       console.log("Next MSN Number:", `MSN ${nextMSN}`);
-
-      const highestUniqueNo =
-        uniqueNumbers.length > 0 ? Math.max(...uniqueNumbers) + 1 : 1;
+      
+      // Get next unique number - using the optimized endpoint or fallback
+      let highestUniqueNo;
+      
+      if (nextUniqueNoResult) {
+        // Use the optimized endpoint result
+        highestUniqueNo = parseInt(nextUniqueNoResult.nextUniqueNo.substring(1));
+        console.log("Next Unique Number from API:", nextUniqueNoResult.nextUniqueNo);
+      } else {
+        // Fallback to the old method
+        const guestDetails = await fetchGuestUniqueNo();
+        const uniqueNumbers = guestDetails.data
+          .filter((item) => item.attributes.unique_no)
+          .map((item) => parseInt(item.attributes.unique_no.substring(1)));
+          
+        highestUniqueNo = uniqueNumbers.length > 0 ? Math.max(...uniqueNumbers) + 1 : 1;
+        console.log("Next Unique Number (fallback):", `C${highestUniqueNo}`);
+      }
 
       set((state) => {
         const newState = {

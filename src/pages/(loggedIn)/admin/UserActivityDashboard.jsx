@@ -31,7 +31,7 @@ const UserActivityDashboard = () => {
       const response = await getUserActivityAnalytics();
       
       if (response.success) {
-        setAnalytics(response.data);
+        setAnalytics(response);
       } else {
         throw new Error(response.error || "Failed to fetch analytics data");
       }
@@ -42,37 +42,23 @@ const UserActivityDashboard = () => {
     }
   };
 
-  // Helper to render daily activity chart
+  // Helper to render daily activity chart from timeSeriesData
   const renderDailyActivityChart = () => {
-    if (!analytics || !analytics.dailyActivity || analytics.dailyActivity.length === 0) {
+    if (!analytics || !analytics.timeSeriesData || analytics.timeSeriesData.length === 0) {
       return <div className="chart-placeholder">No activity data available</div>;
     }
 
-    const maxValue = Math.max(
-      ...analytics.dailyActivity.map(day => 
-        Math.max(day.logins, day.failedLogins, day.otherActions)
-      )
-    );
+    const maxValue = Math.max(...analytics.timeSeriesData.map(day => day.count));
 
     return (
       <div className="daily-activity-chart">
-        {analytics.dailyActivity.map((day, index) => (
+        {analytics.timeSeriesData.map((day) => (
           <div key={day.date} className="chart-day">
             <div className="chart-bars">
               <div 
-                className="chart-bar success-bar" 
-                style={{ height: `${(day.logins / (maxValue || 1)) * 100}%` }}
-                title={`${day.logins} successful logins`}
-              ></div>
-              <div 
-                className="chart-bar failed-bar" 
-                style={{ height: `${(day.failedLogins / (maxValue || 1)) * 100}%` }}
-                title={`${day.failedLogins} failed logins`}
-              ></div>
-              <div 
                 className="chart-bar other-bar" 
-                style={{ height: `${(day.otherActions / (maxValue || 1)) * 100}%` }}
-                title={`${day.otherActions} other actions`}
+                style={{ height: `${(day.count / (maxValue || 1)) * 100}%` }}
+                title={`${day.count} actions on ${day.date}`}
               ></div>
             </div>
             <div className="chart-label">{day.date.split('-')[2]}</div>
@@ -82,25 +68,26 @@ const UserActivityDashboard = () => {
     );
   };
 
-  // Helper to render device type pie chart
-  const renderDeviceTypeChart = () => {
-    if (!analytics || !analytics.deviceTypes || analytics.deviceTypes.length === 0) {
-      return <div className="chart-placeholder">No device data available</div>;
+  // Helper to render action types chart
+  const renderActionTypeChart = () => {
+    if (!analytics || !analytics.activityByAction || analytics.activityByAction.length === 0) {
+      return <div className="chart-placeholder">No action data available</div>;
     }
 
-    const totalDevices = analytics.deviceTypes.reduce((sum, device) => sum + device.count, 0);
+    const totalActions = analytics.totalActivityCount || 
+      analytics.activityByAction.reduce((sum, action) => sum + action.count, 0);
     
     return (
       <div className="device-type-chart">
         <div className="pie-chart-container">
-          {analytics.deviceTypes.map((device, index) => {
-            const percentage = (device.count / totalDevices) * 100;
+          {analytics.activityByAction.map((action, index) => {
+            const percentage = (action.count / totalActions) * 100;
             const colors = ['#4CAF50', '#2196F3', '#FF9800', '#F44336', '#9C27B0', '#607D8B'];
             const color = colors[index % colors.length];
             
             return (
               <div 
-                key={device.name}
+                key={action.action}
                 className="pie-segment"
                 style={{
                   backgroundColor: color,
@@ -110,21 +97,21 @@ const UserActivityDashboard = () => {
                   width: `${Math.max(10, percentage)}%`,
                   height: `${Math.max(10, percentage)}%`,
                 }}
-                title={`${device.name}: ${device.count} (${percentage.toFixed(1)}%)`}
+                title={`${action.action}: ${action.count} (${percentage.toFixed(1)}%)`}
               ></div>
             );
           })}
         </div>
         <div className="pie-legend">
-          {analytics.deviceTypes.map((device, index) => {
+          {analytics.activityByAction.map((action, index) => {
             const colors = ['#4CAF50', '#2196F3', '#FF9800', '#F44336', '#9C27B0', '#607D8B'];
             const color = colors[index % colors.length];
-            const percentage = (device.count / totalDevices) * 100;
+            const percentage = (action.count / totalActions) * 100;
             
             return (
-              <div key={device.name} className="legend-item">
+              <div key={action.action} className="legend-item">
                 <div className="color-box" style={{ backgroundColor: color }}></div>
-                <div className="legend-label">{device.name}: {percentage.toFixed(1)}%</div>
+                <div className="legend-label">{action.action}: {percentage.toFixed(1)}%</div>
               </div>
             );
           })}
@@ -135,15 +122,15 @@ const UserActivityDashboard = () => {
 
   // Helper to render top users
   const renderTopUsers = () => {
-    if (!analytics || !analytics.topUsers || analytics.topUsers.length === 0) {
+    if (!analytics || !analytics.activityByUser || analytics.activityByUser.length === 0) {
       return <div className="chart-placeholder">No user data available</div>;
     }
 
-    const maxCount = Math.max(...analytics.topUsers.map(user => user.count));
+    const maxCount = Math.max(...analytics.activityByUser.map(user => user.count));
     
     return (
       <div className="top-users-chart">
-        {analytics.topUsers.map(user => (
+        {analytics.activityByUser.map(user => (
           <div key={user.username} className="user-bar-container">
             <div className="user-label">{user.username}</div>
             <div className="user-bar-wrapper">
@@ -160,41 +147,28 @@ const UserActivityDashboard = () => {
     );
   };
 
-  // Helper to render suspicious activities
-  const renderSuspiciousActivities = () => {
-    if (!analytics || !analytics.suspiciousActivities || analytics.suspiciousActivities.length === 0) {
-      return <div className="suspicious-placeholder">No suspicious activities detected</div>;
+  // Helper to render activity period
+  const renderActivityPeriod = () => {
+    if (!analytics || !analytics.period) {
+      return <div className="chart-placeholder">No period data available</div>;
     }
+
+    const startDate = new Date(analytics.period.start).toLocaleDateString();
+    const endDate = new Date(analytics.period.end).toLocaleDateString();
 
     return (
       <div className="suspicious-activities-list">
-        {analytics.suspiciousActivities.map((activity, index) => {
-          const severityClass = 
-            activity.severity === 'high' ? 'severity-high' :
-            activity.severity === 'medium' ? 'severity-medium' : 'severity-low';
-          
-          return (
-            <div key={index} className={`suspicious-activity-item ${severityClass}`}>
-              <div className="activity-icon">
-                {activity.severity === 'high' ? '⚠️' : 
-                 activity.severity === 'medium' ? '⚠' : 'ℹ️'}
-              </div>
-              <div className="activity-content">
-                <div className="activity-message">{activity.message}</div>
-                <div className="activity-details">
-                  {activity.timestamp && (
-                    <span className="activity-timestamp">
-                      {new Date(activity.timestamp).toLocaleString()}
-                    </span>
-                  )}
-                  <span className="activity-severity">
-                    Severity: {activity.severity.toUpperCase()}
-                  </span>
-                </div>
-              </div>
+        <div className="suspicious-activity-item severity-low">
+          <div className="activity-icon">ℹ️</div>
+          <div className="activity-content">
+            <div className="activity-message">Data Period: {startDate} to {endDate}</div>
+            <div className="activity-details">
+              <span className="activity-timestamp">
+                {analytics.uniqueUsers} unique users during this period
+              </span>
             </div>
-          );
-        })}
+          </div>
+        </div>
       </div>
     );
   };
@@ -240,16 +214,18 @@ const UserActivityDashboard = () => {
               {/* Summary metrics */}
               <div className="summary-metrics">
                 <div className="metric-card">
-                  <div className="metric-value">{analytics.totalLogins || 0}</div>
-                  <div className="metric-label">Total Logins</div>
+                  <div className="metric-value">{analytics.totalActivityCount || 0}</div>
+                  <div className="metric-label">Total Activities</div>
                 </div>
                 <div className="metric-card warning">
-                  <div className="metric-value">{analytics.totalFailedLogins || 0}</div>
-                  <div className="metric-label">Failed Logins</div>
+                  <div className="metric-value">
+                    {analytics.activityByAction?.find(a => a.action === "unknown.error")?.count || 0}
+                  </div>
+                  <div className="metric-label">Errors</div>
                 </div>
                 <div className="metric-card info">
-                  <div className="metric-value">{analytics.totalPasswordChanges || 0}</div>
-                  <div className="metric-label">Password Changes</div>
+                  <div className="metric-value">{analytics.uniqueUsers || 0}</div>
+                  <div className="metric-label">Unique Users</div>
                 </div>
               </div>
               
@@ -260,23 +236,15 @@ const UserActivityDashboard = () => {
                   {renderDailyActivityChart()}
                   <div className="chart-legend">
                     <div className="legend-item">
-                      <div className="color-box success-bar"></div>
-                      <div className="legend-label">Successful Logins</div>
-                    </div>
-                    <div className="legend-item">
-                      <div className="color-box failed-bar"></div>
-                      <div className="legend-label">Failed Logins</div>
-                    </div>
-                    <div className="legend-item">
                       <div className="color-box other-bar"></div>
-                      <div className="legend-label">Other Activities</div>
+                      <div className="legend-label">All Activities</div>
                     </div>
                   </div>
                 </div>
                 
                 <div className="chart-card">
-                  <h3>Device Types</h3>
-                  {renderDeviceTypeChart()}
+                  <h3>Activity Types</h3>
+                  {renderActionTypeChart()}
                 </div>
               </div>
               
@@ -288,8 +256,8 @@ const UserActivityDashboard = () => {
                 </div>
                 
                 <div className="chart-card suspicious">
-                  <h3>Suspicious Activities</h3>
-                  {renderSuspiciousActivities()}
+                  <h3>Activity Period</h3>
+                  {renderActivityPeriod()}
                 </div>
               </div>
             </div>

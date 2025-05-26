@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { fetchGuestUniqueNo } from "./services/src/services/guestDetailsService";
+import { fetchGuestUniqueNo, fetchNextUniqueNo } from "./services/src/services/guestDetailsService";
 
 const initialFormData = {
   title: "",
@@ -82,20 +82,37 @@ const useDormitoryStore = create((set) => ({
     })),
   fetchLatestUniqueNumber: async () => {
     try {
-      const guestDetails = await fetchGuestUniqueNo();
-
-      const uniqueNumbers = guestDetails.data
-        .filter((item) => item.attributes.unique_no)
-        .map((item) => parseInt(item.attributes.unique_no.substring(1)));
-
-      const highestUniqueNo =
-        uniqueNumbers.length > 0 ? Math.max(...uniqueNumbers) + 1 : 1;
-
+      // Use the new optimized endpoint
+      const response = await fetchNextUniqueNo();
+      const nextUniqueNo = response.nextUniqueNo;
+      
+      // Extract the number part from the format "C123"
+      const highestUniqueNo = parseInt(nextUniqueNo.substring(1));
+      
       set((state) => ({
         nextUniqueNumber: highestUniqueNo,
-        uniqueNo: `C${highestUniqueNo}`,
+        uniqueNo: nextUniqueNo,
       }));
     } catch (error) {
+      // Fall back to the old method if the new endpoint fails
+      try {
+        const guestDetails = await fetchGuestUniqueNo();
+
+        const uniqueNumbers = guestDetails.data
+          .filter((item) => item.attributes.unique_no)
+          .map((item) => parseInt(item.attributes.unique_no.substring(1)));
+
+        const highestUniqueNo =
+          uniqueNumbers.length > 0 ? Math.max(...uniqueNumbers) + 1 : 1;
+
+        set((state) => ({
+          nextUniqueNumber: highestUniqueNo,
+          uniqueNo: `C${highestUniqueNo}`,
+        }));
+      } catch (fallbackError) {
+        console.error("Failed to fetch unique number (fallback method):", fallbackError);
+      }
+      
       console.error("Failed to fetch unique number:", error);
     }
   },

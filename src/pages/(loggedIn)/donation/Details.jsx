@@ -414,6 +414,7 @@ const Details = ({ activeTab, onTransactionTypeChange }) => {
           <input
             className="donation-form__input"
             type="text"
+           
             placeholder=""
             value={currentDonationDetails.inMemoryOf}
             onChange={handleInMemoryOfChange}

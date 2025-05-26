@@ -83,7 +83,8 @@ const UserManagement = () => {
           setUsers(usersData);
         }
         
-        if (activeTab === 'roles' || activeTab === 'all') {
+        // Always load roles when in users tab or when a user is selected for editing
+        if (activeTab === 'roles' || activeTab === 'users' || activeTab === 'all' || selectedUser) {
           console.log('[USER MGMT DEBUG] Fetching roles data');
           const rolesData = await fetchRoles();
           setRoles(rolesData.roles || []);
@@ -103,7 +104,7 @@ const UserManagement = () => {
     };
 
     loadData();
-  }, [activeTab, isAuthorized, authCheckComplete]);
+  }, [activeTab, isAuthorized, authCheckComplete, selectedUser]);
 
   // Use useCallback to prevent recreating function references on each render
   const handleUserCreate = useCallback(async (userData) => {

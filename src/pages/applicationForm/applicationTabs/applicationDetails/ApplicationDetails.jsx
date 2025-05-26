@@ -7,6 +7,7 @@ import ApplicationFormHeader from "../../ApplicationFormHeader";
 import { fetchGuestDetails } from "../../../../../services/src/services/guestDetailsService";
 import { checkGuestByAadhaar, fetchGuestDetailsById, fetchLastBookingByGuestId } from "./guestDetailsApi";
 import OtpVerificationModal from "../../../../components/OtpVerificationModal";
+import { fetchPincodeDetails } from "../../../../../services/src/services/miscService";
 
 const ApplicationDetails = ({ goToNextStep, tabName }) => {
   // ...existing state
@@ -585,10 +586,8 @@ const ApplicationDetails = ({ goToNextStep, tabName }) => {
         setAddressData("postOffice", "");
       } else {
         try {
-          const response = await fetch(
-            `https://api.postalpincode.in/pincode/${sanitizedValue}`
-          );
-          const data = await response.json();
+          // Use our proxy API to avoid SSL certificate errors
+          const data = await fetchPincodeDetails(sanitizedValue);
 
           if (data[0].Status === "Success" && data[0].PostOffice && data[0].PostOffice.length > 0) {
             const postOffice = data[0].PostOffice[0];

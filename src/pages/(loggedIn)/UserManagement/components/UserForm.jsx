@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 const UserForm = ({ 
   user, 
@@ -19,6 +19,17 @@ const UserForm = ({
     stopCommunication: user.stopCommunication || false,
     communicationStopReason: user.communicationStopReason || ''
   });
+  
+  // Update formData.role when user or roles change
+  useEffect(() => {
+    if (!isNewUser && user.role?.id && formData.role !== user.role.id) {
+      console.log('[USER FORM DEBUG] Updating role selection from user data:', user.role.id);
+      setFormData(prev => ({
+        ...prev,
+        role: user.role.id
+      }));
+    }
+  }, [user, roles, isNewUser, formData.role]);
   const [errors, setErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
   const [showPasswordReset, setShowPasswordReset] = useState(false);
